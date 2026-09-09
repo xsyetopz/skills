@@ -1,0 +1,4 @@
+interface:
+  display_name: "Editor Extension Design"
+  short_description: "Choose editor targets and design extension ports"
+  default_prompt: "Use $editor-extension-design to design the requested editor extension architecture or port."

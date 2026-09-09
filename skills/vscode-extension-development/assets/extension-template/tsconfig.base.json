@@ -1,34 +1,29 @@
 {
-  "compilerOptions": {
-    "allowArbitraryExtensions": true,
-    "allowImportingTsExtensions": true,
-    "allowUmdGlobalAccess": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "composite": true,
-    "erasableSyntaxOnly": true,
-    "exactOptionalPropertyTypes": true,
-    "lib": [
-      "ES2022"
-    ],
-    "module": "commonjs",
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "noUncheckedSideEffectImports": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2022",
-    "types": [
-      "bun",
-      "node"
-    ]
-  }
+	"compilerOptions": {
+		"allowArbitraryExtensions": true,
+		"allowImportingTsExtensions": true,
+		"allowUmdGlobalAccess": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"composite": true,
+		"erasableSyntaxOnly": true,
+		"exactOptionalPropertyTypes": true,
+		"lib": ["ES2022"],
+		"module": "preserve",
+		"moduleDetection": "force",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUncheckedSideEffectImports": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es2022",
+		"types": ["node"]
+	}
 }

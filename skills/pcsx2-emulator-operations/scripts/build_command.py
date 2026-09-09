@@ -19,7 +19,11 @@ def parser() -> argparse.ArgumentParser:
     target.add_argument("--test-config", action="store_true")
     target.add_argument("--setup-wizard", action="store_true")
 
-    p.add_argument("--disc", type=Path, help="Disc override, commonly with --elf")
+    p.add_argument(
+        "--disc",
+        type=Path,
+        help="Host DVD drive path with --elf; use --boot for an image",
+    )
     p.add_argument("--game-args", help="Single argument string passed to the game")
     p.add_argument("--state", type=int, help="Save-state slot index")
     p.add_argument("--batch", action="store_true")

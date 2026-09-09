@@ -1,4 +1,0 @@
-interface:
-  display_name: "Apple Design HIG"
-  short_description: "Apply current Apple HIG with exact source tracing"
-  default_prompt: "Use $apple-design-hig to resolve this Apple-platform design decision from current HIG guidance, platform context, and accessibility evidence."

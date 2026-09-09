@@ -1,21 +1,11 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
-    "types": [
-      "bun",
-      "node",
-      "vscode"
-    ]
-  },
-  "exclude": [
-    "node_modules",
-    ".vscode-test",
-    "dist"
-  ],
-  "include": [
-    "src/**/*.ts"
-  ]
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "./tsconfig.tsbuildinfo",
+		"types": ["node", "vscode"]
+	},
+	"exclude": ["node_modules", ".vscode-test", "dist"],
+	"include": ["src/**/*.ts"]
 }

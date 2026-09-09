@@ -1,4 +1,0 @@
-interface:
-  display_name: "Rust Performance Optimization"
-  short_description: "Measure and optimize Rust hot paths safely"
-  default_prompt: "Use $rust-performance-optimization to set the performance objective, measure the Rust 1.98+ Edition 2024 workload, apply behavior-preserving changes, and report safety, portability, and acceptance evidence."

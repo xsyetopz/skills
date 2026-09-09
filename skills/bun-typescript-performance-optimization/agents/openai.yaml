@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bun and TypeScript Performance Optimization"
-  short_description: "Measure and optimize Bun TypeScript hot paths"
-  default_prompt: "Use $bun-typescript-performance-optimization to set the performance objective, measure the Bun 1.4+ / ES2025 / TypeScript 7+ workload, apply behavior-preserving changes, and report acceptance evidence."

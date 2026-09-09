@@ -110,8 +110,8 @@ def from_changelog(path: Path) -> list[str]:
     """Extract version headers from a Keep a Changelog file."""
     try:
         text = path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        print(f"ERROR: {path} not found.", file=sys.stderr)
+    except (OSError, UnicodeError) as exc:
+        print(f"ERROR: cannot read {path}: {exc}", file=sys.stderr)
         sys.exit(1)
 
     versions: list[str] = []
@@ -189,7 +189,7 @@ def main() -> int:
             print(f"Spec: {SEMVER_SPEC}")
             return 1
 
-    return 0
+    return int(any(not result["valid"] for result in results))
 
 
 if __name__ == "__main__":

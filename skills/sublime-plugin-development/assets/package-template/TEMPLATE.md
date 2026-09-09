@@ -1,11 +1,14 @@
-# Sublime Text package starter
+# Sublime Text starter
 
-Replace `Example`, `example`, command IDs, settings, and descriptions consistently. Keep `.python-version` at `3.8` only when that is the selected stable API environment. Remove keybindings or resources that are not part of the requested UX.
+Replace `Example`, `example`, command IDs, settings, and descriptions. Select
+`.python-version` for the supported host range. Remove unused bindings and
+resources.
 
-Pure logic can be tested with:
+From the copied project root, check pure logic with a compatible Python
+interpreter:
 
 ```sh
 python3 -m unittest discover -s tests
 ```
 
-The Sublime integration still requires a clean-profile package reload/install smoke test.
+Check changed command and reload behavior in an isolated Sublime profile.

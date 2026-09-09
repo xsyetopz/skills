@@ -1,4 +1,4 @@
 interface:
   display_name: "Eclipse Plugin Development"
-  short_description: "Build Eclipse, OSGi, RCP, and p2 plug-ins"
-  default_prompt: "Use $eclipse-plugin-development to implement or audit this Eclipse plug-in against its target platform, OSGi metadata, API baseline, PDE/Tycho tests, p2 packaging, and release boundary."
+  short_description: "Build Eclipse plug-ins against target platforms"
+  default_prompt: "Use $eclipse-plugin-development to implement this Eclipse plug-in change."

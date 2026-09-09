@@ -1,8 +1,10 @@
-# Neovim Lua plugin starter
+# Neovim Lua starter
 
-Replace `example` and public names consistently. The starter is package-manager neutral and intentionally avoids default keymaps. Add dependencies only when the plugin cannot implement the feature through core APIs.
+Replace `example` and public names consistently. Register optional keymaps
+through `<Plug>` or explicit configuration. Declare dependencies required by the
+feature.
 
-Suggested smoke command after copying:
+From the copied project root, run the starter smoke check:
 
 ```sh
 nvim --clean --headless -u tests/minimal_init.lua -l tests/smoke.lua

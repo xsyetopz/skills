@@ -1,4 +1,4 @@
 interface:
-  display_name: "Bun 1.3.14 to 1.4+ Migration"
-  short_description: "Migrate from Bun 1.3.14 to Bun 1.4+ and initialize Biome 2.5.10"
-  default_prompt: "Use $bun-migration to migrate active tooling from Bun 1.3.14 to Bun 1.4+ or initialize Biome 2.5.10, preserving existing Biome configuration except for version updates."
+  display_name: "Bun Migration"
+  short_description: "Migrate the requested Bun tooling surfaces"
+  default_prompt: "Use $bun-migration to perform the requested Bun migration in this project."

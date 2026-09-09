@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Operations"
+  short_description: "Change and recover local Git state"
+  default_prompt: "Use $git-operations to complete this local Git operation and verify the result."

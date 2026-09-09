@@ -1,4 +1,4 @@
 interface:
   display_name: "Legacy Cleanup"
-  short_description: "Remove obsolete compatibility surfaces from evidence"
-  default_prompt: "Use $legacy-cleanup to remove confirmed obsolete aliases, shims, and compatibility paths after tracing consumers, while preserving active contracts and historical evidence."
+  short_description: "Remove obsolete surfaces after tracing consumers"
+  default_prompt: "Use $legacy-cleanup to remove the confirmed obsolete surfaces in this repository."

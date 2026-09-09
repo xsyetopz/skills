@@ -319,7 +319,7 @@ def main() -> int:
         if errors:
             return 1
 
-    return 0
+    return int(any(f["severity"] == "error" for f in result["findings"]))
 
 
 if __name__ == "__main__":

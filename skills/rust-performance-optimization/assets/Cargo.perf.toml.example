@@ -1,8 +1,0 @@
-# Merge deliberately; do not copy blindly.
-[profile.release]
-opt-level = 3
-lto = "thin"
-codegen-units = 1
-
-[profile.bench]
-debug = 1

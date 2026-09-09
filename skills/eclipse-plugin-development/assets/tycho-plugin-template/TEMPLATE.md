@@ -1,9 +1,9 @@
-# Eclipse Tycho plug-in starter
+# Eclipse Tycho starter
 
-This is an original minimal reactor showing a UI bundle, test bundle, feature, and p2 repository.
-
-1. Replace every `__PLACEHOLDER__` and move Java packages to matching directories.
-2. Select a released Tycho version and a reproducible Eclipse p2 repository/target definition.
-3. Add only required bundles/imports/extensions.
-4. Remove feature/repository modules for a bundle-only task.
-5. Run `mvn clean verify`, API baseline checks, and clean p2 install tests.
+1. Replace `__PLACEHOLDER__` values and align Java packages with their
+   directories.
+2. Select compatible Java, Maven, Tycho, and a pinned Eclipse target.
+3. Declare required bundles, imports, and extensions.
+4. Remove feature/repository modules for a bundle-only package.
+5. Run `mvn clean verify`. Check API baselines for exported API changes and p2
+   resolution for distribution changes.

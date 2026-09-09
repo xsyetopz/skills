@@ -1,4 +1,4 @@
 interface:
   display_name: "JetBrains Plugin Development"
-  short_description: "Build and release IntelliJ Platform plugins"
-  default_prompt: "Use $jetbrains-plugin-development to implement or audit this IntelliJ Platform plugin against its declared IDE matrix, supported APIs, lifecycle rules, verifier checks, and release contract."
+  short_description: "Build plugins for declared JetBrains IDEs"
+  default_prompt: "Use $jetbrains-plugin-development to implement this IntelliJ Platform plugin change."

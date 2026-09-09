@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"publisher": "__PUBLISHER__",
 	"license": "__LICENSE__",
-	"packageManager": "bun@1.4.0",
+	"packageManager": "bun@__BUN_VERSION__",
 	"engines": {
 		"vscode": "__VSCODE_ENGINE__"
 	},
@@ -40,12 +40,11 @@
 		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.10",
-		"@types/bun": "1.4.0",
+		"@biomejs/biome": "__BIOME_VERSION__",
 		"@types/node": "__TYPES_NODE_VERSION__",
 		"@types/vscode": "__TYPES_VSCODE_VERSION__",
-		"@vscode/vsce": "3.9.2",
-		"typescript": "7.0.2"
+		"@vscode/vsce": "__VSCE_VERSION__",
+		"typescript": "__TYPESCRIPT_VERSION__"
 	},
 	"trustedDependencies": [
 		"@biomejs/biome"

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Git Workflows"
-  short_description: "Operate Git and enforce fallback commit conventions"
-  default_prompt: "Use $git-workflows for this local Git or team integration task; follow existing commit guidance, make reviewable and revertable commit slices with explicit staging, or install the Conventional Commits fallback hook when guidance is absent and workflow mutation is authorized, then report the recovery and check results."

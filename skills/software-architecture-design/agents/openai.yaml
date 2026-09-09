@@ -1,4 +1,4 @@
 interface:
   display_name: "Software Architecture Design"
-  short_description: "Design and enforce module ownership and boundaries"
-  default_prompt: "Use $software-architecture-design to decide or enforce this topology from repository evidence, preserve contracts, and verify the result with repository-owned schemas and generated-output paths."
+  short_description: "Design ownership and dependency boundaries"
+  default_prompt: "Use $software-architecture-design to resolve this architecture decision from repository evidence."

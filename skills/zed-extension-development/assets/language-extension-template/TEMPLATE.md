@@ -1,3 +1,7 @@
-# Zed declarative language starter
+# Zed language starter
 
-Replace placeholders, pin a real Tree-sitter repository/revision, and align every query with that grammar. Add only query files the language actually supports. Validate through a Dev Extension and current registry tooling.
+Replace placeholders. Pin the Tree-sitter repository and revision. Align query
+nodes with that grammar and remove unsupported query files.
+
+Check representative language files through a Dev Extension. Run registry
+validation when preparing a registry submission.

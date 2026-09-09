@@ -1,4 +1,0 @@
-interface:
-  display_name: "Editor Extension Router"
-  short_description: "Choose and coordinate editor extension platforms"
-  default_prompt: "Use $editor-extension-router to select the right editor platform or design a multi-editor extension architecture, then continue each implementation slice directly or with an already available platform workflow."

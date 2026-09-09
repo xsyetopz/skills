@@ -46,7 +46,7 @@ class BuildCommandTests(unittest.TestCase):
             "--elf",
             "test.elf",
             "--disc",
-            "disc.iso",
+            "/dev/sr0",
             "--game-args",
             "level=2 mode=test",
             "--debugger",
@@ -54,7 +54,7 @@ class BuildCommandTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
             result.stdout.strip(),
-            "pcsx2-qt -elf test.elf -gameargs 'level=2 mode=test' -disc disc.iso -debugger",
+            "pcsx2-qt -elf test.elf -gameargs 'level=2 mode=test' -disc /dev/sr0 -debugger",
         )
 
     def test_test_config(self) -> None:

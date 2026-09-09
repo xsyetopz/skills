@@ -1,4 +1,4 @@
 interface:
   display_name: "AGENTS.md Creator"
-  short_description: "Create and audit scoped AGENTS.md guidance"
-  default_prompt: "Use $agents-md-creator to create or audit AGENTS.md files from repository evidence, with correct scope, precedence, commands, boundaries, and validation."
+  short_description: "Derive scoped repository instructions"
+  default_prompt: "Use $agents-md-creator to write scoped AGENTS.md guidance from this repository."

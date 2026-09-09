@@ -1,4 +1,4 @@
 interface:
   display_name: "VS Code Extension Development"
-  short_description: "Build secure desktop, remote, and web extensions"
-  default_prompt: "Use $vscode-extension-development to implement or audit this VS Code extension against its engine floor, extension-host matrix, trust model, tests, VSIX contents, and publication boundary."
+  short_description: "Build VS Code extensions for their target hosts"
+  default_prompt: "Use $vscode-extension-development to implement this VS Code extension change."

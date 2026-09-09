@@ -1,67 +1,107 @@
-# AGENTS.md format and evidence guide
+# Discovery, precedence and evidence-backed instructions
 
-Read this reference before creating or materially revising an `AGENTS.md` file.
+Research: 2026-09-09. AGENTS.md is an unversioned Markdown convention; Codex
+discovery below follows the current official guide. Refresh only when targeting
+another consumer/version or when its discovery configuration differs.
 
-## Portable format
+## Format and consumer behavior
 
-- The portable filename is `AGENTS.md` and the content is ordinary Markdown.
-- The format defines no mandatory frontmatter, headings, or field schema.
-- A root file should contain repository-wide guidance. Nested files should contain only guidance for their directory subtree; when instructions conflict, the closest applicable file takes precedence.
-- The user's explicit request and higher-priority platform instructions still outrank repository guidance.
+AGENTS.md has no required YAML schema or headings. It supplies repository
+context such as commands, boundaries and consequential conventions. Nested
+guidance can specialize a subtree, but actual discovery is implemented by the
+consuming agent. GitHub `.github/agents/*.agent.md` files describe custom
+personas and are not a substitute. [AGENTS.md format](https://agents.md/).
 
-Do not confuse the portable format with GitHub custom-agent persona files. GitHub's `.github/agents/*.agent.md` format uses frontmatter and persona-specific configuration; copy none of that syntax into a portable `AGENTS.md` unless a separate tool contract explicitly requires it.
+Codex builds its initial chain once per run/session. At global scope it uses the
+first nonempty `AGENTS.override.md` or `AGENTS.md` in Codex home. From project
+root to working directory it chooses at most one file per directory: override,
+standard name, then configured fallbacks. Deeper guidance appears later. Without
+a project root it checks the current directory. Empty files are skipped; the
+default combined limit is 32 KiB (`project_doc_max_bytes`). Fallback names are
+configured by `project_doc_fallback_filenames`. Do not assume a sibling
+subtree's instructions enter the initial chain. [Codex discovery][ref-1].
 
-## Codex-specific discovery
+Record the intended launch directory and map its chain before deciding where
+guidance belongs. For `repo/services/payments`, root guidance and intermediate
+instructions can apply, while `services/search/AGENTS.md` is outside that chain.
+An override in payments replaces the standard file at that directory, not the
+whole ancestor chain. Repository guidance remains subordinate to applicable
+higher-priority instructions and explicit user requirements.
 
-For Codex, distinguish portable guidance from Codex configuration:
+## Derive rules from evidence
 
-- Codex reads global guidance from `CODEX_HOME`, preferring `AGENTS.override.md` over `AGENTS.md` at that level.
-- In a project, Codex walks from the project root to the current working directory and includes at most one applicable instruction file per directory. It checks `AGENTS.override.md` before `AGENTS.md`, then configured fallback names.
-- Deeper files appear later in the instruction chain and override conflicting parent guidance.
-- Codex has a configurable combined-byte limit, so splitting by meaningful subtree scope can preserve relevant guidance.
+For each candidate instruction, identify:
 
-These are Codex implementation details, not requirements of the portable AGENTS.md format. Verify current documentation before relying on them for another product or a changed Codex configuration.
+- **Build/test command** Evidence to inspect: Manifest script, working
+  directory, CI invocation, required environment Common mistake: Publishing a
+  remembered command that is not defined here
 
-## Evidence-first content
+- **Ownership boundary** Evidence to inspect: Exports, callers, generated
+  inputs, representative code Common mistake: Promoting one package's pattern
+  into a root rule
 
-Derive instructions from current repository evidence instead of a generic template:
+- **Required gate** Evidence to inspect: CI/job policy and existing instruction
+  Common mistake: Turning an optional local tool into a mandatory install
 
-| Guidance | Preferred evidence |
-| --- | --- |
-| Setup and package manager | lockfiles, manifests, tool-version files, bootstrap scripts |
-| Fast validation commands | package scripts, task runners, test configuration, CI jobs |
-| Project map and ownership | manifests, workspace configuration, CODEOWNERS, module boundaries |
-| Code conventions | formatter/linter config and representative maintained files |
-| Test expectations | nearby tests, test configuration, CI gates |
-| Generated or vendor boundaries | generator headers, build scripts, ignore files, repository docs |
-| External-action permissions | explicit user or organization policy, never inferred from available credentials |
+- **Prohibited side effect** Evidence to inspect: Existing policy or explicit
+  user constraint Common mistake: Inventing approval rules from hypothetical
+  risk
 
-Prefer exact, file-scoped commands that provide quick feedback. Include full-suite commands only with their prerequisites and expected use. A command copied from stale prose is not verified until it matches current scripts or succeeds in an appropriate environment.
+- **Compatibility** Evidence to inspect: Toolchain pins, support matrix, public
+  consumers Common mistake: Requiring an upgrade because a current example uses
+  it
 
-## High-value sections
+Resolve README/CI disagreements by inspecting the invoked script and its
+consumers. Record command prerequisites and actual execution results.
 
-Use only sections supported by the repository. Common high-value content includes:
+## Concrete root and nested formats
 
-1. Exact setup and navigation commands.
-2. Fast lint, type-check, unit-test, and focused-test commands.
-3. A compact project map with canonical files to imitate and legacy files to avoid.
-4. Local code, testing, architecture, and generated-file constraints.
-5. Security, destructive-action, dependency, publication, and hosted-write boundaries.
-6. The acceptance checks and evidence expected in the final report.
+Root example. Replace commands and paths with verified repository values:
 
-Avoid slogans such as "write clean code," exhaustive documentation copies, speculative architecture, unsupported coverage targets, and rules that merely restate platform policy.
+```markdown
+# Repository instructions
 
-## Retrieval and context size
+## Commands
 
-Vercel's Next.js evaluation found that a compact documentation index embedded in `AGENTS.md` outperformed optional skill retrieval for its tested version-specific API tasks. Treat that as evidence for one useful pattern, not a universal benchmark: when agents repeatedly need broad version-matched knowledge, keep the source material in repository-local files and put a compact, searchable index plus a retrieval instruction in `AGENTS.md`. Do not paste an entire manual into persistent context.
+- From the repository root, run `pnpm install --frozen-lockfile` using the
+  pinned pnpm version.
+- Run `pnpm test` for shared-library changes. It invokes the suite defined in
+  package.json.
 
-## Sources
+## Boundaries
 
-- [AGENTS.md open format and examples](https://agents.md/)
-- [OpenAI: Custom instructions with AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
-- [Vercel: AGENTS.md outperforms skills in our agent evals](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals)
-- [GitHub: Lessons from over 2,500 repositories](https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/)
-- [agentsmd.io best practices](https://agentsmd.io/agents-md-best-practices)
-- [Community AGENTS.md best-practices gist](https://gist.github.com/0xfauzi/7c8f65572930a21efa62623557d83f6e)
+- Edit API schemas in `schema/`; regenerate `src/generated/` with
+  `pnpm generate`.
+- Keep generated output and its schema change in the same change.
+```
 
-Use the first two sources as authority for the portable format and Codex behavior. Treat the remaining sources as empirical or community guidance and verify their recommendations against the target repository and agent.
+Add only the local difference in a nested file: “From `services/payments`, run
+`make test-unit`; database integration tests additionally require the documented
+disposable database.” Do not repeat the root's entire content or silently
+disable a root gate. Explain whether a command is replacement or additional when
+ambiguity affects execution.
+
+Use a concrete trigger and action: “When editing schema inputs, run the existing
+generator so checked-in clients match the schema.” Remove generic advice such as
+“follow best practices.” Link the canonical document for optional detail instead
+of copying it into every scope.
+
+## Audit and maintenance
+
+Read all applicable instruction files before editing. Check file existence,
+relative links, command working directories, stale tool names, contradictions
+and the consumer's size budget. Retain supported constraints. Correct obsolete
+exceptions and contradictions. Put the essential boundary before long
+conditional details so truncation is less consequential.
+
+When existing agent-specific files must remain supported, choose a canonical
+source and an explicit sync/link mechanism compatible with those consumers. A
+symlink is not portable evidence that every host will load the target; keep a
+duplicate only with identified maintenance ownership. Do not change personal
+configuration to make repository documentation appear effective.
+
+Report findings with path, instruction, consequence, and supporting evidence.
+For rewrites, resolve factual defects and identify only unresolved policy
+choices.
+
+[ref-1]: https://learn.chatgpt.com/docs/agent-configuration/agents-md

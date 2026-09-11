@@ -1,12 +1,15 @@
 ---
-name: agents-md-creator
-description:
-  Create or audit AGENTS.md instructions from repository evidence and directory
-  scope. Excludes GitHub custom-agent personas and general project
-  documentation.
+name: maintain-agents-md
+description: >-
+  Use only when explicitly invoked by name. Create or audit AGENTS.md
+  instructions from repository evidence and directory scope. Excludes GitHub
+  custom-agent personas and general project documentation.
 ---
 
-# AGENTS.md Creator
+# Maintain AGENTS.md
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 1. Read the applicable instruction chain, manifests, CI commands, scripts, and
    code for the requested directory scope.

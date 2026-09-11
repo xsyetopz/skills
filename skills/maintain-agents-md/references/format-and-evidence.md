@@ -1,8 +1,7 @@
 # Discovery, precedence and evidence-backed instructions
 
-Research: 2026-09-09. AGENTS.md is an unversioned Markdown convention; Codex
-discovery below follows the current official guide. Refresh only when targeting
-another consumer/version or when its discovery configuration differs.
+Reviewed 2026-09-12. AGENTS.md is a Markdown convention, not a versioned schema.
+Check the target client's discovery behavior before changing scope.
 
 ## Format and consumer behavior
 
@@ -19,7 +18,8 @@ standard name, then configured fallbacks. Deeper guidance appears later. Without
 a project root it checks the current directory. Empty files are skipped; the
 default combined limit is 32 KiB (`project_doc_max_bytes`). Fallback names are
 configured by `project_doc_fallback_filenames`. Do not assume a sibling
-subtree's instructions enter the initial chain. [Codex discovery][ref-1].
+subtree's instructions enter the initial chain.
+[Codex discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 
 Record the intended launch directory and map its chain before deciding where
 guidance belongs. For `repo/services/payments`, root guidance and intermediate
@@ -63,15 +63,15 @@ Root example. Replace commands and paths with verified repository values:
 
 ## Commands
 
-- From the repository root, run `pnpm install --frozen-lockfile` using the
-  pinned pnpm version.
-- Run `pnpm test` for shared-library changes. It invokes the suite defined in
-  package.json.
+- From the repository root, run `bun install --frozen-lockfile` using the pinned
+  Bun version.
+- Run `bun run test` for shared-library changes. It invokes the `test` script
+  defined in package.json.
 
 ## Boundaries
 
 - Edit API schemas in `schema/`; regenerate `src/generated/` with
-  `pnpm generate`.
+  `bun run generate`.
 - Keep generated output and its schema change in the same change.
 ```
 
@@ -104,4 +104,7 @@ Report findings with path, instruction, consequence, and supporting evidence.
 For rewrites, resolve factual defects and identify only unresolved policy
 choices.
 
-[ref-1]: https://learn.chatgpt.com/docs/agent-configuration/agents-md
+Do not equate a package-manager builtin with a manifest script. For example,
+`bun test` runs Bun's test runner; `bun run test` selects the package script. A
+passing builtin can bypass checks configured in that script. Verify the exact
+command used by the repository rather than translating it from memory.

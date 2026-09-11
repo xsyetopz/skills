@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Software Security"
+  short_description: "Review threats and verify security controls"
+  default_prompt: "Use $review-software-security to review this software and verify its security boundaries."

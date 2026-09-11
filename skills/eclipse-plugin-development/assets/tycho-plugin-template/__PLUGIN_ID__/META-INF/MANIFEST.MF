@@ -6,5 +6,7 @@ Bundle-Version: 0.1.0.qualifier
 Bundle-Vendor: __VENDOR__
 Bundle-RequiredExecutionEnvironment: JavaSE-__JAVA_VERSION__
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui
+ org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text
 Automatic-Module-Name: __PLUGIN_ID__

@@ -2,3 +2,5 @@ interface:
   display_name: "Eclipse Plugin Development"
   short_description: "Build Eclipse plug-ins against target platforms"
   default_prompt: "Use $eclipse-plugin-development to implement this Eclipse plug-in change."
+policy:
+  allow_implicit_invocation: false

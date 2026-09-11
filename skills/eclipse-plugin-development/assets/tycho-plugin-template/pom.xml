@@ -33,7 +33,7 @@
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-build</artifactId>
+        <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
@@ -44,9 +44,9 @@
         <configuration>
           <environments>
             <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
+              <os>__TARGET_OS__</os>
+              <ws>__TARGET_WS__</ws>
+              <arch>__TARGET_ARCH__</arch>
             </environment>
           </environments>
         </configuration>

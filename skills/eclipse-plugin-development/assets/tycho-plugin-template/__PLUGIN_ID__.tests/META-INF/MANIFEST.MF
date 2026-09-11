@@ -5,4 +5,10 @@ Bundle-SymbolicName: __PLUGIN_ID__.tests
 Bundle-Version: 0.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-__JAVA_VERSION__
 Require-Bundle: __PLUGIN_ID__,
- org.junit
+ org.junit,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text,
+ org.eclipse.core.filesystem

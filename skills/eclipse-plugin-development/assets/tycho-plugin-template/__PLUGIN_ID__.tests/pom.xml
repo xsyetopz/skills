@@ -19,10 +19,31 @@
         <executions>
           <execution>
             <id>plugin-test</id>
-            <goals><goal>plugin-test</goal></goals>
+            <goals><goal>test</goal></goals>
           </execution>
         </executions>
+        <configuration>
+          <packaging>eclipse-plugin</packaging>
+          <useUIHarness>true</useUIHarness>
+          <useUIThread>true</useUIThread>
+          <forkedProcessTimeoutInSeconds>120</forkedProcessTimeoutInSeconds>
+        </configuration>
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>macos-ui-tests</id>
+      <activation><os><family>mac</family></os></activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>tycho-surefire-plugin</artifactId>
+            <configuration><argLine>-XstartOnFirstThread</argLine></configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

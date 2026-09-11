@@ -2,3 +2,5 @@ interface:
   display_name: "VS Code Extension Development"
   short_description: "Build VS Code extensions for their target hosts"
   default_prompt: "Use $vscode-extension-development to implement this VS Code extension change."
+policy:
+  allow_implicit_invocation: false

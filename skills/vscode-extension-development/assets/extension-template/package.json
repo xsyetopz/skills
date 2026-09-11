@@ -1,52 +1,58 @@
 {
-	"name": "__EXTENSION_NAME__",
-	"displayName": "__DISPLAY_NAME__",
-	"description": "__DESCRIPTION__",
-	"version": "0.1.0",
-	"publisher": "__PUBLISHER__",
-	"license": "__LICENSE__",
-	"packageManager": "bun@__BUN_VERSION__",
-	"engines": {
-		"vscode": "__VSCODE_ENGINE__"
-	},
-	"categories": [
-		"Other"
-	],
-	"main": "./dist/extension.js",
-	"browser": "./dist/browser.js",
-	"activationEvents": [],
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		},
-		"virtualWorkspaces": true
-	},
-	"contributes": {
-		"commands": [
-			{
-				"command": "__EXTENSION_NAME__.hello",
-				"title": "Hello from __DISPLAY_NAME__"
-			}
-		]
-	},
-	"scripts": {
-		"build": "bun scripts/package.mjs",
-		"check": "bun run check:biome && bun run typecheck && bun test && bun run check:build",
-		"check:biome": "biome check --max-diagnostics 16384",
-		"check:build": "bun scripts/package.mjs --check",
-		"format": "biome check --write --max-diagnostics 16384",
-		"package": "bun run check && bun run build && bunx vsce package --no-dependencies",
-		"test": "bun test",
-		"typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "__BIOME_VERSION__",
-		"@types/node": "__TYPES_NODE_VERSION__",
-		"@types/vscode": "__TYPES_VSCODE_VERSION__",
-		"@vscode/vsce": "__VSCE_VERSION__",
-		"typescript": "__TYPESCRIPT_VERSION__"
-	},
-	"trustedDependencies": [
-		"@biomejs/biome"
-	]
+  "name": "__EXTENSION_NAME__",
+  "displayName": "__DISPLAY_NAME__",
+  "description": "__DESCRIPTION__",
+  "version": "0.1.0",
+  "publisher": "__PUBLISHER__",
+  "repository": {
+    "type": "git",
+    "url": "__REPOSITORY_URL__"
+  },
+  "license": "__LICENSE__",
+  "packageManager": "bun@__BUN_VERSION__",
+  "engines": {
+    "vscode": "__VSCODE_ENGINE__"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "browser": "./dist/browser.js",
+  "activationEvents": [],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "__EXTENSION_NAME__.encodeJsonStrings",
+        "title": "Encode Selections as JSON Strings",
+        "enablement": "editorHasSelection && !editorReadonly"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "bun scripts/package.mjs",
+    "check": "bun run check:biome && bun run typecheck && bun run test && bun run check:build",
+    "check:biome": "biome check --max-diagnostics 16384",
+    "check:build": "bun scripts/package.mjs --check",
+    "format": "biome check --write --max-diagnostics 16384",
+    "package": "bun run check && bun run build && bunx vsce package --no-dependencies",
+    "test": "bun run build && bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "__BIOME_VERSION__",
+    "@types/node": "__TYPES_NODE_VERSION__",
+    "@types/vscode": "__TYPES_VSCODE_VERSION__",
+    "@vscode/vsce": "__VSCE_VERSION__",
+    "typescript": "__TYPESCRIPT_VERSION__",
+    "@vscode/test-electron": "__VSCODE_TEST_ELECTRON_VERSION__"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }

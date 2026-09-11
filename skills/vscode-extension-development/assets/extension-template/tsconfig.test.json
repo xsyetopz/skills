@@ -1,7 +1,9 @@
 {
-	"extends": "./tsconfig.base.json",
-	"compilerOptions": {
-		"tsBuildInfoFile": "./tsconfig.test.tsbuildinfo"
-	},
-	"include": ["src/core.ts", "test/**/*.ts"]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./tsconfig.test.tsbuildinfo"
+  },
+  "include": [
+    "test/**/*.ts"
+  ]
 }

@@ -1,1 +1,1 @@
-export { activate, deactivate } from "./extension.ts";
+export { activate } from "./extension.ts";

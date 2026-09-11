@@ -1,8 +1,8 @@
 # Manifest, host placement, trust and VSIX
 
-Research: 2026-09-09. Stable baseline: **VS Code 1.136.2**, listed in the [1.136
-release notes][ref-1]. Proposed APIs and Insiders features are separate from
-stable extension contracts.
+Research: 2026-09-11. Stable baseline: **VS Code 1.137**, listed in the
+[1.137 release notes](https://code.visualstudio.com/updates/v1_137). Proposed
+APIs and Insiders features are separate from stable extension contracts.
 
 ## Manifest and activation
 
@@ -39,7 +39,8 @@ automatically, while pre-1.74 support needs matching explicit activation events.
 Use feature-specific activation events. `@types/vscode` must not silently permit
 APIs newer than the minimum engine. `main` and `browser` must resolve to actual
 packaged JavaScript, with `vscode` externalized from the bundle.
-[Manifest][ref-2], [activation][ref-3].
+[Manifest](https://code.visualstudio.com/api/references/extension-manifest),
+[activation](https://code.visualstudio.com/api/references/activation-events).
 
 ## Host and resource placement
 
@@ -49,7 +50,9 @@ worker. `extensionKind` expresses placement preference, not a way to inject Node
 into a web worker. Browser code cannot import Node filesystem/process APIs. Use
 `workspace.fs.readFile(uri)` and `Uri.joinPath` for supported virtual/remote
 resources, not blanket `uri.fsPath` conversion. Determine the correct workspace
-folder in multi-root projects. [Hosts][ref-4], [virtual workspaces][ref-5].
+folder in multi-root projects.
+[Hosts](https://code.visualstudio.com/api/advanced-topics/extension-host),
+[virtual workspaces][source-1-1].
 
 Store workspace state in `workspaceState`, extension-global state in
 `globalState`, secrets in `context.secrets`, and larger files under the
@@ -58,6 +61,9 @@ persistence. A setting's resource/workspace scope differs from a global memento.
 Keep cached document/version data out of long-lived persistent storage unless a
 migration/revalidation strategy exists.
 
+[source-1-1]:
+  https://code.visualstudio.com/api/extension-guides/virtual-workspaces
+
 ## Trust and webviews
 
 Declare `capabilities.untrustedWorkspaces` and `virtualWorkspaces` according to
@@ -65,7 +71,7 @@ actual supported behavior, including a description for limited support. Guard
 process execution with `workspace.isTrusted`; the manifest does not enforce
 every code path. Listen for trust grant when enabling a previously disabled
 feature. Workspace-controlled executable paths/configuration are not safe merely
-because a command was activated. [Workspace Trust][ref-6].
+because a command was activated. [Workspace Trust][source-2-1].
 
 For a webview, allow scripts only when required, constrain `localResourceRoots`,
 convert assets with `asWebviewUri`, and set a CSP using `webview.cspSource` plus
@@ -73,7 +79,10 @@ a per-page nonce for scripts. Validate message discriminants and payloads before
 commands or file access. Escape rendered workspace text. `acquireVsCodeApi()`
 state belongs to the webview; serializer-based restoration must rebuild
 validated state rather than replaying privileged actions. Dispose listeners when
-the panel closes. [Webview API][ref-7].
+the panel closes.
+[Webview API](https://code.visualstudio.com/api/extension-guides/webview).
+
+[source-2-1]: https://code.visualstudio.com/api/extension-guides/workspace-trust
 
 ## Debug, package and distribute
 
@@ -83,14 +92,14 @@ Extension Host log when commands do not appear. A missing command can be
 activation, registration or manifest mismatch. Test desktop, remote and web
 hosts only for the advertised surfaces, using `@vscode/test-electron` or
 `@vscode/test-web` where established. Use extension-host tests for host
-behavior. [Testing][ref-8].
+behavior. [Testing][source-3-1].
 
 With the project's selected `vsce` available, run `vsce ls` to inspect inclusion
 and `vsce package` for a local VSIX. Ensure production output, runtime
 dependencies and assets are included; exclude secrets and irrelevant build
 files. `.vscodeignore` and bundler externals must agree. A native dependency may
 need platform-specific VSIXs and a compatible host ABI. Inspect the archive
-before a clean-profile install. [Publishing and packaging][ref-9].
+before a clean-profile install. [Publishing and packaging][source-3-3].
 
 For an isolated VSIX installation, run this with the intended executable:
 
@@ -117,22 +126,15 @@ workflows use `vsce login PUBLISHER` with the secret entered securely; the
 documentation announces global PAT retirement on 2026-12-01, so do not introduce
 that as a new long-term automation dependency. Verify the published version,
 target and channel independently. [Current publication procedure and
-authentication][ref-10].
+authentication][source-3-2].
 
 Refresh a different minimum engine, proposed API, native ABI or changed
 packaging tool. Read [document lifecycle](document-lifecycle.md) when
 implementing providers, edits or asynchronous state.
 
-[ref-1]: https://code.visualstudio.com/updates/v1_136
-[ref-2]: https://code.visualstudio.com/api/references/extension-manifest
-[ref-3]: https://code.visualstudio.com/api/references/activation-events
-[ref-4]: https://code.visualstudio.com/api/advanced-topics/extension-host
-[ref-5]: https://code.visualstudio.com/api/extension-guides/virtual-workspaces
-[ref-6]: https://code.visualstudio.com/api/extension-guides/workspace-trust
-[ref-7]: https://code.visualstudio.com/api/extension-guides/webview
-[ref-8]:
+[source-3-1]:
   https://code.visualstudio.com/api/working-with-extensions/testing-extension
-[ref-9]:
-  https://code.visualstudio.com/api/working-with-extensions/publishing-extension
-[ref-10]:
+[source-3-2]:
   https://github.com/microsoft/vscode-docs/blob/main/api/working-with-extensions/publishing-extension.md
+[source-3-3]:
+  https://code.visualstudio.com/api/working-with-extensions/publishing-extension

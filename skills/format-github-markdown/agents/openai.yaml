@@ -1,0 +1,6 @@
+interface:
+  display_name: "Format GitHub Markdown"
+  short_description: "Format compact, lint-clean GitHub Markdown"
+  default_prompt: "Use $format-github-markdown to format this Markdown with the bundled lint policy."
+policy:
+  allow_implicit_invocation: false

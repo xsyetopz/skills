@@ -1,12 +1,15 @@
 ---
-name: legacy-cleanup
-description:
-  Remove confirmed obsolete aliases, shims, entrypoints, or compatibility paths
-  after their consumers are gone. Excludes active migrations and still-supported
-  contracts.
+name: remove-legacy-compatibility
+description: >-
+  Use only when explicitly invoked by name. Remove confirmed obsolete aliases,
+  shims, entrypoints, or compatibility paths after their consumers are gone.
+  Excludes active migrations and still-supported contracts.
 ---
 
-# Legacy Cleanup
+# Remove Legacy Compatibility
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 For each candidate, establish its replacement, exposure, consumers, and
 retirement evidence. Trace imports, exports, configuration, generated
@@ -23,6 +26,9 @@ provenance.
 An active consumer requires migration before removal. Identify that dependency
 and continue independent cleanup. Missing text matches alone do not establish
 retirement.
+
+Retire generated routes through their owning inputs and build commands, not
+manual output edits. Check stale incremental output as well as clean builds.
 
 Check retained consumers and the resulting package/export surface. Verify that
 active routes no longer reference deleted resources. Report completed removals

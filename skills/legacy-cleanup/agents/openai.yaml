@@ -1,4 +1,0 @@
-interface:
-  display_name: "Legacy Cleanup"
-  short_description: "Remove obsolete surfaces after tracing consumers"
-  default_prompt: "Use $legacy-cleanup to remove the confirmed obsolete surfaces in this repository."

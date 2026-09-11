@@ -1,8 +1,7 @@
 # Consumer tracing and complete retirement
 
-Research: 2026-09-09. Technical examples use current Node package-export and
-SemVer 2.0.0 contracts; retirement requires consumer evidence. Refresh when a
-candidate exposes another ecosystem's loading or compatibility mechanism.
+Reviewed 2026-09-12 against Node package exports and SemVer 2.0.0. Verify the
+actual ecosystem loading contract for non-Node candidates.
 
 ## Establish an eligible candidate
 
@@ -42,13 +41,15 @@ inclusion; rebuild through the existing clean packaging path and inspect the
 archive. Retain tests for the canonical behavior. A wildcard export such as
 `"./*"` can still expose an old filename, so inspect patterns as well as
 explicit keys. Conditional `import`, `require` and `types` entries can have
-different consumers. [Node package entrypoints][ref-1].
+different consumers. [Node package entrypoints][source-1].
 
 Removing a supported public path is ordinarily an incompatible API change under
 SemVer; a deprecation notice does not itself terminate the promise. For an
 internal-only alias with all callers gone, removal can be a nonbreaking
 implementation detail. Classify the contract before choosing release
 notes/version impact. [SemVer](https://semver.org/).
+
+[source-1]: https://nodejs.org/api/packages.html#package-entry-points
 
 ## Generated and serialized surfaces
 
@@ -77,9 +78,13 @@ complete removal was requested.
 Check retained consumers with the repository's focused tests, compile/type
 checks and export/package inspection relevant to the boundary. Verify no active
 route references removed resources, including case-sensitive paths and generated
-manifests. Check exported archive contents to confirm retirement.
+manifests. Check exported archive contents to confirm retirement. Test the
+retained public entrypoint from the produced package, not only its source tree.
+Verify that the retired public route fails for the intended reason; a missing
+canonical build must not make a negative test appear successful. If incremental
+output retains obsolete files, correct the owned build/packaging clean step
+rather than hand-editing generated files or deleting arbitrary output
+directories.
 
 Report completed retirements, evidence and unresolved candidates separately.
 Identify the missing consumer evidence for each unresolved candidate.
-
-[ref-1]: https://nodejs.org/api/packages.html#package-entry-points

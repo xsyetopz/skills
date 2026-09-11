@@ -1,4 +1,0 @@
-interface:
-  display_name: "Git Hosting"
-  short_description: "Operate GitHub and GitLab resources"
-  default_prompt: "Use $git-hosting to complete this hosted repository operation."

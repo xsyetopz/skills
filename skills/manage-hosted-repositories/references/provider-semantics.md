@@ -1,8 +1,7 @@
-# Hosted requests, identity and recovery
+# Hosted identity, transport and recovery
 
-Research: 2026-09-09. GitHub REST examples use the current documented
-**2026-03-10** API version; GitLab uses REST **v4**. SaaS behavior is
-continuously released.
+Verify the current endpoint and server API version before sending requests.
+GitLab uses REST v4; GitHub version headers must match the target server.
 
 ## Resolve the request
 
@@ -11,7 +10,7 @@ GitHub REST uses owner/repository and an issue/PR number; GraphQL uses opaque
 node IDs. GitLab uses a project ID or URL-encoded full path
 (`group%2Fsubgroup%2Frepo`), plus project-local issue/MR `iid`. A global MR `id`
 is not the URL IID. Prefer resolving a numeric project ID once to avoid repeated
-path encoding. [GitLab REST conventions][ref-1].
+path encoding. [GitLab REST conventions](https://docs.gitlab.com/api/rest/).
 
 Distinguish local drafts, hosted creation, merge, publication, and policy
 changes. Reuse authorization for the requested effect.
@@ -23,18 +22,23 @@ supported and follow the response `Link` relation `next` until absent.
 `gh api --paginate 'repos/OWNER/REPO/issues?state=all&per_page=100'` retrieves
 all pages; this endpoint includes PR-like issues, so filter the `pull_request`
 field when counting ordinary issues. A page array is not necessarily a single
-aggregate JSON array. [Pagination][ref-2].
+aggregate JSON array. [Pagination][pagination-and-transport-source-1].
 
 For GraphQL, request `first`/`after` and `pageInfo { hasNextPage endCursor }`,
 then feed the cursor back. Inspect `errors` even on HTTP 200, including partial
 `data`; an errored field is not evidence of absence. POST `/graphql` can be a
-read-only query. [GraphQL limits][ref-3].
+read-only query. [GraphQL limits][pagination-and-transport-source-2].
 
 GitLab offset lists use `page`/`per_page`, `Link` and `X-Next-Page`; follow
 keyset URLs unchanged when the endpoint uses keyset pagination. Total-count
 headers may be absent for large collections. Use
 `glab api --paginate 'projects/123/merge_requests?state=opened&per_page=100'`
 for all open MR pages. Do not change host to work around a permission failure.
+
+[pagination-and-transport-source-1]:
+  https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api
+[pagination-and-transport-source-2]:
+  https://docs.github.com/en/graphql/overview/resource-limitations
 
 ## Errors and ambiguous writes
 
@@ -59,20 +63,24 @@ for all open MR pages. Do not change host to work around a permission failure.
 
 GitHub's `X-Accepted-GitHub-Permissions` can identify the endpoint's permission
 requirements. Error bodies may contain sensitive user content; summarize
-narrowly. [GitHub troubleshooting][ref-4].
+narrowly. [GitHub troubleshooting][errors-and-ambiguous-writes-source-1].
 
 After a write, independently GET the resource and compare changed fields, state
 and revision. For creations compare author, head/base or tag, full content and
-timestamp; title similarity alone is insufficient. Use an idempotency key only
-when the endpoint documents it. For concurrent edits, use endpoint-supported
-preconditions or re-read immediately before a narrowly scoped patch.
+timestamp. Even an exact title/body match can be a preexisting report by someone
+else: verify the actor and creation window before attributing it to the
+timed-out request. If identity remains ambiguous, report the candidate without
+claiming that creation succeeded. Use an idempotency key only when the endpoint
+documents it. For concurrent edits, use endpoint-supported preconditions where
+available. A re-read before a narrowly scoped patch reduces accidental
+overwrites but is not atomic concurrency control. If the endpoint has no
+documented precondition, do not claim a compare-and-swap guarantee; reconcile
+the result and report an unresolved conflict rather than overwriting it again.
 
-Use [GitHub operations](github-workflows.md) or
-[GitLab operations](gitlab-workflows.md) for concrete resource workflows.
+After an ambiguous creation, absence from one list or a search index does not
+prove failure: pagination, visibility and indexing delay can hide the resource.
+If authoritative reconciliation cannot establish the outcome, stop that mutation
+and report uncertainty. Do not retry creation solely to get a cleaner response.
 
-[ref-1]: https://docs.gitlab.com/api/rest/
-[ref-2]:
-  https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api
-[ref-3]: https://docs.github.com/en/graphql/overview/resource-limitations
-[ref-4]:
+[errors-and-ambiguous-writes-source-1]:
   https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api

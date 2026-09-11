@@ -7,8 +7,8 @@ further policy clarification is required before completing GOAL.md.
 
 ## Current catalog policy
 
-The current worktree contains 38 skills. Set
-`policy.allow_implicit_invocation: false` for 36 skills. Only these two retain
+The current worktree contains 35 skills. Set
+`policy.allow_implicit_invocation: false` for 33 skills. Only these two retain
 implicit invocation:
 
 - `design-software-boundaries`: ordinary architecture and boundary planning.
@@ -40,13 +40,23 @@ this repository cannot guarantee that every agent implementation enforces it.
 The explicit description/body contract addresses agents that read instructions;
 other clients need their own supported loading/invocation controls.
 
-All 38 worktree packages pass official skills-ref and the bundled quick
-validator. YAML assertions verify exactly 36 false policies, the two named
-implicit exceptions, and matching default-prompt names. Every manual package
-states the invocation contract in its description and body. These are static
-configuration and instruction checks, not universal runtime enforcement tests.
+The earlier 38-package worktree passed official skills-ref and the bundled quick
+validator. YAML assertions verify the then-current 36 false policies, the two
+named implicit exceptions, and matching default-prompt names. Every manual
+package states the invocation contract in its description and body. These are
+static configuration and instruction checks, not universal runtime enforcement
+tests.
 
 Earlier catalog routing evaluations remain historical semantic-matching
 observations. They do not demonstrate implicit activation under this new policy.
 Pending domain packages carry the policy in the worktree but still require their
 separate technical audits and integration before full-suite completion.
+
+## Hosted-operation consolidation
+
+The hosted issue, PR/MR, release, and settings candidates are now one manual
+`manage-hosted-repositories` skill with conditional resource references. The
+current worktree has 35 packages: 33 manual and the same two implicit planning
+exceptions. The hosted package is integrated with source review and an
+independent recovery scenario; this count alone does not certify API runtime
+behavior.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Repository Docs"
-  short_description: "Write evidence-backed repository documentation"
-  default_prompt: "Use $repository-docs to update the requested repository documentation from project evidence."

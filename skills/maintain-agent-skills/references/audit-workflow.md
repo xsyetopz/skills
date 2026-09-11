@@ -41,6 +41,13 @@ route, not a pass count with no cases. Evaluate catalog metadata before reading
 skill bodies: hidden instructions cannot improve initial routing. Distinguish
 reviewer classification from an observed client activation.
 
+Separate skill selection from execution readiness. A known domain and goal can
+select a skill before reproduction steps, workload details, or artifact identity
+are available. Inspect repository context for routine missing details. Ask about
+routing only when the missing information changes the applicable capability:
+“repair my Neovim plugin” identifies one, while “triage this report” does not
+establish a hosted issue rather than a security incident or test report.
+
 For a complex or risky workflow, have an independent evaluator perform a
 realistic task using the skill and raw artifacts without the proposed answer.
 Use a disposable workspace and explicit side-effect limits. Inspect the output,

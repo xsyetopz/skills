@@ -1,4 +1,0 @@
-interface:
-  display_name: "Rust Performance"
-  short_description: "Measure and optimize Rust performance"
-  default_prompt: "Use $rust-performance to investigate this Rust performance problem."

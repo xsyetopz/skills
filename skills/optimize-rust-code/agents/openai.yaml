@@ -1,0 +1,6 @@
+interface:
+  display_name: "Optimize Rust Code"
+  short_description: "Measure and optimize Rust performance"
+  default_prompt: "Use $optimize-rust-code to investigate this Rust performance problem."
+policy:
+  allow_implicit_invocation: false

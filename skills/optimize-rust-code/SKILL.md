@@ -1,12 +1,16 @@
 ---
-name: rust-performance
-description:
-  Profile, review, or optimize Rust performance using allocation, layout,
-  ownership, concurrency, and compiler evidence. Includes unsafe and
-  CPU-portability tradeoffs; excludes unrelated toolchain migration.
+name: optimize-rust-code
+description: >-
+  Use only when explicitly invoked by name. Profile, review, or optimize Rust
+  performance using allocation, layout, ownership, concurrency, and compiler
+  evidence. Includes unsafe and CPU-portability tradeoffs; excludes unrelated
+  toolchain migration.
 ---
 
-# Rust Performance
+# Optimize Rust Code
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Define the workload, build profile, target CPUs, and performance claim. Measure
 CPU/allocation behavior before changing the limiting path. Check changes against

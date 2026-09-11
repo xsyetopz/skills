@@ -1,7 +1,7 @@
 # CPU, JSC and memory diagnosis
 
-Research: 2026-09-09. Baseline: stable Bun 1.4.2
-([release](https://bun.com/blog/bun-v1.4.2)).
+Reviewed 2026-09-12 against Bun 1.4.2 and linked primary documentation. Verify
+runtime-specific behavior when the target binary differs.
 
 ## Collect an interpretable baseline
 
@@ -34,8 +34,12 @@ total/inclusive time to locate expensive call paths, then self time to find work
 performed in the function itself. High total time in a dispatcher may belong to
 its callees. Idle network waits require request timing, not only JS CPU samples.
 Markdown output supports text inspection; CPU JSON and Markdown can be requested
-together. These flags profile a script invocation; do not infer that every
-`bun test` mode emits them. [Profiling commands][ref-1].
+together. In Bun 1.4.2, requesting both formats treats the configured name as a
+base: `workload.cpuprofile` produced `workload.cpuprofile.cpuprofile` and
+`workload.cpuprofile.md` in a controlled run. Inspect actual output names rather
+than assuming a path from the flag alone. These flags profile a script
+invocation; do not infer that every `bun test` mode emits them.
+[Profiling commands](https://bun.com/docs/project/benchmarking).
 
 Use `bun --inspect-brk ./bench/workload.ts` for a startup breakpoint;
 `--inspect-wait` waits for an attachment without that injected breakpoint. Bun
@@ -58,14 +62,15 @@ writeHeapSnapshot("after-cleanup.heapsnapshot");
 Load snapshots in Chrome Memory, compare surviving objects, and follow retainers
 to a cache, listener, closure or queue owner. Remove that unwanted ownership,
 then repeat the same lifecycle. Use snapshots for retained relationships. Use
-allocation profiling for transient churn. [V8-format snapshots][ref-2].
+allocation profiling for transient churn.
+[V8-format snapshots](https://bun.com/guides/runtime/heap-snapshot).
 
 Current `--heap-prof` writes a **full snapshot** at exit with a `.heapprofile`
 filename; it is not Node's sampled allocation profile. Import using All Files or
 rename to `.heapsnapshot`. `--heap-prof-interval` is accepted but unused;
 selecting an interval does not produce allocation sampling. `--heap-prof-md`
-chooses Markdown, including when both heap flags are supplied. [Current
-heap-profile semantics][ref-1].
+chooses Markdown, including when both heap flags are supplied.
+[Current heap-profile semantics](https://bun.com/docs/project/benchmarking).
 
 Compare process RSS, JS heap, and external/native memory. Do not sum overlapping
 counters. Stable JS object counts with growing RSS can indicate buffers, native
@@ -79,9 +84,12 @@ Profile object-shape changes, temporary arrays, and working-set size before
 changing loops or representations. A small typed-array view can retain its
 entire backing allocation. `--smol` trades runtime performance for memory;
 evaluate both sides under the deployment workload. Do not apply V8-specific JIT
-flags or call JS warm-up native PGO. For I/O and parallel work, use [native APIs
-and concurrency][ref-3].
+flags or call JS warm-up native PGO. For I/O and parallel work, use
+[native APIs and concurrency](native-apis-and-concurrency.md).
 
-[ref-1]: https://bun.com/docs/project/benchmarking
-[ref-2]: https://bun.com/guides/runtime/heap-snapshot
-[ref-3]: native-apis-and-concurrency.md
+A curated dependency inventory is a discovery aid, not performance evidence.
+Verify current maintenance and the actual API/compatibility needs before
+choosing a smaller alternative. Package size, dependency count and runtime
+throughput are different measurements. Do not replace an existing
+CLI/parser/logger merely because an inventory marks it restricted or assigns an
+unmeasured speed ratio.

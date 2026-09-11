@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bun Performance"
-  short_description: "Profile and optimize Bun application performance"
-  default_prompt: "Use $bun-performance to investigate this Bun performance problem."

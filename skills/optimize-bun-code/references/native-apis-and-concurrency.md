@@ -1,11 +1,13 @@
 # Native data paths and bounded concurrency
 
-Research: 2026-09-09; Bun 1.4.2.
+Reviewed 2026-09-12 against Bun 1.4.2 and linked primary documentation. Verify
+runtime-specific behavior when the target binary differs.
 
 ## File and byte ownership
 
 ```ts
 import { mkdir } from "node:fs/promises";
+
 await mkdir("out", { recursive: true });
 const source = Bun.file("fixtures/input.bin");
 const written = await Bun.write("out/copy.bin", source);
@@ -55,7 +57,7 @@ request/response stream body has consumption ownership; do not reuse a consumed
 response across requests. Current routes require 1.2.3+, while a `fetch` handler
 supports older versions. `await server.stop()` drains active connections;
 `stop(true)` closes them. Long-lived WebSockets need an explicit shutdown plan.
-[Server contracts][ref-1].
+[Server contracts](https://bun.com/docs/runtime/http/server).
 
 Bound stream production by consumer demand and stop upstream work on disconnect.
 Current server inactivity timeout can close a quiet in-flight response; use a
@@ -68,29 +70,21 @@ the researched docs and are not the default optimization path.
 Bun's Web Worker API remains **experimental**, especially termination. For CPU
 work large enough to amortize startup and message costs:
 
-```ts
-const worker = new Worker(new URL("./worker.ts", import.meta.url).href);
-worker.addEventListener("message", (event) => consumeResult(event.data));
-worker.addEventListener("error", (event) => failPending(event.message));
-worker.postMessage({ id: 1, input: "payload" });
-```
+Create the worker with a module URL resolved relative to `import.meta.url`.
+Install message/error handling and associate responses with application
+requests. In the worker, install `self.onmessage` before any top-level await;
+static imports that await can also delay handler installation and lose messages.
+Messages use structured cloning. `node:worker_threads` queues on `parentPort`
+until a listener is attached, which can suit async initialization. `unref()`
+changes process lifetime; it does not cancel work. `{ smol: true }` trades
+worker performance for a smaller JSC heap.
+[Worker contracts](https://bun.com/docs/runtime/workers).
 
-`consumeResult` and `failPending` are application-owned callbacks. In the
-worker, install `self.onmessage` before any top-level await; static imports that
-await can also delay handler installation and lose messages. Messages use
-structured cloning. `node:worker_threads` queues on `parentPort` until a
-listener is attached, which can suit async initialization. `unref()` changes
-process lifetime; it does not cancel work. `{ smol: true }` trades worker
-performance for a smaller JSC heap. [Worker contracts][ref-2].
-
-Maintain a fixed worker pool, request IDs, a maximum in-flight count and bounded
-pending queue. On saturation, reject or delay admission according to the
-application's contract. Ignore canceled/stale result IDs, reject pending callers
-on worker failure, and stop accepting work before shutdown. For I/O, use bounded
-promises and size admission limits to downstream capacity. Measure queue wait,
-p95/p99 latency, throughput and RSS, including payload cloning and
-initialization. Never transfer buffer ownership while another operation still
-needs those bytes.
-
-[ref-1]: https://bun.com/docs/runtime/http/server
-[ref-2]: https://bun.com/docs/runtime/workers
+For a recurring parallel workload, bound worker count, in-flight requests and
+pending work. A one-off task need not acquire a reusable pool framework. On
+saturation, reject or delay admission according to the application's contract.
+Ignore canceled/stale result IDs, reject pending callers on worker failure, and
+stop accepting work before shutdown. For I/O, use bounded promises and size
+admission limits to downstream capacity. Measure queue wait, p95/p99 latency,
+throughput and RSS, including payload cloning and initialization. Never transfer
+buffer ownership while another operation still needs those bytes.

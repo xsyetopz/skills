@@ -1,0 +1,6 @@
+interface:
+  display_name: "Optimize Bun Code"
+  short_description: "Profile and optimize Bun application performance"
+  default_prompt: "Use $optimize-bun-code to investigate this Bun performance problem."
+policy:
+  allow_implicit_invocation: false

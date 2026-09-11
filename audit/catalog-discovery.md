@@ -41,7 +41,7 @@ standards/tooling before custom mechanisms. It distinguishes capability
 selection from readiness to execute after gathering missing inputs.
 
 The [Agent Skills specification](https://agentskills.io/specification),
-[OpenAI plugin authoring guidance](https://developers.openai.com/plugins/build/skills),
+[OpenAI plugin authoring guidance][source-1],
 and [Academy guide](https://openai.com/academy/skills/) were reopened for this
 pass. Client discovery and portable package format remain separate contracts. No
 new schema, test framework, or script was introduced for this metadata edit.
@@ -97,3 +97,5 @@ or hosting operation is proven by these metadata checks.
 The metadata corrections to uncommitted renamed packages remain in the worktree
 for integration with their owning domain. This audit does not commit incomplete
 metadata-only directories or accept unrelated inherited changes.
+
+[source-1]: https://developers.openai.com/plugins/build/skills

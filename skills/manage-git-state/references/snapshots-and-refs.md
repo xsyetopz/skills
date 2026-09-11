@@ -63,7 +63,7 @@ identifies the intended worktree's index. Do not hard-code `.git/index`: linked
 worktrees also have different administrative paths. See
 [revision/path parsing](https://git-scm.com/docs/git-rev-parse), the
 [commit contract](https://git-scm.com/docs/git-commit) and
-[Git environment](https://git-scm.com/docs/git#Documentation/git.txt-GIT_INDEX_FILE).
+[Git environment][source-1].
 
 ## Branches and release tags
 
@@ -87,3 +87,5 @@ different effects. An authorized history replacement should bind
 `--force-with-lease=refs/heads/BRANCH:EXPECTED_OID` to a reviewed remote value;
 plain force discards concurrency protection. A lease does not authorize a push.
 See [push](https://git-scm.com/docs/git-push).
+
+[source-1]: https://git-scm.com/docs/git#Documentation/git.txt-GIT_INDEX_FILE

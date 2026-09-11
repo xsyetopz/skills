@@ -68,14 +68,14 @@ logical operation rather than creating another effect. Define retention:
 expiring deduplication records too soon can allow a delayed retry to duplicate
 work. Retry only transient failures with bounded backoff and an overall
 deadline; do not retry invalid input or conflicts blindly.
-[AWS idempotent API design](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/).
+[AWS idempotent API design][source-3].
 
 For a database change plus emitted event, a transactional outbox stores the
 event in the same transaction, and a publisher later delivers it. Delivery can
 repeat; consumers must deduplicate or make effects idempotent. Define delivery
 and business-effect guarantees separately. If no cross-process transaction is
 needed, retain the simpler local transaction.
-[Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
+[Transactional outbox][source-2].
 
 ## Generated artifacts and provenance
 
@@ -119,4 +119,8 @@ Use Michael Nygard’s ADR format for consequential decisions: title, status,
 context, decision, and consequences. Record considered alternatives under
 context. Mark superseded decisions and link their replacements. Retain the
 original decision history.
-[ADR technique](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions).
+[ADR technique][source-1].
+
+[source-1]: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
+[source-2]: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
+[source-3]: https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/

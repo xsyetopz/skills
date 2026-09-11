@@ -27,7 +27,7 @@ and defer implementation with `require` when appropriate. Do not override user
 keymaps by default; offer explicit mappings or `<Plug>` targets when useful.
 Filetype options and mappings must remain buffer-local, with appropriate
 `b:undo_ftplugin` cleanup. See the
-[runtime conventions](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/usr_05.txt).
+[runtime conventions][source-4].
 
 ## Positions, edits, and undo
 
@@ -46,7 +46,7 @@ offsets.
 Keep a user's operation one undoable edit when the feature requires it. Do not
 use `undojoin` indiscriminately: it can merge the operation into an unrelated
 user edit. Test undo and redo against actual buffers. For fixtures, Neovim's
-[undo-block guidance](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/undo.txt)
+[undo-block guidance][source-1]
 describes closing an undo block with `let &undolevels = &undolevels`.
 
 `nomodifiable` forbids buffer edits. `readonly` concerns writing files and does
@@ -54,7 +54,7 @@ not by itself prohibit in-memory editing. Do not confuse these options or add
 contradictory fallback behavior. Let synchronous host APIs enforce their
 existing contracts; guard state explicitly when deferred work can invalidate an
 earlier assumption. See the
-[API contracts](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/api.txt).
+[API contracts][source-3].
 
 Extmarks can track positions through intervening edits. Set gravity according to
 the feature; tracking a position is not proof that the text at that position
@@ -95,4 +95,9 @@ request identity too: a completion can already be scheduled when cancellation
 runs. Do not retain every visited buffer in an unbounded global table. Avoid
 inventing generations, workers, or teardown for a purely synchronous feature.
 See the
-[Lua/event-loop help](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/lua.txt).
+[Lua/event-loop help][source-2].
+
+[source-1]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/undo.txt
+[source-2]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/lua.txt
+[source-3]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/api.txt
+[source-4]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/usr_05.txt

@@ -23,17 +23,17 @@ starters or the full suite.
 The [stable download](https://www.sublimetext.com/download) lists build 4200.
 The downloaded macOS application passed `codesign --verify --deep --strict`
 before execution. Its actual plugin runtime reported Python 3.8.12. The
-[environment documentation](https://www.sublimetext.com/docs/api_environments.html)
+[environment documentation][source-1]
 also describes development 4205/Python 3.14; that environment was not executed.
 
 Verified
-[command/edit/selection APIs](https://www.sublimetext.com/docs/api_reference.html),
+[command/edit/selection APIs][source-3],
 [package precedence](https://www.sublimetext.com/docs/packages.html),
 [minihtml](https://www.sublimetext.com/docs/minihtml.html),
 [syntax format](https://www.sublimetext.com/docs/syntax.html),
 [CLI](https://www.sublimetext.com/docs/command_line.html),
 [safe mode](https://www.sublimetext.com/docs/safe_mode.html), and
-[Package Control submission](https://packagecontrol.io/docs/submitting_a_package).
+[Package Control submission][source-2].
 The installed `Lib/python38/sublime_plugin.py` additionally confirms that
 `reload_plugin` calls unload then `importlib.reload` on the existing module.
 
@@ -124,3 +124,7 @@ Markdown links, existing Markdown rules, official skills-ref, and bundled quick
 validation passed. No syntax grammar, native dependency, Package Control
 submission, other platform, or Python 3.14 host was validated or claimed by this
 starter change.
+
+[source-1]: https://www.sublimetext.com/docs/api_environments.html
+[source-2]: https://packagecontrol.io/docs/submitting_a_package
+[source-3]: https://www.sublimetext.com/docs/api_reference.html

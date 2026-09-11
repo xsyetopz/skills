@@ -22,16 +22,16 @@ retain ordinary discovery. Skill counts were not used as a design constraint.
 
 ## Primary evidence and tools
 
-- [Neovim 0.12.5 release](https://github.com/neovim/neovim/releases/tag/v0.12.5):
+- [Neovim 0.12.5 release][source-1]:
   current stable returned by the official releases endpoint. Its official macOS
   ARM64 binary was downloaded and executed.
-- [Neovim 0.10.4 release](https://github.com/neovim/neovim/releases/tag/v0.10.4):
+- [Neovim 0.10.4 release][source-3]:
   separately downloaded and executed as the example's declared support floor.
   This does not claim the APIs were introduced in 0.10.4.
 - Installed help plus pinned upstream
   [API](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/api.txt),
   [Lua](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/lua.txt),
-  [startup](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/starting.txt),
+  [startup][source-2],
   and [undo](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/undo.txt)
   contracts: range indexing, textlock, subprocess startup errors, JSON encoding,
   noninteractive script exits, and undo boundaries.
@@ -140,3 +140,7 @@ Final metadata routing was evaluated for all seven required prompt categories:
 
 These are reviewer routing decisions from metadata, not telemetry proving that
 every client or model activates the skill identically.
+
+[source-1]: https://github.com/neovim/neovim/releases/tag/v0.12.5
+[source-2]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/starting.txt
+[source-3]: https://github.com/neovim/neovim/releases/tag/v0.10.4

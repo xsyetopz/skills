@@ -25,9 +25,9 @@ rule was disabled: code blocks, tables, and headings remain subject to strict
 for repository policy.
 
 The first correct full scan found **123 diagnostics across 80 of 243 files**.
-These are real remaining formatting failures, including previously accepted
-areas. They require correction before full completion; they are not suppressed
-or converted into warnings. The initial output is retained temporarily at
+These were real formatting failures, including previously accepted areas. The
+subsequent correction below resolves them without suppressions or warnings. The
+initial output is retained temporarily at
 `/tmp/skills-strict-markdown-baseline.log`.
 
 ## Helper and skill repairs
@@ -66,8 +66,25 @@ adds no scripts, scaffolding, or implementation permission. Earlier catalog
 cases document its explicit-only routing. Its metadata and body now agree on
 that requirement, as does the formatting package.
 
-This result does not claim the remaining full-corpus diagnostics are repaired,
-that a JSON schema validates behavior, or that every agent host enforces
-OpenAI-specific invocation metadata.
+## Full-corpus formatting correction
+
+The repeat baseline contained 244 files and the same 123 diagnostics. Converted
+long inline links on diagnosed lines in 80 files to CommonMark reference links.
+markdown-it-py's CommonMark renderer produced identical before/after HTML for
+every converted file. Prettier then reflowed one remaining overlong prose line.
+
+The [official MD013 rule documentation][md013] exempts reference definitions,
+including in strict mode. This uses ordinary Markdown syntax, not a rule
+suppression or a changed configuration. URLs and rendered labels are preserved.
+
+The full `skills/**/*.md` and `audit/*.md` scan now passes: **244 files, zero
+diagnostics**. It also passes after the manual-invocation contract updates. This
+scope excludes the unintegrated root guidance and source-material intake; it
+does not establish final all-repository validation or technical acceptance of
+pending domain packages.
+
+This result does not claim that a JSON schema validates behavior or that every
+agent host enforces OpenAI-specific invocation metadata.
 
 [cli2]: https://github.com/DavidAnson/markdownlint-cli2#configuration
+[md013]: https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md

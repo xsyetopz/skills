@@ -20,7 +20,7 @@ Add `lua/<name>/health.lua` only for prerequisites or conditions a user can act
 on. Its `check()` function can use `vim.health.start/ok/warn/error`. Keep it
 read-only and give a concrete resolution. Do not emit fake warnings for an
 optional executable that the plugin does not actually use. See
-[health help](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/health.txt).
+[health help][source-2].
 
 ## Real-host tests
 
@@ -28,7 +28,7 @@ Use a copied package and temporary XDG config/data/state/cache directories, plus
 an explicit runtimepath. `--clean` excludes normal user initialization and
 ShaDa; an explicit minimal init adds only the package under test. Read the
 installed
-[startup help](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/starting.txt)
+[startup help][source-3]
 for the target version rather than inventing flags.
 
 The [starter](../assets/plugin-template/TEMPLATE.md) runs its Lua script through
@@ -62,7 +62,7 @@ Help files use unique tags such as `*example.nvim*` and `*:ExampleJsonLines*`.
 Run `:helptags` in the copied package, then resolve the advertised topic with
 `:help`. Generating a tags file alone does not prove that its target resolves.
 Do not commit generated help tags or test caches. See
-[help authoring](https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/helphelp.txt).
+[help authoring][source-1].
 
 Inspect repository/archive layout: `plugin/`, `lua/`, `doc/`, and required
 assets must be at the installed runtimepath root. Test the artifact through a
@@ -75,3 +75,7 @@ side effects. Do not add setup, keymaps, LSP configuration, or health checks
 just to fill a template. A command-only example should remain command-only.
 Publication or modification of a hosted plugin registry is a separate authorized
 action; a local archive test does not prove publication.
+
+[source-1]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/helphelp.txt
+[source-2]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/health.txt
+[source-3]: https://github.com/neovim/neovim/blob/v0.12.5/runtime/doc/starting.txt

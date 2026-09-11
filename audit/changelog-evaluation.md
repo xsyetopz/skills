@@ -24,7 +24,7 @@ Verified primary sources:
   public API, deprecation, prerelease precedence, and build metadata. The
   checker uses the published regex with ASCII and whole-string matching. It does
   not implement or claim precedence sorting or compatibility analysis.
-- [markdown-it-py token API](https://markdown-it-py.readthedocs.io/en/latest/using.html):
+- [markdown-it-py token API][source-1]:
   CommonMark headings, nested tokens, inline links, and source maps. Version
   4.2.0 was resolved and executed; this parser replaces source-line Markdown
   parsing in both helpers.
@@ -111,3 +111,5 @@ explicit-only is the best collection-wide discovery policy. That policy remains
 part of the full catalog integration audit. No concrete functional defect was
 observed in this forward task; the automated defect tests above cover different
 failure paths.
+
+[source-1]: https://markdown-it-py.readthedocs.io/en/latest/using.html

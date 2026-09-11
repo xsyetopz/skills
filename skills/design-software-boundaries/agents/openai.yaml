@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Software Boundaries"
+  short_description: "Design ownership and dependency boundaries"
+  default_prompt: "Use $design-software-boundaries to resolve this software boundary decision from repository evidence."

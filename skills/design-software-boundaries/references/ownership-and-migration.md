@@ -1,7 +1,6 @@
-# Ownership, contracts and structural migration
+# Ownership, contracts, and migration
 
-Research: 2026-09-09. Design procedures and examples. Use the linked
-protocol/schema version for external contracts.
+Procedures and examples, not a requirement to introduce adapters or services.
 
 ## Decide the boundary that changes behavior
 
@@ -57,7 +56,8 @@ Do not abstract every class or force all adapters into one
 lowest-common-denominator API. Define units, encodings, ordering, nullability,
 errors and version compatibility where components actually exchange data. JSON
 Schema can describe structural validation but cannot prove transaction or
-delivery semantics. [JSON Schema 2020-12][ref-1].
+delivery semantics.
+[JSON Schema 2020-12](https://json-schema.org/draft/2020-12).
 
 ## Failure and idempotency
 
@@ -67,14 +67,15 @@ incompatible parameters. A timeout then permits querying/retrying the same
 logical operation rather than creating another effect. Define retention:
 expiring deduplication records too soon can allow a delayed retry to duplicate
 work. Retry only transient failures with bounded backoff and an overall
-deadline; do not retry invalid input or conflicts blindly. [AWS idempotent API
-design][ref-2].
+deadline; do not retry invalid input or conflicts blindly.
+[AWS idempotent API design](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/).
 
 For a database change plus emitted event, a transactional outbox stores the
 event in the same transaction, and a publisher later delivers it. Delivery can
 repeat; consumers must deduplicate or make effects idempotent. Define delivery
 and business-effect guarantees separately. If no cross-process transaction is
-needed, retain the simpler local transaction. [Transactional outbox][ref-3].
+needed, retain the simpler local transaction.
+[Transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
 
 ## Generated artifacts and provenance
 
@@ -117,12 +118,5 @@ consumers.
 Use Michael Nygard’s ADR format for consequential decisions: title, status,
 context, decision, and consequences. Record considered alternatives under
 context. Mark superseded decisions and link their replacements. Retain the
-original decision history. [ADR technique][ref-4].
-
-[ref-1]: https://json-schema.org/draft/2020-12
-[ref-2]:
-  https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/
-[ref-3]:
-  https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html
-[ref-4]:
-  https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
+original decision history.
+[ADR technique](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions).

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Software Architecture Design"
-  short_description: "Design ownership and dependency boundaries"
-  default_prompt: "Use $software-architecture-design to resolve this architecture decision from repository evidence."

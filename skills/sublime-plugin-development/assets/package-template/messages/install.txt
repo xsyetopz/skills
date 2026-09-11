@@ -1,3 +1,0 @@
-Example package installed.
-
-Replace this message with concise setup or migration information, or remove it.

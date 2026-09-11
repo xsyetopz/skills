@@ -1,6 +1,6 @@
 [
   {
-    "caption": "Example: Say Hello",
-    "command": "example_hello"
+    "caption": "Example: Encode Selections as JSON Strings",
+    "command": "example_json_string"
   }
 ]

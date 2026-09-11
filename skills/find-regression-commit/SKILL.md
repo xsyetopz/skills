@@ -11,7 +11,7 @@ description: >-
 Define a deterministic good/bad oracle and known boundary commits. Read
 [bisect workflow](references/bisect-workflow.md).
 
-Run bisect in an isolated worktree. Treat unavailable dependencies or invalid
-builds as untestable rather than bad. Save the bisect log, reproduce the
-candidate and its parent, reset the bisect, and report ambiguity caused by
-skips.
+Run bisect in an isolated worktree. Distinguish unavailable prerequisites from
+the target regression; a compiler failure can itself be the requested bad
+behavior. Save the bisect log, reproduce the reported candidate and relevant
+predecessor, reset the bisect, and report ambiguity caused by skips.

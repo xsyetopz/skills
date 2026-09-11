@@ -39,13 +39,23 @@ The [Codex skill guide](https://learn.chatgpt.com/docs/build-skills) documents
 `policy.allow_implicit_invocation` in `agents/openai.yaml`: omission means
 `true`; `false` prevents implicit selection but allows explicit invocation. Keep
 automatic selection for normal skills. Use explicit-only policy when the user
-requests that mode, not because the workflow includes commits, releases, or
-other consequential operations. Require authorization at the mutation boundary.
-Preserve a deliberate existing invocation policy; investigate its provenance
-when the task explicitly asks to reconsider the catalog.
+requests that mode or delegates the invocation-policy decision and the workflow
+should require deliberate named invocation. Do not infer this solely from
+commits, releases, or other consequential operations. Require authorization at
+the mutation boundary. Preserve a deliberate existing invocation policy;
+investigate its provenance when the task explicitly asks to reconsider the
+catalog.
 
 A policy change cannot repair an ambiguous description. Test natural requests
 against all candidate descriptions, including near neighbors and composition.
 Client discovery can shorten descriptions or omit skills when its metadata
 budget is exceeded. Put the distinguishing user goal first; inspect actual
 client discovery before claiming that a large catalog is fully available.
+
+A keyword match is not a task match. Put likely neighboring non-goals in the
+metadata; do not activate a specialized review or audit simply because its
+subject appears in routine implementation. For an intentional explicit-only
+workflow, also state the invocation requirement in its description and body.
+`openai.yaml` is client-specific: it is not a universal enforcement mechanism
+for other agents. Check the target host's supported invocation controls rather
+than promising that every agent honors this field.

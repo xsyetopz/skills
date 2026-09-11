@@ -1,11 +1,8 @@
 # Commands and isolated storage
 
-Research: 2026-09-09. Implementation baseline: DuckStation commit
-**cbe7951be624a3fd69c81858647a8f84e4a1d06b**. The `latest` download channel is
-rolling, so record the actual executable version/hash rather than treating its
-URL as immutable. Preview-channel behavior is not the default. Sources: [Qt
-parser][ref-1], [boot implementation][ref-2], [release and storage
-instructions][ref-3].
+Implementation baseline: DuckStation commit
+`cbe7951be624a3fd69c81858647a8f84e4a1d06b`. Verify the target build before using
+version-specific interfaces.
 
 ## Launch interface
 
@@ -92,12 +89,11 @@ python3 scripts/build_command.py --exe /case/duckstation-qt --batch --boot \
 
 Run from the skill directory. The helper prints POSIX shell quoting and never
 launches. Its boot/BIOS/state-file/PS-X-EXE targets are mutually exclusive. Its
-`--psx-exe` maps to `-exe` alone, so that helper option has the autoboot
-limitation above in this examined revision; use `--boot` for a standalone
-executable. Disc-plus-override must be constructed directly as an argument array
-or quoted command. The helper also rejects some frontend combinations accepted
-by the host. Use argument arrays for programmatic launch and shell-specific
-quoting for Windows.
+`--psx-exe` and `--boot` both emit a positional boot path, preserving standalone
+executable autoboot. Disc-plus-override must be constructed directly as an
+argument array or quoted command. The helper also rejects some frontend
+combinations accepted by the host. Use argument arrays for programmatic launch
+and shell-specific quoting for Windows.
 
 ## Isolation procedure
 
@@ -125,13 +121,13 @@ installations may use Documents), Linux `$XDG_DATA_HOME/duckstation` or
 does not isolate these stores.
 
 With `-nogui`, provide required Qt platform, GPU, audio, and input services.
-Verify guest progress at a defined checkpoint. Continue with
-[debugging and evidence](debugging-and-evidence.md) or
-[textures and source builds](textures-and-builds.md).
+Verify guest progress at a defined checkpoint. Read the relevant reference for
+debugging, patches or textures; source compilation has its own build workflow.
 
-[ref-1]:
+Parser behavior is pinned to the [Qt command parser][parser-source]; executable
+boot dispatch is defined by the [core boot implementation][boot-source].
+
+[parser-source]:
   https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/duckstation-qt/qthost.cpp
-[ref-2]:
+[boot-source]:
   https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/system.cpp
-[ref-3]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/README.md

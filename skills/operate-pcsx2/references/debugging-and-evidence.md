@@ -1,6 +1,7 @@
-# Debugger, capture and regression evidence
+# Debugging and evidence
 
-Research: 2026-09-09. Stable baseline: **PCSX2 v2.8.2**.
+Implementation baseline: PCSX2 v2.8.2. Verify the target build before using
+version-specific interfaces.
 
 ## Guest debugging
 
@@ -9,7 +10,7 @@ Enable **Tools → Show Advanced Settings**, then **Debug → Open Debugger**.
 default R5900 layout targets the EE CPU; R3000 targets the IOP. A layout has a
 target and individual dock windows can override it, so verify the target of the
 actual memory/register pane. Layout customization is documented since v2.3.213.
-[Debugger guide][ref-1].
+[Debugger guide](https://pcsx2.net/docs/advanced/debugger/).
 
 Before setting a breakpoint, identify the exact game/ELF revision, loaded module
 and address domain. EE and IOP addresses are not interchangeable. Virtual CPU
@@ -53,7 +54,9 @@ MIPS word; `.dbl` means four-byte elements. Use the format's documented
 semantics rather than CPU terminology. For overlays, rerun appropriate analysis
 when code changes and use function hashing/overwritten-symbol indications to
 avoid stale names. Keep external symbol conditions and module revision with the
-capture. [Symbol and expression documentation][ref-1].
+capture. [Symbol and expression documentation][source-1-1].
+
+[source-1-1]: https://pcsx2.net/docs/advanced/debugger/
 
 ## Capture and GS replay
 
@@ -63,8 +66,8 @@ the actual output file and its contents. A GS dump captures graphics work for
 replay, whereas video records presentation and a save state captures broader VM
 state. Do not substitute one for another when defining an oracle.
 
-Build `pcsx2-gsrunner` as described in [source builds](source-builds.md). From
-the source tree's `pcsx2-gsrunner` directory, the upstream scripts support this
+Use `$compile-pcsx2-from-source` when `pcsx2-gsrunner` must be built. From the
+source tree's `pcsx2-gsrunner` directory, the upstream scripts support this
 structural comparison:
 
 ```sh
@@ -87,14 +90,29 @@ performance latency. Renderer choices include `auto`, `dx11`, `dx12`, `gl`,
 `vulkan` and `sw`; choose one supported by the host. Hardware-hack selection
 uses `-renderhacks`, with codes such as `af` for AutoFlush and `cpufb` for CPU
 framebuffer conversion; keep the same selection on both sides unless it is the
-experimental variable. Sources: [GS dump guide][ref-2], [runner script][ref-3],
-[comparison script][ref-4].
+experimental variable. Sources:
+[GS dump guide](https://pcsx2.net/docs/advanced/gsdumprunner/), [runner
+script][source-2-1], [comparison script][source-2-2].
 
-The comparison reports different frames and an HTML artifact. Check per-dump
-completion, missing outputs, and process failures before interpreting pixel
-differences. Replay does not reproduce EE/IOP execution, gameplay inputs or disc
-timing. For a full-game claim, run a representative guest sequence
-independently.
+The comparison hashes complete PNG file bytes, not decoded pixels. Different
+compression or metadata can therefore report a difference without changed
+rendering. It walks baseline frames only: an empty baseline can pass, and extra
+test frames are ignored. Validate expected nonempty frame sets on both sides
+before accepting success. A changed result retains an HTML report; an unchanged
+result deletes it. The report references local images and the source tree's
+`comparer.css`/`comparer.js` through absolute file URLs, so it is not a
+standalone portable artifact. Preserve those assets/paths or adapt packaging
+deliberately.
+
+Check per-dump completion, missing outputs and child-process failures before
+interpreting differences. Replay does not reproduce EE/IOP execution, gameplay
+inputs or disc timing. For a full-game claim, run a representative guest
+sequence independently.
+
+[source-2-1]:
+  https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-gsrunner/test_run_dumps.py
+[source-2-2]:
+  https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-gsrunner/test_check_dumps.py
 
 ## Reproducibility record
 
@@ -108,10 +126,3 @@ defect, then change one variable.
 Report process launch, renderer initialization and guest oracle separately.
 Record timeout/forced termination, logging overhead and host load. Verify guest
 correctness at the recorded checkpoint.
-
-[ref-1]: https://pcsx2.net/docs/advanced/debugger/
-[ref-2]: https://pcsx2.net/docs/advanced/gsdumprunner/
-[ref-3]:
-  https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-gsrunner/test_run_dumps.py
-[ref-4]:
-  https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-gsrunner/test_check_dumps.py

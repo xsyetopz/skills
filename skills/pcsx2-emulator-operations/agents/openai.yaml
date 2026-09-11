@@ -1,4 +1,0 @@
-interface:
-  display_name: "PCSX2 Emulator Operations"
-  short_description: "Operate and inspect isolated PCSX2 sessions"
-  default_prompt: "Use $pcsx2-emulator-operations to complete this PCSX2 operation."

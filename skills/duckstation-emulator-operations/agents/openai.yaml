@@ -1,4 +1,0 @@
-interface:
-  display_name: "DuckStation Emulator Operations"
-  short_description: "Operate and inspect DuckStation sessions"
-  default_prompt: "Use $duckstation-emulator-operations to complete this DuckStation operation."

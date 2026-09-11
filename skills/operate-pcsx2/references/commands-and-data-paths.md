@@ -1,9 +1,7 @@
-# Commands and isolated data paths
+# Commands and data paths
 
-Research: 2026-09-09. Latest stable examined: **PCSX2 v2.8.2**. The
-[release][ref-1], [CLI guide](https://pcsx2.net/docs/advanced/cli/) and [pinned
-Qt parser][ref-2] establish this baseline. Command combinations below follow the
-pinned parser.
+Implementation baseline: PCSX2 v2.8.2. Verify the target build before using
+version-specific interfaces.
 
 ## Interface and combinations
 
@@ -60,16 +58,15 @@ pinned parser.
 - **`-fullscreen`, `-nofullscreen`** Meaning in the examined parser: Override
   initial window presentation.
 
-- **`-turbo`, `-unlimited`** Meaning in the examined parser: Both select
-  unlimited mode in this parser; do not infer a distinct configured turbo
-  multiplier from the option name.
+- **`-turbo`, `-unlimited`** Meaning in the examined parser: Select distinct
+  turbo and unlimited limiter modes. If both are passed, unlimited wins; the
+  helper rejects the ambiguous pair.
 
 Options use single hyphens; `--` marks a positional boot filename. The parser
 retains autoboot for a source type, filename or ELF override. A save-state
 filename alone is not included in that retention test: pair it with the
-appropriate game. The restricted helper can print a standalone `-statefile`
-command but cannot express that combined target. Construct the combined command
-directly.
+appropriate game. The helper requires a boot target for either state mode and
+permits `--state-file` together with `--boot`.
 
 ## Launch recipes
 
@@ -118,14 +115,18 @@ Run from the skill directory. The builder prints POSIX-quoted shell text and
 never launches. Its target alternatives, speed flags and storage strategies are
 deliberately restricted; these restrictions are not the emulator's complete
 grammar. Its `--disc` combination is limited to ELF use. Construct
-ELF-plus-image and state-file-plus-image commands directly for this parser.
+ELF-plus-image commands directly; the helper supports state-file-plus-image.
 Prefer argument arrays in code, and apply Windows shell quoting when using a
 Windows shell. Check boot compatibility with the selected executable and guest
 fixture.
 
 ## Data isolation and host requirements
 
-Create an owned writable root before launch. Copy required BIOS, configuration,
+Create an owned writable root before launch. Verify the actual generated data
+location: on the tested macOS v2.8.2 binary, `-datapath /case/data` created
+`/case/data/PCSX2/inis/PCSX2.ini`, not `/case/data/inis/PCSX2.ini`. Treat the
+supplied path as an isolation boundary, not a guarantee of identical
+subdirectory layout across builds/platforms. Copy required BIOS, configuration,
 memory cards, states, patches and texture fixtures into it. Check configured
 paths and per-game overrides; a new root can still contain copied settings
 pointing at ordinary user saves. Keep logs and generated captures in the case
@@ -137,10 +138,18 @@ Complete first-run setup and select the copied BIOS where necessary. A timeout
 while a setup dialog waits is not a hung guest. `-nogui` still needs a working
 host arrangement for Qt, rendering, audio and input. Use a bounded external
 timeout, retain stdout/stderr/logs and distinguish VM shutdown from a signal or
-forced kill. Terminate only the owned process tree. Continue with
-[debugging and evidence](debugging-and-evidence.md),
-[patches and textures](patches-and-textures.md) or
-[source builds](source-builds.md).
+forced kill. Terminate only the owned process tree. Read the relevant reference
+for debugging, patches or textures. Source compilation remains a separate
+toolchain workflow.
 
-[ref-1]: https://github.com/PCSX2/pcsx2/releases/tag/v2.8.2
-[ref-2]: https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-qt/QtHost.cpp
+The [pinned parser][parser-source] defines these command combinations; compare
+it with the [CLI guide](https://pcsx2.net/docs/advanced/cli/) for other builds.
+
+[parser-source]: https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-qt/QtHost.cpp
+
+Turbo and unlimited differ in the [VM initialization implementation][vm-source].
+The tested macOS v2.8.2 binary printed help/version and exited with status 1;
+`-testconfig` with an isolated data path exited 0 and wrote configuration, but
+neither check booted a guest.
+
+[vm-source]: https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2/VMManager.cpp

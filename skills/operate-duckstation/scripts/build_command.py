@@ -82,8 +82,6 @@ def build(args: argparse.Namespace, p: argparse.ArgumentParser) -> list[str]:
         out.extend(("-state", str(args.state)))
     if args.state_file:
         out.extend(("-statefile", str(args.state_file)))
-    if args.psx_exe:
-        out.extend(("-exe", str(args.psx_exe)))
     if args.fullscreen:
         out.append("-fullscreen")
     if args.no_fullscreen:
@@ -94,8 +92,9 @@ def build(args: argparse.Namespace, p: argparse.ArgumentParser) -> list[str]:
         out.append("-bigpicture")
     if args.early_console:
         out.append("-earlyconsole")
-    if args.boot:
-        out.extend(("--", str(args.boot)))
+    boot_path = args.boot or args.psx_exe
+    if boot_path:
+        out.extend(("--", str(boot_path)))
     return out
 
 

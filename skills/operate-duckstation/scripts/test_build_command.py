@@ -40,7 +40,7 @@ class BuildCommandTests(unittest.TestCase):
             "--exe", "duckstation-qt", "--batch", "--psx-exe", "test.exe"
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), "duckstation-qt -batch -exe test.exe")
+        self.assertEqual(result.stdout.strip(), "duckstation-qt -batch -- test.exe")
 
     def test_resume_with_game(self) -> None:
         result = self.run_builder(

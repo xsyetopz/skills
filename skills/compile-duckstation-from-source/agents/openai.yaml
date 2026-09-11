@@ -1,0 +1,6 @@
+interface:
+  display_name: "Compile DuckStation from Source"
+  short_description: "Compile a pinned DuckStation source checkout"
+  default_prompt: "Use $compile-duckstation-from-source to compile DuckStation from this source checkout."
+policy:
+  allow_implicit_invocation: false

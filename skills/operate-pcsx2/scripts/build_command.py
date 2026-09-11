@@ -15,7 +15,9 @@ def parser() -> argparse.ArgumentParser:
     target.add_argument("--boot", type=Path, help="Positional boot filename")
     target.add_argument("--bios", action="store_true", help="Boot BIOS/system menu")
     target.add_argument("--elf", type=Path, help="Boot a PS2 ELF")
-    target.add_argument("--state-file", type=Path, help="Load a save-state file")
+    p.add_argument(
+        "--state-file", type=Path, help="Load a save state with a boot target"
+    )
     target.add_argument("--test-config", action="store_true")
     target.add_argument("--setup-wizard", action="store_true")
 
@@ -60,10 +62,11 @@ def build(args: argparse.Namespace, p: argparse.ArgumentParser) -> list[str]:
         p.error("--game-args requires --elf")
     if args.disc and args.elf is None:
         p.error("--disc requires --elf in this strict command builder")
-    if args.no_gui and not any(
-        (args.boot, args.bios, args.elf, args.state_file, args.state is not None)
-    ):
-        p.error("--no-gui requires a bootable target or state")
+    has_boot_target = any((args.boot, args.bios, args.elf))
+    if (args.state_file is not None or args.state is not None) and not has_boot_target:
+        p.error("--state-file and --state require a boot target")
+    if (args.no_gui or args.batch) and not (has_boot_target or args.big_picture):
+        p.error("--no-gui and --batch require a bootable target or --big-picture")
     if args.test_config and any(
         (
             args.batch,

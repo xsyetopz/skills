@@ -1,7 +1,8 @@
-# Debugging, capture and reproducibility
+# Debugging and reproducibility
 
-Research: 2026-09-09; DuckStation revision
-**cbe7951be624a3fd69c81858647a8f84e4a1d06b**.
+Implementation baseline: DuckStation commit
+`cbe7951be624a3fd69c81858647a8f84e4a1d06b`. Verify the target build before using
+version-specific interfaces.
 
 ## Define the guest checkpoint
 
@@ -70,8 +71,15 @@ write, continue, single-step, breakpoint packets and target/memory-map queries.
 It is not a promise of all GDB remote features. If attachment fails, separate
 disabled configuration, port collision, wrong GDB architecture and missing
 running guest. Keep the debugger local; attaching a native host debugger instead
-observes a different address domain. Sources: [settings][ref-1],
-[defaults][ref-2], [GDB implementation][ref-3].
+observes a different address domain. Sources: [settings][source-2-1],
+[defaults][source-2-2], [GDB implementation][source-2-3].
+
+[source-2-1]:
+  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/settings.cpp
+[source-2-2]:
+  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/settings.h
+[source-2-3]:
+  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/gdb_server.cpp
 
 ## PCDrv host-file fixtures
 
@@ -90,7 +98,10 @@ containing only intended fixtures. It limits open handles, rejects directory
 creation through this interface, and returns guest errors for invalid
 paths/handles or disallowed writes. A guest PCDrv error is distinct from a
 failed emulation boot. Reset/shutdown closes tracked handles. Source: [PCDrv
-implementation][ref-4].
+implementation][source-3-1].
+
+[source-3-1]:
+  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/pcdrv.cpp
 
 ## Logs and capture
 
@@ -98,7 +109,7 @@ Enable file logging for the isolated run through its logging settings and retain
 the path reported by the application. Select the log level for the failure.
 Record verbose-logging overhead in timing comparisons. Early-console output
 helps diagnose failures before normal logging is ready. [Logging
-guidance][ref-5].
+guidance][source-4-2].
 
 The default screenshot hotkey is F10; bindings may have been changed. The
 examined hotkey table also exposes audio/video capture toggles and
@@ -106,28 +117,20 @@ single-/multi-frame GPU trace actions. Assign an unused binding in the isolated
 profile when none is assigned. Single-frame trace starts a one-frame recording;
 the multi-frame action starts on press and stops on release. Record capture
 settings and confirm the output file exists and opens before claiming success.
-[Hotkey implementation][ref-6].
+[Hotkey implementation][source-4-3].
 
 The boot implementation accepts `.psxgpu`, `.psxgpu.zst` and `.psxgpu.xz` for
 GPU replay via a positional path. Replay isolates graphics command processing;
 it does not repeat the full CPU/input workload. Use screenshots for rendered
 checkpoints, video for sequences, and GPU dumps for graphics replay. [Boot
-dispatch][ref-7].
+dispatch][source-4-1].
 
 Report the exact command, checkpoint, observed result and any forced
 termination. Report only observed stages: command validation, process launch,
 renderer initialization, and guest checkpoint.
 
-[ref-1]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/settings.cpp
-[ref-2]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/settings.h
-[ref-3]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/gdb_server.cpp
-[ref-4]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/pcdrv.cpp
-[ref-5]: https://github.com/stenzek/duckstation/wiki/Enabling-Logging
-[ref-6]:
-  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/hotkeys.cpp
-[ref-7]:
+[source-4-1]:
   https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/system.cpp
+[source-4-2]: https://github.com/stenzek/duckstation/wiki/Enabling-Logging
+[source-4-3]:
+  https://github.com/stenzek/duckstation/blob/cbe7951be624a3fd69c81858647a8f84e4a1d06b/src/core/hotkeys.cpp

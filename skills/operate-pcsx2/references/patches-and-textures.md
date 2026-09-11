@@ -1,7 +1,7 @@
-# Patches and texture replacements
+# Patches and textures
 
-Research: 2026-09-09. Baseline: **PCSX2 v2.8.2**. Work on copied data with exact
-game identity and an unmodified comparison.
+Implementation baseline: PCSX2 v2.8.2. Verify the target build before using
+version-specific interfaces.
 
 ## Patch identity and storage
 
@@ -11,7 +11,8 @@ executable CRC, such as `SERIAL_CRC.pnach`; substitute the actual identity
 reported by the emulator. Custom cheats belong in the configured cheats
 directory, patches in the patches directory. Built-in patches can also come from
 packaged archives; essential compatibility data belongs to GameDB. These sources
-have different purposes and activation controls. [Patch guide][ref-1].
+have different purposes and activation controls.
+[Patch guide](https://pcsx2.net/docs/advanced/writing-patches/).
 
 A title or matching serial alone does not establish compatible code addresses.
 Record region, executable revision/CRC and any modified image. Before applying a
@@ -62,7 +63,9 @@ v2.7.169; older builds can interpret the same sequence differently. Prefer a
 verified direct-address patch when the location is truly stable. For runtime
 pointers, confirm allocation/module timing and the condition before enabling a
 recurring write. Use the local RAW and dynamic-patch procedures below for
-advanced code patches. [Formats, timing and RAW compatibility][ref-1].
+advanced code patches. [Formats, timing and RAW compatibility][source-1-1].
+
+[source-1-1]: https://pcsx2.net/docs/advanced/writing-patches/
 
 ## RAW conditionals, pointers and dynamic code
 
@@ -122,7 +125,9 @@ This pattern changes `addiu v0,zero,1` to `addiu v0,zero,2` when followed by
 two instructions may not uniquely identify a real game's function. Choose a
 pattern whose offset-zero instruction executes before affected instructions, and
 avoid absolute-address immediates that change on relocation. [RAW encoding,
-errata and dynamic patches][ref-1].
+errata and dynamic patches][source-2-1].
+
+[source-2-1]: https://pcsx2.net/docs/advanced/writing-patches/
 
 ## Patch verification and retirement
 
@@ -133,15 +138,15 @@ relevant. Disable the patch and restart to ensure a previous write is not
 contaminating the comparison. For regressions, record built-in fixes, user
 cheats, and rendering options separately. Change one mechanism per comparison.
 
-## Texture workflow
+## PCSX2 texture workflow
 
 The examined implementation and UI expose **Load Textures**, **Dump Textures**,
 **Dump Mipmaps**, **Asynchronous Texture Loading** and **Precache Textures**.
 Use the game's graphics texture-replacement settings and the configured textures
 directory in the isolated root. The implementation organizes content as
 `textures/SERIAL/dumps` and `textures/SERIAL/replacements`; it does not replace
-BIOS textures when there is no game serial. Sources: [UI definitions][ref-2],
-[replacement implementation][ref-3].
+BIOS textures when there is no game serial. Sources: [UI
+definitions][source-4-1], [replacement implementation][source-4-2].
 
 1. Use a hardware renderer and enable dumping for the intended game. Visit the
    relevant scenes and stop the VM before editing.
@@ -167,8 +172,7 @@ on the target GPU and disclose loading mode. Duplicates, FMV textures and alpha
 interpretation need visual inspection at the actual scene. Keep texture packs
 separate from PNACH changes so either can be removed independently.
 
-[ref-1]: https://pcsx2.net/docs/advanced/writing-patches/
-[ref-2]:
+[source-4-1]:
   https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2-qt/Settings/GraphicsTextureReplacementSettingsTab.ui
-[ref-3]:
+[source-4-2]:
   https://github.com/PCSX2/pcsx2/blob/v2.8.2/pcsx2/GS/Renderers/HW/GSTextureReplacements.cpp

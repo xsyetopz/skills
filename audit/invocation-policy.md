@@ -7,8 +7,8 @@ further policy clarification is required before completing GOAL.md.
 
 ## Current catalog policy
 
-The current worktree contains 35 skills. Set
-`policy.allow_implicit_invocation: false` for 33 skills. Only these two retain
+The current worktree contains 29 skills. Set
+`policy.allow_implicit_invocation: false` for 27 skills. Only these two retain
 implicit invocation:
 
 - `design-software-boundaries`: ordinary architecture and boundary planning.
@@ -56,7 +56,16 @@ separate technical audits and integration before full-suite completion.
 
 The hosted issue, PR/MR, release, and settings candidates are now one manual
 `manage-hosted-repositories` skill with conditional resource references. The
-current worktree has 35 packages: 33 manual and the same two implicit planning
-exceptions. The hosted package is integrated with source review and an
+then-current worktree had 35 packages: 33 manual and the same two implicit
+planning exceptions. The hosted package is integrated with source review and an
 independent recovery scenario; this count alone does not certify API runtime
 behavior.
+
+## Emulator consolidation
+
+Ten intermediate emulator packages became four: runtime operations and source
+compilation for each emulator. All four remain explicit-only. Current metadata
+checks establish 29 packages, 27 manual, and the same two implicit planning
+exceptions. Helper and runtime-interface evidence is recorded separately in
+[emulator evaluation](emulator-evaluation.md); package counts do not prove guest
+execution or source-build success.

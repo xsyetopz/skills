@@ -69,7 +69,30 @@ class BuildCommandTests(unittest.TestCase):
     def test_no_gui_requires_target(self) -> None:
         result = self.run_builder("--exe", "pcsx2-qt", "--no-gui")
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("requires a bootable target", result.stderr)
+        self.assertIn("require a bootable target", result.stderr)
+
+    def test_state_file_requires_matching_boot_target(self) -> None:
+        result = self.run_builder("--exe", "pcsx2-qt", "--state-file", "checkpoint.p2s")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("require a boot target", result.stderr)
+        result = self.run_builder(
+            "--exe",
+            "pcsx2-qt",
+            "--state-file",
+            "checkpoint.p2s",
+            "--boot",
+            "game.iso",
+            "--batch",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip(),
+            "pcsx2-qt -batch -statefile checkpoint.p2s -- game.iso",
+        )
+
+    def test_batch_without_target_is_rejected(self) -> None:
+        result = self.run_builder("--exe", "pcsx2-qt", "--batch")
+        self.assertNotEqual(result.returncode, 0)
 
     def test_game_args_require_elf(self) -> None:
         result = self.run_builder(

@@ -1,12 +1,15 @@
 ---
-name: ci-cd
-description:
-  Create, repair, or review GitHub Actions, GitLab CI, or Bitbucket pipeline
-  behavior. Excludes hosted settings operations and application bugs unrelated
-  to CI.
+name: develop-ci-pipelines
+description: >-
+  Use only when explicitly invoked by name. Create, repair, or review GitHub
+  Actions, GitLab CI, or Bitbucket pipeline behavior. Excludes hosted settings
+  operations and application bugs unrelated to CI.
 ---
 
-# CI/CD
+# Develop CI Pipelines
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Trace the affected event through workflow creation, job selection, dependencies,
 commands, artifacts, and deployment. Diagnose the first failing transition from

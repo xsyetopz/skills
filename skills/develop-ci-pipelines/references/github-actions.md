@@ -1,9 +1,7 @@
 # GitHub Actions events, jobs and credentials
 
-Research: 2026-09-09; current GitHub Actions documentation. Replace action
-placeholders with verified full commit SHAs and scripts with project commands.
-`CHECKOUT_REF` and `UPLOAD_REF` are explicit placeholders, not installable
-action versions.
+Examples below illustrate provider contracts. Resolve repository commands,
+images, action revisions, and server support before applying them.
 
 ## Event semantics
 
@@ -14,9 +12,20 @@ it with executing contributor code. `workflow_dispatch` requires an eligible
 workflow on the default branch; `schedule` runs from the default branch and can
 be delayed. Add `merge_group` when required checks must run in a merge queue.
 Branch/path filters can prevent an entire workflow, leaving a required check
-pending. [Events][ref-1].
+pending. [Events][1-source-1].
+
+[1-source-1]:
+  https://docs.github.com/en/actions/reference/events-that-trigger-workflows
 
 ## Dependencies and artifacts
+
+The example pins checkout v6 and upload-artifact v6 to verified commits on
+2026-09-12. Both use Node 24 and require runner 2.327.1 or later; authenticated
+Git in Docker actions with checkout v6 requires runner 2.329.0 or later.
+Upload-artifact v4+ is not supported on GHES: use the target server's supported
+artifact action instead. See the pinned [checkout README][checkout] and [upload
+README][upload]. The build command is a project-specific integration point, not
+a supplied executable. Replace it with the repository's real gate.
 
 ```yaml
 name: verify
@@ -30,9 +39,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@CHECKOUT_REF
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
       - run: ./scripts/build-and-test
-      - uses: actions/upload-artifact@UPLOAD_REF
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: build-${{ github.sha }}
           path: dist/
@@ -47,13 +58,28 @@ jobs:
         run: printf '%s\n' "$BUILD_RESULT"
 ```
 
-The report job observes failure/skips without changing build's outcome. A normal
+The report job observes failure/skips without changing build's outcome. It is
+not a required-check aggregator: printing a failed dependency still exits zero.
+If only an aggregator is required by branch policy, explicitly reject each
+required dependency result other than `success`; unexpected skips are not
+passes. Keep intentional optional jobs outside that required set. A normal
 `needs` consumer runs only after successful dependencies unless its condition
 changes that behavior. Define step IDs and job `outputs` when passing small
 values through `$GITHUB_OUTPUT`; artifacts carry files across jobs. Matrix
 producers need unique artifact names and explicit aggregation. Fail consumers
-when required artifacts are absent. [Workflow syntax][ref-2],
-[artifacts][ref-3].
+when required artifacts are absent. [Workflow syntax][2-source-1],
+[artifacts][2-source-2].
+
+[2-source-1]:
+  https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+[2-source-2]:
+  https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+
+An explicit `shell: bash` uses GitHub's `bash --noprofile --norc -e -o pipefail`
+invocation. Unspecified Linux/macOS shell behavior differs; `shell: sh` does not
+provide that Bash pipefail contract. Reproduce the runner's exact shell flags
+when checking `producer | tee log`, not just `bash script`. Test failure and
+success, including the actual final required-check status.
 
 ## Reuse and trust
 
@@ -68,14 +94,17 @@ Keep shell source literal: put `${{ github.event.pull_request.title }}` in an
 environment value, then quote its shell expansion. Set
 `persist-credentials: false` for checkout jobs that do not push. Pin actions to
 verified full commit SHAs. Check runner requirements when updating actions.
-[Secure use][ref-4].
+[Secure use][3-source-1].
+
+[3-source-1]:
+  https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
 
 ## Deployment and cancellation
 
 Use job `environment` for the intended deployment target and its existing
 approvals. Grant `id-token: write` only to the job exchanging OIDC tokens; this
 permission alone grants no cloud role. Restrict the cloud trust policy to the
-repository, ref/environment and audience. [OIDC][ref-5].
+repository, ref/environment and audience. [OIDC][4-source-1].
 
 Set concurrency groups according to resource ownership: canceling outdated PR
 checks is often useful, while canceling a production deployment mid-migration
@@ -85,13 +114,9 @@ dependency failed. Verify fork PR, branch push, tag/dispatch and cancellation
 paths affected by the edit; a local command pass cannot prove those hosted
 transitions.
 
-[ref-1]:
-  https://docs.github.com/en/actions/reference/events-that-trigger-workflows
-[ref-2]:
-  https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
-[ref-3]:
-  https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
-[ref-4]:
-  https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
-[ref-5]:
+[4-source-1]:
   https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect
+[checkout]:
+  https://github.com/actions/checkout/blob/d23441a48e516b6c34aea4fa41551a30e30af803/README.md
+[upload]:
+  https://github.com/actions/upload-artifact/blob/b7c566a772e6b6bfb58ed0dc250532a479d7789f/README.md

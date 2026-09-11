@@ -1,7 +1,7 @@
 # GitLab pipeline creation, DAGs and deployment
 
-Research: 2026-09-09; current GitLab CI YAML. Replace example script paths and
-configure a compatible build image.
+Examples below illustrate provider contracts. Resolve repository commands,
+images, action revisions, and server support before applying them.
 
 ## Avoid duplicate branch and MR pipelines
 
@@ -36,7 +36,8 @@ verify:
 `workflow:rules` decides whether a pipeline exists; job `rules` selects jobs
 within it. Rules use first-match behavior. Scope the duplicate suppression to
 push so scheduled/triggered pipelines are not accidentally blocked. Define
-image/runtime through the project's existing defaults. [Workflow rules][ref-1].
+image/runtime through the project's existing defaults.
+[Workflow rules](https://docs.gitlab.com/ci/yaml/workflow/).
 
 ## Status and artifact edges
 
@@ -46,8 +47,8 @@ referencing an omitted job can fail pipeline creation; use `optional:true` only
 if absence is valid and the consumer handles it. Avoid mixing `dependencies` and
 `needs` without a documented reason. `artifacts:reports` enables parsable
 test/coverage reporting; keep report paths and actual file generation
-consistent. [YAML reference](https://docs.gitlab.com/ci/yaml/), [job
-artifacts][ref-2].
+consistent. [YAML reference](https://docs.gitlab.com/ci/yaml/),
+[job artifacts](https://docs.gitlab.com/ci/jobs/job_artifacts/).
 
 `when:always` can retain diagnostic artifacts after failure.
 `allow_failure:true` changes pipeline success semantics and must not be used to
@@ -91,12 +92,9 @@ Implement provider token exchange and artifact identity verification in the
 deployment script. Restrict the role to the relevant project/ref/environment
 claims. `resource_group` serializes a shared deployment target; protected
 environments and approvals are separately configured controls. Masking a
-variable does not make running untrusted code with it safe. [ID tokens][ref-3].
+variable does not make running untrusted code with it safe.
+[ID tokens](https://docs.gitlab.com/ci/secrets/id_token_authentication/).
 
 Use CI Lint's merged configuration/pipeline simulation for affected refs, then
 repository checks. Check protected variables and environment approvals in the
 selected project settings.
-
-[ref-1]: https://docs.gitlab.com/ci/yaml/workflow/
-[ref-2]: https://docs.gitlab.com/ci/jobs/job_artifacts/
-[ref-3]: https://docs.gitlab.com/ci/secrets/id_token_authentication/

@@ -1,4 +1,0 @@
-interface:
-  display_name: "CI/CD"
-  short_description: "Repair pipelines and their trust boundaries"
-  default_prompt: "Use $ci-cd to repair this pipeline while preserving its required checks."

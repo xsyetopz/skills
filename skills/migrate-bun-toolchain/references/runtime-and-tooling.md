@@ -1,6 +1,6 @@
-# Runtime, tests and build contracts
+# Runtime, tests, and build contracts
 
-Research: 2026-09-09; Bun 1.4.2 documentation.
+Research: 2026-09-11. Verify changed behavior on the selected Bun release.
 
 ## Runtime switch
 
@@ -17,7 +17,8 @@ exit codes, stream backpressure, TLS certificates, filesystem errors, and
 shutdown with pending work. Verify each affected dependency against the APIs it
 calls. Keep Node for a subprocess or tool that relies on an unsupported API.
 Native addons using V8 internals are a different compatibility problem from
-Node-API addons. [Node compatibility][ref-1],
+Node-API addons.
+[Node compatibility](https://bun.com/docs/runtime/nodejs-compat),
 [Node-API](https://bun.com/docs/runtime/node-api).
 
 For a server, launch on an available local port with disposable storage, send
@@ -30,25 +31,15 @@ before switching deployment entrypoints.
 ## Test-runner migration
 
 Map discovery patterns, setup order, mock isolation, snapshots, timers, coverage
-consumers and reporter output before replacing the runner. A basic Bun test
-module is:
-
-```ts
-import { expect, test } from "bun:test";
-import { normalize } from "./normalize";
-test("preserves an empty value", () => {
-  expect(normalize("")).toBe("");
-});
-```
-
-Run `bun test ./test/normalize.test.ts` for that file. Run the affected suite
-when changing discovery, setup, mocks, or runner behavior. `bun test --coverage`
-requests coverage; preserve required thresholds and formats rather than removing
-CI consumers. Configure setup through `[test] preload = ["./test/setup.ts"]` in
-`bunfig.toml` when needed. Bun provides Jest-like APIs, not complete Jest
-configuration compatibility. DOM tests require the chosen DOM environment;
-executing TypeScript does not supply a browser.
-[Test runner](https://bun.com/docs/test), [configuration][ref-2].
+consumers and reporter output before replacing the runner. Run the affected
+suite when changing discovery, setup, mocks, or runner behavior.
+`bun test --coverage` requests coverage; preserve required thresholds and
+formats rather than removing CI consumers. Configure setup through
+`[test] preload = ["./test/setup.ts"]` in `bunfig.toml` when needed. Bun
+provides Jest-like APIs, not complete Jest configuration compatibility. DOM
+tests require the chosen DOM environment; executing TypeScript does not supply a
+browser. [Test runner](https://bun.com/docs/test),
+[configuration](https://bun.com/docs/test/configuration).
 
 Run `tsc --noEmit` or the configured checker separately from transpiled tests.
 Do not regenerate all snapshots to conceal semantic differences; inspect
@@ -73,6 +64,3 @@ Verify each changed command and its output artifact. Report remaining
 compatibility failures. Roll back pins, lockfile and consumers together if the
 requested switch fails; preserve intentional independent changes. Refresh only
 the particular unsupported API/plugin or a different target-version contract.
-
-[ref-1]: https://bun.com/docs/runtime/nodejs-compat
-[ref-2]: https://bun.com/docs/test/configuration

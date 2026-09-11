@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bun Migration"
-  short_description: "Migrate the requested Bun tooling surfaces"
-  default_prompt: "Use $bun-migration to perform the requested Bun migration in this project."

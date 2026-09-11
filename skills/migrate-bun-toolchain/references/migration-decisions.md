@@ -1,24 +1,35 @@
 # Bun version and package-manager migration
 
-Research: 2026-09-09. Default for a new migration is stable **Bun 1.4.2**, as
-identified by the [release announcement](https://bun.com/blog/bun-v1.4.2).
-Refresh the affected section for an older target, a newer lockfile schema, or an
-API absent here.
+Research: 2026-09-11. Bun 1.4.2 is the installed stable baseline. Verify the
+requested target against its release and installed `--help`; do not substitute
+the newest release for an explicit version.
 
 ## Choose the migration surface
 
 Inventory `packageManager`, version-manager files, CI setup actions, container
 tags, executable shebangs, workspace manifests, lockfiles, and deployment
 commands. Record which executable actually runs each script. Treat package
-installation and runtime selection independently. For a pin-only request, update
-pins and their consumers. For runtime adoption, check the compiler, type
-checker, and deployment contracts separately.
+installation and runtime selection independently. For package-manager adoption,
+update pins and every installer consumer. For a Bun-only upgrade, keep the
+existing runtime, test runner, dependency constraints, and build ownership;
+change their behavior only when required by the requested version transition.
+For runtime adoption, check the compiler, type checker, and deployment contracts
+separately.
 
 Select the target version through the version manager or Bun's versioned
 installer. Record `bun --version` and `bun --revision` from the resulting
-executable. The [installation guide](https://bun.com/docs/installation)
-describes platform requirements and version selection. Canary builds are a
-separate, opt-in channel.
+executable. A `packageManager` field records intent; verify the executable
+actually used instead of treating that field as version enforcement. The
+[installation guide](https://bun.com/docs/installation) describes platform
+requirements and version selection. Canary builds are a separate, opt-in
+channel.
+
+For a pin-only transition, first try the target executable with the existing
+lockfile and a frozen install in a disposable copy. Do not run `bun update` or
+resolve the dependency graph merely to change a Bun version. If the target
+requires a lockfile conversion, let that Bun executable generate it and compare
+resolved package identities before acceptance. A newer executable working
+locally does not update a CI/container pin automatically.
 
 ## Preserve dependency resolution
 
@@ -38,15 +49,17 @@ graph before removing the old lockfile.
 Current automatic migration accepts Yarn v1, npm lockfileVersion 2/3/4, and pnpm
 lockfiles when `bun.lock` is absent. npm v1 falls back to manifest resolution,
 so a successful install can still change the graph. Preserve the original until
-verified. For a pre-1.2 binary lockfile, the documented conversion is:
+verified. For a pre-1.2 binary lockfile, first retain a recoverable copy outside
+the conversion workspace. The documented conversion is:
 
 ```sh
 bun install --save-text-lockfile --frozen-lockfile --lockfile-only
 ```
 
-Inspect `bun.lock`, then remove `bun.lockb` only after all consumers accept the
-text format. Older Bun consumers may still require the binary file; do not
-mechanically delete it in a mixed-version project.
+Bun 1.4.2 removes `bun.lockb` during this conversion; do not assume both files
+remain for comparison. Inspect `bun.lock` and the saved original before
+acceptance. Older consumers may still require binary format: do not convert the
+shared project until their compatibility or retirement is established.
 [Lockfile contracts](https://bun.com/docs/pm/lockfile).
 
 ## Lifecycle, registries and workspaces
@@ -56,7 +69,8 @@ controls dependency lifecycle execution: omission uses Bun's curated npm list;
 an explicit list **replaces** it; `[]` trusts none. Local/git dependencies need
 explicit trust even when their names match a default entry. Review the actual
 build script before granting it trust. `--ignore-scripts` disables scripts and
-can leave a deliberately incomplete install. [Lifecycle semantics][ref-1].
+can leave a deliberately incomplete install.
+[Lifecycle semantics](https://bun.com/docs/pm/lifecycle).
 
 Supply scoped-registry credentials through environment interpolation:
 
@@ -68,18 +82,19 @@ Supply scoped-registry credentials through environment interpolation:
 Keep `.npmrc` scope mappings, certificates and registry ownership when
 converting configuration; never copy a token into the lockfile or documentation.
 An authentication error is not permission to substitute the public registry.
-[Registry configuration][ref-2].
+[Registry configuration](https://bun.com/docs/pm/scopes-registries).
 
 Keep the workspace root authoritative for shared installation. Run a
 representative package from its own directory as well as root scripts:
 accidental access to hoisted undeclared dependencies can hide a broken manifest.
 Choose hoisted or isolated installation from dependency visibility requirements.
-Declare dependencies that the chosen linker exposes as missing.
-[Workspaces](https://bun.com/docs/pm/workspaces), [isolated installs][ref-3].
+Declare dependencies that the chosen linker exposes as missing. Isolated linking
+is not a proof that undeclared imports cannot resolve: the default store
+fallback and root dependencies can still expose packages. Evaluate
+`install.hoist = false` only when stricter dependency visibility is required,
+and test the actual package import from its consuming directory.
+[Workspaces](https://bun.com/docs/pm/workspaces),
+[isolated installs](https://bun.com/docs/pm/isolated-installs).
 
 For runtime, test-runner and bundler changes, continue with
 [tool contracts](runtime-and-tooling.md).
-
-[ref-1]: https://bun.com/docs/pm/lifecycle
-[ref-2]: https://bun.com/docs/pm/scopes-registries
-[ref-3]: https://bun.com/docs/pm/isolated-installs

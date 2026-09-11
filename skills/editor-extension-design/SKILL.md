@@ -1,6 +1,6 @@
 ---
 name: editor-extension-design
-description:
+description: >-
   Choose an editor target, design a cross-editor extension, or plan an extension
   port. Excludes ordinary implementation for an already-selected editor.
 ---
@@ -8,7 +8,8 @@ description:
 # Editor Extension Design
 
 Use this skill for host selection, shared extension behavior, or ports. Route
-ordinary implementation to the selected editor's skill.
+ordinary implementation to the selected editor's workflow. Do not implicitly
+invoke a manual implementation skill; its named-invocation policy still applies.
 
 Map each capability to its execution location: UI, workspace, remote host,
 browser, or external process. Confirm API availability before promising parity.

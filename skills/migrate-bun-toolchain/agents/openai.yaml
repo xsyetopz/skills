@@ -2,3 +2,5 @@ interface:
   display_name: "Migrate Bun Toolchain"
   short_description: "Adopt Bun or migrate an existing Bun toolchain"
   default_prompt: "Use $migrate-bun-toolchain to migrate the requested Bun version or tooling surface."
+policy:
+  allow_implicit_invocation: false

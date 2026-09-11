@@ -2,3 +2,5 @@ interface:
   display_name: "Neovim Plugin Development"
   short_description: "Build Neovim plugins with scoped lifecycle"
   default_prompt: "Use $neovim-plugin-development to implement this Neovim plugin change."
+policy:
+  allow_implicit_invocation: false

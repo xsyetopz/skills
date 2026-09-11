@@ -1,11 +1,14 @@
 ---
 name: neovim-plugin-development
 description: >-
-  Build, repair, or review Neovim Lua/runtimepath plugins with buffer, event,
-  and resource lifecycle ownership.
+  Use only when explicitly invoked by name. Build, repair, or review Neovim
+  Lua/runtimepath plugins with buffer, event, and resource lifecycle ownership.
 ---
 
 # Neovim Plugin Development
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Resolve the minimum Neovim version, runtimepath layout, public Lua modules, and
 commands. Use supported host APIs and Lua syntax.

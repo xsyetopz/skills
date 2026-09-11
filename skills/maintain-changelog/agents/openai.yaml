@@ -2,3 +2,5 @@ interface:
   display_name: "Maintain Changelog"
   short_description: "Maintain changelogs and SemVer"
   default_prompt: "Use $maintain-changelog to complete this request."
+policy:
+  allow_implicit_invocation: false

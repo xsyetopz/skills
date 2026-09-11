@@ -1,13 +1,16 @@
 ---
 name: migrate-bun-toolchain
 description: >-
-  Adopt Bun for package management, runtime, tests, or bundling, or migrate an
-  existing project's Bun version. Preserve compatibility and unchanged tooling;
-  excludes performance optimization and unrelated dependency or formatter
-  updates.
+  Use only when explicitly invoked by name. Adopt Bun for package management,
+  runtime, tests, or bundling, or migrate an existing project's Bun version.
+  Preserve compatibility and unchanged tooling; excludes performance
+  optimization and unrelated dependency or formatter updates.
 ---
 
 # Migrate Bun Toolchain
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Identify the current and requested target version and the surfaces being
 changed: installation, runtime, scripts, tests, bundling, or deployment. Package

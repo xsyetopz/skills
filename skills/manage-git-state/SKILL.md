@@ -1,13 +1,16 @@
 ---
 name: manage-git-state
 description: >-
-  Create scoped Git commits, integrate branches, manage refs or tags, and
-  recover or restore identified Git state while preserving unrelated work.
-  Excludes hosted PR/MR management, repository settings, and regression
-  bisection.
+  Use only when explicitly invoked by name. Create scoped Git commits, integrate
+  branches, manage refs or tags, and recover or restore identified Git state
+  while preserving unrelated work. Excludes hosted PR/MR management, repository
+  settings, and regression bisection.
 ---
 
 # Manage Git State
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Establish the requested state change and its authorization. Inspect HEAD,
 branch/worktrees, index, worktree, and any in-progress operation. Distinguish

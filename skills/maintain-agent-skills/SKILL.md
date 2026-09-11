@@ -1,12 +1,16 @@
 ---
 name: maintain-agent-skills
 description: >-
-  Create, audit, update, split, merge, or validate Agent Skills packages from
-  current specifications and authoritative domain sources. Excludes AGENTS.md,
-  general repository documentation, and unrelated product implementation.
+  Use only when explicitly invoked by name. Create, audit, update, split, merge,
+  or validate Agent Skills packages from current specifications and
+  authoritative domain sources. Excludes AGENTS.md, general repository
+  documentation, and unrelated product implementation.
 ---
 
 # Maintain Agent Skills
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Inventory every skill and its `SKILL.md`, `agents/`, `references/`, `assets/`,
 scripts, examples, tests, and cross-skill references. Determine each workflow's

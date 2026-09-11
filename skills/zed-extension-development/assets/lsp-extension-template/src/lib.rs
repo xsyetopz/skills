@@ -13,13 +13,13 @@ impl zed::Extension for ExampleExtension {
         worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
         let command = worktree.which("__SERVER_BINARY__").ok_or_else(|| {
-            "Install __SERVER_BINARY__ or configure a managed download".to_owned()
+            "Install __SERVER_BINARY__ in this worktree PATH or set lsp binary.path".to_owned()
         })?;
 
         Ok(zed::Command {
             command,
             args: Vec::new(),
-            env: worktree.shell_env(),
+            env: Vec::new(),
         })
     }
 }

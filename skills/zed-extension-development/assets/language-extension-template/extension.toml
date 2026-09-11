@@ -6,6 +6,6 @@ authors = ["__AUTHOR__"]
 description = "__DESCRIPTION__"
 repository = "__REPOSITORY_URL__"
 
-[grammars.__GRAMMAR_ID__]
-repository = "__TREE_SITTER_REPOSITORY__"
-rev = "__TREE_SITTER_REVISION__"
+[grammars.bash]
+repository = "https://github.com/tree-sitter/tree-sitter-bash"
+rev = "a06c2e4415e9bc0346c6b86d401879ffb44058f7"

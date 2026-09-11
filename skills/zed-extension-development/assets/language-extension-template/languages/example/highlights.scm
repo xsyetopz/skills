@@ -1,4 +1,4 @@
-; Replace captures with nodes from the pinned grammar.
 (comment) @comment
 (string) @string
-(identifier) @variable
+(raw_string) @string
+(variable_name) @variable

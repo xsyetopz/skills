@@ -1,11 +1,15 @@
 ---
 name: zed-extension-development
-description:
-  Build, repair, or review Zed extensions using declarative assets or supported
-  Rust/WASM APIs, with grammar and registry contracts.
+description: >-
+  Use only when explicitly invoked by name. Build, repair, or review Zed
+  extensions using declarative assets or supported Rust/WASM APIs, with grammar
+  and registry contracts.
 ---
 
 # Zed Extension Development
+
+Run this workflow only when the user explicitly invokes this skill by name. A
+related keyword or an ordinary implementation request is not an invocation.
 
 Resolve the requested capability, host/API versions, and `extension.toml`. Use
 declarative assets for supported static features and Rust/WASM hooks for

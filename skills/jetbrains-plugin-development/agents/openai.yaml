@@ -2,3 +2,5 @@ interface:
   display_name: "JetBrains Plugin Development"
   short_description: "Build plugins for declared JetBrains IDEs"
   default_prompt: "Use $jetbrains-plugin-development to implement this IntelliJ Platform plugin change."
+policy:
+  allow_implicit_invocation: false

@@ -1,19 +1,14 @@
 <idea-plugin>
-    <id>__PLUGIN_ID__</id>
-    <name>__PLUGIN_NAME__</name>
-    <vendor>__VENDOR_NAME__</vendor>
+    <description>__PLUGIN_DESCRIPTION__</description>
 
     <depends>com.intellij.modules.platform</depends>
-    <resource-bundle>messages.PluginBundle</resource-bundle>
-
-    <extensions defaultExtensionNs="com.intellij" />
 
     <actions>
         <action
-            id="__PLUGIN_ID__.ExampleAction"
-            class="__PACKAGE__.ExampleAction"
-            text="Example Action"
-            description="Runs the example action">
+            id="__PLUGIN_ID__.EncodeFormValueAction"
+            class="__PACKAGE__.EncodeFormValueAction"
+            text="Encode Selections as Form Values"
+            description="Encode selected text as UTF-8 form values">
             <add-to-group group-id="ToolsMenu" anchor="last" />
         </action>
     </actions>

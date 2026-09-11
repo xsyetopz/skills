@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version providers.gradleProperty("kotlinVersion").get()
-    id("org.jetbrains.intellij.platform") version providers.gradleProperty("intellijPlatformGradlePluginVersion").get()
+    id("org.jetbrains.kotlin.jvm") version "__KOTLIN_VERSION__"
+    id("org.jetbrains.intellij.platform") version "__INTELLIJ_PLATFORM_GRADLE_PLUGIN_VERSION__"
 }
 
 group = providers.gradleProperty("group").get()
@@ -22,7 +22,7 @@ dependencies {
         )
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
-    testImplementation(kotlin("test"))
+    testImplementation("junit:junit:4.13.2")
 }
 
 kotlin {
@@ -36,7 +36,6 @@ intellijPlatform {
         version = providers.gradleProperty("version")
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
         vendor {
             name = "__VENDOR_NAME__"
@@ -50,5 +49,5 @@ intellijPlatform {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnit()
 }

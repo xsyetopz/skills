@@ -29,7 +29,8 @@ add version markers without an independently evolving compatibility boundary.
 Read only the relevant reference:
 
 - [Architecture choices](references/architecture-choices.md) for alternatives,
-  maintenance and scaling costs, and a from-scratch decision procedure.
+  maintenance and scaling costs, dependency-fit checks, and a from-scratch
+  decision procedure.
 - [Language layout](references/language-layout.md) for cohesive modules,
   visibility, import/runtime boundaries, and package validation.
 - [Ownership and migration](references/ownership-and-migration.md) for

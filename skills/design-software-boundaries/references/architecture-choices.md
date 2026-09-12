@@ -111,6 +111,48 @@ object layouts across independently compiled or untrusted components without a
 verified contract. Reuse the platform's existing interface before inventing a
 wire format.
 
+## Evaluate the actual dependency boundary
+
+Treat ecosystem catalogs as discovery leads, not verified adoption decisions.
+Labels such as maintained, lightweight, pure-managed or compiler-independent do
+not establish compatibility. Check the selected version's manifest,
+implementation, license, support/security status, transitive features and
+deployment requirements. Prefer an existing dependency or platform facility when
+it meets the contract; compare concrete alternatives only where there is an
+unmet need.
+
+Do not confuse an interface with its implementation. Go's `database/sql`
+provides the common API but requires a separate driver: it cannot replace a
+SQLite driver by itself. If CGO is forbidden, verify the chosen driver's
+supported path with `CGO_ENABLED=0` build and test runs. This does not prove
+independence from native runtime libraries or subprocesses. A CGO-free
+implementation such as `modernc.org/sqlite` still has its own supported targets
+and dependency cost. [SQL contract][go-sql], [CGO][go-cgo], [driver
+documentation][go-sqlite].
+
+For Rust, evaluate the resolved feature graph, not just a direct dependency's
+`default-features = false`. Features can be enabled by another consumer. Inspect
+`cargo tree -e features` and the selected TLS, async, native-library and target
+paths; do not assign one dependency-cost or portability label to every build of
+a crate. Respect the workspace's MSRV and `no_std` requirements when considering
+standard-library replacements. [Cargo features][cargo-features].
+
+For .NET, distinguish the inbox API from the application's serialization and
+publication mode. `System.Text.Json` source generation can support constrained
+reflection/AOT paths, but the actual types, options and overloads must use the
+generated metadata. Verify the affected published artifact; a catalog's AOT
+rating is not a substitute. [JSON source generation][json-sourcegen].
+
+For TypeScript, separate consuming declarations from running a compiler-API
+client. A generator can emit compatible types while requiring a different
+compiler API internally. For example, the inspected `openapi-typescript` 7.13.0
+package declares a TypeScript 5 peer and calls its AST factory API; it is not
+compiler-independent merely because its input is OpenAPI. Check actual package
+metadata and generation under the chosen toolchain. If a separate generator
+workspace is justified, keep that boundary explicit rather than silently
+replacing the application's compiler or configured lint rules. [Generator
+source][ts-generator], [package metadata][ts-package].
+
 ## Work one feature end to end
 
 Example: a small team's report service reads one database and produces CSV.
@@ -133,3 +175,12 @@ without building a proof-of-concept unless requested.
 
 [styles]:
   https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/
+[go-sql]: https://pkg.go.dev/database/sql
+[go-cgo]: https://pkg.go.dev/cmd/cgo
+[go-sqlite]: https://pkg.go.dev/modernc.org/sqlite
+[cargo-features]: https://doc.rust-lang.org/cargo/reference/features.html
+[json-sourcegen]:
+  https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation
+[ts-generator]:
+  https://github.com/openapi-ts/openapi-typescript/blob/main/packages/openapi-typescript/src/lib/ts.ts
+[ts-package]: https://www.npmjs.com/package/openapi-typescript/v/7.13.0

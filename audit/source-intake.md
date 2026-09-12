@@ -135,3 +135,78 @@ that current portable tracing uses `dotnet-sampled-thread-time`, not the
 Linux-only `cpu-sampling` profile. See the bounded evidence and limitations in
 [.NET evaluation](dotnet-performance-evaluation.md). All three consumed source
 archives were removed; the independent ecosystem catalogs remain pending.
+
+## Ecosystem catalogs
+
+Parsed every JSONL record and inventoried package identities and domains. There
+were no duplicate identities within each catalog. Detailed review was selective:
+metadata policies and representative serialization, database, HTTP,
+compiler-tool and standard-library replacement entries. Counts exclude `_meta`
+records:
+
+- .NET: 464 entries; SHA-256
+  `5bbcfb5e0347f49d9d12dfd20c0b68227af55376af0c6feb043590ab0f61c033`.
+- Go: 343 entries; SHA-256
+  `7b81ee556cfdaffe344b0dcf990ae4f75d9101197f436c56dc9ad256fec7584d`.
+- Rust: 365 entries; SHA-256
+  `4e32c2187e26945d2457445514d8b011c268681107a528b0cc8c4ab34051a0db`.
+- TypeScript/Bun: 405 entries; SHA-256
+  `38de9b7de641318d6ac60d85403ba1df715fc353f8cc80a8414746b8f0d77a51`.
+
+The useful result is a dependency-fit section in the existing architecture
+reference, not 1,577 permanent package recommendations, a new dependency-ranking
+schema, or four additional language skills. Qualitative weight, maintenance,
+AOT, native-code and compatibility labels remain leads rather than certified
+properties. No blanket ADD/REMOVE/REPLACE action was imported. Existing package,
+compiler and lint policies remain authoritative.
+
+Primary checks used the Cargo feature documentation, Go database/sql and CGO
+contracts, modernc SQLite documentation, Microsoft JSON source-generation
+guidance, and the actual openapi-typescript package/source. Their links are
+adjacent to the imported guidance. In particular:
+
+- `database/sql` is an interface requiring a driver, not a replacement for
+  `modernc.org/sqlite`. A real Go 1.27.1 `CGO_ENABLED=0` stdlib-only probe
+  failed to open `sqlite` with the expected unknown-driver error. This does not
+  claim a particular external driver's full cross-platform compatibility.
+- Cargo feature unification means a direct default-features setting cannot
+  certify the whole dependency graph. Runtime and native requirements must be
+  checked for selected features and targets.
+- System.Text.Json source generation requires the actual generated metadata
+  path, not merely a package-level AOT label. No new AOT publication is claimed.
+- The TypeScript catalog incorrectly calls openapi-typescript
+  compiler-independent. The published 7.13.0 package declares a TypeScript 5
+  peer; its shipped implementation imports `typescript` and calls the AST
+  factory. Source and package metadata disprove the blanket architectural claim
+  without needing to claim that every TypeScript 7 arrangement fails.
+
+An isolated Node run of openapi-typescript 7.13.0 with TypeScript 5.9.3
+generated response declarations from OpenAPI 3.0.3. Strict type checking
+accepted the valid response and rejected an invalid enum value. This verifies
+the selected compiler-API integration and generated consumer contract, not
+Bun-wide runtime compatibility, every schema feature, or direct TypeScript 7
+support. Evidence is in `/tmp/ecosystem-intake-evidence/`. No project compiler
+or lint rules changed.
+
+All four catalogs were removed after selective consumption. Their old baseline
+versions and unsupported rankings were not converted into evergreen guidance.
+
+## Remaining Rust research disposition
+
+`rust-performance-research.zip` SHA-256:
+`54494ae4c51ff1d01e888187ffa5d6231ac235cf84bb52b095ca5734fbe916a3`.
+
+The earlier [Rust evaluation](rust-performance-evaluation.md) records imported
+material and real validation. Follow-up intake inspected the full archive
+inventory and the scope/evidence, security/performance, CPU-dispatch and unsafe
+FFI-buffer chapters. Their useful ownership, adversarial-input, measurement and
+portability boundaries are already represented in the two Rust references. No
+additional skill or duplicate research/agent-template tree is needed.
+
+The illustrative FFI buffer snippet has undefined external function/error types
+and is not a standalone executable asset. Its returned-length check does not
+retroactively prevent a foreign out-of-bounds write; the foreign function's
+write-capacity and initialization contract must already hold. No claim of FFI
+soundness or whole-archive example compilation is made. The remaining archive
+was removed after this disposition. Source intake is now complete; that does not
+establish completion of the separate whole-suite goal audit.

@@ -19,9 +19,9 @@ volatile-versus-synchronization and memory-retention boundaries. Rejected the
 source's suggestion that trait objects stabilize plugin ABIs. Did not import its
 SIMD dot product as an equivalent scalar replacement: the reduction order
 changes floating-point results. No universal performance thresholds, allocator
-changes, new pool framework or dependency inventory rankings were adopted. Other
-archive material remains available for selective intake; this is not a
-whole-archive validation claim.
+changes, new pool framework or dependency inventory rankings were adopted.
+Follow-up selective intake is recorded in [source intake](source-intake.md). The
+consumed archive was then removed; this is not a whole-archive validation claim.
 
 ## Executable line-reading example
 

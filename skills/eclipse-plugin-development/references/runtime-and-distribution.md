@@ -113,6 +113,15 @@ exported dependencies and execution environment before editing UI code. In an
 OSGi console, `ss` and `diag BUNDLE_ID` can expose unresolved requirements when
 console support is configured.
 
+If the native launcher fails before Equinox starts, check its JVM selection
+separately from bundle resolution. Pass `-vm /absolute/jdk/bin/java` before
+`-vmargs`, using a JDK compatible with the target and launcher architecture. In
+`eclipse.ini`, put `-vm` and the path on separate lines before `-vmargs`. A
+working shell `java` does not prove native-launcher discovery: on macOS, an
+unselected JVM can fall back to the legacy system JavaVM framework and fail with
+a missing `JNI_CreateJavaVM` symbol. Prefer an explicit launcher JVM over
+changing system Java settings. [Launcher configuration][launcher-config].
+
 For a local p2 check, the director application accepts
 `-application org.eclipse.equinox.p2.director`,
 `-repository file:/absolute/repository`,
@@ -135,3 +144,5 @@ scheduling and lifecycle contracts.
   https://github.com/eclipse-tycho/tycho/blob/tycho-5.0.4/demo/testing/tycho/standalone/test/pom.xml
 [api-1]: https://github.com/eclipse-tycho/tycho/releases/tag/tycho-5.0.4
 [api-2]: https://tycho.eclipseprojects.io/doc/latest/
+[launcher-config]:
+  https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/launcher_ini.html

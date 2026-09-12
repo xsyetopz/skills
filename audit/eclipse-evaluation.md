@@ -64,12 +64,20 @@ generated feature into that copy's SDKProfile. A separate `-listInstalledRoots`
 invocation confirmed the installed feature. The installed bundle contains both
 the handler class and `plugin.xml`.
 
-The native launcher returned 254 and displayed a legacy Apple JavaVM framework
-error. Direct execution of the Equinox launcher JAR with the tested JDK
-completed the p2 operations successfully. No system Java settings or quarantine
-attributes were changed. This proves p2 installation, not successful
-native-launcher UI startup. Real UI behavior was tested through Tycho's direct
-Java launch.
+The native launcher initially returned 254 and displayed the legacy Apple JavaVM
+framework error shown in the user's screenshot. Direct execution of the Equinox
+launcher JAR with the tested JDK completed the p2 operations successfully.
+Follow-up diagnosis found that `/usr/libexec/java_home` could not locate a
+runtime, while the shell resolved Homebrew's working OpenJDK 25.0.4.1. The
+isolated app's `eclipse.ini` had no explicit JVM selection.
+
+The same native launcher then completed `-listInstalledRoots` with exit zero
+when passed `-vm` and the resolved JDK executable path. Its output listed both
+the generated feature and Eclipse Platform. This proves a native-launcher
+headless operation with explicit JVM selection, not native workbench UI startup.
+The incubator-module warning and Aries provider message remain in the log. No
+system Java settings, app configuration or quarantine attributes were changed.
+Real UI behavior was tested through Tycho's direct Java launch.
 
 ## Guidance and evidence limits
 
@@ -79,8 +87,9 @@ disposal advice: the [current Color API][color] does not require disposal. Other
 owned SWT resources retain their documented disposal requirements.
 
 No Marketplace publication, p2 upgrade, exported API baseline comparison,
-Windows/Linux UI execution, native-launcher repair, or unrelated workspace/job
-feature is claimed. Those checks apply when the affected feature requires them.
+Windows/Linux UI execution, native workbench UI startup, or unrelated
+workspace/job feature is claimed. Those checks apply when the affected feature
+requires them.
 
 Evidence files retained outside the repository:
 
@@ -90,6 +99,7 @@ Evidence files retained outside the repository:
 - `/tmp/eclipse-skill-evidence/` (instantiated reactor and Surefire reports)
 - `/tmp/eclipse-install-evidence/install-java.log`
 - `/tmp/eclipse-install-evidence/roots.log`
+- `/tmp/eclipse-install-evidence/roots-native-explicit-vm.log`
 
 The skill validator, strict Markdown, XML parsing and diff checks passed. These
 are supplementary to real host/package evidence, not proof of full goal

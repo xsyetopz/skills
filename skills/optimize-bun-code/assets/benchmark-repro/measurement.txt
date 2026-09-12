@@ -7,11 +7,11 @@ Workload: WORKLOAD_SIZE=30000, 1200 distinct keys
 Benchmark 1: bun bench.ts red
   Time (mean ± σ):     103.7 ms ±   3.0 ms    [User: 101.2 ms, System: 5.7 ms]
   Range (min … max):   101.2 ms … 109.6 ms    10 runs
- 
+
 Benchmark 2: bun bench.ts green
   Time (mean ± σ):      14.3 ms ±   1.4 ms    [User: 10.1 ms, System: 5.0 ms]
   Range (min … max):    12.2 ms …  16.9 ms    10 runs
- 
+
 Summary
   bun bench.ts green ran
     7.24 ± 0.72 times faster than bun bench.ts red

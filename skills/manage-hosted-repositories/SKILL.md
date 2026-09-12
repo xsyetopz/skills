@@ -22,6 +22,10 @@ only the relevant resource workflow:
 - [Releases](references/releases.md): drafts, publication and artifact identity.
 - [Settings](references/settings.md): metadata, protections and hosted policy.
 
+For code PR/MR work, apply [mandatory local feedback][local-feedback]; read-only
+reviews report gaps without installing hooks. For check failures, read
+[bounded CI evidence](references/ci-evidence.md) before retrieving logs.
+
 Selecting one operation does not authorize other operations. A local review
 draft is not permission to submit it, and a merge request is not permission to
 weaken branch policy. Preserve unrelated fields, permissions, and content.
@@ -32,3 +36,5 @@ structured inputs or body files; do not interpolate untrusted text into shell
 syntax. Reconcile uncertain writes before retries. Read back the changed
 resource and report its URL/ID and observed state; distinguish publication,
 tagging and upload.
+
+[local-feedback]: ../manage-git-state/references/local-feedback.md

@@ -16,6 +16,9 @@ Establish the requested state change and its authorization. Inspect HEAD,
 branch/worktrees, index, worktree, and any in-progress operation. Distinguish
 committed objects from staged blobs and unsaved file contents.
 
+- Read [mandatory local feedback](references/local-feedback.md) before code
+  commits or pushes: require pre-commit/pre-push checks and preserve hook
+  ownership, authorization, and the exact validated snapshot.
 - Read [snapshots and refs](references/snapshots-and-refs.md) for scoped
   commits, partial staging, branch/tag identity, and remote ref updates.
 - Read [integration and recovery](references/integration-and-recovery.md) for

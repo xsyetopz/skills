@@ -37,7 +37,9 @@ changes with `!` or a `BREAKING CHANGE:` footer. Other types, such as `docs`,
 `refactor`, and `test`, do not imply a version increment by themselves. Name the
 actual change in the description. Add rationale or migration details only when
 needed. Keep release notes focused on user-visible changes instead of copying
-the commit log. This message format does not require a hook or new tool.
+the commit log. This message format alone does not require a commit-message hook
+or new tool; code-validation hooks remain required by
+[local feedback](local-feedback.md).
 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/),
 checked 2026-09-09.
 
@@ -62,8 +64,8 @@ index isolation, `git -C repo rev-parse --path-format=absolute --git-path index`
 identifies the intended worktree's index. Do not hard-code `.git/index`: linked
 worktrees also have different administrative paths. See
 [revision/path parsing](https://git-scm.com/docs/git-rev-parse), the
-[commit contract](https://git-scm.com/docs/git-commit) and
-[Git environment][source-1].
+[commit contract](https://git-scm.com/docs/git-commit) and [Git
+environment][source-1].
 
 ## Branches and release tags
 

@@ -21,3 +21,9 @@ Preserve the requested document’s purpose rather than imposing a universal
 outline. Verify changed links, paths, prerequisites, commands, expected results,
 and platform claims. Report unresolved factual decisions instead of inventing
 them.
+
+Use the bundled [general Markdown](assets/MARKDOWN.template.md),
+[README](assets/README.template.md), or
+[CONTRIBUTING](assets/CONTRIBUTING.template.md) template only when its sections
+match the repository. Remove unused optional sections rather than leaving
+placeholders or empty headings.

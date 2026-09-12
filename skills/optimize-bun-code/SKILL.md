@@ -29,5 +29,9 @@ hardware conditions. Run correctness checks for changed behavior. Report
 distributions, errors, and measurement scope. Label unmeasured proposals as
 hypotheses.
 
+Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) when a
+small same-workload fixture helps demonstrate the distinction between a
+plausible candidate and a locally measured result.
+
 [ref-1]: references/measurement-and-memory.md
 [ref-2]: references/native-apis-and-concurrency.md

@@ -1,0 +1,8 @@
+[package]
+name = "rust-skill-benchmark"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[profile.release]
+debug = "line-tables-only"

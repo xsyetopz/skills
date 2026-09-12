@@ -35,5 +35,9 @@ Measure baseline and candidate under the same workload and settings. Report
 variance and allocation tradeoffs; do not extrapolate a microbenchmark into an
 application-wide speedup or claim safety from successful compilation.
 
+Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) to
+demonstrate correctness-first comparison and local measurement evidence. Do not
+transfer its result to another application workload.
+
 [measurement]: references/measurement-and-runtime.md
 [memory]: references/memory-and-interop.md

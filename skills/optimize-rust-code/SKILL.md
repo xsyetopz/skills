@@ -30,5 +30,9 @@ identical build and workload conditions. Report measured scope and variability.
 Identify unavailable soundness or target checks without treating compilation as
 proof.
 
+Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) when a
+controlled same-input comparison is useful. Its checked-in measurement is local
+evidence, not a general collection recommendation.
+
 [ref-1]: references/measurement-and-build.md
 [ref-2]: references/ownership-and-concurrency.md

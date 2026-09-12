@@ -21,6 +21,12 @@ Read [specification and metadata](references/specification-and-metadata.md) for
 the format and OpenAI integration. Read
 [audit workflow](references/audit-workflow.md) for source research, progressive
 disclosure, boundary changes, and verification.
+Read [validation tool selection](references/validation-tools.md) before adding
+or installing repository-wide validation tools.
+
+When creating a package, start from the [canonical SKILL.md
+template](assets/SKILL.template.md). Replace its required fields and keep only
+sections with operational value. Do not create empty resource directories.
 
 Keep one recognizable user goal per skill. Preserve useful depth while moving
 conditional detail out of `SKILL.md`. Verify volatile technical claims against

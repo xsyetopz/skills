@@ -3,4 +3,4 @@ interface:
   short_description: "Derive scoped repository instructions"
   default_prompt: "Use $maintain-agents-md to write scoped AGENTS.md guidance from this repository."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

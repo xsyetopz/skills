@@ -1,15 +1,16 @@
 ---
 name: develop-ci-pipelines
 description: >-
-  Use only when explicitly invoked by name. Create, repair, or review GitHub
-  Actions, GitLab CI, or Bitbucket pipeline behavior. Excludes hosted settings
-  operations and application bugs unrelated to CI.
+  Create, repair, or review GitHub Actions, GitLab CI, or Bitbucket pipeline
+  behavior when CI configuration or execution is the requested task. Excludes
+  hosted settings operations and application bugs unrelated to CI.
 ---
 
 # Develop CI Pipelines
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when CI configuration or pipeline execution is the requested
+work. Implicit activation selects guidance only; it does not authorize hosted
+operations or mutations beyond the user's request.
 
 Trace the affected event through workflow creation, job selection, dependencies,
 commands, artifacts, and deployment. Diagnose the first failing transition from

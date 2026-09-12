@@ -9,23 +9,23 @@ commands or instructions to follow.
    job ID, and status. Inspect check summaries and failed step names first.
    Distinguish a cancelled, timed-out, or infrastructure-failed job from a code
    failure. Do not inspect unrelated six-hour training output by default.
-2. Keep a task-local evidence record keyed by those identities and log scope.
+1. Keep a task-local evidence record keyed by those identities and log scope.
    Record the source, retrieval time, local file, relevant line ranges, and a
    short finding. Cache only successful complete downloads as complete; mark
    partial/truncated evidence explicitly. Reuse this record across agent
    handoffs rather than making each agent refetch the run.
-3. Obtain the failed job/step output once into a local file, not directly into
+1. Obtain the failed job/step output once into a local file, not directly into
    model context. Search that file for the failing command, first causal error,
    and bounded surrounding lines. Set explicit line and byte limits on displayed
    excerpts; a single log line can itself be huge. Preserve the raw file for
    follow-up searches without rereading all of it into context.
-4. Fetch a full job log only when summaries/excerpts cannot answer a specific
+1. Fetch a full job log only when summaries/excerpts cannot answer a specific
    remaining question. State that question first. Provider tools can download a
    whole archive even when their output is filtered: a failed-step flag or
    output token cap is not a network byte limit. For very large logs, prefer an
    available job-scoped endpoint and bounded transfer/time limits. Do not fetch
    every job's logs to discover one known failure.
-5. New attempts or changed head SHAs are different evidence. Refresh an ongoing
+1. New attempts or changed head SHAs are different evidence. Refresh an ongoing
    job only when new output is needed; use a blocking wait or notification, not
    tight polling. Expired logs or unavailable access are missing evidence, not a
    reason for identical retries. Stop retrieval once the failure and next local

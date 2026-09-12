@@ -22,6 +22,13 @@ index after a failed commit.
 
 ## Commit messages
 
+Unless the user explicitly requests one commit, divide future commits by
+independently understandable behavior rather than file count or diff size. Keep
+an implementation with its relevant tests and necessary documentation. Run the
+relevant checks for each commit so every slice is independently valid and can be
+reverted without invalidating an unrelated slice. Apply this policy only to new
+commits; do not rewrite existing history to reshape earlier work.
+
 Use Conventional Commits 1.0.0 unless the user specifies another format:
 
 ```text

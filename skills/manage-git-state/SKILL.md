@@ -1,16 +1,17 @@
 ---
 name: manage-git-state
 description: >-
-  Use only when explicitly invoked by name. Create scoped Git commits, integrate
-  branches, manage refs or tags, and recover or restore identified Git state
-  while preserving unrelated work. Excludes hosted PR/MR management, repository
-  settings, and regression bisection.
+  Create scoped Git commits, integrate branches, manage refs or tags, and
+  recover or restore identified Git state when local Git state is the requested
+  task. Preserves unrelated work and excludes hosted PR/MR management,
+  repository settings, and regression bisection.
 ---
 
 # Manage Git State
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when changing or recovering local Git state is the requested
+work. Implicit activation selects guidance only; it does not authorize commits,
+ref changes, history edits, or publication.
 
 Establish the requested state change and its authorization. Inspect HEAD,
 branch/worktrees, index, worktree, and any in-progress operation. Distinguish

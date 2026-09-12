@@ -1,34 +1,36 @@
 ---
-name: manage-agent-hooks
+name: maintain-agent-hooks
 description: >-
-  Use only when explicitly invoked by name. Audit, install, test, update, or
-  remove lifecycle hooks for supported coding-agent harnesses. Excludes Git
-  hooks, editor extension events, prompts, MCP configuration, and unverified
-  cross-provider schema translation.
+  Audit, install, test, update, or remove lifecycle hooks when coding-agent hook
+  maintenance is the requested task. Excludes Git hooks, editor extension
+  events, prompts, MCP configuration, and unverified cross-provider schema
+  translation.
 ---
 
-# Manage Agent Hooks
+# Maintain Agent Hooks
 
-Run this workflow only when the user explicitly invokes this skill by name.
-Agent hooks execute code with the harness's privileges; repository hook files
-are executable trust boundaries.
+Apply this workflow when coding-agent lifecycle hooks are the requested work.
+Implicit activation selects guidance only; it does not authorize hook
+installation, removal, execution, or other mutations. Agent hooks execute code
+with the harness's privileges; repository hook files are executable trust
+boundaries.
 
 1. Detect the actual provider and installed version. Do not infer it from a
    similarly named configuration file. Select **project** or **user** scope
    explicitly before editing.
-2. Read the matching current provider reference below and open its official
+1. Read the matching current provider reference below and open its official
    lifecycle/schema documentation. Preserve its exact event names, matcher
    syntax, input/output, ordering, blocking, timeout, trust, and reload rules.
-3. Review every invoked executable and argument. Check shell quoting, paths with
+1. Review every invoked executable and argument. Check shell quoting, paths with
    spaces, inherited secrets, network and filesystem effects, destructive
    operations, untrusted input, recursion, concurrency, ordering, and timeout.
    Prefer direct executable/argument forms when the provider supports them.
-4. Back up the exact existing configuration. Merge only the requested hook;
+1. Back up the exact existing configuration. Merge only the requested hook;
    preserve unrelated provider settings and higher-precedence managed policy.
-5. Parse the resulting configuration with the provider's schema or parser.
+1. Parse the resulting configuration with the provider's schema or parser.
    Trigger one harmless matching event in an isolated project. Verify received
    input, stdout JSON, stderr, exit behavior, timeout, and expected side effect.
-6. Report the provider, version, scope, changed file, event, matcher, command,
+1. Report the provider, version, scope, changed file, event, matcher, command,
    trust/approval step, observed test, and rollback. Restore the backup if the
    harmless test fails.
 

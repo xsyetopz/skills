@@ -22,9 +22,9 @@ For each pair, provide this structure:
 
 1. `### RED — DO NOT: <specific failure>` with valid code unless syntax is the
    lesson; explain the violated invariant and consequence.
-2. `### GREEN — DO: <correct behavior>` with the corresponding correction;
+1. `### GREEN — DO: <correct behavior>` with the corresponding correction;
    explain why it is sufficient, not merely more elaborate.
-3. `Check:` with an exact command, assertion, or inspection that distinguishes
+1. `Check:` with an exact command, assertion, or inspection that distinguishes
    the pair. Run implementation-oriented checks in an isolated workspace when
    practical. A RED check must demonstrate its intended defect; a GREEN check
    must demonstrate the stated contract.

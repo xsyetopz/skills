@@ -18,7 +18,7 @@ metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
 
 markdown:
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2@0.23.2 "skills/**/*.md"
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2@0.23.2 "AGENTS.md" "skills/**/*.md"
 
 tests: provision
     "{{ venv }}/bin/python" scripts/run_python_tests.py

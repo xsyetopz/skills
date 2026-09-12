@@ -3,4 +3,4 @@ interface:
   short_description: "Maintain evidence-backed repository docs"
   default_prompt: "Use $maintain-repository-docs to complete this request."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

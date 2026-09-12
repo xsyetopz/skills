@@ -13,11 +13,11 @@ For each removal, record the element removed and whether the same oracle still
 holds. Use this loop:
 
 1. Copy the failing case to a disposable directory.
-2. Remove one independent source file, configuration property, dependency,
+1. Remove one independent source file, configuration property, dependency,
    input portion, option, or feature.
-3. Run the documented command.
-4. Keep the removal only when the relevant oracle remains true.
-5. Repeat; use a clean run when caches or state are plausible causes.
+1. Run the documented command.
+1. Keep the removal only when the relevant oracle remains true.
+1. Repeat; use a clean run when caches or state are plausible causes.
 
 Do not minimize character count at the expense of readable names, formatting, or
 the trigger. Do not replace a race with a sequential failure and call it the

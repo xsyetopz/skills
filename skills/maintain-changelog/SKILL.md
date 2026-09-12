@@ -1,16 +1,17 @@
 ---
 name: maintain-changelog
 description: >-
-  Use only when explicitly invoked by name. Write, normalize, audit, or validate
-  changelogs, release notes, and Semantic Versioning decisions. Excludes
+  Write, normalize, audit, or validate changelogs, release notes, and Semantic
+  Versioning decisions when release history is the requested task. Excludes
   publishing hosted releases, local Git tagging, and unrelated repository
   documentation.
 ---
 
 # Maintain Changelog
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when changelog, release-note, or Semantic Versioning work is
+requested. Implicit activation selects guidance only; it does not authorize
+tagging, publication, or other mutations beyond the user's request.
 
 Derive release facts and public API impact from source, manifests, commits,
 issues, and tags. Read

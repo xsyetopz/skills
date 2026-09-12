@@ -8,6 +8,10 @@ description: >-
 
 # Write Justfiles
 
+Apply this workflow when Just task orchestration or Just syntax is the requested
+work. Implicit activation selects guidance only; it does not authorize running
+recipes with external effects or changing unrelated build logic.
+
 Inspect the installed Just version and the repository's existing commands before
 changing orchestration. Preserve one obvious task path and delegate work to the
 project-native tools rather than reproducing their logic in recipes.
@@ -15,16 +19,16 @@ project-native tools rather than reproducing their logic in recipes.
 ## Workflow
 
 1. Read the existing justfile, manifests, lockfiles, and contributor commands.
-2. Check `just --version` against the required syntax and consult
+1. Check `just --version` against the required syntax and consult
    [the current language reference](references/current-just-api.md).
-3. Keep caches and generated state in established locations. Quote interpolated
+1. Keep caches and generated state in established locations. Quote interpolated
    paths and make environment loading explicit.
-4. Use `env("KEY")` for a required environment variable and
+1. Use `env("KEY")` for a required environment variable and
    `env("KEY", default)` for an optional variable. Never introduce deprecated
    `env_var` or `env_var_or_default` calls.
-5. Add only recipes that name a meaningful project operation. Use dependencies
+1. Add only recipes that name a meaningful project operation. Use dependencies
    to compose existing recipes instead of copying their bodies.
-6. Format and inspect the result before running the narrowest harmless recipe.
+1. Format and inspect the result before running the narrowest harmless recipe.
 
 ## Validation
 

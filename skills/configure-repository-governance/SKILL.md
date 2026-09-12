@@ -1,16 +1,17 @@
 ---
 name: configure-repository-governance
 description: >-
-  Use only when explicitly invoked by name. Create or audit CODEOWNERS, issue
-  and pull-request templates, contribution policy, and repository governance
-  files from provider rules. Excludes hosted settings mutations, CI pipelines,
-  AGENTS.md, and general README work.
+  Create or audit CODEOWNERS, issue and pull-request templates, contribution
+  policy, and repository governance files when those files are the requested
+  task. Excludes hosted settings mutations, CI pipelines, AGENTS.md, and general
+  README work.
 ---
 
 # Configure Repository Governance
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when repository governance files are the requested work.
+Implicit activation selects guidance only; it does not authorize hosted or
+local mutations beyond the user's request.
 
 Resolve the hosting provider, supported file locations, current enforcement, and
 requested policy. Read [governance formats](references/governance-formats.md).

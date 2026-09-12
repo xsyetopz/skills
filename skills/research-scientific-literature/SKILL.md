@@ -15,23 +15,23 @@ claim.
 
 1. Restate the question, target system, decision, outcome, and applicability
    constraints. Expand acronyms, synonyms, adjacent fields, and contrary terms.
-2. Run the [discovery CLI](scripts/discover_literature.py) with several queries.
+1. Run the [discovery CLI](scripts/discover_literature.py) with several queries.
    Use `--offline` only to reuse a populated cache. Deduplicate preprints,
    revisions, and published records before selecting papers.
-3. Open each potentially decisive original paper independently. Identify the
+1. Open each potentially decisive original paper independently. Identify the
    version read, method, workload or dataset, baselines, measured result, and
    limitations. Inspect supplements and linked code when the claim depends on
    them. Do not infer conclusions from title, abstract, citation count, venue,
    or discovery rank.
-4. Search explicitly for replications, contradictory findings, later revisions,
+1. Search explicitly for replications, contradictory findings, later revisions,
    and follow-up work. Separate peer-review status from relevance and evidence
    quality.
-5. Synthesize only supported claims. Prefer a compact table:
+1. Synthesize only supported claims. Prefer a compact table:
 
    | Work/version | Supported evidence | Limitation | Applicability |
    | --- | --- | --- | --- |
 
-6. State the strongest supported conclusion, competing evidence, concrete
+1. State the strongest supported conclusion, competing evidence, concrete
    engineering implication, remaining uncertainty, and the first measurement
    to run on the user's own workload.
 

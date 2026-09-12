@@ -2,12 +2,12 @@
 
 1. Replace `__PLACEHOLDER__` values and align Java packages with their
    directories.
-2. Select compatible Java, Maven, Tycho, and a pinned Eclipse target.
-3. Set each target environment's Equinox OS, window-system, and architecture
+1. Select compatible Java, Maven, Tycho, and a pinned Eclipse target.
+1. Set each target environment's Equinox OS, window-system, and architecture
    values; add more `<environment>` entries for a multi-platform repository.
-4. Declare required bundles, imports, and extensions.
-5. Remove feature/repository modules for a bundle-only package.
-6. Run `mvn clean verify`. Check API baselines for exported API changes and p2
+1. Declare required bundles, imports, and extensions.
+1. Remove feature/repository modules for a bundle-only package.
+1. Run `mvn clean verify`. Check API baselines for exported API changes and p2
    resolution for distribution changes.
 
 The example command encodes the current nonempty text selection as a UTF-8

@@ -33,12 +33,12 @@ variants `beshort`, `beword`, `bedouble` and a `bytes` sequence are documented
 for cases that need their explicit byte semantics. Do not confuse patch `word`
 with the debugger `.sym` format's `.wrd` element size.
 
-| Place | Application time                                                 |
+| Place | Application time |
 | ----- | ---------------------------------------------------------------- |
-| `0`   | First execution entry/startup application.                       |
-| `1`   | Repeated at vertical blank.                                      |
-| `2`   | Both startup and vertical blank.                                 |
-| `3`   | Startup and immediately when enabled; documented since v2.5.385. |
+| `0` | First execution entry/startup application. |
+| `1` | Repeated at vertical blank. |
+| `2` | Both startup and vertical blank. |
+| `3` | Startup and immediately when enabled; documented since v2.5.385. |
 
 Homebrew fixture example. Verify that the fixture owns address `00100000` before
 use:
@@ -150,13 +150,13 @@ definitions][source-4-1], [replacement implementation][source-4-2].
 
 1. Use a hardware renderer and enable dumping for the intended game. Visit the
    relevant scenes and stop the VM before editing.
-2. Inspect generated PNGs and keep original names, including
+1. Inspect generated PNGs and keep original names, including
    palette/region/mipmap identity. A dumped texture is a rendering asset, not
    necessarily one complete object from the game's source art.
-3. Copy selected dumps into `replacements`, edit those copies, enable loading
+1. Copy selected dumps into `replacements`, edit those copies, enable loading
    and repeat the scene. Keep the directory name/case correct rather than
    relying on recovery behavior.
-4. Disable dumping during timing comparisons. Compare with loading disabled to
+1. Disable dumping during timing comparisons. Compare with loading disabled to
    establish the original rendering.
 
 Texture names include data/palette hashes and format information, with region

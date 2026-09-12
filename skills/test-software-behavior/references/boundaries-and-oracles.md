@@ -30,8 +30,8 @@ repository.
 Every functional test MUST follow `Arrange`, `Act`, `Assert` in that order:
 
 1. **`Arrange`:** inputs, dependencies, state, and the target.
-2. **`Act`:** once on the behavior under test.
-3. **`Assert`:** the resulting values, effects, errors, and forbidden effects.
+1. **`Act`:** once on the behavior under test.
+1. **`Assert`:** the resulting values, effects, errors, and forbidden effects.
 
 `Given`, `When`, `Then` is the equivalent form for behavior specifications.
 Fixture setup and teardown can live in framework hooks, but setup must not

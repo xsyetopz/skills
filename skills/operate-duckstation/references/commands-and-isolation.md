@@ -100,17 +100,17 @@ and shell-specific quoting for Windows.
 1. Copy a supported portable package into an owned writable case directory,
    including its required libraries/resources. Create empty `portable.txt`
    beside that copy's executable, not beside the normal installation.
-2. Open **Tools → Open Data Directory** and verify that the resolved location is
+1. Open **Tools → Open Data Directory** and verify that the resolved location is
    the case tree. Packaged AppImage/app-bundle layouts can place the real
    executable differently; use a disposable extracted/package copy and verify
    rather than guessing where the marker is resolved.
-3. Copy only required BIOS, settings, memory cards, states and texture fixtures.
+1. Copy only required BIOS, settings, memory cards, states and texture fixtures.
    Configure paths to those copies. Inspect per-game overrides and
    shared/per-game card selection so the run cannot accidentally use ordinary
    saves.
-4. Complete required first-run configuration in the isolated copy before
+1. Complete required first-run configuration in the isolated copy before
    expecting unattended boot. Keep original media and saves unchanged.
-5. Launch the owned process with a bounded external timeout and capture logs. On
+1. Launch the owned process with a bounded external timeout and capture logs. On
    a hang, terminate only its process tree and record forced termination; a
    killed process is not a normal VM shutdown.
 

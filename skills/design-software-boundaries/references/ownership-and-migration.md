@@ -97,13 +97,13 @@ To move storage access out of UI components:
 
 1. Inventory callers, transactions, errors and persisted data. Define the
    application-owned contract from observed behavior.
-2. Implement the adapter using the existing storage, preserving version/conflict
+1. Implement the adapter using the existing storage, preserving version/conflict
    semantics.
-3. Move one complete user operation through the contract, including cancellation
+1. Move one complete user operation through the contract, including cancellation
    and tests. Keep UI objects out of the adapter.
-4. Migrate remaining authorized consumers, then remove the obsolete direct path
+1. Migrate remaining authorized consumers, then remove the obsolete direct path
    when no supported consumers remain.
-5. Verify dependency direction and the representative read/write/conflict
+1. Verify dependency direction and the representative read/write/conflict
    operation with repository-native gates.
 
 For rolling deployments, use expand/contract only if compatibility requires it:

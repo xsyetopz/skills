@@ -2,32 +2,32 @@
 
 1. Read governing repository instructions and preserve unrelated work. Inventory
    all skill directories and every bundled file before selecting a sample.
-2. Write a boundary record for each skill: user goal, direct and indirect
+1. Write a boundary record for each skill: user goal, direct and indirect
    triggers, non-triggers, required inputs, output, completion evidence,
    non-goals, and complementary skills.
-3. Compare names and descriptions across the full catalog. Rename ambiguous
+1. Compare names and descriptions across the full catalog. Rename ambiguous
    capabilities, split workflows with materially different triggers or success
    criteria, and merge only genuine duplicates. Update folder names,
    frontmatter, OpenAI metadata, prompts, links, and cross-skill references
    together.
-4. Classify each technical claim as stable, version-sensitive, experimental,
+1. Classify each technical claim as stable, version-sensitive, experimental,
    deprecated, historical, or project-specific. For changeable claims, determine
    the artifact's actual version and inspect its matching normative
    specification, official documentation, source, release notes, tests, or CI.
    Prefer an upstream documentation index such as `llms.txt` when available.
-5. Keep shared routing and invariants in `SKILL.md`. Put substantial conditional
+1. Keep shared routing and invariants in `SKILL.md`. Put substantial conditional
    knowledge in focused references, output templates in `assets/`, and repeated
    deterministic operations in `scripts/`. Link every supporting resource from
    the entrypoint or its routed reference. Remove generated caches and unused
    resources.
-6. Validate with the current `skills-ref validate <skill-dir>` implementation.
+1. Validate with the current `skills-ref validate <skill-dir>` implementation.
    Also parse every `agents/openai.yaml`, check documented client fields,
    resolve internal paths and cross-skill names, run repository lint/format
    checks, test changed scripts, and exercise templates or examples in
    disposable copies. Functional tests added to scripts or assets MUST use
    `Arrange`, `Act`, `Assert`: one focused `Act` between setup and outcome
    assertions.
-7. Check external links and re-open sources for commands, options, schemas,
+1. Check external links and re-open sources for commands, options, schemas,
    APIs, compatibility claims, and release-sensitive behavior. A reachable URL
    does not prove that the cited text supports the claim.
 

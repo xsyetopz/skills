@@ -1,16 +1,17 @@
 ---
 name: maintain-repository-docs
 description: >-
-  Use only when explicitly invoked by name. Write or audit README, CONTRIBUTING,
-  and other repository documentation from executable project evidence. Excludes
-  AGENTS.md, changelogs, hosted templates, CODEOWNERS, and runtime
-  implementation.
+  Write or audit README, CONTRIBUTING, and other repository documentation when
+  repository documentation is the requested task, using executable project
+  evidence. Excludes AGENTS.md, changelogs, hosted templates, CODEOWNERS, and
+  runtime implementation.
 ---
 
 # Maintain Repository Docs
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when repository documentation is the requested work, not
+merely because another task includes necessary documentation. Implicit
+activation does not authorize unrelated implementation changes.
 
 Derive claims from manifests, source, CI, scripts, and observed commands. Read
 [README and contribution guidance](references/readme-and-contributing.md). For

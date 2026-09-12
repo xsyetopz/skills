@@ -10,8 +10,8 @@ description: {What this skill does and the concrete activation boundary.}
 ## Workflow
 
 1. {Inspect the relevant evidence.}
-2. {Perform the smallest coherent change or analysis.}
-3. {Produce the requested artifact or decision.}
+1. {Perform the smallest coherent change or analysis.}
+1. {Produce the requested artifact or decision.}
 
 ## Validation
 

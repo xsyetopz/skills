@@ -1,16 +1,17 @@
 ---
 name: manage-hosted-repositories
 description: >-
-  Use only when explicitly invoked by name. Manage GitHub or GitLab issues,
-  pull/merge requests, hosted releases, and repository settings using verified
-  provider contracts. Excludes local Git operations, pipeline implementation,
-  governance files, and changelog writing.
+  Manage GitHub or GitLab issues, pull/merge requests, hosted releases, and
+  repository settings when hosted repository operations are the requested task,
+  using verified provider contracts. Excludes local Git operations, pipeline
+  implementation, governance files, and changelog writing.
 ---
 
 # Manage Hosted Repositories
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Apply this workflow when a hosted repository resource or setting is the
+requested work. Implicit activation selects guidance only; it does not authorize
+any hosted mutation.
 
 Resolve provider, host, repository/project, resource identity, and the requested
 effect. Read [identity and recovery](references/provider-semantics.md), then

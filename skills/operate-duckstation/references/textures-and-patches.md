@@ -8,14 +8,14 @@ version-specific interfaces.
 
 1. In the isolated profile, enable the texture cache under **Graphics Settings →
    Texture Replacements**, then enable texture dumping.
-2. Run the target scene and move through the relevant content. Stop the VM
+1. Run the target scene and move through the relevant content. Stop the VM
    before reviewing the dump.
-3. Open the data directory and inspect `textures/SERIAL/dumps`. Keep the game's
+1. Open the data directory and inspect `textures/SERIAL/dumps`. Keep the game's
    exact serial/revision with the fixture.
-4. Copy selected files into `textures/SERIAL/replacements`, preserving generated
+1. Copy selected files into `textures/SERIAL/replacements`, preserving generated
    identities, then edit/resize those copies. PNG, JPG and WebP are documented
    replacement formats.
-5. Disable dumping for comparison, enable replacements and repeat the scene.
+1. Disable dumping for comparison, enable replacements and repeat the scene.
    Confirm both correct substitution and absence of unintended replacements.
 
 The PS1's VRAM uploads do not map cleanly to modern immutable texture assets.

@@ -102,12 +102,12 @@ Keep manifest version, Cargo version, registry record, repository revision and
 upstream tool version distinct. Publish through the registry:
 
 1. Fork/clone `zed-industries/extensions` and initialize its submodules.
-2. Add the public extension repository with an HTTPS submodule URL under
+1. Add the public extension repository with an HTTPS submodule URL under
    `extensions/ID`; select a commit reachable from a branch.
-3. Add `[ID]`, `submodule = "extensions/ID"` and matching `version` to root
+1. Add `[ID]`, `submodule = "extensions/ID"` and matching `version` to root
    `extensions.toml`. For a monorepo, add `path = "packages/zed"` for the
    extension subdirectory.
-4. Run the registry's `bun run sort-extensions`, review the gitlink and
+1. Run the registry's `bun run sort-extensions`, review the gitlink and
    metadata, and submit one extension per PR. Merge triggers
    packaging/publication. Updates change the gitlink and matching
    registry/manifest version.

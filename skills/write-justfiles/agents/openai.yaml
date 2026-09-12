@@ -1,0 +1,6 @@
+interface:
+  display_name: "Write Justfiles"
+  short_description: "Write current, validated Just task recipes"
+  default_prompt: "Use $write-justfiles to create or repair this justfile with current Just syntax."
+policy:
+  allow_implicit_invocation: true

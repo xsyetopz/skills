@@ -17,6 +17,17 @@ checks a concrete artifact that existing tooling does not.
   `actionlint`. Hosted execution remains necessary for GitHub behavior.
 - `shellcheck`: diagnose shell code with `shellcheck path.sh`. `bash -n` is a
   syntax-only fallback.
+- `ruff`: lint and format Python with the repository's selected rules and target
+  version. Run both `ruff check` and `ruff format --check`; neither replaces
+  type checking or behavioral tests.
+- `pyright`: run the same checked-in type configuration used by Pylance. Select
+  the provisioned Python interpreter so installed validation dependencies are
+  visible instead of hiding unresolved imports.
+
+VersionLens Redux may surface newer dependency versions in supported manifests,
+but its CodeLens is discovery evidence. Confirm a proposed update against the
+authoritative registry, upstream compatibility notes, and the resolved lockfile
+before editing a pin.
 
 Use Python's standard JSON, TOML, XML, and plist parsers for those formats;
 PyYAML is pinned only because Python has no standard YAML parser. Use the
@@ -38,6 +49,10 @@ Primary sources:
 - [`hyperfine`](https://github.com/sharkdp/hyperfine)
 - [`actionlint`](https://github.com/rhysd/actionlint)
 - [ShellCheck](https://www.shellcheck.net/)
+- [Ruff](https://docs.astral.sh/ruff/)
+- [Pyright](https://github.com/microsoft/pyright)
+- [VersionLens Redux][versionlens-redux]
 
 [markdownlint-cli2]: https://github.com/DavidAnson/markdownlint-cli2
 [skills-ref]: https://github.com/agentskills/agentskills/tree/main/skills-ref
+[versionlens-redux]: https://marketplace.visualstudio.com/items?itemName=xsyetopz.versionlens-redux

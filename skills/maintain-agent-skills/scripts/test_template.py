@@ -13,8 +13,8 @@ class SkillTemplateTests(unittest.TestCase):
         rendered = (ROOT / "assets/SKILL.template.md").read_text()
         rendered = rendered.replace("{skill-name}", "sample-skill")
         rendered = rendered.replace(
-            "{What this skill does and the concrete activation boundary.}",
-            "Create a verified sample artifact when explicitly requested.",
+            "{What this skill does. Use when the concrete activation boundary applies.}",
+            "Create a verified sample artifact. Use when a sample is requested.",
         )
         rendered = rendered.replace("{Action-oriented title}", "Create Sample")
         rendered = rendered.replace(

@@ -1,10 +1,10 @@
 ---
 name: maintain-repository-docs
 description: >-
-  Write or audit README, CONTRIBUTING, and other repository documentation when
-  repository documentation is the requested task, using executable project
-  evidence. Excludes AGENTS.md, changelogs, hosted templates, CODEOWNERS, and
-  runtime implementation.
+  Write or audit README, CONTRIBUTING, guides, and other repository
+  documentation using executable project evidence. Use when repository
+  documentation content is the requested outcome; not for AGENTS.md,
+  changelogs, hosted templates, CODEOWNERS, or runtime implementation.
 ---
 
 # Maintain Repository Docs

@@ -2,5 +2,3 @@ interface:
   display_name: "Maintain Agent Skills"
   short_description: "Audit and update complete Agent Skills packages"
   default_prompt: "Use $maintain-agent-skills to audit and update these skills."
-policy:
-  allow_implicit_invocation: true

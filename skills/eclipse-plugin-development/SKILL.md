@@ -1,15 +1,17 @@
 ---
 name: eclipse-plugin-development
 description: >-
-  Use only when explicitly invoked by name. Build, repair, or review Eclipse
-  plug-ins and RCP/PDE integrations using OSGi lifecycle and target-platform
-  contracts.
+  Build, repair, or review Eclipse plug-ins and RCP/PDE integrations using
+  OSGi lifecycle and target-platform contracts. Use when implementing or
+  diagnosing Eclipse IDE plug-in manifests, extensions, jobs, resources, UI,
+  packaging, or host behavior.
 ---
 
 # Eclipse Plugin Development
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Resolve the target platform, execution environment, and affected OSGi bundles.
 Compile against the declared target. Align `MANIFEST.MF`, `plugin.xml`, and

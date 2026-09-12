@@ -1,10 +1,11 @@
 ---
 name: maintain-agent-skills
 description: >-
-  Create, audit, update, split, merge, or validate Agent Skills packages when
-  skill maintenance is the requested task, using current specifications and
-  authoritative domain sources. Excludes AGENTS.md, general repository
-  documentation, and unrelated product implementation.
+  Create, audit, update, split, merge, or validate Agent Skills packages
+  against current specifications and authoritative domain sources. Use when
+  SKILL.md metadata, description-driven discovery, instructions, scripts,
+  references, assets, or skill boundaries are the requested work; not for
+  AGENTS.md or unrelated product code.
 ---
 
 # Maintain Agent Skills

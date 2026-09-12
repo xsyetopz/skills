@@ -1,9 +1,10 @@
 ---
 name: design-software-boundaries
 description: >-
-  Choose or review software architecture, patterns, paradigms, UI state flow,
-  module boundaries, dependency direction, and structural migrations. Use for
-  architecture decisions and demonstrated boundary problems, not routine edits.
+  Choose or review software architecture, patterns, paradigms, UI state
+  flow, module boundaries, dependency direction, and structural migrations.
+  Use when an architecture decision or demonstrated boundary problem is the
+  requested outcome; not for routine edits.
 ---
 
 # Design Software Boundaries

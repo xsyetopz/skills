@@ -1,9 +1,10 @@
 ---
 name: maintain-agents-md
 description: >-
-  Create or audit AGENTS.md instructions when scoped agent guidance is the
-  requested task, deriving rules from repository evidence and directory scope.
-  Excludes GitHub custom-agent personas and general project documentation.
+  Create or audit scoped AGENTS.md instructions derived from repository
+  evidence and directory scope. Use when agent guidance, repository
+  instruction precedence, or AGENTS.md content is the requested outcome; not
+  for Agent Skills, GitHub personas, or general documentation.
 ---
 
 # Maintain AGENTS.md

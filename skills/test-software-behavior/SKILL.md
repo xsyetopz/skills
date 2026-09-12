@@ -1,16 +1,18 @@
 ---
 name: test-software-behavior
 description: >-
-  Use only when explicitly invoked by name. Design, add, or review behavioral
-  and regression tests, diagnose flaky tests, and verify package or integration
-  behavior. Use when testing is the requested outcome, not for every code edit,
-  routine test execution, CI configuration, or performance optimization.
+  Design, add, or review behavioral and regression tests, diagnose flaky
+  tests, and verify package or integration behavior. Use when test design,
+  coverage, an oracle, nondeterminism, fuzzing, or a tests-only change is
+  the requested outcome; not for routine test execution, CI configuration,
+  or performance optimization.
 ---
 
 # Test Software Behavior
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Identify the intended contract, supported environments, and observable failure.
 Read existing tests and test configuration before adding tools. Current output,

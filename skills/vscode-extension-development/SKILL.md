@@ -1,15 +1,18 @@
 ---
 name: vscode-extension-development
 description: >-
-  Use only when explicitly invoked by name. Build, repair, or review VS Code
-  extensions across desktop, remote, or web hosts with Workspace Trust, URI, and
-  lifecycle constraints.
+  Build, repair, or review VS Code extensions across desktop, remote, and
+  web hosts with Workspace Trust, URI, packaging, and lifecycle constraints.
+  Use when implementing or diagnosing VS Code extension manifests, commands,
+  providers, webviews, language features, tests, VSIX packaging, or host
+  behavior.
 ---
 
 # VS Code Extension Development
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Resolve minimum `engines.vscode`, contributions, activation, `main`/`browser`,
 and supported desktop/remote/web hosts. Match type declarations and packaged

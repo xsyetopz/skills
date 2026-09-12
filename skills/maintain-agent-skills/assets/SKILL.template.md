@@ -1,6 +1,6 @@
 ---
 name: {skill-name}
-description: {What this skill does and the concrete activation boundary.}
+description: {What this skill does. Use when the concrete activation boundary applies.}
 ---
 
 # {Action-oriented title}

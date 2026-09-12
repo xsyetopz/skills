@@ -1,16 +1,18 @@
 ---
 name: optimize-rust-code
 description: >-
-  Use only when explicitly invoked by name. Profile, review, or optimize Rust
-  performance using allocation, layout, ownership, concurrency, and compiler
-  evidence. Includes unsafe and CPU-portability tradeoffs; excludes unrelated
-  toolchain migration.
+  Profile, review, or optimize Rust performance using allocation, layout,
+  ownership, concurrency, compiler, unsafe-code, and CPU-portability
+  evidence. Use when Rust speed, latency, throughput, allocation, binary
+  size, or memory is the requested outcome; not for unrelated toolchain
+  migration.
 ---
 
 # Optimize Rust Code
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Define the workload, build profile, target CPUs, and performance claim. Measure
 CPU/allocation behavior before changing the limiting path. Check changes against

@@ -1,10 +1,10 @@
 ---
 name: create-minimal-reproduction
 description: >-
-  Construct, reduce, execute, and package a minimal reproducible example (MRE
-  or reprex) for a bug, regression, API behavior, or failing integration. Use
-  for upstream reproducers and isolated failure cases, not tutorials or
-  production starter templates.
+  Construct, reduce, execute, and package a minimal reproducible example
+  (MRE or reprex) for a bug, regression, API behavior, or failing
+  integration. Use when an isolated upstream reproducer is the requested
+  outcome; not for tutorials or production starter templates.
 ---
 
 # Create Minimal Reproduction

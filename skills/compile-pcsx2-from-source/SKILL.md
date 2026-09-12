@@ -1,16 +1,17 @@
 ---
 name: compile-pcsx2-from-source
 description: >-
-  Use only when explicitly invoked by name. Compile a PCSX2 executable from a
-  pinned source checkout with platform dependencies and reproducible packaged-
-  resource evidence. Excludes installing release binaries, game launches, guest
-  debugging, patches, and texture packs.
+  Compile and verify a PCSX2 executable from a pinned source checkout with
+  platform dependencies and packaged-resource evidence. Use when building
+  PCSX2 from source; not for release installation, game operation, guest
+  debugging, patches, or texture packs.
 ---
 
 # Compile PCSX2 from Source
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Use a separate checkout and build directory at a recorded revision. Read
 [source compilation](references/source-builds.md) for Linux, Windows, macOS, GS

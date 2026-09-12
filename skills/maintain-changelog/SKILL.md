@@ -1,10 +1,10 @@
 ---
 name: maintain-changelog
 description: >-
-  Write, normalize, audit, or validate changelogs, release notes, and Semantic
-  Versioning decisions when release history is the requested task. Excludes
-  publishing hosted releases, local Git tagging, and unrelated repository
-  documentation.
+  Write, normalize, audit, or validate changelogs, release notes, and
+  Semantic Versioning decisions. Use when CHANGELOG entries, release-history
+  structure, or SemVer impact is the requested outcome; not for publishing
+  releases, local Git tags, or unrelated documentation.
 ---
 
 # Maintain Changelog

@@ -2,5 +2,3 @@ interface:
   display_name: "Test Software Behavior"
   short_description: "Build tests that distinguish real behavior"
   default_prompt: "Use $test-software-behavior to strengthen behavioral evidence for this change."
-policy:
-  allow_implicit_invocation: false

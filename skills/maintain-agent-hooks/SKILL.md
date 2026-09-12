@@ -1,10 +1,10 @@
 ---
 name: maintain-agent-hooks
 description: >-
-  Audit, install, test, update, or remove lifecycle hooks when coding-agent hook
-  maintenance is the requested task. Excludes Git hooks, editor extension
-  events, prompts, MCP configuration, and unverified cross-provider schema
-  translation.
+  Audit, install, test, update, or remove coding-agent lifecycle hooks. Use
+  when hook events, handler configuration, payload parsing, or hook
+  execution for Codex, Claude Code, or another coding agent is the requested
+  task; not for Git hooks, editor events, prompts, or MCP configuration.
 ---
 
 # Maintain Agent Hooks

@@ -2,5 +2,3 @@ interface:
   display_name: "Develop CI Pipelines"
   short_description: "Repair pipelines and their trust boundaries"
   default_prompt: "Use $develop-ci-pipelines to repair this pipeline while preserving its required checks."
-policy:
-  allow_implicit_invocation: true

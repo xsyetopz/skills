@@ -2,5 +2,3 @@ interface:
   display_name: "Find Regression Commit"
   short_description: "Locate regressions with Git bisect"
   default_prompt: "Use $find-regression-commit to complete this request."
-policy:
-  allow_implicit_invocation: false

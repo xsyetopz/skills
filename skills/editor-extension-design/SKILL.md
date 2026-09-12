@@ -1,8 +1,10 @@
 ---
 name: editor-extension-design
 description: >-
-  Choose an editor target, design a cross-editor extension, or plan an extension
-  port. Excludes ordinary implementation for an already-selected editor.
+  Choose an editor target, design a cross-editor extension, or plan an
+  extension port. Use when editor selection, shared architecture, capability
+  comparison, or a VS Code, JetBrains, Eclipse, Neovim, Sublime Text, or Zed
+  port is undecided; not for ordinary implementation on a selected host.
 ---
 
 # Editor Extension Design

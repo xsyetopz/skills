@@ -1,15 +1,17 @@
 ---
 name: zed-extension-development
 description: >-
-  Use only when explicitly invoked by name. Build, repair, or review Zed
-  extensions using declarative assets or supported Rust/WASM APIs, with grammar
-  and registry contracts.
+  Build, repair, or review Zed extensions using declarative assets or
+  supported Rust/WASM APIs with grammar and registry contracts. Use when
+  implementing or diagnosing Zed languages, grammars, themes, snippets, LSP,
+  DAP, MCP, extension.toml, registry packaging, or host behavior.
 ---
 
 # Zed Extension Development
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Resolve the requested capability, host/API versions, and `extension.toml`. Use
 declarative assets for supported static features and Rust/WASM hooks for

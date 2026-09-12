@@ -1,17 +1,18 @@
 ---
 name: review-software-security
 description: >-
-  Use only when explicitly invoked by name. Threat-model a software design,
-  review code for exploitable trust-boundary failures, or verify security fixes.
-  Use for defensive application and dependency security reviews, not routine
-  feature work, compliance certification, incident response, or offensive
-  testing of live systems.
+  Threat-model a software design, review code for exploitable trust-boundary
+  failures, or verify security fixes. Use when a defensive application,
+  dependency, authentication, authorization, secrets, or supply-chain
+  security review is requested; not for routine features, compliance
+  certification, incident response, or live offensive testing.
 ---
 
 # Review Software Security
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Establish the authorized repository/design, deployed versions, entrypoints,
 assets, actors, privileges, and review depth. Distinguish a design threat from

@@ -1,6 +1,6 @@
 # Specification and metadata
 
-Research: 2026-09-11. Agent Skills use progressive disclosure: catalog metadata,
+Research: 2026-09-13. Agent Skills use progressive disclosure: catalog metadata,
 the activated `SKILL.md`, then task-relevant bundled resources. The normative
 [specification](https://agentskills.io/specification) requires `SKILL.md` with
 YAML frontmatter and Markdown instructions.
@@ -22,31 +22,28 @@ OpenAI's [skills guide](https://developers.openai.com/plugins/build/skills)
 requires a focused user goal and calls for representative activation,
 non-activation, incomplete-input, and edge-case tests. It documents
 `agents/openai.yaml` MCP dependencies separately from the portable format.
-OpenAI-specific interface and invocation-policy fields are client metadata, not
-Agent Skills frontmatter; parse their YAML and check the fields against the
-target client documentation instead of assuming portability. Do not invent a
-JSON Schema or claim a generator validates existing metadata. Keep display text
-consistent with the skill and include `$skill-name` in a default invocation
-prompt as required by the bundled skill creator.
+OpenAI-specific interface fields are client metadata, not Agent Skills
+frontmatter; parse their YAML and check the fields against the target client
+documentation instead of assuming portability. Do not invent a JSON Schema or
+claim a generator validates existing metadata. Keep display text consistent
+with the skill and include `$skill-name` in a default invocation prompt as
+required by the bundled skill creator.
 
 The [OpenAI skills guidance](https://openai.com/academy/skills/) recommends
 explicit inputs, workflow, output, and final checks, and favors composable
 skills over an unfocused end-to-end package.
 
-## Discovery is not authorization
+## Description-driven discovery is not authorization
 
-The [Codex skill guide](https://learn.chatgpt.com/docs/build-skills) documents
-`policy.allow_implicit_invocation` in `agents/openai.yaml`: omission means
-`true`; `false` prevents implicit selection but allows explicit invocation. Use
-explicit-only policy when the user requests that mode or delegates the
-invocation-policy decision and the workflow should require deliberate named
-invocation. This catalog uses manual invocation by default at the user's
-request; only its two ordinary design/planning skills remain implicit. This
-catalog choice does not change the client's documented omission default. Do not
-infer this solely from commits, releases, or other consequential operations.
-Require authorization at the mutation boundary. Preserve a deliberate existing
-invocation policy; investigate its provenance when the task explicitly asks to
-reconsider the catalog.
+Every catalog description must state both the concrete capability and an
+explicit `Use when...` activation boundary with recognizable task language.
+The official [description optimization guidance][descriptions] confirms that
+catalog descriptions carry discovery and should state user intent with specific
+keywords. Do not require a user to name a skill, and do not add client-specific
+invocation-policy fields to opt a skill out of normal description matching.
+Natural-language selection supplies workflow guidance only. It never grants
+permission for commits, pushes, hosted mutations, security testing, emulator
+execution, or any other consequential operation beyond the user's request.
 
 A policy change cannot repair an ambiguous description. Test natural requests
 against all candidate descriptions, including near neighbors and composition.
@@ -56,8 +53,7 @@ client discovery before claiming that a large catalog is fully available.
 
 A keyword match is not a task match. Put likely neighboring non-goals in the
 metadata; do not activate a specialized review or audit simply because its
-subject appears in routine implementation. For an intentional explicit-only
-workflow, also state the invocation requirement in its description and body.
-`openai.yaml` is client-specific: it is not a universal enforcement mechanism
-for other agents. Check the target host's supported invocation controls rather
-than promising that every agent honors this field.
+subject appears in routine implementation. Keep authorization and side-effect
+limits in the body, where they constrain execution after discovery.
+
+[descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions

@@ -29,7 +29,20 @@ relevant checks for each commit so every slice is independently valid and can be
 reverted without invalidating an unrelated slice. Apply this policy only to new
 commits; do not rewrite existing history to reshape earlier work.
 
-Use Conventional Commits 1.0.0 unless the user specifies another format:
+Before composing a message or running an operation that creates or rewords a
+commit, determine the repository's configured message policy. Inspect its
+contributor documentation, message-linter configuration, hook-manager
+configuration, and equivalent CI gate. Use recent reachable history only as
+supporting evidence, not as a substitute for an explicit policy. If these
+sources conflict, stop and report the conflict instead of choosing a style.
+
+Follow the repository's policy when one exists, including its allowed types,
+scope rules, subject casing and length, required trailers, and merge or revert
+exceptions. Preserve and extend its existing validator and hook manager rather
+than adding a competing convention or implementation.
+
+When the repository has no configured policy, establish the latest stable
+Conventional Commits specification, currently 1.0.0:
 
 ```text
 <type>[optional scope][!]: <description>
@@ -44,11 +57,14 @@ changes with `!` or a `BREAKING CHANGE:` footer. Other types, such as `docs`,
 `refactor`, and `test`, do not imply a version increment by themselves. Name the
 actual change in the description. Add rationale or migration details only when
 needed. Keep release notes focused on user-visible changes instead of copying
-the commit log. This message format alone does not require a commit-message hook
-or new tool; code-validation hooks remain required by
-[local feedback](local-feedback.md).
+the commit log.
+
+The selected policy must be enforced by the shared, reproducibly installed
+message hooks described in [local feedback](local-feedback.md) before creating
+or rewording commits. Do not treat a correctly written message, a local-only
+untracked hook, or post-operation inspection as a substitute for that gate.
 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/),
-checked 2026-09-09.
+checked 2026-09-13 and still the latest stable specification.
 
 ## Preserve partial staging
 

@@ -1,16 +1,17 @@
 ---
 name: optimize-bun-code
 description: >-
-  Use only when explicitly invoked by name. Profile, review, or optimize Bun
-  application performance using JavaScriptCore, allocation, memory, and
-  native-API evidence. Excludes Bun upgrades and browser-only or Node-only
-  tuning.
+  Profile, review, or optimize Bun application performance using
+  JavaScriptCore, allocation, memory, and native-API evidence. Use when Bun
+  runtime speed, latency, throughput, allocation, or memory is the requested
+  outcome; not for Bun upgrades or browser-only and Node-only tuning.
 ---
 
 # Optimize Bun Code
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Define the workload and claim: startup, CPU cost, retention, throughput, or
 latency. Measure a baseline before optimizing. Select the changed path from

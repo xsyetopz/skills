@@ -2,5 +2,3 @@ interface:
   display_name: "Operate PCSX2"
   short_description: "Run and diagnose isolated PCSX2 fixtures"
   default_prompt: "Use $operate-pcsx2 for this isolated PS2 emulator task."
-policy:
-  allow_implicit_invocation: false

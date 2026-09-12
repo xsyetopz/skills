@@ -1,0 +1,20 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx --bun --no-install commitlint --edit {1}
+
+pre-commit:
+  parallel: false
+  commands:
+    require-clean-worktree:
+      run: git diff --quiet
+    validate-fast:
+      run: just metadata markdown python-lint
+
+pre-push:
+  parallel: false
+  commands:
+    require-clean-head:
+      run: git diff --quiet && git diff --cached --quiet
+    validate:
+      run: just validate

@@ -1,10 +1,10 @@
 ---
 name: format-github-markdown
 description: >-
-  Format, normalize, or lint GitHub Flavored Markdown when Markdown formatting
-  or lint compliance is the requested task. Uses the bundled markdownlint-cli2
-  policy only as a fallback; excludes deciding document content or repository
-  governance.
+  Format, normalize, or lint GitHub Flavored Markdown with repository policy
+  and markdownlint-cli2 when appropriate. Use when Markdown formatting or
+  lint compliance is the requested outcome; not for deciding document
+  content or repository governance.
 ---
 
 # Format GitHub Markdown

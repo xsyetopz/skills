@@ -1,9 +1,10 @@
 ---
 name: write-justfiles
 description: >-
-  Create, repair, review, or run justfiles using the current Just language and
-  command-line contract. Use for Just task orchestration and Just syntax, not
-  application build logic or migration between package managers.
+  Create, repair, review, or run justfiles using the current Just language
+  and command-line contract. Use when Just recipes, variables, dependencies,
+  syntax, formatting, or task orchestration are the requested outcome; not
+  for application build logic or package-manager migration.
 ---
 
 # Write Justfiles

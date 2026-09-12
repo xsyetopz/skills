@@ -1,16 +1,17 @@
 ---
 name: optimize-dotnet-code
 description: >-
-  Use only when explicitly invoked by name. Profile, review, or optimize .NET
-  application performance using runtime, allocation, JIT, and workload evidence.
-  Includes C# memory and native-interop tradeoffs; excludes unrelated SDK
-  upgrades.
+  Profile, review, or optimize .NET application performance using runtime,
+  allocation, JIT, and workload evidence, including C# memory and native
+  interop. Use when .NET speed, latency, throughput, allocation, or memory
+  is the requested outcome; not for unrelated SDK upgrades.
 ---
 
 # Optimize .NET Code
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Define the workload and limiting metric: startup, throughput, tail latency,
 allocation, retained memory, or resource use. Record the selected SDK, target

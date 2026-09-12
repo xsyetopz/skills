@@ -1,10 +1,11 @@
 ---
 name: manage-hosted-repositories
 description: >-
-  Manage GitHub or GitLab issues, pull/merge requests, hosted releases, and
-  repository settings when hosted repository operations are the requested task,
-  using verified provider contracts. Excludes local Git operations, pipeline
-  implementation, governance files, and changelog writing.
+  Manage GitHub or GitLab issues, pull or merge requests, hosted releases,
+  and repository settings using verified provider contracts. Use when the
+  requested outcome changes or inspects hosted repository state; not for
+  local Git operations, CI implementation, governance files, or changelog
+  writing.
 ---
 
 # Manage Hosted Repositories

@@ -2,5 +2,3 @@ interface:
   display_name: "Operate DuckStation"
   short_description: "Run and diagnose isolated DuckStation fixtures"
   default_prompt: "Use $operate-duckstation for this isolated PS1 emulator task."
-policy:
-  allow_implicit_invocation: false

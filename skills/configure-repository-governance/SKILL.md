@@ -2,9 +2,9 @@
 name: configure-repository-governance
 description: >-
   Create or audit CODEOWNERS, issue and pull-request templates, contribution
-  policy, and repository governance files when those files are the requested
-  task. Excludes hosted settings mutations, CI pipelines, AGENTS.md, and general
-  README work.
+  policy, and repository governance files. Use when repository governance
+  files are the requested outcome; not for hosted settings, CI pipelines,
+  AGENTS.md, or general README work.
 ---
 
 # Configure Repository Governance

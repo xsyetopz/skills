@@ -1,16 +1,17 @@
 ---
 name: find-regression-commit
 description: >-
-  Use only when explicitly invoked by name. Find and verify the first Git commit
-  that introduces a reproducible regression using an isolated worktree and a
-  trustworthy bisect oracle. Excludes general debugging, lost-commit recovery,
-  and history integration.
+  Find and verify the first Git commit that introduced a reproducible
+  failure using an isolated worktree and a trustworthy bisect oracle. Use
+  when asked which commit caused a regression or to run git bisect; not for
+  general debugging, lost-commit recovery, or branch integration.
 ---
 
 # Find Regression Commit
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Define a deterministic good/bad oracle and known boundary commits. Read
 [bisect workflow](references/bisect-workflow.md).

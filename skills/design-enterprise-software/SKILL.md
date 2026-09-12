@@ -1,10 +1,10 @@
 ---
 name: design-enterprise-software
 description: >-
-  Design or review enterprise-grade, long-lived, multi-team software with
-  justified customization, extensibility, compatibility, operability, security,
-  governance, scale, and evolution requirements. Do not use merely because code
-  runs in production or an architecture should sound professional.
+  Design or review enterprise-grade, long-lived, multi-team software for
+  extensibility, compatibility, operability, security, governance, scale,
+  and evolution. Use when concrete enterprise quality attributes require
+  architectural tradeoffs; not merely because software runs in production.
 ---
 
 # Design Enterprise Software

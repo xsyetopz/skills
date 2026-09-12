@@ -6,6 +6,11 @@ bun_cache := cache + "/bun"
 
 default: validate
 
+hooks:
+    bun install --frozen-lockfile
+    bunx --bun --no-install lefthook validate
+    bunx --bun --no-install lefthook install
+
 provision:
     mkdir -p "{{ cache }}" "{{ bun_cache }}"
     test -x "{{ venv }}/bin/python" || python3 -m venv "{{ venv }}"

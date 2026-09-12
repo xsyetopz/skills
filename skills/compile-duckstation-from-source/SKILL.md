@@ -1,16 +1,17 @@
 ---
 name: compile-duckstation-from-source
 description: >-
-  Use only when explicitly invoked by name. Compile a DuckStation executable
-  from a pinned source checkout with platform dependencies and reproducible
-  artifact evidence. Excludes installing release binaries, running games, guest
-  debugging, patches, and texture authoring.
+  Compile and verify a DuckStation executable from a pinned source checkout
+  with platform dependencies and reproducible artifact evidence. Use when
+  building DuckStation from source; not for release installation, game
+  operation, guest debugging, patches, or textures.
 ---
 
 # Compile DuckStation from Source
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-related keyword or an ordinary implementation request is not an invocation.
+Select this workflow automatically when the task matches its description.
+Selection supplies guidance only; it does not authorize operations beyond the
+user's request.
 
 Pin the source revision and dependency-pack hashes in a separate checkout and
 build directory. Read [source compilation](references/source-builds.md) for

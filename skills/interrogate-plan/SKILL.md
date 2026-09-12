@@ -1,16 +1,18 @@
 ---
 name: interrogate-plan
 description: >-
-  Interrogate a supplied plan, design, or requirements set until contradictions,
-  assumptions, unresolved decisions, and material risks are explicit. Activate
-  only when invoked as $interrogate-plan; do not implement the plan or choose
+  Interrogate a supplied plan, design, or requirements set until
+  contradictions, assumptions, unresolved decisions, and material risks are
+  explicit. Use when the user asks to challenge, critique, pressure-test, or
+  clarify a plan before implementation; do not implement it or choose
   answers for the user.
 ---
 
 # Interrogate Plan
 
-Run this workflow only when the user explicitly invokes this skill by name. A
-mention of its subject in another task is not an invocation.
+Select this workflow automatically when the user asks to interrogate, challenge,
+or pressure-test a plan. Selection does not authorize implementation or choosing
+answers for the user.
 
 Question the artifact rather than improving or implementing it.
 

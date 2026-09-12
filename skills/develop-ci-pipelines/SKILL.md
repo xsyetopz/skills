@@ -1,9 +1,10 @@
 ---
 name: develop-ci-pipelines
 description: >-
-  Create, repair, or review GitHub Actions, GitLab CI, or Bitbucket pipeline
-  behavior when CI configuration or execution is the requested task. Excludes
-  hosted settings operations and application bugs unrelated to CI.
+  Create, repair, or review GitHub Actions, GitLab CI, and Bitbucket
+  pipeline configuration and execution. Use when CI/CD workflow behavior or
+  configuration is the requested task; not for hosted settings or
+  application bugs unrelated to pipelines.
 ---
 
 # Develop CI Pipelines

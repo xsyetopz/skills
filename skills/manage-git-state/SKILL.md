@@ -2,9 +2,10 @@
 name: manage-git-state
 description: >-
   Create scoped Git commits, integrate branches, manage refs or tags, and
-  recover or restore identified Git state when local Git state is the requested
-  task. Preserves unrelated work and excludes hosted PR/MR management,
-  repository settings, and regression bisection.
+  recover or restore identified local Git state. Use when asked to commit
+  changes, merge or rebase branches, create tags, recover commits, or
+  manipulate the index/worktree; not for hosted PRs, repository settings, or
+  regression bisection.
 ---
 
 # Manage Git State
@@ -18,8 +19,9 @@ branch/worktrees, index, worktree, and any in-progress operation. Distinguish
 committed objects from staged blobs and unsaved file contents.
 
 - Read [mandatory local feedback](references/local-feedback.md) before code
-  commits or pushes: require pre-commit/pre-push checks and preserve hook
-  ownership, authorization, and the exact validated snapshot.
+  commits, commit-producing integrations, or pushes: enforce the repository's
+  commit-message policy with generated hooks, require pre-commit/pre-push
+  checks, and preserve hook ownership and the exact validated snapshot.
 - Read [snapshots and refs](references/snapshots-and-refs.md) for scoped
   commits, partial staging, branch/tag identity, and remote ref updates.
 - Read [integration and recovery](references/integration-and-recovery.md) for

@@ -153,6 +153,60 @@ workspace is justified, keep that boundary explicit rather than silently
 replacing the application's compiler or configured lint rules. [Generator
 source][ts-generator], [package metadata][ts-package].
 
+## System-style coverage
+
+Use these labels to compare a demonstrated force; none is a target state. For
+one candidate, make a quality-attribute scenario with stimulus, environment,
+expected response, and measure before selecting it.
+
+- **Modular monolith:** use for one release, shared transactions, and cohesive
+  ownership. It reduces operations and preserves local consistency. Its cost is
+  hidden cross-module coupling. Start with a cohesive feature module; do not
+  split deployables merely to claim scale.
+- **Layered:** use when presentation, policy, and data change separately. It
+  separates concerns but pass-through layers spread changes. A feature module is
+  simpler; empty service/repository layers add indirection.
+- **Ports/adapters, hexagonal, onion, clean:** use when application policy needs
+  protection from a real external contract. Translation and contract maintenance
+  are costs. Use a local wrapper or direct client when there is no such
+  boundary.
+- **Client/server and SOA:** use when remote ownership or coarse business
+  capabilities cross organization boundaries. They centralize authority and
+  interoperability at the cost of network, security, and governance work. A
+  modular monolith with explicit ownership is simpler when deployment is shared.
+- **Microservices:** use for independent deployment, fault isolation, scaling,
+  or lifecycle per capability. They add distributed consistency, contracts,
+  observability, and operations. A module is simpler; services are not folders.
+- **Event-driven:** use when independent reactions or delayed work require
+  decoupling. It adds ordering, duplicates, replay, and eventual consistency.
+  Use a direct call or transaction for local synchronous control flow.
+- **Actor/message passing:** use when concurrent mutable state needs one owner.
+  It adds mailbox, supervision, and external-effect complexity. A mutex plus
+  bounded worker may suffice.
+- **Pipes and filters:** use for stable intermediate representations. It adds
+  buffering, provenance, and partial-failure concerns. Sequential calls are
+  simpler.
+- **Plugin/extension:** use for independently delivered code along one defined
+  axis. It requires ABI, isolation, compatibility, and security policy. Use
+  configuration, a callback, or a built-in strategy when those meet the need.
+- **Serverless/event handler:** use for intermittent, short-lived work with
+  suitable platform triggers. Cold starts, timeouts, and platform coupling are
+  costs. A process is simpler for stateful or long-running work.
+- **Data-intensive/distributed:** use only when measured volume, availability,
+  regional, or throughput constraints exceed one owner/store. Replication and
+  coordination cost more than optimizing an authoritative schema/query/cache.
+
+Quality attributes are not adjectives. Example: “During a 30-second dependency
+outage, accepted writes are rejected within two seconds or retained for replay
+without duplication.” Evaluate alternatives against this scenario, not “high
+reliability.” ATAM-style evaluation exposes risks, sensitivity points, and
+trade-offs; it is not required ceremony for small work.
+
+Sources: [ISO/IEC 25010:2023](https://www.iso.org/standard/78176.html),
+[SEI ATAM collection][sei-atam],
+[Azure architecture styles][azure-styles],
+[AWS Well-Architected](https://aws.amazon.com/architecture/well-architected/).
+
 ## Work one feature end to end
 
 Example: a small team's report service reads one database and produces CSV.
@@ -184,3 +238,7 @@ without building a proof-of-concept unless requested.
 [ts-generator]:
   https://github.com/openapi-ts/openapi-typescript/blob/main/packages/openapi-typescript/src/lib/ts.ts
 [ts-package]: https://registry.npmjs.org/openapi-typescript/7.13.0
+[sei-atam]:
+  https://www.sei.cmu.edu/library/architecture-tradeoff-analysis-method-collection/
+[azure-styles]:
+  https://learn.microsoft.com/en-us/azure/architecture/guide/architecture-styles/

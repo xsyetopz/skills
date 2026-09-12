@@ -1,46 +1,84 @@
 ---
 name: design-software-boundaries
 description: >-
-  Choose or review software architecture, module and package layout, ownership,
-  dependency direction, public contracts, and structural migrations. Use for
-  from-scratch designs or demonstrated boundary problems, not routine edits that
-  preserve existing boundaries or formatting-only changes.
+  Choose or review software architecture, patterns, paradigms, UI state flow,
+  module boundaries, dependency direction, and structural migrations. Use for
+  architecture decisions and demonstrated boundary problems, not routine edits.
 ---
 
 # Design Software Boundaries
 
-Trace the relevant code, consumers, state, and constraints. Identify the
-boundary requiring different ownership, dependencies, lifecycle, transactions,
-deployment, failure handling, or compatibility.
+Answer the decision from evidence, not a pattern name. First state the
+operation, data ownership, runtime/deployment model, quality-attribute
+scenarios, team and consumer boundaries, state/failure model, and expected
+evolution. Trace one representative operation in an existing system before
+proposing a replacement. Separate requirements from assumptions.
 
-Separate established requirements from design assumptions. Do not turn missing
-domain rules, data-loss policy, or failure semantics into requirements. Resolve
-material uncertainty or label alternatives before committing to a design.
+Compare the smallest viable structure with only relevant alternatives. For each,
+state the quality attribute improved, cost, assumptions, ecosystem support,
+simpler alternative, overuse failure, and how to test, observe, and migrate it.
+Prefer platform and framework facilities before custom infrastructure. A module,
+direct call, native state mechanism, or sequential function chain is the default
+until an independently deployed, versioned, concurrent, durable, or untrusted
+boundary proves otherwise.
 
-Choose the smallest structure that resolves the demonstrated problem. Define
-authoritative writers, control of retries/cancellation, public inputs/outputs,
-and failure semantics. Before designing a schema, protocol, config,
-serialization, or compatibility mechanism, search for governing standards and
-maintained ecosystem implementations, including the standard library. Verify
-their fit and target versions. Reimplementing an established mechanism requires
-a concrete unmet requirement, not a preference for dependency-free code. Do not
-add version markers without an independently evolving compatibility boundary.
+**DO NOT add an interface, factory, service, repository, event, schema version,
+or protocol for a hypothetical future.** Add it only for a current alternate
+implementation, extension axis, compatibility boundary, required isolation, or
+platform contract. Do not make up quality attributes; turn them into measurable
+scenarios first. Escalate long-lived multi-team operational concerns to
+`$design-enterprise-software`.
 
-Read only the relevant reference:
+## RED — DO NOT: choose pattern prestige for a local transform
 
-- [Architecture choices](references/architecture-choices.md) for alternatives,
-  maintenance and scaling costs, dependency-fit checks, and a from-scratch
-  decision procedure.
+**Deciding condition:** One desktop process reads one local file, transforms it
+synchronously, and writes one output; no independent deployment or durable work
+is required.
+
+```text
+UI -> controller -> service -> repository -> adapter -> event bus -> worker
+```
+
+Why RED:
+
+- the local synchronous operation has no independent deployment or durable
+  delivery requirement;
+- every layer adds contracts and failure states without improving a stated
+  quality attribute.
+
+## GREEN — DO: use a boundary for each demonstrated force
+
+```text
+import/parse -> transform -> output
+```
+
+Why GREEN:
+
+- one process, one local file, and synchronous work need neither an independent
+  deployment nor durable delivery;
+- each boundary represents distinct parse, transformation, or output behavior.
+
+Check:
+
+- run the normal path and one parse and write failure through the project's
+  tests; add a job boundary only for actual recovery, scheduling, or isolation.
+
+Read only the needed reference:
+
+- [Architecture choices](references/architecture-choices.md) for system styles,
+  quality scenarios, and boundary selection.
+- [UI, paradigms, and principles](references/ui-paradigms-principles.md) for
+  presentation state, language fit, and design principles.
+- [Patterns and pipelines](references/patterns-pipelines.md) for recurring
+  mechanisms, integration, concurrency, and pipeline semantics.
 - [Language layout](references/language-layout.md) for cohesive modules,
   visibility, import/runtime boundaries, and package validation.
-- [Service contracts](references/service-contracts.md) for standards-based API,
-  HTTP precondition/cache, compatibility, and observability boundaries.
-- [Ownership and migration](references/ownership-and-migration.md) for
-  contracts, idempotency, generated provenance, rollback, and Nygard-style ADRs.
+- [Service contracts](references/service-contracts.md) for independently
+  deployed contracts and observability.
+- [Ownership and migration](references/ownership-and-migration.md) for writers,
+  idempotency, rollback, and ADRs.
 
-For implementation, migrate affected consumers and retire obsolete paths. Verify
-dependency direction, representative state transitions, and changed generator
-output with relevant project checks. Report the resulting ownership decision and
-material unresolved risks. For a design-only request, provide the decision,
-rejected alternatives, and validation plan without scaffolding an
-implementation.
+For implementation, migrate authorized consumers, retire obsolete paths, and
+verify dependency direction plus representative normal and failure paths. For a
+design-only request, report the decision, rejected alternatives, assumptions,
+and validation plan without scaffolding.

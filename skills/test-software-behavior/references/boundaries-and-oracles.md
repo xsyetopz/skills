@@ -25,6 +25,67 @@ selected integration and E2E coverage. Its illustrative ratios are not universal
 quotas. Do not make every test E2E or assert a fixed pyramid for every
 repository.
 
+## Enforce `Arrange`, `Act`, `Assert`
+
+Every functional test MUST follow `Arrange`, `Act`, `Assert` in that order:
+
+1. **`Arrange`:** inputs, dependencies, state, and the target.
+2. **`Act`:** once on the behavior under test.
+3. **`Assert`:** the resulting values, effects, errors, and forbidden effects.
+
+`Given`, `When`, `Then` is the equivalent form for behavior specifications.
+Fixture setup and teardown can live in framework hooks, but setup must not
+perform the target behavior. Parsing an `Act` response for assertions remains
+part of `Act`; a second business operation is another `Act` and requires a
+separate test.
+
+### RED — DO NOT: alternate actions and assertions
+
+**Deciding condition:** The test is intended to verify one cart behavior.
+
+```python
+def test_cart_lifecycle():
+    cart = Cart()
+    cart.add("book")
+    assert cart.total == 20
+    cart.remove("book")
+    assert cart.total == 0
+```
+
+Why RED:
+
+- the test contains two target actions and two behaviors;
+- a failure does not identify whether adding or removing violated its contract;
+- the second assertion depends on the first operation's incidental state.
+
+### GREEN — DO: keep one focused Act
+
+```python
+def test_adding_a_book_updates_the_total():
+    # Arrange
+    cart = Cart()
+
+    # Act
+    cart.add("book")
+
+    # Assert
+    assert cart.total == 20
+```
+
+Why GREEN:
+
+- setup, target behavior, and verification are distinct;
+- the test fails specifically when adding does not update the total;
+- removal belongs in its own Arrange, Act, Assert test.
+
+Check:
+
+- read the test top to bottom and identify exactly one transition from `Arrange`
+  to `Act` and one transition from `Act` to `Assert`.
+
+This enforced structure follows [Automation Panda's description of
+`Arrange-Act-Assert`][aaa].
+
 ## Make the oracle independent
 
 Expected values should come from requirements, a normative standard, a reviewed
@@ -44,6 +105,45 @@ and absence of forbidden effects. “The mock was called” is sufficient only w
 that interaction is itself the external contract. Do not assert private helper
 names, incidental ordering, line counts, or types already guaranteed by the
 compiler. Do not expose private production APIs just to reach them from tests.
+
+### RED — DO NOT: calculate the expected value with production logic
+
+**Deciding condition:** The invoice total is a contractual value that the test
+must verify independently from its implementation.
+
+```ts
+expect(total(invoice)).toBe(
+  invoice.lines.reduce((sum, line) => sum + line.price * line.quantity, 0),
+);
+```
+
+Why RED:
+
+- the assertion duplicates the same calculation as `total`;
+- the same omitted discount or rounding rule can make both sides wrong;
+- refactoring production and test code together can preserve the defect.
+
+### GREEN — DO: assert a reviewed contractual result
+
+```ts
+const invoice = {
+  lines: [{ price: 199, quantity: 2 }],
+  discount: 49,
+};
+
+expect(total(invoice)).toBe(349);
+```
+
+Why GREEN:
+
+- the expected value is explicit and independent of the implementation;
+- the fixture makes the discount rule observable;
+- changing `total` to ignore `discount` makes this test fail.
+
+Check:
+
+- apply that controlled faulty change in an isolated copy and confirm this test
+  fails for the expected-value assertion.
 
 Snapshots are useful for intentionally stable structured or rendered output.
 Review semantic differences before updating a golden file. Normalize only fields
@@ -79,6 +179,8 @@ an unavailable host as unverified rather than replacing it with a syntax check.
 
 [feedback]:
   https://testing.googleblog.com/2015/04/just-say-no-to-more-end-to-end-tests.html
+[aaa]:
+  https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/
 [semver]: https://semver.org/
 [pact]: https://docs.pact.io/
 [packaging]:

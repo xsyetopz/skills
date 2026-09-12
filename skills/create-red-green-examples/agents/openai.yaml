@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create RED/GREEN Examples"
+  short_description: "Show comparable wrong and right implementation pairs"
+  default_prompt: "Use $create-red-green-examples to show the wrong and right way to implement this."

@@ -34,14 +34,43 @@ Suppose a package exposes:
 }
 ```
 
-Deleting `src/legacy.ts` alone leaves a broken advertised entrypoint, and stale
-`dist/legacy.js` may survive incremental packaging. For a confirmed retirement,
-remove the export mapping, wrapper source, wrapper-only resources and build
-inclusion; rebuild through the existing clean packaging path and inspect the
-archive. Retain tests for the canonical behavior. A wildcard export such as
-`"./*"` can still expose an old filename, so inspect patterns as well as
-explicit keys. Conditional `import`, `require` and `types` entries can have
-different consumers. [Node package entrypoints][source-1].
+### RED — DO NOT: delete only the wrapper source
+
+**Deciding condition:** Consumer evidence authorizes retirement of the public
+`./legacy` entrypoint while the canonical package remains supported.
+
+```sh
+rm src/legacy.ts
+npm test
+```
+
+Why RED:
+
+- `exports` still advertises `./legacy`;
+- stale `dist/legacy.js` can survive incremental packaging;
+- source-tree tests do not prove the published archive contract.
+
+### GREEN — DO: retire the complete confirmed public route
+
+Remove the export mapping, wrapper source, wrapper-only resources, and build
+inclusion together. Rebuild through the existing clean packaging path and
+inspect the archive. Retain tests for the canonical behavior.
+
+Why GREEN:
+
+- package metadata and archive contents agree;
+- the supported entrypoint remains covered;
+- the retired entrypoint fails because it is absent, not because the whole
+  package failed to build.
+
+Check:
+
+- install the produced archive in a clean consumer, import the canonical path,
+  and confirm `./legacy` is neither exported nor packaged.
+
+A wildcard export such as `"./*"` can still expose an old filename, so inspect
+patterns as well as explicit keys. Conditional `import`, `require`, and `types`
+entries can have different consumers. [Node package entrypoints][source-1].
 
 Removing a supported public path is ordinarily an incompatible API change under
 SemVer; a deprecation notice does not itself terminate the promise. For an

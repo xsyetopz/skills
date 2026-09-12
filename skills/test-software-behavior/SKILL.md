@@ -23,6 +23,13 @@ install check with compilation or a mocked unit test. Reuse the project's runner
 and fixtures; add a maintained test tool only when it supplies a needed
 capability.
 
+**MUST structure each functional test as `Arrange`, `Act`, `Assert`.** `Arrange`
+all inputs and preconditions first, perform one focused invocation or user
+operation as `Act`, then `Assert` its observable outcomes. DO NOT alternate
+`Act` and `Assert` in one test; split distinct behaviors into separate tests.
+Existing framework setup and teardown hooks may surround these phases. Comments
+naming the phases are optional when the boundaries are already clear.
+
 - Read [test boundaries and oracles](references/boundaries-and-oracles.md) when
   selecting coverage, assertions, test doubles, contracts, or package checks.
 - Read

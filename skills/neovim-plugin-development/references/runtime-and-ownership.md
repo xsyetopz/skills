@@ -81,6 +81,63 @@ the text has not changed. Respect current modifiability. A valid buffer number
 alone does not prove a result is still applicable. Check again at the actual
 edit boundary if another callback can intervene.
 
+### RED — DO NOT: apply an asynchronous result to the current buffer
+
+**Deciding condition:** A formatter can finish after the user switches or edits
+buffers, so the request and target buffer can become stale.
+
+```lua
+vim.system({ "formatter", path }, {}, function(result)
+  vim.schedule(function()
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, result.stdout)
+  end)
+end)
+```
+
+Why RED:
+
+- buffer `0` is resolved when the callback runs, not when work starts;
+- the user may have switched buffers or edited the original text;
+- process failure can replace the buffer because the exit status is ignored.
+
+### GREEN — DO: retain identity and reject stale work
+
+```lua
+local buffer = vim.api.nvim_get_current_buf()
+local changedtick = vim.api.nvim_buf_get_changedtick(buffer)
+local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, false)
+local input = table.concat(lines, "\n")
+
+vim.system({ "formatter", path }, { stdin = input }, function(result)
+  vim.schedule(function()
+    if result.code == 0
+      and vim.api.nvim_buf_is_valid(buffer)
+      and vim.api.nvim_buf_get_changedtick(buffer) == changedtick then
+      local output = result.stdout:gsub("\n$", "")
+      vim.api.nvim_buf_set_lines(
+        buffer,
+        0,
+        -1,
+        false,
+        vim.split(output, "\n", { plain = true })
+      )
+    end
+  end)
+end)
+```
+
+Why GREEN:
+
+- the callback targets the initiating buffer;
+- changed text prevents stale replacement;
+- immutable input corresponds to the result being applied;
+- a failed formatter cannot replace the buffer.
+
+Check:
+
+- in a headless host test, delay completion, edit or switch the buffer, and
+  verify the stale callback does not change either buffer.
+
 `vim.system` on supporting hosts accepts an argument list and an optional
 completion callback. Prefer it over a shell command assembled from filenames.
 Failure to start throws synchronously, distinct from a started process exiting

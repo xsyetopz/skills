@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Minimal Reproduction"
+  short_description: "Reduce and verify an executable bug reproducer"
+  default_prompt: "Use $create-minimal-reproduction to reduce and verify this failure."

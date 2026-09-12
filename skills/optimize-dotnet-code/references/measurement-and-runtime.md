@@ -30,6 +30,46 @@ deployment, startup and code-generation tradeoffs; they are not interchangeable
 speed flags. [Compilation configuration][compilation], [GC configuration][gc],
 [Native AOT][aot].
 
+### RED — DO NOT: apply a blanket performance property set
+
+**Deciding condition:** The requested outcome is lower memory under a
+constrained container workload; arithmetic and unsafe-code semantics must not
+change.
+
+```xml
+<PropertyGroup>
+  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+  <ServerGarbageCollection>true</ServerGarbageCollection>
+</PropertyGroup>
+```
+
+Why RED:
+
+- the settings change safety and arithmetic semantics without evidence;
+- server GC can increase memory and is not universally faster;
+- no measured bottleneck connects these properties to the requested outcome.
+
+### GREEN — DO: change one evidenced runtime decision
+
+```text
+Constraint: container limit is 256 MiB.
+Baseline: server GC peaks at 231 MiB; workstation GC peaks at 142 MiB.
+Result: workstation GC meets latency and memory objectives on the deployment
+workload, so only ServerGarbageCollection changes.
+```
+
+Why GREEN:
+
+- the decision names the deployment constraint and comparable measurements;
+- unrelated compiler safety settings remain unchanged;
+- latency and memory trade-offs are both tested.
+
+Check:
+
+- publish the same application for the target runtime, repeat the workload under
+  the real memory limit, and retain raw counter and latency results.
+
 ## Find the limiting path
 
 Use the project's existing profiler where suitable. Runtime counters can locate

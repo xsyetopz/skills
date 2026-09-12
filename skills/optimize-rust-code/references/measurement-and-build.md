@@ -112,6 +112,43 @@ code across concrete types. Coarse `dyn Trait` boundaries can reduce compile
 work and instruction footprint but add indirect calls. Inspect artifact symbols
 or linker output when code size or instruction-cache pressure is material.
 
+### RED — DO NOT: split crates because the build feels slow
+
+**Deciding condition:** Build performance is the requested outcome, but no
+timing identifies crate scheduling or compilation as the limiting stage.
+
+```text
+Move every module into a separate crate so Cargo can compile everything in
+parallel.
+```
+
+Why RED:
+
+- no timing identifies compilation as the limiting stage;
+- crate boundaries add public contracts and can increase monomorphization or
+  linking work;
+- the change increases navigation and compatibility cost even if clean builds
+  improve.
+
+### GREEN — DO: change the measured build bottleneck
+
+```text
+Evidence: cargo build --timings shows one proc-macro crate consumes 47% of clean
+build time and serializes its dependents. Narrow its generated input and keep
+the existing crate boundaries.
+```
+
+Why GREEN:
+
+- the change targets an observed critical-path cost;
+- it avoids unrelated public package boundaries;
+- clean and representative incremental builds can verify the result.
+
+Check:
+
+- compare repeated clean and incremental timings with the same toolchain,
+  target, features, and source state; run the full correctness checks too.
+
 Measure shipped size and cold behavior for CLIs, plugins, serverless jobs, and
 frequently restarted processes: on-disk bytes, mapped memory, page faults, time
 to first useful result, initialization, and steady state. Size-oriented

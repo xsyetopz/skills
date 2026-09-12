@@ -1,0 +1,12 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"type": "command",
+				"command": "python3 .agent-hooks/observe.py",
+				"windows": "py -3 .agent-hooks/observe.py",
+				"timeout": 5
+			}
+		]
+	}
+}

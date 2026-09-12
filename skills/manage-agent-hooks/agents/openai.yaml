@@ -1,0 +1,6 @@
+interface:
+  display_name: "Manage Agent Hooks"
+  short_description: "Safely configure provider-specific agent hooks"
+  default_prompt: "Use $manage-agent-hooks to configure and verify this agent hook."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,15 @@
+{
+	"conversation_id": "test",
+	"generation_id": "test",
+	"session_id": "test",
+	"model": "test-model",
+	"model_id": "test-model",
+	"model_params": [],
+	"hook_event_name": "sessionStart",
+	"cursor_version": "1.7.2",
+	"workspace_roots": ["/tmp/project"],
+	"user_email": null,
+	"transcript_path": null,
+	"is_background_agent": false,
+	"composer_mode": "agent"
+}

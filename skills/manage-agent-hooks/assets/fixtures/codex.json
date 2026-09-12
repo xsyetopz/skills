@@ -1,0 +1,9 @@
+{
+	"session_id": "test",
+	"transcript_path": null,
+	"cwd": "/tmp/project",
+	"hook_event_name": "SessionStart",
+	"model": "test-model",
+	"permission_mode": "default",
+	"source": "startup"
+}

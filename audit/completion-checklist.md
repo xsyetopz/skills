@@ -66,19 +66,26 @@ Actual output is retained under `/tmp/skills-final-validation/`.
 
 ## Requirements not yet established
 
-1. Finish the explicit gap review for reusable API/protocol/observability
-   decisions. Broad standards-first wording alone is not proof of sufficient
-   technical depth; add only a justified cohesive capability or reference.
-2. Close the supporting research requirement for empirical coding-agent failure
-   evidence. Existing practical counterexamples are strong project-specific
-   evidence, but do not substitute for the requested current study/benchmark
-   research. Preserve evidence-strength distinctions when importing conclusions.
-3. Reconcile current names and consolidated packages with the seven requested
-   routing-case categories, including the newly added .NET package. Earlier
-   historical matching results are not universal runtime-loader tests.
+1. Service-contract gap review is complete in [service contracts][services].
+   Conditional architecture guidance now covers applicable HTTP, schema,
+   compatibility and telemetry decisions without a new umbrella skill. Three
+   real framework checks cover selected HTTP semantics; deployment-specific
+   cache, collector and authentication behavior remains task-dependent.
+2. Empirical research intake is complete in [agent research][agent-research].
+   The published package-hallucination study and SWE-Bench Pro analysis/harness
+   changes now inform the skill-audit reference, with explicit sample and
+   evidence-strength limits. This is source review, not a new benchmark result.
+3. Current seven-category routing reconciliation is complete in [routing]. The
+   independent report covered all 30 packages; integration rejected nine weak or
+   incorrect adjacent classifications and records the corrections. These are
+   reviewer/coordinator classifications, not client-loader telemetry.
 4. Complete final local heading-anchor and renamed-path checks, inspect any
    remaining diagnostics or generated outputs, and remove caches. Preserve user
    GOAL/guidance files rather than mistaking them for generated build output.
 5. Integrate the two remaining formatter-only SKILL.md changes and commit the
    final audit/cleanup coherently. Do not mark the goal achieved while any item
    above lacks evidence.
+
+[agent-research]: agent-research-evaluation.md
+[services]: service-contract-evaluation.md
+[routing]: catalog-current-routing.md

@@ -33,6 +33,8 @@ Read only the relevant reference:
   decision procedure.
 - [Language layout](references/language-layout.md) for cohesive modules,
   visibility, import/runtime boundaries, and package validation.
+- [Service contracts](references/service-contracts.md) for standards-based API,
+  HTTP precondition/cache, compatibility, and observability boundaries.
 - [Ownership and migration](references/ownership-and-migration.md) for
   contracts, idempotency, generated provenance, rollback, and Nygard-style ADRs.
 

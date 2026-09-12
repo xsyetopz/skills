@@ -76,3 +76,33 @@ actually need it.
 An audit should end with requirement-to-evidence coverage and scoped validation
 limits. Missing evidence is incomplete work, not an implicit pass. Do not invent
 universal test-count or file-size quotas to replace this judgment.
+
+## Use empirical findings without turning them into universal rules
+
+The 2025 USENIX [package-hallucination study][packages] examined Python and
+JavaScript generations from 16 models. It supports treating plausible package
+names as unverified and warns that registry existence alone cannot establish
+legitimacy. When guidance introduces a dependency, trace its identity to the
+upstream project, supported installation instructions and actual package
+metadata. Do not install a plausible name just to discover whether it is real.
+The study's rates are not estimates for every current model or repository.
+
+[SWE-Bench Pro's trajectory analysis][trajectories] reports semantic,
+navigation, tool-use and context failures, but its categories use an LLM judge
+on failed trajectory tails. Treat that as benchmark-specific observational
+evidence, not a causal proof of a universal agent policy. For an evaluation,
+record the concrete question each repository lookup must resolve and retain the
+next unresolved invariant rather than repeatedly loading broad file inventories.
+This is an engineering mitigation to test, not a demonstrated improvement from
+the paper.
+
+Pin evaluation task and harness revisions. The [benchmark repository][harness]
+records removal of outdated tests; a stale test can reject a valid
+implementation. Confirm that a deliberate fault fails for the intended
+behavioral reason, and inspect surprising failures against the real contract
+before changing code or weakening a check. Do not import model rankings or turn
+pass rates into proof of maintainability, security, or architecture quality.
+
+[packages]: https://www.usenix.org/system/files/usenixsecurity25-spracklen.pdf
+[trajectories]: https://arxiv.org/html/2509.16941v2#S6.SS3
+[harness]: https://github.com/scaleapi/SWE-bench_Pro-os

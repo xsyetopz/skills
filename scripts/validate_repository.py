@@ -40,14 +40,18 @@ def main() -> int:
                 isinstance(interface[field], str)
                 for field in ("display_name", "short_description", "default_prompt")
             ):
-                raise TypeError("interface fields must be strings")
+                fail(f"{openai_path}: interface fields must be strings")
+                errors += 1
+                continue
             if f"${skill.name}" not in interface["default_prompt"]:
-                raise ValueError("default_prompt must name the skill")
+                fail(f"{openai_path}: default_prompt must name the skill")
+                errors += 1
             policy = openai.get("policy", {})
             if "allow_implicit_invocation" in policy and not isinstance(
                 policy["allow_implicit_invocation"], bool
             ):
-                raise TypeError("invocation policy must be a boolean")
+                fail(f"{openai_path}: invocation policy must be a boolean")
+                errors += 1
         except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError) as error:
             fail(f"{openai_path}: invalid OpenAI metadata: {error}")
             errors += 1

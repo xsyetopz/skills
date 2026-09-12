@@ -9,8 +9,9 @@ from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("discover_literature.py")
 SPEC = importlib.util.spec_from_file_location("discover_literature", SCRIPT)
+if SPEC is None or SPEC.loader is None:
+    raise RuntimeError(f"cannot load literature discovery module from {SCRIPT}")
 module = importlib.util.module_from_spec(SPEC)
-assert SPEC.loader
 SPEC.loader.exec_module(module)
 
 

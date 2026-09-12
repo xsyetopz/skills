@@ -195,7 +195,7 @@ def main() -> int:
     else:
         errors = 0
         for r in results:
-            if r["valid"]:
+            if r["valid"] is True:
                 extras = ""
                 if r.get("prerelease"):
                     extras += f" (pre-release: {r['prerelease']})"

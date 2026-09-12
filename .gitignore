@@ -1,1 +1,36 @@
-SUMMARY.md
+# Local planning inputs
+/GOAL.md
+/SUMMARY.md
+/guidance/
+
+# Python environments and caches
+__pycache__/
+*.py[cod]
+/.venv/
+/.pyright/
+/.pytest_cache/
+/.ruff_cache/
+
+# Bun and JavaScript dependencies
+node_modules/
+
+# Local editor and operating-system state
+/.idea/
+/.vscode/
+.DS_Store
+
+# Local secrets and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Generated reports and packages
+bin/
+build/
+coverage/
+dist/
+obj/
+target/
+*.sublime-package
+*.vsix

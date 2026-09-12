@@ -17,27 +17,28 @@ def main() -> int:
         if not path.is_file():
             continue
         try:
-            if path.suffix == ".json":
-                json.loads(path.read_text())
-            elif path.suffix in {".yaml", ".yml"}:
-                yaml.safe_load(path.read_text())
-            elif path.suffix == ".toml":
-                tomllib.loads(path.read_text())
-            elif path.suffix == ".xml":
-                ET.parse(path)
-            elif path.suffix == ".plist":
-                plistlib.loads(path.read_bytes())
-            elif path.suffix == ".py" and not path.name.startswith("test_"):
-                compile(path.read_text(), str(path), "exec")
-            elif path.suffix == ".sh":
-                result = subprocess.run(
-                    ["bash", "-n", str(path)],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                if result.returncode:
-                    raise ValueError(result.stderr.strip())
+            match path.suffix:
+                case ".json":
+                    json.loads(path.read_text())
+                case ".yaml" | ".yml":
+                    yaml.safe_load(path.read_text())
+                case ".toml":
+                    tomllib.loads(path.read_text())
+                case ".xml":
+                    ET.parse(path)
+                case ".plist":
+                    plistlib.loads(path.read_bytes())
+                case ".py" if not path.name.startswith("test_"):
+                    compile(path.read_text(), str(path), "exec")
+                case ".sh":
+                    result = subprocess.run(
+                        ["bash", "-n", str(path)],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    if result.returncode:
+                        errors.append(f"{path}: {result.stderr.strip()}")
         except (
             OSError,
             SyntaxError,

@@ -14,9 +14,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from html.parser import HTMLParser
 from pathlib import Path
+from types import TracebackType
+from typing import Protocol, TypedDict
 
 ARXIV_ID = re.compile(
     r"(?:arxiv:|/abs/)?((?:[a-z-]+(?:\.[A-Z]{2})?/)?\d{4}\.\d{4,5}|[a-z-]+/\d{7})(v\d+)?$",
@@ -32,6 +34,41 @@ ATOM = {"a": "http://www.w3.org/2005/Atom", "x": "http://arxiv.org/schemas/atom"
 
 class FetchError(RuntimeError):
     pass
+
+
+class HeaderLookup(Protocol):
+    def get(self, name: str, default: str | None = None) -> str | None: ...
+
+
+class ReadableResponse(Protocol):
+    @property
+    def headers(self) -> HeaderLookup: ...
+
+    def read(self) -> bytes: ...
+
+    def __enter__(self) -> ReadableResponse: ...
+
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> bool | None: ...
+
+
+class LiteratureRecord(TypedDict):
+    title: str
+    authors: list[str]
+    year: str | None
+    abstract: str
+    identifiers: dict[str, str]
+    arxiv_version: str | None
+    publication: str | None
+    sources: list[str]
+    links: list[str]
+
+
+RecordParser = Callable[[bytes], list[LiteratureRecord]]
 
 
 def normalize_doi(value: str | None) -> str | None:
@@ -62,7 +99,7 @@ class CachedFetcher:
         offline: bool = False,
         timeout: float = 12,
         attempts: int = 3,
-        opener: Callable[..., object] = urllib.request.urlopen,
+        opener: Callable[..., ReadableResponse] = urllib.request.urlopen,
         sleeper: Callable[[float], None] = time.sleep,
     ) -> None:
         self.cache_dir = cache_dir
@@ -137,9 +174,9 @@ def retry_delay(value: str | None, attempt: int) -> float:
     return float(2**attempt)
 
 
-def arxiv_records(body: bytes) -> list[dict]:
+def arxiv_records(body: bytes) -> list[LiteratureRecord]:
     root = ET.fromstring(body)
-    records = []
+    records: list[LiteratureRecord] = []
     for entry in root.findall("a:entry", ATOM):
         identifier, version = normalize_arxiv(entry.findtext("a:id", "", ATOM))
         doi = normalize_doi(entry.findtext("x:doi", "", ATOM))
@@ -177,9 +214,9 @@ class ArxivMetaParser(HTMLParser):
         if tag != "meta":
             return
         values = dict(attrs)
-        name = values.get("name", "")
+        name = values.get("name")
         content = values.get("content")
-        if name.startswith("citation_") and content:
+        if name and name.startswith("citation_") and content:
             self.metadata.setdefault(name, []).append(content)
 
     def handle_data(self, data: str) -> None:
@@ -187,7 +224,7 @@ class ArxivMetaParser(HTMLParser):
             self.versions.add(int(version))
 
 
-def arxiv_web_records(body: bytes) -> list[dict]:
+def arxiv_web_records(body: bytes) -> list[LiteratureRecord]:
     parser = ArxivMetaParser()
     parser.feed(body.decode("utf-8"))
     metadata = parser.metadata
@@ -214,9 +251,9 @@ def arxiv_web_records(body: bytes) -> list[dict]:
     ]
 
 
-def crossref_records(body: bytes) -> list[dict]:
+def crossref_records(body: bytes) -> list[LiteratureRecord]:
     items = json.loads(body)["message"].get("items", [])
-    records = []
+    records: list[LiteratureRecord] = []
     for item in items:
         dates = (
             item.get("published-print")
@@ -243,8 +280,8 @@ def crossref_records(body: bytes) -> list[dict]:
     return records
 
 
-def openalex_records(body: bytes) -> list[dict]:
-    records = []
+def openalex_records(body: bytes) -> list[LiteratureRecord]:
+    records: list[LiteratureRecord] = []
     for item in json.loads(body).get("results", []):
         ids = item.get("ids") or {}
         arxiv, version = normalize_arxiv(ids.get("arxiv"))
@@ -271,25 +308,39 @@ def openalex_records(body: bytes) -> list[dict]:
     return records
 
 
-def record(**values: object) -> dict:
+def record(
+    *,
+    title: str | None,
+    authors: Iterable[str],
+    year: str | None,
+    source: str,
+    links: Iterable[str | None],
+    abstract: str | None = "",
+    doi: str | None = None,
+    arxiv: str | None = None,
+    arxiv_version: str | None = None,
+    publication: str | None = None,
+) -> LiteratureRecord:
     return {
-        "title": " ".join(str(values.get("title", "")).split()),
-        "authors": [name for name in values.get("authors", []) if name],
-        "year": values.get("year"),
-        "abstract": " ".join(str(values.get("abstract", "")).split()),
+        "title": " ".join((title or "").split()),
+        "authors": [name for name in authors if name],
+        "year": year,
+        "abstract": " ".join((abstract or "").split()),
         "identifiers": {
-            key: values.get(key) for key in ("doi", "arxiv") if values.get(key)
+            kind: value
+            for kind, value in (("doi", doi), ("arxiv", arxiv))
+            if value is not None
         },
-        "arxiv_version": values.get("arxiv_version"),
-        "publication": values.get("publication"),
-        "sources": [values["source"]],
-        "links": [link for link in values.get("links", []) if link],
+        "arxiv_version": arxiv_version,
+        "publication": publication,
+        "sources": [source],
+        "links": [link for link in links if link],
     }
 
 
-def merge_records(records: list[dict]) -> list[dict]:
-    merged: list[dict] = []
-    by_identifier: dict[str, dict] = {}
+def merge_records(records: list[LiteratureRecord]) -> list[LiteratureRecord]:
+    merged: list[LiteratureRecord] = []
+    by_identifier: dict[str, LiteratureRecord] = {}
     for item in records:
         keys = [f"{kind}:{value}" for kind, value in item["identifiers"].items()]
         target = next(
@@ -312,12 +363,17 @@ def merge_records(records: list[dict]) -> list[dict]:
             target = item
             merged.append(target)
         else:
-            for field in ("authors", "sources", "links"):
-                target[field] = list(dict.fromkeys([*target[field], *item[field]]))
+            target["authors"] = list(
+                dict.fromkeys([*target["authors"], *item["authors"]])
+            )
+            target["sources"] = list(
+                dict.fromkeys([*target["sources"], *item["sources"]])
+            )
+            target["links"] = list(dict.fromkeys([*target["links"], *item["links"]]))
             target["identifiers"].update(item["identifiers"])
-            for field in ("abstract", "publication", "arxiv_version"):
-                if not target.get(field) and item.get(field):
-                    target[field] = item[field]
+            target["abstract"] = target["abstract"] or item["abstract"]
+            target["publication"] = target["publication"] or item["publication"]
+            target["arxiv_version"] = target["arxiv_version"] or item["arxiv_version"]
         for kind, value in target["identifiers"].items():
             by_identifier[f"{kind}:{value}"] = target
     return merged
@@ -325,10 +381,10 @@ def merge_records(records: list[dict]) -> list[dict]:
 
 def discover(
     query: str, limit: int, fetcher: CachedFetcher
-) -> tuple[list[dict], list[str]]:
+) -> tuple[list[LiteratureRecord], list[str]]:
     encoded = urllib.parse.quote(query)
     arxiv_id, _ = normalize_arxiv(query)
-    urls = []
+    urls: list[tuple[str, str, RecordParser]] = []
     if arxiv_id:
         urls.append(
             (
@@ -361,7 +417,7 @@ def discover(
             openalex_records,
         )
     )
-    source_records: list[list[dict]] = []
+    source_records: list[list[LiteratureRecord]] = []
     errors: list[str] = []
     for source, url, parser in urls:
         try:

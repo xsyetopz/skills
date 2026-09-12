@@ -91,92 +91,103 @@ def audit(path: Path) -> AuditResult:
     categories: set[str] = set()
     previous_date: date | None = None
     for index, section in enumerate(document):
-        if section.level == 1:
-            current = None
-        elif section.level == 2:
-            version, released = release_header(section.title)
-            current = "Unreleased" if version.casefold() == "unreleased" else version
-            categories = set()
-            if current in seen:
-                report(
-                    "duplicate-version",
-                    f"Duplicate release section: {current}.",
-                    section.line,
+        match section.level:
+            case 1:
+                current = None
+            case 2:
+                version, released = release_header(section.title)
+                current = (
+                    "Unreleased" if version.casefold() == "unreleased" else version
                 )
-            seen.add(current)
-            if current == "Unreleased":
-                if versions:
+                categories = set()
+                if current in seen:
                     report(
-                        "unreleased-order",
-                        "Unreleased must precede released versions.",
+                        "duplicate-version",
+                        f"Duplicate release section: {current}.",
                         section.line,
                     )
-                if released:
-                    report(
-                        "unreleased-date",
-                        "Unreleased must not have a release date.",
-                        section.line,
-                    )
-                continue
+                seen.add(current)
+                if current == "Unreleased":
+                    if versions:
+                        report(
+                            "unreleased-order",
+                            "Unreleased must precede released versions.",
+                            section.line,
+                        )
+                    if released:
+                        report(
+                            "unreleased-date",
+                            "Unreleased must not have a release date.",
+                            section.line,
+                        )
+                    continue
 
-            versions.append(version)
-            if not SEMVER_RE.fullmatch(version):
-                report(
-                    "semver-format",
-                    f"Version {version!r} is not SemVer 2.0.0.",
-                    section.line,
-                )
-            try:
+                versions.append(version)
+                if not SEMVER_RE.fullmatch(version):
+                    report(
+                        "semver-format",
+                        f"Version {version!r} is not SemVer 2.0.0.",
+                        section.line,
+                    )
                 if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", released):
-                    raise ValueError("expected YYYY-MM-DD")
-                parsed_date = date.fromisoformat(released)
-            except ValueError:
-                report(
-                    "date-format",
-                    f"Invalid release date {released!r}; expected YYYY-MM-DD.",
-                    section.line,
-                )
-            else:
-                if previous_date and parsed_date > previous_date:
                     report(
-                        "reverse-chronological",
-                        "Release dates must be newest first.",
+                        "date-format",
+                        f"Invalid release date {released!r}; expected YYYY-MM-DD.",
                         section.line,
                     )
-                previous_date = parsed_date
+                else:
+                    try:
+                        parsed_date = date.fromisoformat(released)
+                    except ValueError:
+                        report(
+                            "date-format",
+                            f"Invalid release date {released!r}; expected YYYY-MM-DD.",
+                            section.line,
+                        )
+                    else:
+                        if previous_date and parsed_date > previous_date:
+                            report(
+                                "reverse-chronological",
+                                "Release dates must be newest first.",
+                                section.line,
+                            )
+                        previous_date = parsed_date
 
-            # Content can be prose or grouped changes; headings alone are not entries.
-            if not has_entries(document, index):
-                report(
-                    "empty-version",
-                    f"Release {version} has no change entries.",
-                    section.line,
-                )
-        elif section.level == 3:
-            category = section.title
-            if current is None:
-                report(
-                    "orphan-category",
-                    "A change category needs a release section.",
-                    section.line,
-                )
-            if category not in VALID_CATEGORIES:
-                report(
-                    "invalid-category",
-                    f"Unknown change category {category!r}.",
-                    section.line,
-                )
-            if category in categories:
-                report(
-                    "duplicate-category",
-                    f"Duplicate category {category!r} in {current}.",
-                    section.line,
-                )
-            categories.add(category)
-            if not has_entries(document, index):
-                report(
-                    "empty-category", f"Omit empty category {category!r}.", section.line
-                )
+                # Content can be prose or grouped changes; headings alone are
+                # not entries.
+                if not has_entries(document, index):
+                    report(
+                        "empty-version",
+                        f"Release {version} has no change entries.",
+                        section.line,
+                    )
+            case 3:
+                category = section.title
+                if current is None:
+                    report(
+                        "orphan-category",
+                        "A change category needs a release section.",
+                        section.line,
+                    )
+                if category not in VALID_CATEGORIES:
+                    report(
+                        "invalid-category",
+                        f"Unknown change category {category!r}.",
+                        section.line,
+                    )
+                if category in categories:
+                    report(
+                        "duplicate-category",
+                        f"Duplicate category {category!r} in {current}.",
+                        section.line,
+                    )
+                categories.add(category)
+                if not has_entries(document, index):
+                    report(
+                        "empty-category",
+                        f"Omit empty category {category!r}.",
+                        section.line,
+                    )
 
     if "Unreleased" not in seen:
         report(

@@ -1,17 +1,17 @@
 {
-  "include": ["scripts", "skills"],
-  "pythonVersion": "3.10",
-  "stubPath": "typings",
-  "typeCheckingMode": "standard",
-  "executionEnvironments": [
-    {
-      "root": "skills/sublime-plugin-development/assets/package-template",
-      "extraPaths": ["typings"],
-      "pythonVersion": "3.8"
-    },
-    {
-      "root": ".",
-      "pythonVersion": "3.10"
-    }
-  ]
+	"include": ["scripts", "skills"],
+	"pythonVersion": "3.10",
+	"stubPath": "typings",
+	"typeCheckingMode": "standard",
+	"executionEnvironments": [
+		{
+			"root": "skills/sublime-plugin-development/assets/package-template",
+			"extraPaths": ["typings"],
+			"pythonVersion": "3.8"
+		},
+		{
+			"root": ".",
+			"pythonVersion": "3.10"
+		}
+	]
 }

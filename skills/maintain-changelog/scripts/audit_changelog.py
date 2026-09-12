@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.10"
-# dependencies = ["markdown-it-py==4.2.0"]
-# ///
 """Audit a Keep a Changelog + SemVer profile, not arbitrary release-note formats."""
 
 from __future__ import annotations
@@ -14,6 +10,8 @@ import sys
 from datetime import date
 from pathlib import Path
 from typing import Literal, TypedDict
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from audit_semver import SEMVER_RE
 from changelog_markdown import Section, release_header, sections

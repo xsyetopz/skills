@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.10"
-# dependencies = ["markdown-it-py==4.2.0"]
-# ///
 """Validate version strings against Semantic Versioning 2.0.0.
 
 Usage:
@@ -22,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Literal, TypedDict
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from changelog_markdown import release_header, sections
 

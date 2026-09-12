@@ -183,6 +183,68 @@ class ValidatorTests(unittest.TestCase):
                     [f for f in record["findings"] if f["severity"] == "error"]
                 )
 
+    def test_bounded_markdown_parser_regressions(self):
+        sys.path.insert(0, str(SCRIPTS))
+        from changelog_markdown import Section, sections
+
+        text = """# Changelog
+## [1.0.0](https://example.com/tag) - 2026-01-01 ##
+### Fixed
+<!--
+Text and ## headings in comments do not count.
+-->
+```markdown
+## [9.0.0] - 2099-01-01
+```
+> #### A nested heading is not content
+- #### Nor is a list heading
+<details>
+hosted HTML is outside the profile
+</details>
+
+[](<https://example.com>)
+
+### Added
+    indented code is content
+[Unreleased]
+------------
+### Changed
+~~~text
+fenced code is content
+~~~
+"""
+        self.assertEqual(
+            sections(text),
+            [
+                Section(1, "Changelog", 1),
+                Section(2, "1.0.0 - 2026-01-01", 2),
+                Section(3, "Fixed", 3, True),
+                Section(3, "Added", 18, True),
+                Section(2, "[Unreleased]", 20),
+                Section(3, "Changed", 22, True),
+            ],
+        )
+
+    def test_fence_markers_and_top_level_heading_boundaries(self):
+        sys.path.insert(0, str(SCRIPTS))
+        from changelog_markdown import Section, sections
+
+        text = """   # Changelog
+####### not a heading
+##NoSpace
+    ## indented
+~~~
+## fenced
+~~~~
+> ## quoted
+1. ## listed
+## Real
+"""
+        self.assertEqual(
+            sections(text),
+            [Section(1, "Changelog", 1, True), Section(2, "Real", 10)],
+        )
+
     def test_nested_category_content_and_duplicate_categories(self):
         release = "# Changelog\n## [1.0.0] - 2026-01-01\n"
         record = self.audit_text(release + "### Fixed\n#### Search\n- Keep filters.\n")

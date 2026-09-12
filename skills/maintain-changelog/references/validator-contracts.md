@@ -5,24 +5,18 @@
 From the installed skill directory, run:
 
 ```sh
-uv run scripts/audit_changelog.py /path/to/CHANGELOG.md --json
-uv run scripts/audit_semver.py 1.2.3 2.0.0-rc.1 --json
-uv run scripts/audit_semver.py --from-changelog /path/to/CHANGELOG.md
+python3 -I scripts/audit_changelog.py /path/to/CHANGELOG.md --json
+python3 -I scripts/audit_semver.py 1.2.3 2.0.0-rc.1 --json
+python3 -I scripts/audit_semver.py --from-changelog /path/to/CHANGELOG.md
 ```
 
 For `--from-tags`, run from the target Git repository and give the script's
 absolute path. Git tags are local refs; the script does not fetch remote refs.
 
-Both scripts declare Python 3.10+ and `markdown-it-py==4.2.0` using
-[inline script metadata](https://docs.astral.sh/uv/guides/scripts/). `uv run`
-resolves the declared environment; it does not add dependencies to the target
-project. An existing Python environment with this dependency can run them with
-`python` instead. Initial dependency installation can require network access.
-
-The maintained
-[CommonMark parser](https://markdown-it-py.readthedocs.io/en/latest/using.html)
-handles headings, links, fences, indentation, and comments. The scripts apply a
-small changelog profile to parsed sections instead of implementing Markdown.
+Both scripts require only Python 3.10 or later and the standard library. `-I`
+isolates execution from user site packages and Python environment variables.
+The bounded parser handles the heading, link, fence, indentation, comment, and
+content forms in this changelog profile; it is not a general Markdown parser.
 SemVer syntax uses the specification's published regex with ASCII digits and a
 whole-string match, not a custom precedence implementation.
 
@@ -70,8 +64,7 @@ JSON result.
 ## Tests
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 uv run --with markdown-it-py==4.2.0 \
-  python -m unittest discover -s scripts -v
+PYTHONDONTWRITEBYTECODE=1 python3 -I scripts/test_validators.py -v
 ```
 
 Check release facts, comparisons, referenced artifacts, completeness, and public

@@ -7,8 +7,8 @@ further policy clarification is required before completing GOAL.md.
 
 ## Current catalog policy
 
-The current worktree contains 29 skills. Set
-`policy.allow_implicit_invocation: false` for 27 skills. Only these two retain
+The current worktree contains 30 skills. Set
+`policy.allow_implicit_invocation: false` for 28 skills. Only these two retain
 implicit invocation:
 
 - `design-software-boundaries`: ordinary architecture and boundary planning.
@@ -64,8 +64,17 @@ behavior.
 ## Emulator consolidation
 
 Ten intermediate emulator packages became four: runtime operations and source
-compilation for each emulator. All four remain explicit-only. Current metadata
-checks establish 29 packages, 27 manual, and the same two implicit planning
-exceptions. Helper and runtime-interface evidence is recorded separately in
-[emulator evaluation](emulator-evaluation.md); package counts do not prove guest
-execution or source-build success.
+compilation for each emulator. All four remain explicit-only. At that
+integration, metadata checks established 29 packages, 27 manual, and the same
+two implicit planning exceptions. Helper and runtime-interface evidence is
+recorded separately in [emulator evaluation](emulator-evaluation.md); package
+counts do not prove guest execution or source-build success.
+
+## .NET performance intake
+
+Three version-specific source candidates became one `optimize-dotnet-code`
+package. It is explicit-only in metadata, description and body. The current
+catalog has 30 packages, 28 manual, and the same two implicit planning
+exceptions. The [.NET evaluation](dotnet-performance-evaluation.md)
+distinguishes coordinator routing review, real diagnostic/benchmark evidence and
+untested environments.

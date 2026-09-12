@@ -1,0 +1,7 @@
+interface:
+  display_name: "Optimize .NET Code"
+  short_description: "Measure and optimize .NET application performance"
+  default_prompt:
+    "Use $optimize-dotnet-code to investigate this .NET performance problem."
+policy:
+  allow_implicit_invocation: false

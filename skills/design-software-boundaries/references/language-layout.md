@@ -14,6 +14,22 @@ empty interfaces. These are review recommendations consistent with [Google's
 complexity review guidance][review], not empirical universal LOC or complexity
 thresholds. A threshold from imported notes is not a language rule.
 
+## Local reasoning
+
+Keep the repository's established terms for the same domain concepts. Make
+units, ownership, side effects and failure boundaries visible where they affect
+safe changes; a distinct type is useful when confusing two values is a realistic
+error, not merely because both are strings. Keep invariant enforcement close to
+the operation it protects. Extract a named responsibility when it reduces what a
+reader must reconstruct, not just because two blocks look alike.
+
+Judge readability through a concrete change: can a maintainer locate the owner,
+follow the normal and failure paths, and identify the invariant that must remain
+true? Do not translate language-proficiency labels into programmer levels or
+impose imported function/parameter quotas. Existing configured limits still
+apply. Names and comments should clarify intent rather than compensate for
+unnecessary indirection. [Review guidance][review].
+
 ## Python
 
 [PEP 8][python] gives precedence to project conventions. Keep imports at the
@@ -67,6 +83,20 @@ side-effect order. Keep browser, server, and tooling imports separate where
 their APIs differ. Test built artifacts under the supported runtime; type
 checking alone does not prove imports resolve after publishing.
 
+## .NET languages
+
+Do not apply one .NET-wide source skeleton. In F#, namespaces contain types and
+modules, not direct value/function bindings; put those bindings in a module. A
+template with `namespace Example` followed by a top-level `let` is not a valid
+namespace layout. [F# namespaces][fsharp].
+
+For C#, distinguish assembly visibility from file visibility. `internal` is not
+file-private; a `file` top-level type is restricted to its declaring source file
+when supported by the selected language version. A file-local implementation
+type cannot leak through a non-file-local type's member signatures. Use these
+boundaries for actual ownership, not to generate an empty class at every
+visibility level. [C# file-local types][csharp-file].
+
 ## Other languages
 
 Discover the target compiler version, build manifest, module/package visibility,
@@ -85,3 +115,7 @@ and decorative diagrams presented as executable examples.
 [rust]: https://doc.rust-lang.org/reference/visibility-and-privacy.html
 [typescript]:
   https://www.typescriptlang.org/docs/handbook/modules/reference.html
+[fsharp]:
+  https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/namespaces
+[csharp-file]:
+  https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/file

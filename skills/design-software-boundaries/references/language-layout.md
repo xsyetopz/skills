@@ -97,6 +97,43 @@ type cannot leak through a non-file-local type's member signatures. Use these
 boundaries for actual ownership, not to generate an empty class at every
 visibility level. [C# file-local types][csharp-file].
 
+## C and C++
+
+In C, distinguish scope from linkage. A file-scope `static` function has
+internal linkage; placing a declaration in a header does not make an
+implementation private. Put the intended cross-translation-unit declarations in
+a guarded, self-contained header and keep private helpers with their
+implementation. Check that a consumer includes the header without relying on
+another include's order. The C23 working draft describes scope and linkage
+separately; use the project's selected C standard and compiler. [WG14 draft,
+sections 6.2.1–6.2.2][c-linkage].
+
+In C++, keep declarations and definitions consistent with the one-definition
+rule, including templates and inline entities. Do not place ordinary non-inline
+external definitions in a widely included header. Include required dependencies
+instead of relying on incidental transitive includes; avoid namespace-wide
+`using` directives in headers. Existing header or module conventions govern:
+adopting modules is a build/toolchain decision, not cosmetic file cleanup. A
+header/implementation pair per tiny type is not required. These are [Core
+Guidelines source-organization recommendations][cpp-layout], not a prescribed
+architecture. Compile and link a real consumer after changing the public
+surface.
+
+## Java
+
+Packages and modules are different boundaries. Package-private access does not
+extend to a similarly named subpackage. A public type in a named module also
+needs the appropriate exported package and module readability for ordinary
+external use; an `opens` directive serves reflective access, not the same
+contract as `exports`. Keep package structure consistent with the existing
+source roots and build tool. [JLS packages and modules][java-layout].
+
+Keep mutually dependent package-private helpers near their owning package rather
+than making them public solely to cross a newly invented directory boundary. Do
+not introduce a named module or split a build artifact just to reorganize a few
+files. Test the actual supported classpath/module-path and downstream import
+configuration; a successful IDE build can hide packaging differences.
+
 ## Other languages
 
 Discover the target compiler version, build manifest, module/package visibility,
@@ -119,3 +156,7 @@ and decorative diagrams presented as executable examples.
   https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/namespaces
 [csharp-file]:
   https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/file
+[c-linkage]: https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3096.pdf
+[cpp-layout]:
+  https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-source
+[java-layout]: https://docs.oracle.com/javase/specs/jls/se25/html/jls-7.html

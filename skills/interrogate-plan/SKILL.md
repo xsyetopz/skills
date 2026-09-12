@@ -9,8 +9,8 @@ description: >-
 
 # Interrogate Plan
 
-Run this workflow only when the user explicitly invokes this skill by name.
-A mention of its subject in another task is not an invocation.
+Run this workflow only when the user explicitly invokes this skill by name. A
+mention of its subject in another task is not an invocation.
 
 Question the artifact rather than improving or implementing it.
 

@@ -183,4 +183,4 @@ without building a proof-of-concept unless requested.
   https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation
 [ts-generator]:
   https://github.com/openapi-ts/openapi-typescript/blob/main/packages/openapi-typescript/src/lib/ts.ts
-[ts-package]: https://www.npmjs.com/package/openapi-typescript/v/7.13.0
+[ts-package]: https://registry.npmjs.org/openapi-typescript/7.13.0

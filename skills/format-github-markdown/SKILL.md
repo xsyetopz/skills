@@ -9,8 +9,8 @@ description: >-
 
 # Format GitHub Markdown
 
-Run this workflow only when the user explicitly invokes this skill by name.
-A mention of Markdown in another task is not an invocation.
+Run this workflow only when the user explicitly invokes this skill by name. A
+mention of Markdown in another task is not an invocation.
 
 Preserve content, links, code semantics, and repository conventions. Use the
 repository's configured formatter and lint command first. Do not replace its
@@ -21,8 +21,8 @@ policy with this skill's preferences or disable diagnostics to obtain success.
 Inspect the configured command as well as files: it may select a custom
 configuration with `--config` or `--configPointer`. CLI2 discovers
 `.markdownlint-cli2.jsonc`, `.yaml`, `.cjs`, and `.mjs`, but not
-`.markdownlint-cli2.json`. It also reads the documented `.markdownlint.*`
-rule configurations. See [upstream configuration][configuration].
+`.markdownlint-cli2.json`. It also reads the documented `.markdownlint.*` rule
+configurations. See [upstream configuration][configuration].
 
 Only when adding tooling is in scope and no configuration already governs the
 target, use `scripts/ensure-markdownlint-cli2.sh <repo-root>`. It preserves
@@ -48,8 +48,8 @@ identifiers, or command behavior.
 
 The asset favors ATX headings, dash lists, backtick fences, and compact tables.
 Its MD013 policy limits prose to 80 columns but excludes fenced code and tables;
-a project's own configuration can impose different limits. The asset is the
-rule source, not a claim that these preferences are required by GFM.
+a project's own configuration can impose different limits. The asset is the rule
+source, not a claim that these preferences are required by GFM.
 
 Let the configured formatter own whitespace. If it conflicts with a configured
 lint rule, resolve the tool/policy conflict with the user instead of alternating

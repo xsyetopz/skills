@@ -1,0 +1,4 @@
+interface:
+  display_name: "Select Development Process"
+  short_description: "Choose a lifecycle with explicit feedback paths"
+  default_prompt: "Use $select-development-process to select a justified development process with activities, feedback, and reassessment triggers."

@@ -21,8 +21,9 @@ description: >-
 Use plain Markdown. AGENTS.md has no required schema or heading set. Do not
 invent one or copy generic coding advice into each scope.
 
-Read [discovery and evidence][ref-1] for Codex overrides, fallback names,
-root/nested examples, and conflicting guidance. GitHub
+Read [discovery and evidence][ref-1] when checking discovery or precedence,
+resolving conflicting guidance, or choosing root versus nested placement. Its
+Codex overrides and fallback names are client-specific. GitHub
 `.github/agents/*.agent.md` personas use a different format.
 
 [ref-1]: references/format-and-evidence.md

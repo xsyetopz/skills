@@ -11,8 +11,8 @@ For each candidate, establish its replacement, exposure, consumers, and
 retirement evidence. Trace imports, exports, configuration, generated
 registries, tests, packaging, and supported external contracts.
 
-Read [removal evidence](references/removal-evidence.md) for dynamic consumers,
-published exports, generated artifacts, and persisted values.
+Read [removal evidence](references/removal-evidence.md) when a candidate has
+dynamic consumers, published exports, generated routes, or persisted values.
 
 Remove confirmed obsolete surfaces with their dedicated resources and active
 documentation routes. Remove forwarding wrappers, hidden aliases, and fallbacks

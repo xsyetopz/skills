@@ -13,9 +13,10 @@ project-native tools rather than reproducing their logic in recipes.
 
 ## Workflow
 
-1. Read the existing justfile, manifests, lockfiles, and contributor commands.
-1. Check `just --version` against the required syntax and consult
-   [the current language reference](references/current-just-api.md).
+1. Read the affected recipes and their manifest, lockfile, and contributor
+   commands. Check `just --version` against the syntax they need.
+1. For changes to environment access, dependencies, paths, or failure handling,
+   consult [the language reference](references/current-just-api.md).
 1. Keep caches and generated state in established locations. Quote interpolated
    paths and make environment loading explicit.
 1. Use `env("KEY")` for a required environment variable and

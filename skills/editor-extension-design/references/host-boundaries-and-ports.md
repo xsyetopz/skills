@@ -45,6 +45,16 @@ Refresh API availability for an uncovered capability or different host version.
 
 ## Keep portable semantics free of host objects
 
+Map each required user operation to host capabilities and acceptance evidence
+before extracting a shared core. Separate required parity from a negotiable
+presentation choice. Compare a direct host implementation, a shared library,
+and a server only where viable; include startup latency, data transfer, failure
+isolation, runtime availability, and package/update cost in the decision.
+Sharing code is not beneficial if it forces every host to emulate another's
+document model. Keep cohesive transformation rules together while adapters own
+their host-specific state and effects. Trace both data and cancellation through
+the chosen boundary, including errors returning to the user.
+
 A shared core can own parsing, transformation and protocol-neutral validation.
 Each adapter owns editor identity/version, input snapshots, edits/undo, UI,
 settings, storage, process resolution, cancellation and cleanup. Use a shared

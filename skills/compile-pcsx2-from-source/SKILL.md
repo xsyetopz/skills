@@ -7,11 +7,14 @@ description: >-
 
 # Compile PCSX2 from Source
 
-Use a separate checkout and build directory at a recorded revision. Read
-[source compilation](references/source-builds.md) for Linux, Windows, macOS, GS
-runner, and packaged-resource requirements.
+Build in a separate checkout and build directory at a recorded revision; do not
+replace the installed emulator. Before building, read the target platform's
+procedure and packaged-resource requirements in
+[source compilation](references/source-builds.md). Use its GS runner procedure
+only when graphics replay is requested.
 
-Do not replace the installed emulator. Record toolchain, dependency revisions,
+Record toolchain, dependency revisions,
 configuration, local patches, and artifact hash. Verify compilation, packaged
 resources, and process launch. Run a guest checkpoint only when guest execution
-is part of the request.
+is part of the request. Report the artifact path and the first failed stage and
+diagnostic, if any.

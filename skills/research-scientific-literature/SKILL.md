@@ -12,10 +12,13 @@ Search results are discovery metadata, not evidence that a paper establishes a
 claim.
 
 1. Restate the question, target system, decision, outcome, and applicability
-   constraints. Expand acronyms, synonyms, adjacent fields, and contrary terms.
-1. Run the [discovery CLI](scripts/discover_literature.py) with several queries.
-   Use `--offline` only to reuse a populated cache. Deduplicate preprints,
-   revisions, and published records before selecting papers.
+   constraints. When searching, expand acronyms, synonyms, and contrary terms.
+1. Start with supplied papers when they address the question. When discovery is
+   needed, use available scholarly search; the
+   [discovery CLI](scripts/discover_literature.py) is the default for repeatable
+   multi-source metadata collection, not a prerequisite to reading a known
+   paper. Use `--offline` only with a populated cache. Deduplicate preprints,
+   revisions and published records before selecting additional papers.
 1. Open each potentially decisive original paper independently. Identify the
    version read, method, workload or dataset, baselines, measured result, and
    limitations. Inspect supplements and linked code when the claim depends on
@@ -35,8 +38,8 @@ claim.
 
 The CLI queries keyless arXiv, Crossref, and OpenAlex routes, caches responses,
 and emits normalized metadata. Its output never substitutes for reading a
-paper. Read [discovery and evidence](references/discovery-and-evidence.md) for
-source semantics, acquisition, and reporting rules.
+paper. Read [discovery and evidence](references/discovery-and-evidence.md) when
+using the CLI, acquiring missing full text, or resolving source/version linkage.
 
 ## Validation
 

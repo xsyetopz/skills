@@ -7,10 +7,12 @@ description: >-
 
 # Compile DuckStation from Source
 
-Pin the source revision and dependency-pack hashes in a separate checkout and
-build directory. Read [source compilation](references/source-builds.md) for
-platform requirements and verification stages.
+Build in a separate checkout and build directory; do not replace the installed
+emulator. Record the requested source revision, target platform, and
+dependency-pack hashes. Before building, read the target platform's procedure
+in [source compilation](references/source-builds.md).
 
-Do not replace the installed emulator. Record compiler, dependency hashes,
-configuration, local patches, and executable hash. Treat compilation, launch,
-renderer initialization, and guest progress as separate checks.
+Record compiler, configuration, local patches, and executable path/hash. Verify
+the build and process launch, reporting the first failed stage and diagnostic.
+Check renderer initialization and guest progress only when guest execution is
+requested; neither follows from a successful build.

@@ -10,7 +10,7 @@ hyperfine --warmup 2 --runs 10 \
 ```
 
 `WORKLOAD_SIZE` changes the shared workload. Record `bun --version`, OS,
-architecture, commands, sample count, median/mean and spread. The structurally
+architecture, commands, sample count, median/mean and spread. The
 candidate becomes a measured improvement only for the environment and
 workload where repeated results exceed observed noise.
 

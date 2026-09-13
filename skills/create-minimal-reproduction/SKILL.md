@@ -7,61 +7,42 @@ description: >-
 
 # Create Minimal Reproduction
 
-An MRE is complete only when its documented command was run and produced the
+A minimal reproduction is complete only when its documented command produced the
 claimed observable result. Capture the original failure before reducing it:
 exact command, expected and actual result, relevant diagnostic, versions,
 OS/architecture, inputs, configuration, and state assumptions.
 
 Work in a disposable directory. Start with the smallest artifact the ecosystem
 actually needs: a source file and compiler command when sufficient; otherwise a
-small project with its required manifest and configuration. DO NOT scaffold an
+small project with its required manifest and configuration. Do not scaffold an
 application, retain private source, or add a dependency that does not affect
 the behavior.
 
-Remove one independent element at a time and re-run the same oracle. Keep a
-removal only if the target behavior remains. For races or flakes, preserve the
+Define a check for the observed failure (the oracle). Remove one independent
+element at a time and re-run that check. Keep a removal only if the target
+behavior remains. For races or flakes, preserve the
 trigger, record sample count and failures, and state the observed rate; do not
 claim deterministic reproduction when it is not deterministic.
+
+Choose reductions from the failure's input classes, boundary values, interacting
+conditions, and state sequence. A failure only on the second invocation needs
+that history even if a one-call example is shorter. Keep the oracle independent
+of the suspected implementation: match the intended diagnostic or effect, not
+any nonzero exit. Re-check the original and reduced case under equivalent
+conditions when a reduction could have changed the cause. Call a result reduced,
+not globally smallest, unless that stronger claim has evidence.
 
 Package every required file as text with exact setup and run commands, tested
 environment, input/fixture, expected behavior, actual behavior, and exact
 output when relevant. Re-run the documented instructions from a clean copy or
 fresh state when caches, generated files, or environment state could affect the
 result. If execution is blocked, report the blocker and call the result an
-unverified candidate, not an MRE.
+unverified candidate, not a verified reproduction.
 
-## Unverified fragment
+For a small packaging example, inspect the bundled
+[verified reproduction](assets/python-delimiter-repro/README.md). To exercise
+that example, copy its directory to a clean location and run `python3 verify.py`
+there; this is not required when reducing a different failure.
 
-**Deciding condition:** An upstream maintainer must reproduce the failure
-without access to the original repository.
-
-```text
-The client sometimes crashes.
-
-src/client.ts: client.fetchData()
-```
-
-Why it fails:
-
-- No dependency versions, input, command, or exact diagnostic are supplied.
-- Another person cannot execute the claimed failure.
-
-## Independently executable artifact
-
-```text
-python-delimiter-repro/
-├── README.md
-├── repro.py
-└── verify.py
-```
-
-Why it works:
-
-- The artifact contains the files and command needed to observe the condition.
-- The report states the tested environment and observable difference.
-
-Check: copy the bundled [verified example](assets/python-delimiter-repro/) to a
-clean location and run `python3 verify.py` from it.
-
-Read [reduction and packaging](references/reduction-and-packaging.md) for the
-reduction log, report shape, ecosystem fit, and upstream-reporting details.
+Read [reduction and packaging](references/reduction-and-packaging.md) when
+choosing ecosystem-specific files or preparing a standalone upstream report.

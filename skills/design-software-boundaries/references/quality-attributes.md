@@ -24,6 +24,20 @@ substitute for a configurable value.
 
 ## Reliability and operability
 
+Define each indicator's event population, numerator/denominator or unit,
+measurement window, and exclusions. Request success ratio differs from uptime;
+neither alone proves correctness or durability. State the workload and failure
+assumptions behind a target, including correlated dependency loss. Do not
+multiply component availability estimates as if failures were independent
+without evidence for that assumption.
+
+Set recovery criteria in observable terms: time to restore the user operation,
+permitted data loss, reconciliation of uncertain effects, and behavior while
+degraded. Test the failure and recovery transition under representative load in
+an authorized isolated environment. A restarted process is not recovered if
+accepted work was lost or duplicates remain. Measure the same indicators before,
+during, and after recovery; report untested failure assumptions explicitly.
+
 Identify dependency, capacity, malformed-input, partial-commit, deployment, and
 operator failure modes. Retry only transient operations with bounded backoff,
 deadline, and idempotency/reconciliation; never retry validation failures or

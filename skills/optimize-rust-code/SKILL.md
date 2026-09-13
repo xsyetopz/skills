@@ -10,11 +10,12 @@ description: >-
 
 Define the workload, build profile, target CPUs, and performance claim. Measure
 CPU/allocation behavior before changing the limiting path. Check changes against
-the declared MSRV, edition, panic behavior, and overflow semantics.
+the minimum supported Rust version (MSRV), edition, panic behavior, and overflow
+semantics.
 
-Read [measurement and build][ref-1] for profiling, Cargo profiles, and PGO. Read
-[ownership and concurrency][ref-2] for allocation, layout, unsafe, atomics, and
-SIMD.
+Read [measurement and build][ref-1] when choosing profiling or build settings.
+Read [ownership and concurrency][ref-2] when changing allocation, layout, unsafe
+code, atomics, or vector instructions.
 
 Remove redundant work and copies before adding unsafe or concurrency complexity.
 For unsafe operations, establish caller preconditions, aliasing, alignment,

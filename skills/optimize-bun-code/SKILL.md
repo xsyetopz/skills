@@ -11,9 +11,10 @@ Define the workload and claim: startup, CPU cost, retention, throughput, or
 latency. Measure a baseline before optimizing. Select the changed path from
 profiles or measured workload frequency.
 
-Read [measurement and memory][ref-1] for CPU/heap commands, JSC warm-up,
-retainers, and RSS. Read [native APIs and concurrency][ref-2] for files, byte
-ownership, streaming, workers, and bounded queues.
+Read [measurement and memory][ref-1] when choosing CPU/heap measurements or
+interpreting warm-up and retained memory. Read
+[native APIs and concurrency][ref-2]
+when the measured path involves files, buffers, streaming, or workers.
 
 Remove measured redundant work, allocations, copies, or expensive calls.
 Maintain error, ordering, encoding, lifetime, streaming, and cancellation

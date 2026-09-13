@@ -8,14 +8,16 @@ description: >-
 
 # Design Software Boundaries
 
-Answer the decision from evidence, not a pattern name. State the operation, data
-ownership, runtime/deployment model, quality-attribute scenarios, team and
-consumer boundaries, state/failure model, and expected evolution. Trace one
-representative operation in an existing system before proposing a replacement.
+Answer the decision from evidence, not a pattern name. Identify the affected
+operation, its owner and the constraint the current structure cannot meet.
+Trace that operation before proposing a replacement. For a local module choice,
+inspect its consumers and dependency direction. Investigate deployment, service
+level objectives (SLOs), governance, and recovery only when they affect the
+decision.
 
 Compare the smallest viable structure with only relevant alternatives. For each,
-state the quality attribute improved, cost, assumptions, ecosystem support,
-simpler alternative, overuse failure, and how to test, observe, and migrate it.
+state the requirement it meets, cost, assumptions, and how to test the result.
+Include deployment, observation, and migration work only where needed.
 Prefer platform and framework facilities before custom infrastructure. A module,
 direct call, native state mechanism, or sequential function chain is the default
 until an independently deployed, versioned, concurrent, durable, or untrusted

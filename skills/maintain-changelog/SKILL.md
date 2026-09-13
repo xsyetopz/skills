@@ -8,7 +8,8 @@ description: >-
 # Maintain Changelog
 
 Derive release facts and public API impact from source, manifests, commits,
-issues, and tags. Read
+issues, and tags. Establish the release range and version policy before writing.
+For release structure or public API version decisions, read
 [changelog and SemVer guidance](references/changelog-and-semver.md).
 
 Read the [validator contracts](references/validator-contracts.md) before running
@@ -20,3 +21,5 @@ SemVer profile; do not impose it on unrelated release-note formats.
 
 Preserve published version numbers, dates, and useful history. Verify comparison
 links, release facts, migration notes, and the declared public API impact.
+Report the edited release/version, supporting evidence, and any unresolved
+release facts. Passing a format validator does not verify those facts.

@@ -9,15 +9,10 @@ Write one observable oracle before editing: an exit status, assertion, exact
 diagnostic, output value, HTTP response, or a measured failure rate. A build
 failure is a valid oracle only when that failure is the reported behavior.
 
-For each removal, record the element removed and whether the same oracle still
-holds. Use this loop:
-
-1. Copy the failing case to a disposable directory.
-1. Remove one independent source file, configuration property, dependency,
-   input portion, option, or feature.
-1. Run the documented command.
-1. Keep the removal only when the relevant oracle remains true.
-1. Repeat; use a clean run when caches or state are plausible causes.
+For each removal, record the element removed, the command run, and whether the
+same failure remains. Candidates include files, configuration properties,
+dependencies, input portions, and options. Keep this log with the working case;
+the final artifact needs only the files and instructions that reproduce it.
 
 Do not minimize character count at the expense of readable names, formatting, or
 the trigger. Do not replace a race with a sequential failure and call it the

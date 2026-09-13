@@ -32,6 +32,6 @@ meets the stated condition. Add an interface, event, schema version, custom
 protocol, registry, service layer, or compatibility path only after naming the
 current boundary or requirement that requires it.
 
-Read [pair construction examples](references/pair-construction.md) for a
-reusable format and examples covering unnecessary abstraction, standard formats,
-and incomplete reproductions.
+Read [pair construction examples](references/pair-construction.md) when a worked
+example would clarify the deciding condition or check. It covers unnecessary
+abstraction, standard formats, and incomplete reproductions.

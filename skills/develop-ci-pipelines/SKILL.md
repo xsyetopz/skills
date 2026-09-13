@@ -11,8 +11,10 @@ Trace the affected event through workflow creation, job selection, dependencies,
 commands, artifacts, and deployment. Diagnose the first failing transition from
 its configuration and run evidence.
 
-Read [provider behavior](references/provider-behavior.md), then the affected
-provider: [GitHub Actions](references/github-actions.md),
+For pipeline diagnosis or design, read
+[provider behavior](references/provider-behavior.md). Before changing provider
+configuration, read only the affected provider:
+[GitHub Actions](references/github-actions.md),
 [GitLab CI](references/gitlab-ci.md), or [Bitbucket Pipelines][ref-1].
 
 Reuse existing [local feedback][local-feedback] when it is already configured.

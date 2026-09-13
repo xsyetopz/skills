@@ -9,15 +9,15 @@ description: >-
 # Editor Extension Design
 
 Use this skill for host selection, shared extension behavior, or ports. Route
-ordinary implementation to the selected editor's workflow. Do not implicitly
-invoke a manual implementation skill; its named-invocation policy still applies.
+ordinary implementation to the selected editor's workflow when available,
+respecting its actual invocation policy.
 
 Map each capability to its execution location: UI, workspace, remote host,
 browser, or external process. Confirm API availability before promising parity.
 
-Read [host boundaries and ports][ref-1] for capability mapping, shared-core
-contracts, adapter ownership, and worked ports. Read [protocols and
-synchronization][ref-2] for LSP/DAP integration.
+Read [host boundaries and ports][ref-1] when selecting a host or mapping a port.
+Read [protocols and synchronization][ref-2] when designing language-server (LSP)
+or debug-adapter (DAP) integration.
 
 Keep portable semantics independent of host objects. Adapters own document
 identity/version, position conversion, edits/undo, UI, settings, process

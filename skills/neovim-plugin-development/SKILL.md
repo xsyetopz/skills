@@ -10,10 +10,11 @@ description: >-
 Resolve the minimum Neovim version, runtimepath layout, public Lua modules, and
 commands. Use supported host APIs and Lua syntax.
 
-- Read [runtime and ownership](references/runtime-and-ownership.md) for loading,
-  positions, undo, callbacks, and resource lifecycle.
+- For loading, edits, callbacks, or resource ownership, read
+  [runtime and ownership](references/runtime-and-ownership.md).
 - Read [integration and validation](references/integration-and-validation.md)
-  for LSP, diagnostics, health, real-host tests, help, and distribution.
+  when changing LSP, diagnostics, health, help, or distribution, or setting up
+  real-host tests.
 
 Keep `plugin/` startup lightweight and load `lua/` implementation on demand. Add
 setup only when needed, and make repeated calls idempotent. Own any augroups and

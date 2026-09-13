@@ -11,10 +11,10 @@ Resolve minimum `engines.vscode`, contributions, activation, `main`/`browser`,
 and supported desktop/remote/web hosts. Match type declarations and packaged
 entrypoints to that contract.
 
-Read [hosts, trust, and packaging][ref-1] for manifests, placement, storage,
-webviews, debugging, and distribution. Read
-[document lifecycle](references/document-lifecycle.md) for providers, edits,
-diagnostics, trees, cancellation, and state.
+Read [hosts, trust, and packaging][ref-1] when changing manifests, placement,
+storage, webviews, or distribution, or setting up host tests. Read
+[document lifecycle](references/document-lifecycle.md) when changing providers,
+edits, diagnostics, trees, or asynchronous state.
 
 Use URI-aware workspace APIs. Browser workers cannot use Node filesystem/process
 APIs. Guard workspace-controlled execution with Workspace Trust. Validate
@@ -23,7 +23,8 @@ webview messages and constrain scripts/resources.
 Dispose registrations and owned processes at the correct lifetime. Reject
 canceled or stale document results. Honor edit success and undo boundaries.
 
-Run checks for affected hosts and features. Inspect production output and VSIX
+Test the changed feature in each affected supported host; assert its result and
+relevant cancellation, stale-result, or undo behavior. Inspect output and VSIX
 contents for packaging changes. Use the
 [starter](assets/extension-template/TEMPLATE.md) for scaffolding.
 

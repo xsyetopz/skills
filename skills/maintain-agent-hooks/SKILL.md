@@ -11,6 +11,12 @@ Installing, removing, or executing a hook requires that exact requested effect.
 Agent hooks execute code with the harness's privileges; repository hook files
 are executable trust boundaries.
 
+For an audit-only request, inspect configuration and invoked code, then report
+findings and unverified provider behavior without installing, removing or
+triggering hooks. Apply the mutation and smoke-test steps below only to an
+authorized change. Reuse authorization already supplied for that effect; do
+not ask again for each harmless check within it.
+
 1. Detect the actual provider and installed version. Do not infer it from a
    similarly named configuration file. Select **project** or **user** scope
    explicitly before editing.

@@ -13,8 +13,8 @@ framework, runtime, architecture, deployment mode and effective build settings.
 Preserve those contracts unless changing one is part of the requested
 experiment.
 
-Read [measurement and runtime][measurement] for diagnostics, benchmarks and
-build evaluation. Read [memory and interop][memory] when the measured path
+Read [measurement and runtime][measurement] when choosing diagnostics,
+benchmarks, or build settings. Read [memory and interop][memory] when the path
 involves buffers, collection internals, pinning, unsafe code or native
 boundaries.
 
@@ -30,9 +30,9 @@ Measure baseline and candidate under the same workload and settings. Report
 variance and allocation tradeoffs; do not extrapolate a microbenchmark into an
 application-wide speedup or claim safety from successful compilation.
 
-Use the [runnable comparison benchmark](assets/benchmark-repro/README.md) to
-demonstrate correctness-first comparison and local measurement evidence. Do not
-transfer its result to another application workload.
+Use the [runnable comparison benchmark](assets/benchmark-repro/README.md) when
+a small fixture helps demonstrate correctness-first comparison. Do not transfer
+its result to another application workload.
 
 [measurement]: references/measurement-and-runtime.md
 [memory]: references/memory-and-interop.md

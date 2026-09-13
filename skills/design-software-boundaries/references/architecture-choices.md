@@ -18,82 +18,37 @@ boundary change, and a larger alternative only when relevant. Include
 implementation, operating, migration, and cognitive costs. A framework's name is
 not evidence that these costs are justified.
 
-## Compare relevant alternatives
+## Contracts behind the alternatives
 
-### Cohesive modules in one deployment
+Map each consequential requirement to the operation, data owner, and boundary
+that enforces it. For each crossing, identify inputs/outputs, control direction,
+state lifetime, error propagation, and transactional or consistency limits.
+Distinguish requirements from forecasts: a possible future consumer does not
+justify today's public interface. Record unresolved assumptions separately.
 
-Useful when: features share transactions and release cadence.
+Judge cohesion by responsibilities that share invariants and change together;
+judge coupling by what a change forces consumers to know or revise. Minimize
+shared mutable state, cyclic dependencies, and leaked storage/host details,
+not merely import count. A single cohesive module can have several functions;
+splitting each function can increase coordination without isolating a decision.
 
-Cost: hidden cross-module writes can destroy ownership.
+Example: tax rules and invoice persistence have different change drivers, but
+invoice finalization owns the invariant joining calculated totals and stored
+state. Keep that coordination explicit. A remote tax service introduces timeout
+and version-skew decisions that a local calculation did not need. Compare its
+isolation benefit with those costs using the same acceptance scenario.
 
-Simpler alternative: functions and types in an existing module.
+For each viable alternative, name the quality improved, the quality worsened,
+the sensitive assumption, and evidence that would reverse the choice. Trace a
+normal operation and a partial failure through it. When migrating, verify old
+and new consumer contracts, data ownership transfer, and rollback limits;
+removing imports alone does not establish an operationally complete migration.
 
-### Layers
-
-Useful when: presentation, policy, and storage have distinct responsibilities.
-
-Cost: pass-through layers and changes spread across every layer.
-
-Simpler alternative: a feature module with private helpers.
-
-### Ports/adapters
-
-Useful when: a consumer needs a stable boundary against external systems.
-
-Cost: translation and contract maintenance; wrappers can leak provider
-semantics.
-
-Simpler alternative: direct use of the existing client behind a local function.
-
-### Pure computation plus I/O orchestration
-
-Useful when: policy or transforms can operate on explicit inputs.
-
-Cost: copying large state or encoding every effect can outweigh testability.
-
-Simpler alternative: extract only the computation that benefits.
-
-### Pipeline
-
-Useful when: stages transform well-defined intermediate data.
-
-Cost: buffering, backpressure, partial failure, and lost provenance.
-
-Simpler alternative: sequential function calls before queues or processes.
-
-### State machine
-
-Useful when: legal transitions and cancellation/order are the hard part.
-
-Cost: duplicated state and transition explosions.
-
-Simpler alternative: a native enum and explicit transition function.
-
-### Event-driven consumers
-
-Useful when: independent reactions or delayed processing are required.
-
-Cost: ordering, duplicate delivery, replay, and eventual consistency.
-
-Simpler alternative: a direct call or transaction.
-
-### Separate services
-
-Useful when: independent deployment, isolation, or scaling is necessary.
-
-Cost: network failure, contract evolution, operations, and cross-service
-consistency.
-
-Simpler alternative: modules in the same deployment.
-
-### Data-oriented storage
-
-Useful when: profiles show hot traversal or locality costs.
-
-Cost: harder updates and indexing; duplicated representations.
-
-Simpler alternative: improve one hot data structure before changing the domain
-model.
+Use the system-style comparison below only for relevant candidates. For local
+structure, pure computation plus I/O orchestration can isolate effects without
+copying every state value; an enum and transition function can express a small
+state machine; a compact data structure can improve measured locality without
+changing the domain model.
 
 The cloud-specific [Microsoft architecture catalog][styles] explains why layers,
 workers, events, and services have different deployment and consistency costs.

@@ -20,14 +20,39 @@ failing hook. Verify `git show --stat --oneline HEAD` and status afterward.
 Existing staged changes must not enter the commit by accident. Reinspect the
 index after a failed commit.
 
-## Commit messages
+## Commit slices and snapshot evidence
 
 Unless the user explicitly requests one commit, divide future commits by
 independently understandable behavior rather than file count or diff size. Keep
 an implementation with its relevant tests and necessary documentation. Run the
 relevant checks for each commit so every slice is independently valid and can be
 reverted without invalidating an unrelated slice. Apply this policy only to new
-commits; do not rewrite existing history to reshape earlier work.
+commits; do not rewrite existing history to reshape earlier work. A broad
+authorization to commit current changes is not a single-commit override.
+
+Choose boundaries from behavior and consumers, not filenames. Two independent
+fixes in one file can need partial staging; one feature across source, tests and
+docs can be one slice. For dependent work, put a valid prerequisite first and
+record the dependency; revert dependents before their prerequisite. Keep changes
+together when separating them would leave an invalid intermediate state.
+
+For each slice, inspect the complete cached diff and run the checks that
+distinguish its behavior. Checks against the dirty worktree can accidentally
+depend on a later slice. When that risk exists, materialize the intended index
+snapshot in disposable state and run the same repository checks there, with
+required untracked fixtures supplied deliberately. Do not alter the user's
+working files to simulate a clean snapshot.
+
+Record `git write-tree` immediately before committing when exact snapshot
+identity matters; compare it with `git rev-parse HEAD^{tree}` afterward. Inspect
+the resulting full patch and message as well as status and remaining diffs.
+A hook can succeed while changing the index: a different committed tree needs
+review and checks, not an automatic success claim or unauthorized amendment.
+After a failed hook, inspect HEAD, index and worktree before any retry. Preserve
+unrelated staged blobs/modes, unstaged bytes and untracked files.
+[Tree identity](https://git-scm.com/docs/git-write-tree).
+
+## Commit messages
 
 Before composing a message or running an operation that creates or rewords a
 commit, determine the repository's configured message policy. Inspect its
@@ -38,10 +63,13 @@ sources conflict, stop and report the conflict instead of choosing a style.
 
 Follow the repository's policy when one exists, including its allowed types,
 scope rules, subject casing and length, required trailers, and merge or revert
-exceptions. Honor its existing validator and hooks. Conventional Commits applies
-only when repository documentation, configuration, or CI establishes it. When
-no policy exists, write a concise descriptive message without installing a
-validator or inventing a convention.
+exceptions. Honor its existing validator and hooks. When no policy exists, use
+[Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
+`type(scope): summary`, with optional scope, `feat` for a feature, `fix` for a
+bug fix, and other appropriate types for other work. Mark incompatible changes
+with `!` or a `BREAKING CHANGE:` footer. This fallback is the skill's selected
+policy, not a Git requirement. Do not install a validator or change repository
+policy as part of composing a message.
 
 ## Preserve partial staging
 

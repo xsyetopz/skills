@@ -21,9 +21,9 @@ bind validation to the object IDs supplied to `pre-push` when the configured
 hook claims snapshot accuracy. A direct task invocation does not prove that Git
 ran its hook; test changed hook configuration in a disposable repository.
 
-Conventional Commits applies only when repository documentation, configuration,
-or CI establishes it. Otherwise follow the configured project style or compose
-a concise descriptive message; do not introduce a new validator or convention.
+For message-policy selection and the no-policy fallback, use
+[snapshots and refs](snapshots-and-refs.md#commit-messages). Passing a message
+hook proves neither behavioral slicing nor the correctness of committed code.
 
 Sources: [Git hooks](https://git-scm.com/docs/githooks) and the configured hook
 manager's documentation.

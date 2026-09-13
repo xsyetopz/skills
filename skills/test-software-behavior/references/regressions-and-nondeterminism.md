@@ -57,8 +57,10 @@ nondeterminism to isolate the cause. Compare serial and parallel runs when a
 shared-state hazard is plausible. A passing retry is evidence of intermittence,
 not a repair.
 
-Do not remove the assertion, increase timeouts blindly, mark the test skipped,
-or change CI gates to get green. Quarantine/retry policy changes require
+Do not remove an assertion to suppress an unexplained failure, increase timeouts
+blindly, mark the test skipped, or change CI gates to get green. Evidence-based
+retirement of redundant or obsolete coverage is a different decision, not a
+remedy for an unexplained failure. Quarantine/retry policy changes require
 explicit approval and an accountable follow-up; preserve failure evidence even
 when that policy is approved. Report an unrelated baseline failure separately
 rather than silently repairing it as part of a narrow testing task.

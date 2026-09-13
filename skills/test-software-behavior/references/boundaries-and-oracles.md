@@ -25,66 +25,32 @@ selected integration and E2E coverage. Its illustrative ratios are not universal
 quotas. Do not make every test E2E or assert a fixed pyramid for every
 repository.
 
-## Prefer `Arrange`, `Act`, `Assert` for one operation
+## Select inputs from the contract
 
-For a functional test with one operation, use `Arrange`, `Act`, `Assert` in that
-order:
+Before structuring a test, choose inputs using the contract:
 
-1. **`Arrange`:** inputs, dependencies, state, and the target.
-1. **`Act`:** once on the behavior under test.
-1. **`Assert`:** the resulting values, effects, errors, and forbidden effects.
+- **Equivalence classes:** partition values expected to behave alike; select
+  representatives from valid and invalid classes rather than many duplicates.
+- **Boundary values:** for ordered partitions, test each limit and neighboring
+  values. For an inclusive integer range 1–100, use 0, 1, 2, 99, 100, 101;
+  missing or malformed input is a separate class, not a numeric neighbor.
+- **Decision tables:** when conditions interact, enumerate feasible condition
+  combinations and expected actions. For permission plus account state, test
+  authorized/unauthorized against active/suspended rather than each flag alone.
+- **State transitions:** when history matters, specify starting state, event,
+  guard, next state, and effects. Exercise meaningful sequences and forbidden
+  transitions; covering each state does not cover each transition.
+- **Structural coverage:** use uncovered branches to locate missing behavioral
+  evidence, not to invent a percentage target. Covered code can assert nothing.
 
-`Given`, `When`, `Then` is an equivalent form. State-machine, workflow, and
-interaction scenarios can require multiple named transitions; keep each
-transition and expected state explicit instead of pretending the scenario has
-one action.
+Combine techniques only where they distinguish different defects. Derive
+expected outcomes independently of the implementation. These techniques follow
+the [ISTQB CTFL 4.0.1 syllabus][techniques], not a mandated test-case count.
 
-### Alternating actions and assertions
-
-**Deciding condition:** The test is intended to verify one cart behavior.
-
-```python
-def test_cart_lifecycle():
-    cart = Cart()
-    cart.add("book")
-    assert cart.total == 20
-    cart.remove("book")
-    assert cart.total == 0
-```
-
-Why it fails:
-
-- the test contains two target actions and two behaviors;
-- a failure does not identify whether adding or removing violated its contract;
-- the second assertion depends on the first operation's incidental state.
-
-### Keep one focused Act
-
-```python
-def test_adding_a_book_updates_the_total():
-    # Arrange
-    cart = Cart()
-
-    # Act
-    cart.add("book")
-
-    # Assert
-    assert cart.total == 20
-```
-
-Why it works:
-
-- setup, target behavior, and verification are distinct;
-- the test fails specifically when adding does not update the total;
-- removal belongs in its own Arrange, Act, Assert test.
-
-Check:
-
-- read the test top to bottom and identify exactly one transition from `Arrange`
-  to `Act` and one transition from `Act` to `Assert`.
-
-This enforced structure follows [Automation Panda's description of
-`Arrange-Act-Assert`][aaa].
+Separate verification of specified behavior from validation of intended use.
+User acceptance needs representative tasks and agreed stakeholder criteria;
+unit or E2E success alone cannot establish that the product meets the need.
+Record which claim a test supports and which acceptance remains unobserved.
 
 ## Make the oracle independent
 
@@ -100,50 +66,36 @@ grammar][semver] supplies the oracle, not the current regex. Test through the
 documented CLI as well as the relevant parsing boundary when exit status and
 machine-readable output are part of the contract.
 
-Assertions should observe values, persisted effects, visible behavior, errors,
-and absence of forbidden effects. “The mock was called” is sufficient only when
-that interaction is itself the external contract. Do not assert private helper
-names, incidental ordering, line counts, or types already guaranteed by the
-compiler. Do not expose private production APIs just to reach them from tests.
-
-### Expected value copied from production logic
+## Independent invoice result
 
 **Deciding condition:** The invoice total is a contractual value that the test
-must verify independently from its implementation.
+must verify independently from its implementation. The reviewed requirement is
+199 cents per item, quantity two, less a 49-cent invoice discount: 349 cents.
 
-```ts
-expect(total(invoice)).toBe(
-  invoice.lines.reduce((sum, line) => sum + line.price * line.quantity, 0),
-);
+### RED — DO NOT: copy the production calculation
+
+```python
+invoice = {"price": 199, "quantity": 2, "discount": 49}
+assert total(invoice) == invoice["price"] * invoice["quantity"]
 ```
 
-Why it fails:
+An implementation omitting the discount passes; this repeats its mistake.
 
-- the assertion duplicates the same calculation as `total`;
-- the same omitted discount or rounding rule can make both sides wrong;
-- refactoring production and test code together can preserve the defect.
+### GREEN — DO: assert the independently reviewed result
 
-### Assert a reviewed contractual result
+```python
+invoice = {"price": 199, "quantity": 2, "discount": 49}
 
-```ts
-const invoice = {
-  lines: [{ price: 199, quantity: 2 }],
-  discount: 49,
-};
-
-expect(total(invoice)).toBe(349);
+assert total(invoice) == 349
 ```
 
-Why it works:
+The discount is observable without reimplementing the algorithm in the oracle.
 
-- the expected value is explicit and independent of the implementation;
-- the fixture makes the discount rule observable;
-- changing `total` to ignore `discount` makes this test fail.
+Check: in a disposable fixture, implement `total` with multiplication and then
+with repeated addition, both subtracting the discount. GREEN passes both. Omit
+the discount: GREEN fails with 398 instead of 349, while RED passes.
 
-Check:
-
-- apply that controlled faulty change in an isolated copy and confirm this test
-  fails for the expected-value assertion.
+## Review snapshots semantically
 
 Snapshots are useful for intentionally stable structured or rendered output.
 Review semantic differences before updating a golden file. Normalize only fields
@@ -179,9 +131,8 @@ an unavailable host as unverified rather than replacing it with a syntax check.
 
 [feedback]:
   https://testing.googleblog.com/2015/04/just-say-no-to-more-end-to-end-tests.html
-[aaa]:
-  https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/
 [semver]: https://semver.org/
 [pact]: https://docs.pact.io/
 [packaging]:
   https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/
+[techniques]: https://istqb.org/wp-content/uploads/2024/11/ISTQB_CTFL_Syllabus_v4.0.1.pdf

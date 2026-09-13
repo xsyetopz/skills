@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diagnose Software Failures"
+  short_description: "Find causes through discriminating experiments"
+  default_prompt: "Use $diagnose-software-failures to diagnose this software failure and verify a fix only if authorized."

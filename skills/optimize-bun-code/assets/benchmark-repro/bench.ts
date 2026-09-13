@@ -1,4 +1,5 @@
 const mode = Bun.argv[2];
+const verify = Bun.argv[3] === "--verify";
 const size = Number.parseInt(Bun.env.WORKLOAD_SIZE ?? "30000", 10);
 const values = Array.from(
 	{ length: size },
@@ -21,10 +22,18 @@ function green(input: string[]): Map<string, number> {
 	return counts;
 }
 
-if (mode !== "red" && mode !== "green") {
-	throw new Error("usage: bun bench.ts red|green");
+if ((mode !== "red" && mode !== "green") || (Bun.argv[3] && !verify)) {
+  throw new Error("usage: bun bench.ts red|green [--verify]");
 }
 const result = mode === "red" ? red(values) : green(values);
+if (verify) {
+	console.log(
+		JSON.stringify(
+			[...result.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)),
+		),
+	);
+  process.exit(0);
+}
 const checksum = [...result.entries()].reduce(
 	(total, [key, count]) => total + key.length * count,
 	0,

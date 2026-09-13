@@ -1,19 +1,17 @@
 ---
 name: design-software-boundaries
 description: >-
-  Choose or review software architecture, patterns, paradigms, UI state
-  flow, module boundaries, dependency direction, and structural migrations.
-  Use when an architecture decision or demonstrated boundary problem is the
-  requested outcome; not for routine edits.
+  Choose or review software architecture and boundaries, including long-lived
+  multi-team systems with compatibility, operability, governance, or scale
+  constraints. Not for routine implementation with no structural decision.
 ---
 
 # Design Software Boundaries
 
-Answer the decision from evidence, not a pattern name. First state the
-operation, data ownership, runtime/deployment model, quality-attribute
-scenarios, team and consumer boundaries, state/failure model, and expected
-evolution. Trace one representative operation in an existing system before
-proposing a replacement. Separate requirements from assumptions.
+Answer the decision from evidence, not a pattern name. State the operation, data
+ownership, runtime/deployment model, quality-attribute scenarios, team and
+consumer boundaries, state/failure model, and expected evolution. Trace one
+representative operation in an existing system before proposing a replacement.
 
 Compare the smallest viable structure with only relevant alternatives. For each,
 state the quality attribute improved, cost, assumptions, ecosystem support,
@@ -23,46 +21,12 @@ direct call, native state mechanism, or sequential function chain is the default
 until an independently deployed, versioned, concurrent, durable, or untrusted
 boundary proves otherwise.
 
-**DO NOT add an interface, factory, service, repository, event, schema version,
-or protocol for a hypothetical future.** Add it only for a current alternate
+Do not add an interface, factory, service, repository, event, schema version, or
+protocol for a hypothetical future. Add one only for a current alternate
 implementation, extension axis, compatibility boundary, required isolation, or
-platform contract. Do not make up quality attributes; turn them into measurable
-scenarios first. Escalate long-lived multi-team operational concerns to
-`$design-enterprise-software`.
-
-## RED — DO NOT: choose pattern prestige for a local transform
-
-**Deciding condition:** One desktop process reads one local file, transforms it
-synchronously, and writes one output; no independent deployment or durable work
-is required.
-
-```text
-UI -> controller -> service -> repository -> adapter -> event bus -> worker
-```
-
-Why RED:
-
-- the local synchronous operation has no independent deployment or durable
-  delivery requirement;
-- every layer adds contracts and failure states without improving a stated
-  quality attribute.
-
-## GREEN — DO: use a boundary for each demonstrated force
-
-```text
-import/parse -> transform -> output
-```
-
-Why GREEN:
-
-- one process, one local file, and synchronous work need neither an independent
-  deployment nor durable delivery;
-- each boundary represents distinct parse, transformation, or output behavior.
-
-Check:
-
-- run the normal path and one parse and write failure through the project's
-  tests; add a job boundary only for actual recovery, scheduling, or isolation.
+platform contract. For long-lived or multi-team systems, quantify scale,
+compatibility windows, SLOs, ownership, rollout, recovery, and governance rather
+than substituting abstraction quantity for operational decisions.
 
 Read only the needed reference:
 
@@ -78,6 +42,10 @@ Read only the needed reference:
   deployed contracts and observability.
 - [Ownership and migration](references/ownership-and-migration.md) for writers,
   idempotency, rollback, and ADRs.
+- [Quality attributes](references/quality-attributes.md) for measurable
+  availability, latency, scale, compatibility, security, and recovery scenarios.
+- [Governance and delivery](references/governance-delivery.md) for multi-team
+  ownership, rollout, compliance, customization, and supply-chain decisions.
 
 For implementation, migrate authorized consumers, retire obsolete paths, and
 verify dependency direction plus representative normal and failure paths. For a

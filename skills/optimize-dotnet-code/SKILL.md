@@ -1,17 +1,11 @@
 ---
 name: optimize-dotnet-code
 description: >-
-  Profile, review, or optimize .NET application performance using runtime,
-  allocation, JIT, and workload evidence, including C# memory and native
-  interop. Use when .NET speed, latency, throughput, allocation, or memory
-  is the requested outcome; not for unrelated SDK upgrades.
+  Profile or optimize .NET speed, latency, throughput, allocation, and memory
+  using runtime, JIT, workload, and native-interop evidence. Not for SDK upgrades.
 ---
 
 # Optimize .NET Code
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Define the workload and limiting metric: startup, throughput, tail latency,
 allocation, retained memory, or resource use. Record the selected SDK, target
@@ -36,7 +30,7 @@ Measure baseline and candidate under the same workload and settings. Report
 variance and allocation tradeoffs; do not extrapolate a microbenchmark into an
 application-wide speedup or claim safety from successful compilation.
 
-Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) to
+Use the [runnable comparison benchmark](assets/benchmark-repro/README.md) to
 demonstrate correctness-first comparison and local measurement evidence. Do not
 transfer its result to another application workload.
 

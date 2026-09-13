@@ -34,10 +34,7 @@ try {
     await rm(outdir, { recursive: true, force: true });
   }
 
-  await Promise.all([
-    build("src/extension.ts", "node"),
-    build("src/browser.ts", "browser"),
-  ]);
+  await build("src/extension.ts", "node");
 } finally {
   if (checkOnly) {
     await rm(outdir, { recursive: true, force: true });

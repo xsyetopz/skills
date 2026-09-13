@@ -14,7 +14,7 @@ The bundled CLI uses three independent keyless metadata routes:
 - OpenAlex Works API for broader discovery and identifier linkage.
 
 Crossref recommends a descriptive user agent, caching, serial requests, and
-backoff; adding `--mailto` identifies the client to its polite pool. OpenAlex
+backoff. OpenAlex
 allows casual keyless access but gives a larger budget with an optional free
 key; this skill does not require one. Respect returned limits and do not rotate
 identities, scrape around access controls, or repeatedly download papers.

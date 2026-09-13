@@ -1,17 +1,11 @@
 ---
 name: maintain-repository-docs
 description: >-
-  Write or audit README, CONTRIBUTING, guides, and other repository
-  documentation using executable project evidence. Use when repository
-  documentation content is the requested outcome; not for AGENTS.md,
-  changelogs, hosted templates, CODEOWNERS, or runtime implementation.
+  Write or audit README, CONTRIBUTING, guides, and repository documentation from
+  executable project evidence. Not for AGENTS.md or changelogs.
 ---
 
 # Maintain Repository Docs
-
-Apply this workflow when repository documentation is the requested work, not
-merely because another task includes necessary documentation. Implicit
-activation does not authorize unrelated implementation changes.
 
 Derive claims from manifests, source, CI, scripts, and observed commands. Read
 [README and contribution guidance](references/readme-and-contributing.md). For
@@ -23,8 +17,7 @@ outline. Verify changed links, paths, prerequisites, commands, expected results,
 and platform claims. Report unresolved factual decisions instead of inventing
 them.
 
-Use the bundled [general Markdown](assets/MARKDOWN.template.md),
-[README](assets/README.template.md), or
+Use the bundled [README](assets/README.template.md) or
 [CONTRIBUTING](assets/CONTRIBUTING.template.md) template only when its sections
 match the repository. Remove unused optional sections rather than leaving
 placeholders or empty headings.

@@ -30,7 +30,7 @@ deployment, startup and code-generation tradeoffs; they are not interchangeable
 speed flags. [Compilation configuration][compilation], [GC configuration][gc],
 [Native AOT][aot].
 
-### RED — DO NOT: apply a blanket performance property set
+### Blanket performance properties
 
 **Deciding condition:** The requested outcome is lower memory under a
 constrained container workload; arithmetic and unsafe-code semantics must not
@@ -44,13 +44,13 @@ change.
 </PropertyGroup>
 ```
 
-Why RED:
+Why it fails:
 
 - the settings change safety and arithmetic semantics without evidence;
 - server GC can increase memory and is not universally faster;
 - no measured bottleneck connects these properties to the requested outcome.
 
-### GREEN — DO: change one evidenced runtime decision
+### Change one evidenced runtime decision
 
 ```text
 Constraint: container limit is 256 MiB.
@@ -59,7 +59,7 @@ Result: workstation GC meets latency and memory objectives on the deployment
 workload, so only ServerGarbageCollection changes.
 ```
 
-Why GREEN:
+Why it works:
 
 - the decision names the deployment constraint and comparable measurements;
 - unrelated compiler safety settings remain unchanged;

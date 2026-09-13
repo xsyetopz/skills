@@ -1,17 +1,11 @@
 ---
 name: neovim-plugin-development
 description: >-
-  Build, repair, or review Neovim plugins using Lua, runtimepath, buffer,
-  event, and resource lifecycle ownership. Use when implementing or
-  diagnosing Neovim plugin commands, autocmds, mappings, LSP integration,
-  packaging, or headless host behavior.
+  Build or diagnose Neovim plugins across Lua, runtimepath, buffers, events,
+  commands, mappings, LSP integration, packaging, and resource lifecycle.
 ---
 
 # Neovim Plugin Development
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Resolve the minimum Neovim version, runtimepath layout, public Lua modules, and
 commands. Use supported host APIs and Lua syntax.

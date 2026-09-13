@@ -31,7 +31,7 @@ requires a lockfile conversion, let that Bun executable generate it and compare
 resolved package identities before acceptance. A newer executable working
 locally does not update a CI/container pin automatically.
 
-### RED — DO NOT: turn a runtime pin change into a dependency update
+### Runtime pin change that also updates dependencies
 
 **Deciding condition:** The requested change is only the Bun runtime version;
 dependency versions and application behavior must remain unchanged.
@@ -41,7 +41,7 @@ bun update
 bun install
 ```
 
-Why RED:
+Why it fails:
 
 - `bun update` authorizes new dependency resolutions unrelated to the runtime
   transition;
@@ -49,7 +49,7 @@ Why RED:
   changes;
 - CI and container pins can still use the previous executable.
 
-### GREEN — DO: change the pin and verify the existing graph
+### Change the pin and verify the existing graph
 
 ```sh
 bun --version
@@ -57,7 +57,7 @@ bun install --frozen-lockfile
 bun test
 ```
 
-Why GREEN:
+Why it works:
 
 - the selected executable and existing dependency graph remain separate
   variables;

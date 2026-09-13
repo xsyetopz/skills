@@ -1,19 +1,15 @@
 ---
 name: research-scientific-literature
 description: >-
-  Discover, verify, and synthesize scientific literature for an engineering
-  or research decision using primary papers and contradictory evidence. Use
-  when the task requires a literature review, scientific papers, arXiv, DOI,
-  replication, or evidence synthesis; not for routine API docs or unchecked
-  citation lists.
+  Discover, verify, and synthesize primary scientific literature and
+  contradictory evidence for an engineering or research decision. Not for
+  routine API documentation.
 ---
 
 # Research Scientific Literature
 
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request. Search results are discovery metadata, not evidence that a paper
-establishes a claim.
+Search results are discovery metadata, not evidence that a paper establishes a
+claim.
 
 1. Restate the question, target system, decision, outcome, and applicability
    constraints. Expand acronyms, synonyms, adjacent fields, and contrary terms.

@@ -25,21 +25,21 @@ selected integration and E2E coverage. Its illustrative ratios are not universal
 quotas. Do not make every test E2E or assert a fixed pyramid for every
 repository.
 
-## Enforce `Arrange`, `Act`, `Assert`
+## Prefer `Arrange`, `Act`, `Assert` for one operation
 
-Every functional test MUST follow `Arrange`, `Act`, `Assert` in that order:
+For a functional test with one operation, use `Arrange`, `Act`, `Assert` in that
+order:
 
 1. **`Arrange`:** inputs, dependencies, state, and the target.
 1. **`Act`:** once on the behavior under test.
 1. **`Assert`:** the resulting values, effects, errors, and forbidden effects.
 
-`Given`, `When`, `Then` is the equivalent form for behavior specifications.
-Fixture setup and teardown can live in framework hooks, but setup must not
-perform the target behavior. Parsing an `Act` response for assertions remains
-part of `Act`; a second business operation is another `Act` and requires a
-separate test.
+`Given`, `When`, `Then` is an equivalent form. State-machine, workflow, and
+interaction scenarios can require multiple named transitions; keep each
+transition and expected state explicit instead of pretending the scenario has
+one action.
 
-### RED — DO NOT: alternate actions and assertions
+### Alternating actions and assertions
 
 **Deciding condition:** The test is intended to verify one cart behavior.
 
@@ -52,13 +52,13 @@ def test_cart_lifecycle():
     assert cart.total == 0
 ```
 
-Why RED:
+Why it fails:
 
 - the test contains two target actions and two behaviors;
 - a failure does not identify whether adding or removing violated its contract;
 - the second assertion depends on the first operation's incidental state.
 
-### GREEN — DO: keep one focused Act
+### Keep one focused Act
 
 ```python
 def test_adding_a_book_updates_the_total():
@@ -72,7 +72,7 @@ def test_adding_a_book_updates_the_total():
     assert cart.total == 20
 ```
 
-Why GREEN:
+Why it works:
 
 - setup, target behavior, and verification are distinct;
 - the test fails specifically when adding does not update the total;
@@ -106,7 +106,7 @@ that interaction is itself the external contract. Do not assert private helper
 names, incidental ordering, line counts, or types already guaranteed by the
 compiler. Do not expose private production APIs just to reach them from tests.
 
-### RED — DO NOT: calculate the expected value with production logic
+### Expected value copied from production logic
 
 **Deciding condition:** The invoice total is a contractual value that the test
 must verify independently from its implementation.
@@ -117,13 +117,13 @@ expect(total(invoice)).toBe(
 );
 ```
 
-Why RED:
+Why it fails:
 
 - the assertion duplicates the same calculation as `total`;
 - the same omitted discount or rounding rule can make both sides wrong;
 - refactoring production and test code together can preserve the defect.
 
-### GREEN — DO: assert a reviewed contractual result
+### Assert a reviewed contractual result
 
 ```ts
 const invoice = {
@@ -134,7 +134,7 @@ const invoice = {
 expect(total(invoice)).toBe(349);
 ```
 
-Why GREEN:
+Why it works:
 
 - the expected value is explicit and independent of the implementation;
 - the fixture makes the discount rule observable;

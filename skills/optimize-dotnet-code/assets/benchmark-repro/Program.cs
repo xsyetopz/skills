@@ -1,6 +1,9 @@
 using System.Text;
 
-var mode = args.SingleOrDefault() ?? throw new ArgumentException("usage: benchmark red|green");
+if (args.Length is < 1 or > 2 || (args.Length == 2 && args[1] != "--verify"))
+    throw new ArgumentException("usage: benchmark red|green [--verify]");
+var mode = args[0];
+var verify = args.Length == 2;
 var size = int.TryParse(Environment.GetEnvironmentVariable("WORKLOAD_SIZE"), out var parsed)
     ? parsed
     : 20_000;
@@ -26,6 +29,11 @@ var output = mode switch
 {
     "red" => Red(values),
     "green" => Green(values),
-    _ => throw new ArgumentException("usage: benchmark red|green"),
+    _ => throw new ArgumentException("usage: benchmark red|green [--verify]"),
 };
+if (verify)
+{
+    Console.Write(output);
+    return;
+}
 Console.WriteLine($"length={output.Length} checksum={output.Sum(character => character)}");

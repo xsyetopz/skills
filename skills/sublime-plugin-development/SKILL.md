@@ -1,17 +1,11 @@
 ---
 name: sublime-plugin-development
 description: >-
-  Build, repair, or review Sublime Text packages using embedded Python,
-  command/edit ownership, reload lifecycle, and packed resources. Use when
-  implementing or diagnosing Sublime Text commands, events, syntax
-  resources, package tests, packaging, or host behavior.
+  Build or diagnose Sublime Text packages across embedded Python, commands,
+  events, edit ownership, reload lifecycle, resources, tests, and packaging.
 ---
 
 # Sublime Plugin Development
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Resolve the supported Sublime builds and embedded Python environments. Select
 syntax and APIs supported by that range.

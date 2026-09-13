@@ -1,4 +1,4 @@
-# .NET RED/GREEN benchmark
+# .NET comparison benchmark
 
 This fixture compares repeated immutable-string concatenation with one
 `StringBuilder` for the same deterministic inputs. The verification script

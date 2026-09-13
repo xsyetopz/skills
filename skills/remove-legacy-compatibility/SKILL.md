@@ -1,17 +1,11 @@
 ---
 name: remove-legacy-compatibility
 description: >-
-  Remove confirmed obsolete aliases, shims, entrypoints, fallbacks, or
-  compatibility paths after their consumers are gone. Use when legacy or
-  backward-compatibility removal is explicitly the requested outcome; not
-  for active migrations or still-supported contracts.
+  Remove confirmed obsolete aliases, shims, entrypoints, fallbacks, and
+  compatibility paths after their consumers are gone. Not for active migrations.
 ---
 
 # Remove Legacy Compatibility
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 For each candidate, establish its replacement, exposure, consumers, and
 retirement evidence. Trace imports, exports, configuration, generated

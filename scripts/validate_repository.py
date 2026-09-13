@@ -9,28 +9,6 @@ import yaml
 SKILL_LINK = re.compile(r"(?<!!)\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)")
 REFERENCE_LINK = re.compile(r"^\[[^]]+\]:\s*(?:\n\s*)?([^\s#]+)", re.MULTILINE)
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-USE_WHEN = re.compile(r"[.!?]\s+Use when\s+\S", re.DOTALL)
-DISCOVERY_CONTRADICTION = re.compile(
-    r"(?:"
-    r"only when (?:the user )?explicitly invokes?"
-    r"|use when explicitly invoked"
-    r"|only when invoked as \$"
-    r"|manual invocation by default"
-    r"|explicit-only"
-    r"|not an invocation"
-    r")",
-    re.IGNORECASE,
-)
-
-
-def has_capability_and_activation(description: str) -> bool:
-    capability, separator, activation = description.partition("Use when")
-    return bool(
-        separator
-        and USE_WHEN.search(description)
-        and len(capability.strip(" .!?")) >= 10
-        and len(activation.strip(" .!?")) >= 10
-    )
 
 
 def fail(message: str) -> None:
@@ -62,23 +40,11 @@ def main() -> int:
         if not isinstance(description, str) or not 1 <= len(description) <= 1024:
             fail(f"{skill_md}: description must be a 1-1024 character string")
             errors += 1
-        elif not has_capability_and_activation(description):
-            fail(
-                f'{skill_md}: description must state a capability followed by "Use when..."'
-            )
-            errors += 1
-        elif DISCOVERY_CONTRADICTION.search(description):
-            fail(f"{skill_md}: description contradicts automatic discovery")
-            errors += 1
         compatibility = metadata.get("compatibility")
         if "compatibility" in metadata and (
             not isinstance(compatibility, str) or not 1 <= len(compatibility) <= 500
         ):
             fail(f"{skill_md}: compatibility must be a 1-500 character string")
-            errors += 1
-        body = text.split("---", 2)[2]
-        if DISCOVERY_CONTRADICTION.search(body):
-            fail(f"{skill_md}: body contradicts automatic discovery")
             errors += 1
         openai_path = skill / "agents/openai.yaml"
         try:
@@ -98,8 +64,10 @@ def main() -> int:
             if not isinstance(policy, dict):
                 fail(f"{openai_path}: policy must be a mapping")
                 errors += 1
-            elif "allow_implicit_invocation" in policy:
-                fail(f"{openai_path}: allow_implicit_invocation is not permitted")
+            elif "allow_implicit_invocation" in policy and not isinstance(
+                policy["allow_implicit_invocation"], bool
+            ):
+                fail(f"{openai_path}: allow_implicit_invocation must be a boolean")
                 errors += 1
         except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError) as error:
             fail(f"{openai_path}: invalid OpenAI metadata: {error}")

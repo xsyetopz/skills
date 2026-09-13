@@ -45,7 +45,7 @@ that guarantee explicitly and test it at the authoritative boundary.
 - **CI/CD:** artifact provenance, promotion, and rollback; check immutable
   artifacts and a rollback drill.
 
-## RED — DO NOT: add a queue to a direct local operation
+## Unnecessary queue
 
 **Deciding condition:** The caller needs the save result synchronously in the
 same process and transaction, with no recovery or scheduling requirement.
@@ -55,19 +55,19 @@ same process and transaction, with no recovery or scheduling requirement.
 queue.push(() => saveInvoice(invoice));
 ```
 
-Why RED:
+Why it fails:
 
 - the queue has no capacity, delivery, retry, or recovery contract;
 - asynchronous execution loses the caller's direct result and transaction
   boundary without a stated requirement.
 
-## GREEN — DO: use a direct call until durable asynchronous work is required
+## Direct call until durable work is required
 
 ```ts
 await saveInvoice(invoice);
 ```
 
-Why GREEN:
+Why it works:
 
 - the caller needs the result now and shares the transaction boundary;
 - a direct call introduces no new delivery or ordering state.

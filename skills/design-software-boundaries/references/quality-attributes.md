@@ -37,7 +37,7 @@ metrics, traces, and deployment tooling. Bound queues, cardinality, retention,
 and telemetry cost; a telemetry outage must not change business commit behavior.
 Create runbooks and exercise incident/rollback paths when humans operate them.
 
-### RED — DO NOT: retry without an effect identity
+### Retry without an effect identity
 
 **Deciding condition:** A write can commit before its response is lost, and the
 caller may retry after a timeout.
@@ -47,18 +47,18 @@ caller may retry after a timeout.
 for (let attempt = 0; attempt < 3; attempt++) await createInvoice(input);
 ```
 
-Why RED:
+Why it fails:
 
 - a timeout can mean the invoice committed but its response was lost;
 - retrying an unidentified effect can create duplicate invoices.
 
-### GREEN — DO: retry an identified logical operation
+### Retry an identified logical operation
 
 ```ts
 await createInvoice({ ...input, idempotencyKey });
 ```
 
-Why GREEN:
+Why it works:
 
 - the authoritative writer records the key and result atomically with the
   effect;

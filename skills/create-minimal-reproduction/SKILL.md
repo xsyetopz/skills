@@ -1,10 +1,8 @@
 ---
 name: create-minimal-reproduction
 description: >-
-  Construct, reduce, execute, and package a minimal reproducible example
-  (MRE or reprex) for a bug, regression, API behavior, or failing
-  integration. Use when an isolated upstream reproducer is the requested
-  outcome; not for tutorials or production starter templates.
+  Reduce a bug, regression, or API behavior to an independently executable
+  minimal reproduction. Not for tutorials or production starters.
 ---
 
 # Create Minimal Reproduction
@@ -32,7 +30,7 @@ fresh state when caches, generated files, or environment state could affect the
 result. If execution is blocked, report the blocker and call the result an
 unverified candidate, not an MRE.
 
-## RED — DO NOT: report an unverified fragment
+## Unverified fragment
 
 **Deciding condition:** An upstream maintainer must reproduce the failure
 without access to the original repository.
@@ -43,12 +41,12 @@ The client sometimes crashes.
 src/client.ts: client.fetchData()
 ```
 
-Why RED:
+Why it fails:
 
 - No dependency versions, input, command, or exact diagnostic are supplied.
 - Another person cannot execute the claimed failure.
 
-## GREEN — DO: deliver an independently executable artifact
+## Independently executable artifact
 
 ```text
 python-delimiter-repro/
@@ -57,7 +55,7 @@ python-delimiter-repro/
 └── verify.py
 ```
 
-Why GREEN:
+Why it works:
 
 - The artifact contains the files and command needed to observe the condition.
 - The report states the tested environment and observable difference.

@@ -1,17 +1,11 @@
 ---
 name: develop-ci-pipelines
 description: >-
-  Create, repair, or review GitHub Actions, GitLab CI, and Bitbucket
-  pipeline configuration and execution. Use when CI/CD workflow behavior or
-  configuration is the requested task; not for hosted settings or
-  application bugs unrelated to pipelines.
+  Create, repair, or review GitHub Actions, GitLab CI, and Bitbucket Pipelines
+  configuration and execution. Excludes application bugs outside the pipeline.
 ---
 
 # Develop CI Pipelines
-
-Apply this workflow when CI configuration or pipeline execution is the requested
-work. Implicit activation selects guidance only; it does not authorize hosted
-operations or mutations beyond the user's request.
 
 Trace the affected event through workflow creation, job selection, dependencies,
 commands, artifacts, and deployment. Diagnose the first failing transition from
@@ -21,9 +15,9 @@ Read [provider behavior](references/provider-behavior.md), then the affected
 provider: [GitHub Actions](references/github-actions.md),
 [GitLab CI](references/gitlab-ci.md), or [Bitbucket Pipelines][ref-1].
 
-Require [local pre-commit/pre-push feedback][local-feedback] using the same
-underlying CI tasks, with documented hosted-only exceptions. Follow [bounded CI
-evidence][ci-evidence] before fetching failure logs.
+Reuse existing [local feedback][local-feedback] when it is already configured.
+Follow [bounded CI evidence][ci-evidence] before fetching failure logs. Do not
+install Git hooks unless repository policy or a hook-specific task requires it.
 
 Use provider-native YAML. Keep required failures visible. Pin executable
 dependencies and identify artifact producer revisions. Trace control of checkout

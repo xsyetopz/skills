@@ -1,23 +1,16 @@
 ---
 name: maintain-agent-skills
 description: >-
-  Create, audit, update, split, merge, or validate Agent Skills packages
-  against current specifications and authoritative domain sources. Use when
-  SKILL.md metadata, description-driven discovery, instructions, scripts,
-  references, assets, or skill boundaries are the requested work; not for
-  AGENTS.md or unrelated product code.
+  Create, audit, merge, split, update, or validate Agent Skills packages and
+  their metadata, instructions, scripts, references, and assets. Not for
+  AGENTS.md.
 ---
 
 # Maintain Agent Skills
 
-Apply this workflow when Agent Skill maintenance is the requested work. Implicit
-activation selects guidance only; it does not authorize unrelated package or
-product changes.
-
-Inventory every skill and its `SKILL.md`, `agents/`, `references/`, `assets/`,
-scripts, examples, tests, and cross-skill references. Determine each workflow's
-user goal, inputs, outputs, success condition, exclusions, and related skills
-before changing its name or boundary.
+For a collection audit, inventory every skill and bundled resource. For a
+single-package change, inspect that package, its consumers, and neighboring
+descriptions instead of loading the full catalog.
 
 Read [specification and metadata](references/specification-and-metadata.md) for
 the format and OpenAI integration. Read
@@ -26,15 +19,15 @@ disclosure, boundary changes, and verification.
 Read [validation tool selection](references/validation-tools.md) before adding
 or installing repository-wide validation tools.
 
-When creating a package, start from the [canonical SKILL.md
-template](assets/SKILL.template.md). Replace its required fields and keep only
-sections with operational value. Do not create empty resource directories.
+When creating a package, start from the [SKILL.md
+template](assets/SKILL.template.md). Replace its fields and keep only sections
+with operational value. Do not create empty resource directories.
 
 Keep one recognizable user goal per skill. Preserve useful depth while moving
 conditional detail out of `SKILL.md`. Verify volatile technical claims against
 the governing version and current authoritative upstream source. Validate
 structure, metadata, links, scripts, examples, and observable workflow behavior.
 
-Report boundary changes, material knowledge updates, obsolete guidance removed,
-source conflicts, and failed or unavailable validation. Do not present an
-inventory sample as a complete collection audit.
+Report boundary changes, obsolete guidance removed, source conflicts, and failed
+or unavailable validation. Do not present a sample as a complete collection
+audit.

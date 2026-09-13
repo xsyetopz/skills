@@ -1,17 +1,11 @@
 ---
 name: optimize-bun-code
 description: >-
-  Profile, review, or optimize Bun application performance using
-  JavaScriptCore, allocation, memory, and native-API evidence. Use when Bun
-  runtime speed, latency, throughput, allocation, or memory is the requested
-  outcome; not for Bun upgrades or browser-only and Node-only tuning.
+  Profile or optimize Bun application speed, latency, throughput, allocation,
+  and memory using JavaScriptCore and native-API evidence. Not for Bun upgrades.
 ---
 
 # Optimize Bun Code
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Define the workload and claim: startup, CPU cost, retention, throughput, or
 latency. Measure a baseline before optimizing. Select the changed path from
@@ -30,7 +24,7 @@ hardware conditions. Run correctness checks for changed behavior. Report
 distributions, errors, and measurement scope. Label unmeasured proposals as
 hypotheses.
 
-Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) when a
+Use the [runnable comparison benchmark](assets/benchmark-repro/README.md) when a
 small same-workload fixture helps demonstrate the distinction between a
 plausible candidate and a locally measured result.
 

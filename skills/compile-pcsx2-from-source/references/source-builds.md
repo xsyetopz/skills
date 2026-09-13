@@ -85,8 +85,9 @@ shipping builds.
 
 Retain source/tag resolution, local diff, submodule revisions, dependency
 hashes, compiler version, CMake cache, resource hashes and executable hash.
-Verification stages are configuration, compilation, process launch, renderer
-initialization and guest oracle. Report the first failed stage and its
+Verification stages are configuration, compilation, packaged resources, and
+process launch. When guest execution is requested, also verify renderer
+initialization and a guest oracle. Report the first failed stage and its
 diagnostic. Keep build outputs in the case directory.
 
 ## Ubuntu system dependencies

@@ -13,22 +13,13 @@ class SkillTemplateTests(unittest.TestCase):
         rendered = (ROOT / "assets/SKILL.template.md").read_text()
         rendered = rendered.replace("{skill-name}", "sample-skill")
         rendered = rendered.replace(
-            "{What this skill does. Use when the concrete activation boundary applies.}",
-            "Create a verified sample artifact. Use when a sample is requested.",
+            "{State the recognizable user goal and nearest meaningful non-trigger.}",
+            "Create a verified sample artifact, not a production starter.",
         )
         rendered = rendered.replace("{Action-oriented title}", "Create Sample")
         rendered = rendered.replace(
-            "{State the operating rule and required inputs.}",
-            "Require the target path before writing the sample.",
-        )
-        rendered = rendered.replace(
-            "{Inspect the relevant evidence.}", "Inspect the target."
-        )
-        rendered = rendered.replace(
-            "{Perform the smallest coherent change or analysis.}", "Create the sample."
-        )
-        rendered = rendered.replace(
-            "{Produce the requested artifact or decision.}", "Return its path."
+            "{State the outcome, required inputs, and invariants. Route conditional detail to\nfocused references.}",
+            "Require the target path, create the sample, and return its path.",
         )
         rendered = rendered.replace(
             "{Name observable checks and the required completion evidence.}",
@@ -38,7 +29,6 @@ class SkillTemplateTests(unittest.TestCase):
             skill = Path(temporary) / "sample-skill"
             skill.mkdir()
             (skill / "SKILL.md").write_text(rendered)
-            # Act
             result = subprocess.run(
                 [
                     str(Path(sys.executable).with_name("skills-ref")),
@@ -49,7 +39,6 @@ class SkillTemplateTests(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
-            # Assert
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 

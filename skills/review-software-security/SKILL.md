@@ -1,18 +1,11 @@
 ---
 name: review-software-security
 description: >-
-  Threat-model a software design, review code for exploitable trust-boundary
-  failures, or verify security fixes. Use when a defensive application,
-  dependency, authentication, authorization, secrets, or supply-chain
-  security review is requested; not for routine features, compliance
-  certification, incident response, or live offensive testing.
+  Threat-model software, review exploitable trust-boundary failures, or verify
+  security fixes. Excludes compliance certification and live offensive testing.
 ---
 
 # Review Software Security
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Establish the authorized repository/design, deployed versions, entrypoints,
 assets, actors, privileges, and review depth. Distinguish a design threat from

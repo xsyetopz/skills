@@ -103,16 +103,29 @@ Why RED:
 ### GREEN — DO: retain identity and reject stale work
 
 ```lua
-local buffer = vim.api.nvim_get_current_buf()
-local changedtick = vim.api.nvim_buf_get_changedtick(buffer)
-local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, false)
-local input = table.concat(lines, "\n")
+local generations = {}
 
-vim.system({ "formatter", path }, { stdin = input }, function(result)
-  vim.schedule(function()
-    if result.code == 0
-      and vim.api.nvim_buf_is_valid(buffer)
-      and vim.api.nvim_buf_get_changedtick(buffer) == changedtick then
+local function format_current_buffer(path)
+  local buffer = vim.api.nvim_get_current_buf()
+  local request_generation = (generations[buffer] or 0) + 1
+  local changedtick = vim.api.nvim_buf_get_changedtick(buffer)
+  local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, false)
+  local input = table.concat(lines, "\n")
+
+  vim.system({ "formatter", path }, { stdin = input }, function(result)
+    vim.schedule(function()
+      if generations[buffer] ~= request_generation then
+        return
+      end
+      if result.code ~= 0
+        or not vim.api.nvim_buf_is_valid(buffer)
+        or not vim.api.nvim_buf_is_loaded(buffer)
+        or not vim.bo[buffer].modifiable
+        or vim.api.nvim_buf_get_changedtick(buffer) ~= changedtick then
+        generations[buffer] = nil
+        return
+      end
+
       local output = result.stdout:gsub("\n$", "")
       vim.api.nvim_buf_set_lines(
         buffer,
@@ -121,22 +134,28 @@ vim.system({ "formatter", path }, { stdin = input }, function(result)
         false,
         vim.split(output, "\n", { plain = true })
       )
-    end
+      generations[buffer] = nil
+    end)
   end)
-end)
+  generations[buffer] = request_generation
+end
 ```
 
 Why GREEN:
 
 - the callback targets the initiating buffer;
+- a newer request for the same buffer supersedes an older completion without
+  canceling work for another buffer;
 - changed text prevents stale replacement;
+- unloaded or non-modifiable buffers are not edited;
 - immutable input corresponds to the result being applied;
 - a failed formatter cannot replace the buffer.
 
 Check:
 
-- in a headless host test, delay completion, edit or switch the buffer, and
-  verify the stale callback does not change either buffer.
+- in a headless host test, delay completions for two buffers and overlap two
+  requests for one buffer; only the latest request for each unchanged buffer
+  applies.
 
 `vim.system` on supporting hosts accepts an argument list and an optional
 completion callback. Prefer it over a shell command assembled from filenames.

@@ -94,7 +94,7 @@ throughput are different measurements. Do not replace an existing
 CLI/parser/logger merely because an inventory marks it restricted or assigns an
 unmeasured speed ratio.
 
-### RED — DO NOT: claim speed from dependency count
+### Claiming speed from dependency count
 
 **Deciding condition:** The user requested runtime performance, and no profile
 identifies the dependency as a limiting path.
@@ -104,20 +104,20 @@ Replace the maintained parser with a local parser because zero dependencies is
 faster and uses less memory.
 ```
 
-Why RED:
+Why it fails:
 
 - dependency count does not measure CPU time, retained memory, or package load;
 - the replacement can lose syntax, diagnostics, and security maintenance;
 - no representative workload or correctness comparison supports the claim.
 
-### GREEN — DO: optimize only an observed limiting path
+### Optimize only an observed limiting path
 
 ```text
 Baseline: parser accounts for 3% of request CPU and is absent from the retained
 heap after startup. Decision: keep it and investigate the 61% transform path.
 ```
 
-Why GREEN:
+Why it works:
 
 - the profile identifies where improvement can affect the requested metric;
 - retaining the parser preserves its established contract;

@@ -33,17 +33,13 @@ The [OpenAI skills guidance](https://openai.com/academy/skills/) recommends
 explicit inputs, workflow, output, and final checks, and favors composable
 skills over an unfocused end-to-end package.
 
-## Description-driven discovery is not authorization
+## Description-driven discovery
 
-Every catalog description must state both the concrete capability and an
-explicit `Use when...` activation boundary with recognizable task language.
-The official [description optimization guidance][descriptions] confirms that
-catalog descriptions carry discovery and should state user intent with specific
-keywords. Do not require a user to name a skill, and do not add client-specific
-invocation-policy fields to opt a skill out of normal description matching.
-Natural-language selection supplies workflow guidance only. It never grants
-permission for commits, pushes, hosted mutations, security testing, emulator
-execution, or any other consequential operation beyond the user's request.
+Describe one recognizable user goal in natural language and, when useful, its
+nearest non-trigger. The official [description optimization
+guidance][descriptions] confirms that catalog descriptions carry discovery and
+should state user intent with specific terms. Do not require one literal grammar
+such as `Use when...`; supported clients may expose a boolean invocation policy.
 
 A policy change cannot repair an ambiguous description. Test natural requests
 against all candidate descriptions, including near neighbors and composition.
@@ -51,9 +47,9 @@ Client discovery can shorten descriptions or omit skills when its metadata
 budget is exceeded. Put the distinguishing user goal first; inspect actual
 client discovery before claiming that a large catalog is fully available.
 
-A keyword match is not a task match. Put likely neighboring non-goals in the
-metadata; do not activate a specialized review or audit simply because its
-subject appears in routine implementation. Keep authorization and side-effect
-limits in the body, where they constrain execution after discovery.
+A keyword match is not a task match. Prefer the nearest meaningful non-goal over
+lists of distant exclusions. Keep concrete consequential-operation boundaries
+in the body when the skill can write hosted state, rewrite Git history, execute
+hooks or emulators, or perform security testing.
 
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions

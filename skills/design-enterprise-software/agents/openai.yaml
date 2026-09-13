@@ -1,4 +1,0 @@
-interface:
-  display_name: "Design Enterprise Software"
-  short_description: "Design long-lived systems without cargo cult"
-  default_prompt: "Use $design-enterprise-software to design or review this long-lived system from concrete quality attributes."

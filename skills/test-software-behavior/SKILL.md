@@ -1,18 +1,11 @@
 ---
 name: test-software-behavior
 description: >-
-  Design, add, or review behavioral and regression tests, diagnose flaky
-  tests, and verify package or integration behavior. Use when test design,
-  coverage, an oracle, nondeterminism, fuzzing, or a tests-only change is
-  the requested outcome; not for routine test execution, CI configuration,
-  or performance optimization.
+  Design or review behavioral, regression, integration, property, and flaky-test
+  evidence. Not for routine test execution or CI configuration.
 ---
 
 # Test Software Behavior
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Identify the intended contract, supported environments, and observable failure.
 Read existing tests and test configuration before adding tools. Current output,
@@ -25,12 +18,10 @@ install check with compilation or a mocked unit test. Reuse the project's runner
 and fixtures; add a maintained test tool only when it supplies a needed
 capability.
 
-**MUST structure each functional test as `Arrange`, `Act`, `Assert`.** `Arrange`
-all inputs and preconditions first, perform one focused invocation or user
-operation as `Act`, then `Assert` its observable outcomes. DO NOT alternate
-`Act` and `Assert` in one test; split distinct behaviors into separate tests.
-Existing framework setup and teardown hooks may surround these phases. Comments
-naming the phases are optional when the boundaries are already clear.
+Use `Arrange`, `Act`, `Assert` by default for a test with one operation. Choose
+a clear state-transition or scenario structure when behavior genuinely requires
+multiple actions; do not force unrelated behavior into one test merely to fit a
+template.
 
 - Read [test boundaries and oracles](references/boundaries-and-oracles.md) when
   selecting coverage, assertions, test doubles, contracts, or package checks.

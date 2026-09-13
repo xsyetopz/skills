@@ -34,7 +34,7 @@ Suppose a package exposes:
 }
 ```
 
-### RED — DO NOT: delete only the wrapper source
+### Deleting only the wrapper source
 
 **Deciding condition:** Consumer evidence authorizes retirement of the public
 `./legacy` entrypoint while the canonical package remains supported.
@@ -44,19 +44,19 @@ rm src/legacy.ts
 npm test
 ```
 
-Why RED:
+Why it fails:
 
 - `exports` still advertises `./legacy`;
 - stale `dist/legacy.js` can survive incremental packaging;
 - source-tree tests do not prove the published archive contract.
 
-### GREEN — DO: retire the complete confirmed public route
+### Retire the complete confirmed public route
 
 Remove the export mapping, wrapper source, wrapper-only resources, and build
 inclusion together. Rebuild through the existing clean packaging path and
 inspect the archive. Retain tests for the canonical behavior.
 
-Why GREEN:
+Why it works:
 
 - package metadata and archive contents agree;
 - the supported entrypoint remains covered;

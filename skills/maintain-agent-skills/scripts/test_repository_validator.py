@@ -48,33 +48,25 @@ class RepositoryValidatorTests(unittest.TestCase):
         result = self.validate()
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_explicit_only_description_is_rejected(self):
-        result = self.validate(
-            "Create a sample. Use when explicitly invoked; otherwise do nothing."
-        )
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("contradicts automatic discovery", result.stderr)
+    def test_concise_natural_description_passes(self):
+        result = self.validate("Create a verified sample artifact.")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_false_invocation_policy_is_rejected(self):
+    def test_boolean_invocation_policy_passes(self):
         result = self.validate(policy="policy:\n  allow_implicit_invocation: false\n")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("allow_implicit_invocation is not permitted", result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_description_without_activation_clause_is_rejected(self):
-        for description in (
-            "Create a sample artifact.",
-            "Do it. Use when sample work is requested.",
-            "Create a sample artifact. Use when asked.",
-        ):
+    def test_non_boolean_invocation_policy_is_rejected(self):
+        result = self.validate(policy='policy:\n  allow_implicit_invocation: "false"\n')
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("allow_implicit_invocation must be a boolean", result.stderr)
+
+    def test_malformed_description_is_rejected(self):
+        for description in ('""', "3"):
             with self.subTest(description=description):
                 result = self.validate(description)
                 self.assertEqual(result.returncode, 1)
-                self.assertIn('capability followed by "Use when..."', result.stderr)
-
-    def test_body_that_blocks_automatic_discovery_is_rejected(self):
-        result = self.validate(body="Run only when explicitly invoked by name.\n")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("body contradicts automatic discovery", result.stderr)
+                self.assertIn("description must be", result.stderr)
 
     def test_invalid_compatibility_values_are_rejected(self):
         for compatibility in (

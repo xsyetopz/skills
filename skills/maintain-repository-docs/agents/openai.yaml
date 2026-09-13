@@ -1,4 +1,4 @@
 interface:
   display_name: "Maintain Repository Docs"
   short_description: "Maintain evidence-backed repository docs"
-  default_prompt: "Use $maintain-repository-docs to complete this request."
+  default_prompt: "Use $maintain-repository-docs to write or audit these evidence-backed repository docs."

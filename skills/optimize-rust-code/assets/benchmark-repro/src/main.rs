@@ -23,7 +23,11 @@ fn green(values: &[usize]) -> Vec<(usize, usize)> {
 }
 
 fn main() {
-    let mode = std::env::args().nth(1).expect("usage: benchmark red|green");
+    let args: Vec<_> = std::env::args().skip(1).collect();
+    if !(args.len() == 1 || (args.len() == 2 && args[1] == "--verify")) {
+        panic!("usage: benchmark red|green [--verify]");
+    }
+    let mode = &args[0];
     let size = std::env::var("WORKLOAD_SIZE")
         .ok()
         .and_then(|value| value.parse().ok())
@@ -32,8 +36,14 @@ fn main() {
     let result = match mode.as_str() {
         "red" => red(&values),
         "green" => green(&values),
-        _ => panic!("usage: benchmark red|green"),
+        _ => panic!("usage: benchmark red|green [--verify]"),
     };
+    if args.len() == 2 {
+        for (key, count) in result {
+            println!("{key}={count}");
+        }
+        return;
+    }
     let checksum: usize = result.iter().map(|(key, count)| key * count).sum();
     println!("distinct={} checksum={checksum}", result.len());
 }

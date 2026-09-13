@@ -38,33 +38,10 @@ sources conflict, stop and report the conflict instead of choosing a style.
 
 Follow the repository's policy when one exists, including its allowed types,
 scope rules, subject casing and length, required trailers, and merge or revert
-exceptions. Preserve and extend its existing validator and hook manager rather
-than adding a competing convention or implementation.
-
-When the repository has no configured policy, establish the latest stable
-Conventional Commits specification, currently 1.0.0:
-
-```text
-<type>[optional scope][!]: <description>
-
-[optional body]
-
-[optional footers]
-```
-
-Use `feat` for functionality and `fix` for bug fixes. Mark incompatible API
-changes with `!` or a `BREAKING CHANGE:` footer. Other types, such as `docs`,
-`refactor`, and `test`, do not imply a version increment by themselves. Name the
-actual change in the description. Add rationale or migration details only when
-needed. Keep release notes focused on user-visible changes instead of copying
-the commit log.
-
-The selected policy must be enforced by the shared, reproducibly installed
-message hooks described in [local feedback](local-feedback.md) before creating
-or rewording commits. Do not treat a correctly written message, a local-only
-untracked hook, or post-operation inspection as a substitute for that gate.
-[Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/),
-checked 2026-09-13 and still the latest stable specification.
+exceptions. Honor its existing validator and hooks. Conventional Commits applies
+only when repository documentation, configuration, or CI establishes it. When
+no policy exists, write a concise descriptive message without installing a
+validator or inventing a convention.
 
 ## Preserve partial staging
 

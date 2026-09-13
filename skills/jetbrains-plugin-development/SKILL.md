@@ -1,17 +1,11 @@
 ---
 name: jetbrains-plugin-development
 description: >-
-  Build, repair, or review IntelliJ Platform and JetBrains IDE plugins with
-  compatibility, descriptor, PSI, threading, and lifecycle constraints. Use
-  when implementing or diagnosing IntelliJ IDEA, Kotlin, or other JetBrains
-  plugin behavior, packaging, or host integration.
+  Build or diagnose IntelliJ Platform and JetBrains IDE plugins across
+  compatibility, descriptors, PSI, threading, lifecycle, and packaging.
 ---
 
 # JetBrains Plugin Development
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Resolve supported IDE products/builds and compatible Java, Kotlin, and Gradle
 versions. Align `plugin.xml` runtime dependencies with compilation dependencies.

@@ -2,9 +2,9 @@
 """Validate version strings against Semantic Versioning 2.0.0.
 
 Usage:
-    uv run audit_semver.py <version> [<version> ...] [--json]
-    uv run audit_semver.py --from-tags          (read tags from git)
-    uv run audit_semver.py --from-changelog CHANGELOG.md  (extract from changelog)
+    python3 audit_semver.py <version> [<version> ...] [--json]
+    python3 audit_semver.py --from-tags          (read tags from git)
+    python3 audit_semver.py --from-changelog CHANGELOG.md  (extract from changelog)
 
 Spec: https://semver.org/
 """

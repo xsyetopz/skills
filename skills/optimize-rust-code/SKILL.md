@@ -1,18 +1,12 @@
 ---
 name: optimize-rust-code
 description: >-
-  Profile, review, or optimize Rust performance using allocation, layout,
-  ownership, concurrency, compiler, unsafe-code, and CPU-portability
-  evidence. Use when Rust speed, latency, throughput, allocation, binary
-  size, or memory is the requested outcome; not for unrelated toolchain
-  migration.
+  Profile or optimize Rust speed, latency, throughput, allocation, binary size,
+  and memory using compiler, ownership, concurrency, and CPU evidence. Not for
+  toolchain migration.
 ---
 
 # Optimize Rust Code
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Define the workload, build profile, target CPUs, and performance claim. Measure
 CPU/allocation behavior before changing the limiting path. Check changes against
@@ -32,7 +26,7 @@ identical build and workload conditions. Report measured scope and variability.
 Identify unavailable soundness or target checks without treating compilation as
 proof.
 
-Use the [runnable RED/GREEN benchmark](assets/benchmark-repro/README.md) when a
+Use the [runnable comparison benchmark](assets/benchmark-repro/README.md) when a
 controlled same-input comparison is useful. Its checked-in measurement is local
 evidence, not a general collection recommendation.
 

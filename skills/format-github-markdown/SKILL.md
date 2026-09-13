@@ -1,17 +1,11 @@
 ---
 name: format-github-markdown
 description: >-
-  Format, normalize, or lint GitHub Flavored Markdown with repository policy
-  and markdownlint-cli2 when appropriate. Use when Markdown formatting or
-  lint compliance is the requested outcome; not for deciding document
-  content or repository governance.
+  Format or lint GitHub Flavored Markdown under repository policy, using
+  markdownlint-cli2 when appropriate. Not for deciding document content.
 ---
 
 # Format GitHub Markdown
-
-Apply this workflow when Markdown formatting or lint compliance is the requested
-work, not merely because another task edits Markdown. Implicit activation does
-not authorize unrelated content or policy changes.
 
 Preserve content, links, code semantics, and repository conventions. Use the
 repository's configured formatter and lint command first. Do not replace its

@@ -1,4 +1,4 @@
 interface:
   display_name: "Configure Repository Governance"
   short_description: "Maintain repository governance files"
-  default_prompt: "Use $configure-repository-governance to complete this request."
+  default_prompt: "Use $configure-repository-governance to create or audit these repository governance files."

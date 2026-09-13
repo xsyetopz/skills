@@ -17,7 +17,6 @@
     "Other"
   ],
   "main": "./dist/extension.js",
-  "browser": "./dist/browser.js",
   "activationEvents": [],
   "capabilities": {
     "untrustedWorkspaces": {

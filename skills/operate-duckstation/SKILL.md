@@ -1,17 +1,11 @@
 ---
 name: operate-duckstation
 description: >-
-  Construct or run isolated DuckStation PS1 launches, debug guest behavior,
-  and verify captures, texture replacements, or patches against a known
-  build and game revision. Use when operating DuckStation or diagnosing a
-  PlayStation guest; not for compiling the emulator or PCSX2 tasks.
+  Run isolated DuckStation launches and diagnose PS1 guest behavior, captures,
+  texture replacements, or patches. Not for compiling DuckStation.
 ---
 
 # Operate DuckStation
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Resolve the exact emulator build, media/executable revision and requested guest
 checkpoint. Preserve an unchanged baseline and use an isolated data tree with

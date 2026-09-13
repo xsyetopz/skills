@@ -1,10 +1,8 @@
 ---
 name: create-red-green-examples
 description: >-
-  Construct compact paired RED (wrong) and GREEN (correct) implementation
-  examples with an explicit deciding condition and meaningful checks. Use
-  when the user requests wrong/right code comparisons; not for test-driven-
-  development cycles or ordinary implementation.
+  Create compact paired RED (wrong) and GREEN (correct) implementation examples
+  with one deciding condition and a meaningful check. Not for ordinary fixes.
 ---
 
 # Create RED/GREEN Examples

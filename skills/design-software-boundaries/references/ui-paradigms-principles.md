@@ -29,7 +29,7 @@ component runtimes. Test state transitions and user-visible effects, not
 framework internals. Test lifecycle/restoration for retained UI and model
 transitions/render invariants for immediate UI.
 
-## RED — DO NOT: use global state for a local dialog
+## Global state for a local dialog
 
 **Deciding condition:** One dialog owns its open state, and no restoration,
 cross-screen coordination, or second consumer exists.
@@ -39,19 +39,19 @@ cross-screen coordination, or second consumer exists.
 dispatch({ type: "dialog/open" });
 ```
 
-Why RED:
+Why it fails:
 
 - the reducer, action, store, and subscription represent no shared state owner;
 - a local UI transition now depends on global infrastructure.
 
-## GREEN — DO: keep state with its only owner
+## Keep state with its only owner
 
 ```ts
 const [open, setOpen] = useState(false);
 <button onClick={() => setOpen(true)}>Open</button>
 ```
 
-Why GREEN:
+Why it works:
 
 - no second consumer, restoration requirement, or cross-screen transition
   exists;

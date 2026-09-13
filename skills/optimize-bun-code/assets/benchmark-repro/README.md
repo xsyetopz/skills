@@ -1,4 +1,4 @@
-# Bun RED/GREEN benchmark
+# Bun comparison benchmark
 
 This fixture compares linear array lookup with `Map` lookup while counting the
 same deterministic keys. Both modes must produce identical JSON before timing.
@@ -11,7 +11,7 @@ hyperfine --warmup 2 --runs 10 \
 
 `WORKLOAD_SIZE` changes the shared workload. Record `bun --version`, OS,
 architecture, commands, sample count, median/mean and spread. The structurally
-GREEN implementation becomes **MEASURED GREEN** only for the environment and
+candidate becomes a measured improvement only for the environment and
 workload where repeated results exceed observed noise.
 
 ## Local evidence

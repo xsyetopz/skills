@@ -1,17 +1,11 @@
 ---
 name: operate-pcsx2
 description: >-
-  Construct or run isolated PCSX2 PS2 launches, debug guest behavior, and
-  verify captures, texture replacements, or patches against a known build
-  and game revision. Use when operating PCSX2 or diagnosing a PlayStation 2
-  guest; not for compiling the emulator or DuckStation tasks.
+  Run isolated PCSX2 launches and diagnose PS2 guest behavior, captures,
+  texture replacements, or patches. Not for compiling PCSX2.
 ---
 
 # Operate PCSX2
-
-Select this workflow automatically when the task matches its description.
-Selection supplies guidance only; it does not authorize operations beyond the
-user's request.
 
 Resolve the exact emulator build, media/executable revision and requested guest
 checkpoint. Preserve an unchanged baseline and use an isolated data tree with

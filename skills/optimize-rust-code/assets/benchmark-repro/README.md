@@ -1,8 +1,8 @@
-# Rust RED/GREEN benchmark
+# Rust comparison benchmark
 
 This fixture compares repeated linear lookup with `HashMap` lookup while
-counting the same deterministic integers. Sorting occurs only in GREEN to make
-its result order comparable; correctness is checked before timing.
+counting the same deterministic integers. Sorting occurs only in the candidate
+to make its result order comparable; correctness is checked before timing.
 
 ```sh
 ./verify.sh

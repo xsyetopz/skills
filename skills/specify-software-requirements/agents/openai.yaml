@@ -1,0 +1,4 @@
+interface:
+  display_name: "Specify Software Requirements"
+  short_description: "Write testable requirements and acceptance criteria"
+  default_prompt: "Use $specify-software-requirements to write or revise a testable software specification with explicit sources and unresolved decisions."

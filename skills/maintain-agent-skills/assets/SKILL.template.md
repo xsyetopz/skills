@@ -5,9 +5,12 @@ description: {State the recognizable user goal and nearest meaningful non-trigge
 
 # {Action-oriented title}
 
-{State the outcome, required inputs, and invariants. Route conditional detail to
-focused references.}
+{State the observable outcome, required inputs and non-obvious constraints.}
+
+{If workflows need different context, link each resource with its loading
+condition. Omit this paragraph for a self-contained skill.}
 
 ## Validation
 
-{Name observable checks and the required completion evidence.}
+{State proportionate completion evidence and what remains unverified when a
+required check cannot run. Keep only sections that help this task.}

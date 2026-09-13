@@ -18,11 +18,15 @@ class SkillTemplateTests(unittest.TestCase):
         )
         rendered = rendered.replace("{Action-oriented title}", "Create Sample")
         rendered = rendered.replace(
-            "{State the outcome, required inputs, and invariants. Route conditional detail to\nfocused references.}",
+            "{State the observable outcome, required inputs and non-obvious constraints.}",
             "Require the target path, create the sample, and return its path.",
         )
         rendered = rendered.replace(
-            "{Name observable checks and the required completion evidence.}",
+            "{If workflows need different context, link each resource with its loading\ncondition. Omit this paragraph for a self-contained skill.}",
+            "",
+        )
+        rendered = rendered.replace(
+            "{State proportionate completion evidence and what remains unverified when a\nrequired check cannot run. Keep only sections that help this task.}",
             "Open the artifact and verify its expected content.",
         )
         with tempfile.TemporaryDirectory() as temporary:

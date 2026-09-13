@@ -1,6 +1,6 @@
 # Specification and metadata
 
-Research: 2026-09-13. Agent Skills use progressive disclosure: catalog metadata,
+Research: 2026-09-14. Agent Skills use progressive disclosure: catalog metadata,
 the activated `SKILL.md`, then task-relevant bundled resources. The normative
 [specification](https://agentskills.io/specification) requires `SKILL.md` with
 YAML frontmatter and Markdown instructions.
@@ -53,3 +53,53 @@ in the body when the skill can write hosted state, rewrite Git history, execute
 hooks or emulators, or perform security testing.
 
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
+
+## Source decisions for reliability audits
+
+The specification governs portable format. Body headings, numbered workflows,
+resource directories and recommended size limits are not a universal authoring
+schema. Keep client metadata and behavior separate from that portable contract.
+
+OpenAI's [Astra guidance][astra] recommends focused descriptions, conditional
+resource loading, less elaborate procedural scaffolding and explicit completion
+boundaries. Apply those observations to Astra; do not infer that every model
+will follow implicit constraints or that shorter always means more reliable.
+
+OpenAI's [model prompting guidance][prompting] favors plain language, precise
+verbs, the main point early, and completing the user's intended task without
+unnecessary approval pauses. Apply that writing guidance here: state the result,
+actions, and stopping evidence directly. Keep explicit rules that prevent known
+mistakes. Its model settings and delegation advice are provider-specific, not
+permission to change the model or delegate a skill's work.
+
+Anthropic's [authoring guidance][claude-authoring] calibrates specificity to
+fragility and variability and recommends evaluation on intended models. Its
+[engineering article][claude-evaluation] motivates inspecting actual resource
+use and trajectories. Claude-specific tooling examples are not requirements
+for Codex. Retain portable safety invariants when they protect a real boundary.
+
+The [Agent Skills best-practices guide][skill-practices] is authoring advice,
+not additional normative frontmatter. Adopt task-derived instructions and
+execution feedback; treat claims about ideal detail or structure as hypotheses
+to test locally. Preserve repository lint policy; heading and list preferences
+need no invented model-performance claim.
+
+The community [incomplete-read report][read-report], titled
+“Codex may only read the first
+~220 lines of a skill file, so put critical instructions at the top.” It reports
+partial reads in observed sessions, not a model or format limit. Put critical
+instructions first and inspect read coverage when diagnosing an omission. Do not
+infer its suggested cap or commenters' module-size rules as model limits.
+
+[SkillsBench v4][skillsbench] uses paired skill/no-skill comparisons and reports
+configuration-dependent results. It supports holding model and harness fixed,
+not an optimal skill length, universal module limit or Astra-specific gain.
+An instruction repair and passing package tests do not establish agent uplift.
+
+[astra]: https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra
+[prompting]: https://developers.openai.com/api/docs/guides/latest-model
+[read-report]: https://www.reddit.com/r/codex/comments/1t1rbqt/codex_may_only_read_the_first_220_lines_of_a/
+[claude-authoring]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
+[claude-evaluation]: https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
+[skill-practices]: https://agentskills.io/skill-creation/best-practices
+[skillsbench]: https://arxiv.org/pdf/2602.12670v4

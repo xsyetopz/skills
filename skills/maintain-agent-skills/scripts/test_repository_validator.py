@@ -52,6 +52,25 @@ class RepositoryValidatorTests(unittest.TestCase):
         result = self.validate("Create a verified sample artifact.")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_body_ceiling_excludes_frontmatter_and_surrounding_blank_lines(self):
+        result = self.validate(
+            body="\n \n" + "instruction\n" * 220 + "\n \n",
+            compatibility="compatibility: A supported environment\n",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_body_over_ceiling_is_rejected(self):
+        result = self.validate(body="instruction\n" * 221)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("body has 221 lines; maximum is 220", result.stderr)
+
+    def test_internal_blank_lines_and_markdown_count(self):
+        body = "# Heading\n\n```text\nexample\n```\n\n[link]: https://example.com\n"
+        for count, status in ((213, 0), (214, 1)):
+            with self.subTest(filler_lines=count):
+                result = self.validate(body=body + "instruction\n" * count)
+                self.assertEqual(result.returncode, status, result.stderr)
+
     def test_boolean_invocation_policy_passes(self):
         result = self.validate(policy="policy:\n  allow_implicit_invocation: false\n")
         self.assertEqual(result.returncode, 0, result.stderr)

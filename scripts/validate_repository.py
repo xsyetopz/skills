@@ -23,7 +23,7 @@ def main() -> int:
         skill = skill_md.parent
         text = skill_md.read_text()
         try:
-            _, frontmatter, _ = text.split("---", 2)
+            _, frontmatter, body = text.split("---", 2)
             metadata = yaml.safe_load(frontmatter)
         except (ValueError, yaml.YAMLError) as error:
             fail(f"{skill_md}: invalid frontmatter: {error}")
@@ -33,6 +33,10 @@ def main() -> int:
             fail(f"{skill_md}: frontmatter must be a mapping")
             errors += 1
             continue
+        body_lines = len(body.strip().splitlines())
+        if body_lines > 220:
+            fail(f"{skill_md}: body has {body_lines} lines; maximum is 220")
+            errors += 1
         if metadata.get("name") != skill.name or not NAME.fullmatch(skill.name):
             fail(f"{skill_md}: name must match its valid directory name")
             errors += 1

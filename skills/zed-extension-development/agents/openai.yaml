@@ -1,4 +1,0 @@
-interface:
-  display_name: "Zed Extension Development"
-  short_description: "Build Zed declarative and WASM extensions"
-  default_prompt: "Use $zed-extension-development to implement this Zed extension change."

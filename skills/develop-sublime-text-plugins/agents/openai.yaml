@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Sublime Text Plugins"
+  short_description: "Develop plugins for Sublime Text"
+  default_prompt: "Use $develop-sublime-text-plugins to implement and verify the requested Sublime Text plugin using its embedded Python runtime, edit model, lifecycle, and package format."

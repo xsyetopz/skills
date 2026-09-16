@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build and Debug PCSX2"
+  short_description: "Build PCSX2 and debug PlayStation 2 execution"
+  default_prompt: "Use $build-and-debug-pcsx2 to build or run PCSX2 in isolation and diagnose the specified emulator or PlayStation 2 guest behavior."

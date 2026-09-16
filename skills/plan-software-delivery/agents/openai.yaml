@@ -1,4 +1,0 @@
-interface:
-  display_name: "Plan Software Delivery"
-  short_description: "Plan delivery with dependencies and uncertainty"
-  default_prompt: "Use $plan-software-delivery to create an evidence-based delivery plan with dependencies, estimate ranges, risks, and acceptance milestones."

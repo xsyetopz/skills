@@ -1,4 +1,4 @@
 interface:
   display_name: "Optimize Rust Code"
-  short_description: "Measure and optimize Rust performance"
-  default_prompt: "Use $optimize-rust-code to investigate this Rust performance problem."
+  short_description: "Profile and optimize Rust workloads safely"
+  default_prompt: "Use $optimize-rust-code to profile this Rust workload, preserve ownership and synchronization contracts, implement a measured optimization, and report matched evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Agent Hooks"
+  short_description: "Create native coding-agent lifecycle hooks"
+  default_prompt: "Use $create-agent-hooks to implement and verify the requested coding-agent hook using the named client’s actual events, payloads, permissions, and failure semantics."

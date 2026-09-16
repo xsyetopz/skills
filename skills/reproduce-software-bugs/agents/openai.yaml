@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reproduce Software Bugs"
+  short_description: "Create minimal, independently runnable bug reproductions"
+  default_prompt: "Use $reproduce-software-bugs to construct or reduce an independently runnable reproduction that preserves this exact software defect and its failure signature."

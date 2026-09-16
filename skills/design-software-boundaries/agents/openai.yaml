@@ -1,4 +1,0 @@
-interface:
-  display_name: "Design Software Boundaries"
-  short_description: "Resolve architecture and boundary tradeoffs"
-  default_prompt: "Use $design-software-boundaries to decide this architecture from concrete constraints and evidence."

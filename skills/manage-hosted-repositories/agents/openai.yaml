@@ -1,4 +1,0 @@
-interface:
-  display_name: "Manage Hosted Repositories"
-  short_description: "Manage GitHub and GitLab resources with verified contracts"
-  default_prompt: "Use $manage-hosted-repositories for the requested hosted repository operation."

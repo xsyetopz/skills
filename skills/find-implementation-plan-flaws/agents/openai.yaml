@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Implementation Plan Flaws"
+  short_description: "Find defects in implementation and migration plans"
+  default_prompt: "Use $find-implementation-plan-flaws to inspect this plan for unsupported assumptions, missing dependencies, scope errors, and inadequate acceptance checks."

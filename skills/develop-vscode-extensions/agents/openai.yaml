@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop VS Code Extensions"
+  short_description: "Develop and package Visual Studio Code extensions"
+  default_prompt: "Use $develop-vscode-extensions to implement and verify the requested VS Code extension across the declared desktop, remote, or web extension hosts."

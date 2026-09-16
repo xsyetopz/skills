@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "@types/node": "22.20.2"
+  },
+  "scripts": {
+    "check": "tsc --project tsconfig.json",
+    "test": "sh verify.sh"
+  }
+}

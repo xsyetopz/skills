@@ -1,4 +1,0 @@
-interface:
-  display_name: "Interrogate Plan"
-  short_description: "Challenge plans until decisions are explicit"
-  default_prompt: "Use $interrogate-plan to expose unresolved decisions and risks in this plan."

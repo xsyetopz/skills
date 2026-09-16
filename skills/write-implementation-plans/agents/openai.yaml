@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Implementation Plans"
+  short_description: "Write executable plans for agreed changes"
+  default_prompt: "Use $write-implementation-plans to write an ordered implementation plan with exact files, dependencies, migrations, and acceptance checks for the agreed change."

@@ -1,0 +1,33 @@
+# Reference only. Replace the image, commands, and retention with repository
+# and organization-approved values.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+stages:
+  - build
+  - test
+
+default:
+  image: "<approved-build-image>:<immutable-tag>"
+  interruptible: true
+  timeout: 30 minutes
+
+build:
+  stage: build
+  script:
+    - ./ci/bootstrap
+    - ./ci/build
+  artifacts:
+    paths:
+      - artifacts/build/
+    expire_in: 1 day
+
+unit-test:
+  stage: test
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - ./ci/test

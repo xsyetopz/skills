@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Python Code"
+  short_description: "Profile and optimize Python workloads safely"
+  default_prompt: "Use $optimize-python-code to profile this Python workload, preserve iterator and error semantics, implement a measured optimization, and report matched evidence."

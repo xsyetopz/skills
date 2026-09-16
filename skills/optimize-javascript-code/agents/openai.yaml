@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize JavaScript Code"
+  short_description: "Profile and optimize JavaScript workloads"
+  default_prompt: "Use $optimize-javascript-code to profile this JavaScript workload in its actual runtime, preserve asynchronous semantics, and report matched performance evidence."

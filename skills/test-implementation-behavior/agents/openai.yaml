@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Implementation Behavior"
+  short_description: "Test software, firmware, and hardware behavior"
+  default_prompt: "Use $test-implementation-behavior to design or review tests with independent expected results that reject relevant defects without coupling to implementation prose."

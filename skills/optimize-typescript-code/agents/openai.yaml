@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize TypeScript Code"
+  short_description: "Profile TypeScript output and runtime behavior"
+  default_prompt: "Use $optimize-typescript-code to profile this TypeScript workload, preserve its type and runtime contracts, and report matched compile-time and runtime evidence."

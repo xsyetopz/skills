@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Scala Code"
+  short_description: "Profile and optimize Scala workloads safely"
+  default_prompt: "Use $optimize-scala-code to profile this Scala workload on its declared backend, preserve collection and effect semantics, and report matched evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Define Requirements"
+  short_description: "Specify observable behavior and acceptance criteria"
+  default_prompt: "Use $define-requirements to define the requested behavior, constraints, failures, and observable acceptance criteria without choosing an implementation."

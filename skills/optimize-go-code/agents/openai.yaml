@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Go Code"
+  short_description: "Profile and optimize Go workloads safely"
+  default_prompt: "Use $optimize-go-code to profile this Go workload, preserve goroutine and ownership contracts, implement a measured optimization, and report matched evidence."

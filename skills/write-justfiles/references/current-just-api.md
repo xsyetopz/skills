@@ -1,9 +1,8 @@
-# Current Just API
+# Use native just command-runner syntax and validation
 
-This reference was verified against Just 1.58.0 on 2026-09-12. Recheck the
-[programmer's manual](https://just.systems/man/en/) and
-[current release](https://github.com/casey/just/releases/latest) before relying
-on version-sensitive syntax.
+Match functions to the installed `just --version` and the project minimum. Read
+the [programmer's manual](https://just.systems/man/en/) and [current
+release][ref-current-release] before relying on version-sensitive syntax.
 
 ## Environment variables
 
@@ -43,9 +42,10 @@ is supported by the repository's minimum Just version.
 
 ## Paths, commands, and failure behavior
 
-Double-quote interpolated filesystem paths in recipe commands. Prefer
-`require("tool")` when evaluation must fail immediately if a program is missing.
-Use `which("tool")` only when absence has an intentional alternate path.
+Preserve arguments through the selected shell; double quotes alone do not safely
+escape arbitrary interpolated shell source. Prefer `require("tool")` when
+evaluation must fail immediately if a program is missing. Use `which("tool")`
+only when absence has an intentional alternate path.
 
 Do not prefix commands with `-` to hide an unexpected failure. If a tool is
 optional, test its availability, print an explicit skip reason, and keep the
@@ -71,5 +71,23 @@ clients. It complements Just's parser and formatter; it does not replace a real
 recipe run.
 
 The authoritative function list, including version annotations and deprecated
-aliases, is in the
-[built-in functions reference](https://just.systems/man/en/functions.html).
+aliases, is in the [built-in functions
+reference][ref-built-in-functions-reference].
+
+## Bundled native-tool adapter
+
+`python3 scripts/check_justfiles.py PATH [PATH ...]` discovers Just files and
+invokes `just --fmt --check --justfile ABSOLUTE_PATH` without a shell. It does
+not parse syntax with regex or reject function names appearing inside comments
+or strings. `--just` selects the executable; `--timeout` bounds each invocation.
+Explicit missing/non-Just paths error. Directory search prunes generated/vendor
+roots and does not follow directory symlinks. No selected files is an error.
+Exit 0 means every selected file passed native formatting; 1 is a native
+failure; 2 is bad input, unavailable Just or timeout. Nothing is rewritten.
+
+This adapter is useful only when checking several files. For one file, prefer
+the native command directly. Formatting success does not establish recipe
+safety, argument preservation, command availability or successful execution.
+
+[ref-current-release]: https://github.com/casey/just/releases/latest
+[ref-built-in-functions-reference]: https://just.systems/man/en/functions.html

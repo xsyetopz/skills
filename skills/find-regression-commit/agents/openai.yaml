@@ -1,4 +1,0 @@
-interface:
-  display_name: "Find Regression Commit"
-  short_description: "Locate regressions with Git bisect"
-  default_prompt: "Use $find-regression-commit to identify and verify the first bad commit."

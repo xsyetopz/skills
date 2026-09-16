@@ -1,4 +1,0 @@
-interface:
-  display_name: "Maintain AGENTS.md"
-  short_description: "Derive scoped repository instructions"
-  default_prompt: "Use $maintain-agents-md to write scoped AGENTS.md guidance from this repository."

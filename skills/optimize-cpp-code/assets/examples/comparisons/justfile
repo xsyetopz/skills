@@ -1,0 +1,19 @@
+set shell := ["sh", "-eu", "-c"]
+
+default:
+    @just --list
+
+build:
+    xmake f -y --sanitize=n
+    xmake -v
+
+verify: build
+    xmake run cpp-pairs verify
+
+sanitize:
+    xmake f -c -y --sanitize=y
+    xmake -r -v
+    xmake run cpp-pairs verify
+
+run variant case size:
+    xmake run cpp-pairs {{ variant }} {{ case }} {{ size }}

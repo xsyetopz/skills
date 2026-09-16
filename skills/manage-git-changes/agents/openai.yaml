@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Git Changes"
+  short_description: "Safely stage, commit, integrate, and recover changes"
+  default_prompt: "Use $manage-git-changes to perform the authorized Git operation while preserving unrelated worktree, index, branch, and history state."

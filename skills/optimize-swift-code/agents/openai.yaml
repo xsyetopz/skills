@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Swift Code"
+  short_description: "Profile and optimize Swift workloads safely"
+  default_prompt: "Use $optimize-swift-code to profile this Swift workload on its actual target, preserve ownership and actor contracts, and report matched evidence."

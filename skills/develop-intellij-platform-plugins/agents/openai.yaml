@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop IntelliJ Platform Plugins"
+  short_description: "Develop plugins for IntelliJ-based IDEs"
+  default_prompt: "Use $develop-intellij-platform-plugins to implement and verify the requested IntelliJ Platform plugin using its actual PSI, threading, lifecycle, and compatibility APIs."

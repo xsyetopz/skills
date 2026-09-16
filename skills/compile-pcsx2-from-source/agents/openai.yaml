@@ -1,4 +1,0 @@
-interface:
-  display_name: "Compile PCSX2 from Source"
-  short_description: "Compile a pinned PCSX2 source checkout"
-  default_prompt: "Use $compile-pcsx2-from-source to compile PCSX2 from this source checkout."

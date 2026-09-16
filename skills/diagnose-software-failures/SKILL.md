@@ -1,93 +1,136 @@
 ---
 name: diagnose-software-failures
 description: >-
-  Diagnose software bugs, crashes, incorrect results, and intermittent failures
-  through discriminating experiments and causal evidence; verify authorized
-  fixes. Not for specialized editor, emulator, CI, or security procedures,
-  standalone reduction, or finding the first bad commit.
+  Use when investigating software crashes, hangs, incorrect results,
+  intermittent failures, or build failures whose cause is unknown. Reproduce
+  the failure and distinguish competing causes. Not for a known mechanical
+  fix, performance measurement alone, or Git bisect alone.
 ---
+
 
 # Diagnose Software Failures
 
-Produce a supported diagnosis or a verified authorized fix. Preserve unrelated
-work and evidence. A diagnosis request does not authorize production changes,
-dependency upgrades, broad refactoring, or a revert. Use specialized editor,
-emulator, CI, and security workflows for their owned mechanisms rather than
-replacing them with generic debugging.
+Establish the causal chain from an exact observed symptom to the first incorrect
+state and owning subsystem. Use controlled observations to eliminate competing
+explanations before changing production behavior.
 
-## Capture the failure
+## Operating contract
 
-State expected behavior and its source, actual result, affected operation,
-severity/scope, and first known occurrence. Record the exact command/input,
-diagnostic, revision and local changes, artifact/configuration identity,
-runtime/platform, and relevant persisted state or dependencies. Protect secrets
-and private data in captured logs and fixtures.
+- Keep symptom, expected behavior, hypothesis, evidence, and established cause
+  distinct. A user explanation is a hypothesis to test.
+- Preserve the first useful error, stack, input, revision, environment, and
+  state. Wrapper messages and downstream recovery may hide the initiating fault.
+- Change one causal factor when possible. Do not accumulate speculative patches,
+  retries, broad logging, dependency upgrades, or assertion changes.
+- For intermittent failures, record attempts and conditions; one pass is not a
+  fix.
+- Diagnosis does not authorize mutation, production experiments, destructive
+  cleanup, or disclosure of sensitive logs.
 
-Re-run the reported path safely in isolated state where possible. Distinguish
-setup failure from the target symptom. Preserve evidence before clearing caches,
-restarting services, or rebuilding; these can remove the trigger. During an
-incident, follow authorized recovery procedures first and record mitigation
-separately from causal diagnosis. Do not experiment destructively on production.
+## Workflow
 
-For intermittent failures, record attempts, failures, workload, seeds, timing,
-and instrumentation. Check whether logging or a debugger changes the schedule.
-A single successful rerun neither disproves a race nor verifies its repair.
-If reproduction is unavailable, use captured evidence and label conclusions
-accordingly; do not manufacture a confirmed failure.
+```mermaid
+flowchart TD
+    O[Exact observed failure] --> R[Reproduce same signature]
+    R --> B[Locate first incorrect state]
+    B --> H[Competing hypotheses]
+    H --> X[Choose discriminating experiment]
+    X --> E{Observation matches prediction?}
+    E -->|No| H
+    E -->|Yes| C[Establish causal chain]
+    C --> F[Smallest authorized fix]
+    F --> V[Regression + boundary verification]
+    V --> D[Report evidence and remaining uncertainty]
+```
 
-## Choose discriminating experiments
+## Procedure
 
-Trace the operation through input parsing, state/decisions, dependencies, and
-effects. Locate the first observed divergence from the contract, not merely
-the last error message. Use existing tests, debugger, traces, and logs before
-adding instrumentation. Keep temporary diagnostics scoped and removable.
+1. Capture the exact operation, expected and actual result, error/stack, input
+   identity, revision/build, configuration, environment, timing/concurrency
+   conditions, and recent change context. Establish whether the failure exists
+   in the baseline.
+1. Reproduce with the narrowest command that preserves the same failure
+   signature. Distinguish product failure from test setup, dependency,
+   credential, infrastructure, or harness failure.
+1. Trace backward from the symptom to the first incorrect state, ownership
+   transfer, protocol mismatch, or violated invariant. Inspect source, call
+   sites, generated/source relationships, and runtime state at that boundary.
+1. Maintain a small hypothesis table. For each hypothesis, state a predicted
+   observation that differs from alternatives. Select a debugger, trace,
+   sanitizer, reduced input, controlled schedule, binary search, or targeted log
+   that can observe it.
+1. Run the experiment without changing expected behavior to fit the result.
+   Update or discard hypotheses. When repeated actions produce no new
+   information, improve the observation or change strategy rather than patching
+   forward.
+1. Once the cause is established, identify the owning layer and smallest correct
+   repair. If implementation is authorized, add a regression check with an
+   independent expected result, apply the fix, and run boundary-appropriate
+   verification.
+1. Report reproducer, first divergence, causal chain, source locations, fix,
+   executed checks, and uncertainty. Keep infrastructure gaps and untested
+   production conditions explicit.
 
-Maintain plausible competing hypotheses only while they affect the next test.
-For each, state supporting evidence, contradicting evidence, and a predicted
-observation that separates it from alternatives. Choose the lowest-risk test
-with the highest useful discrimination; change one causal factor at a time or
-explicitly account for coupled variables. Record the result and update the
-hypotheses before trying another repair.
+## Read only the material needed
 
-Example: stale output may come from a cache key collision or an old build.
-First identify the executing artifact. Then vary only the relevant key input
-against the same build and fixture. Rebuilding and flushing every cache at once
-may remove the symptom but cannot distinguish those causes.
+| Situation | Read or use |
+| --- | --- |
+| Designing discriminating experiments and stopping patch accumulation | [Causal investigation](references/causal-investigation.md) |
+| Choosing debugger, trace, sanitizer, log, or reduction strategies | [Decision guide](references/decision-guide.md) |
+| Using crash, deadlock, race, memory, build, and data-corruption examples | [Worked investigations](references/worked-examples.md) |
+| Mapping diagnosis claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
+| Avoiding retries, symptom patches, and harness conflation | [Failure modes](references/failure-modes.md) |
+| Handling enterprise logs, incidents, and production boundaries | [Enterprise operation](references/enterprise-operation.md) |
+| Reviewing a worked parser/default investigation | [Investigation example](assets/investigation-example.md) |
+| Checking diagnostic tool sources | [Source index](references/source-index.md) |
 
-Use controlled input reduction or boundary substitution when it isolates the
-failing layer without replacing the semantics under investigation. A mock
-database cannot establish a real engine's transaction behavior. For an
-independently distributable reproducer, use the minimal-reproduction workflow.
-For a first-bad-commit question, establish a reliable good/bad oracle and use
-the isolated bisection workflow; a suspicious recent commit is not proof.
+## Additional specialized references
 
-## Establish cause and repair
+Read only the reference whose subject affects the current task.
 
-Explain the causal chain: triggering input/state, violated assumption, failing
-mechanism, and observed consequence. Distinguish proximate cause, contributing
-conditions, and untested possibilities. A correlated change or disappearing
-symptom is insufficient; seek a controlled intervention or trace that rules
-out the consequential alternatives. Stop broad exploration once supported.
+| Reference | Use when |
+| --- | --- |
+| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
+| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
 
-When a fix is authorized, change the owning mechanism with the narrowest repair
-that preserves its contract. Do not swallow errors, add retries, weaken tests,
-or change expected behavior just to hide the symptom. Preserve user changes;
-remove only temporary artifacts introduced by the investigation.
+## Evaluation cases
 
-Demonstrate the regression check failing on the faulty behavior when available
-and passing on the repair. Check relevant neighboring valid, invalid, and
-state-transition cases through the actual affected boundary. For flakes,
-compare repeated trials under the same conditions and report residual
-uncertainty, not “fixed” from a lone pass. Verify recovery behavior if changed.
+Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
+near-miss, and instruction-conformance probes. These are maintained test inputs,
+not claimed results.
 
-Report diagnosis, causal evidence, experiments/commands and outcomes, repair if
-authorized, regression results, and remaining uncertainty. If blocked, name the
-missing artifact or experiment and what its possible results would distinguish.
-Do not keep experimenting after completion or claim a verified fix from a
-plausible patch that could not be run.
+## Bundled executable helpers
 
-Source: [Google SRE troubleshooting][sre] motivates hypothesis-driven diagnosis
-and separating mitigation from explanation; its production operations require
-their own authorization.
+- No bundled script is mandatory. Use the target repository’s established tools.
 
-[sre]: https://sre.google/sre-book/effective-troubleshooting/
+Run a helper only for the contract it documents. Inspect arguments and output; a
+zero exit status proves only the checks implemented by that helper.
+
+## Bundled output material
+
+- `assets/investigation-example.md`
+
+Copy or adapt assets into the target workspace. Do not edit the installed skill
+as a substitute for changing the requested repository.
+
+## Completion evidence
+
+- Exact reproducer and failure signature.
+- Baseline comparison and first incorrect state.
+- Hypotheses, discriminating experiments, and observed results.
+- Causal chain and owning subsystem with source/runtime evidence.
+- Authorized fix and regression verification, or diagnosis-only result.
+- Uncertainty, unavailable checks, and production applicability limits.
+
+## Stop or escalate
+
+- The failure cannot be reproduced or observed enough to distinguish causes;
+  report needed evidence rather than guessing.
+- Production access, data, credentials, or experiments exceed authorization.
+- A material expected-behavior decision is unresolved.
+- The only remaining action is an unbounded retry/patch loop with no new
+  evidence.
+
+Do not claim completion while a required check is failed, unattempted, or
+unavailable. State the exact evidence and the remaining boundary instead of
+promoting a narrower result into a broader claim.

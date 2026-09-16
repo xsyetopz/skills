@@ -1,0 +1,3 @@
+Method,Job,N,Mean,Error,StdDev
+Parse,net10-x64,64,1e3 ns,10 ns,12 ns
+Parse,net10-x64,4096,12.5 us,0.1 us,0.2 us

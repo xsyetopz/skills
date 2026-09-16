@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Regression Commits"
+  short_description: "Find Git commits that introduced a defect"
+  default_prompt: "Use $find-regression-commits to locate the commit that introduced this reproducible defect while distinguishing bad, good, and untestable revisions."

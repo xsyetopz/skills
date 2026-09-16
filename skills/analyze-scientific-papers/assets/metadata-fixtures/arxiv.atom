@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Synthetic protocol fixture, not a real paper</title>
+  <entry><id>http://arxiv.org/abs/2401.01234v2</id><title>A &amp; B</title><updated>2024-02-01T00:00:00Z</updated></entry>
+</feed>

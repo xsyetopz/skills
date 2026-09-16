@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Zed Editor Extensions"
+  short_description: "Develop extensions for the Zed editor"
+  default_prompt: "Use $develop-zed-editor-extensions to implement and verify the requested Zed extension using capabilities supported by the selected Zed version."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize C# Code"
+  short_description: "Profile and optimize C# and .NET workloads"
+  default_prompt: "Use $optimize-csharp-code to profile this C#/.NET workload, preserve runtime and interop contracts, implement a measured optimization, and report matched evidence."

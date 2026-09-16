@@ -1,4 +1,0 @@
-interface:
-  display_name: "Maintain Agent Hooks"
-  short_description: "Safely configure provider-specific agent hooks"
-  default_prompt: "Use $maintain-agent-hooks to configure and verify this agent hook."

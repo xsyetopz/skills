@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build and Debug DuckStation"
+  short_description: "Build DuckStation and debug PlayStation execution"
+  default_prompt: "Use $build-and-debug-duckstation to build or run DuckStation in isolation and diagnose the specified emulator or PlayStation guest behavior."

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Coordinate Phase-Gated Subagents"
+  short_description: "Coordinate subagents through gated Waterfall phases"
+  default_prompt: "Use $coordinate-phase-gated-subagents to coordinate subagents through sequential requirements, design, implementation, verification, and release phases."
+
+policy:
+  allow_implicit_invocation: false

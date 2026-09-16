@@ -1,4 +1,0 @@
-interface:
-  display_name: "Remove Legacy Compatibility"
-  short_description: "Remove obsolete surfaces after tracing consumers"
-  default_prompt: "Use $remove-legacy-compatibility to remove the confirmed obsolete surfaces in this repository."

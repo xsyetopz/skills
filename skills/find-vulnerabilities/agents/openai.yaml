@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Vulnerabilities"
+  short_description: "Find evidenced vulnerabilities in code and configuration"
+  default_prompt: "Use $find-vulnerabilities to trace attacker-controlled input and identify evidenced vulnerabilities, exploit preconditions, affected boundaries, and verification limits."

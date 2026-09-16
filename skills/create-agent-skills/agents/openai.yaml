@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Agent Skills"
+  short_description: "Create and evaluate production Agent Skills"
+  default_prompt: "Use $create-agent-skills to create or revise an Agent Skill with precise routing, sufficient domain references, deterministic helpers, and realistic evaluations."

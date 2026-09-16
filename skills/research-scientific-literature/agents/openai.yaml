@@ -1,4 +1,0 @@
-interface:
-  display_name: "Research Scientific Literature"
-  short_description: "Find and verify primary scientific evidence"
-  default_prompt: "Use $research-scientific-literature to research primary literature for this decision."

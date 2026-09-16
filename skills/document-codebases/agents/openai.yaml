@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document Codebases"
+  short_description: "Write accurate repository and API documentation"
+  default_prompt: "Use $document-codebases to write or revise the requested repository documentation from verified commands, interfaces, and supported behavior."

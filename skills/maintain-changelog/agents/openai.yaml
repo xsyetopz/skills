@@ -1,4 +1,0 @@
-interface:
-  display_name: "Maintain Changelog"
-  short_description: "Maintain changelogs and SemVer"
-  default_prompt: "Use $maintain-changelog to update or audit this changelog and SemVer decision."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Kotlin Code"
+  short_description: "Profile and optimize Kotlin workloads safely"
+  default_prompt: "Use $optimize-kotlin-code to profile this Kotlin workload on its declared backend, preserve coroutine and effect semantics, and report matched evidence."

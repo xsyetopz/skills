@@ -1,4 +1,0 @@
-interface:
-  display_name: "Test Software Behavior"
-  short_description: "Design behavioral tests and TDD examples"
-  default_prompt: "Use $test-software-behavior to design or review behavioral tests, TDD examples, and justified test-retirement decisions for this change."

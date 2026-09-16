@@ -1,4 +1,0 @@
-interface:
-  display_name: "Manage Git State"
-  short_description: "Commit, integrate, tag, and recover Git state safely"
-  default_prompt: "Use $manage-git-state for the requested Git state change while preserving unrelated work."

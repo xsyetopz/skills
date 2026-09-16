@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # Run in a disposable copy. No installation, lock regeneration, or source cleanup.
 set -eu
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' 0
 trap 'exit 130' INT

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 [ "$#" -eq 0 ] || { echo 'usage: verify.sh' >&2; exit 2; }
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 command -v iverilog >/dev/null || { echo 'requires iverilog' >&2; exit 2; }
 command -v vvp >/dev/null || { echo 'requires vvp' >&2; exit 2; }
 WORK=$(mktemp -d)

@@ -48,6 +48,6 @@ validate: skills metadata markdown tests assets justfiles python-lint python-typ
     git diff --check
 
 benchmarks:
-    bash skills/optimize-bun-code/assets/benchmark-repro/verify.sh
-    bash skills/optimize-rust-code/assets/benchmark-repro/verify.sh
-    bash skills/optimize-dotnet-code/assets/benchmark-repro/verify.sh
+    sh skills/optimize-javascript-code/assets/examples/verify.sh benchmark
+    sh skills/optimize-rust-code/assets/examples/verify.sh benchmark
+    sh skills/optimize-csharp-code/assets/examples/verify.sh benchmark

@@ -87,9 +87,10 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the csharp
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the csharp assets](../assets/examples). Copy that directory intact when
+adapting a fixture. Run only this language; the target project keeps its own
+toolchain.
 
 ### Semantic regression cases
 
@@ -109,8 +110,9 @@ Source: [Semantics.cs][ref-semantics-cs].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](dotnet-csharp-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -120,8 +122,8 @@ commands in its `benchmarks/` subdirectory.
 The `benchmarks/` project is the experiment entry point. The project pins
 BenchmarkDotNet 0.15.8, a verified upstream release, but does not invent a
 resolved lockfile. Provision .NET 10, review and run `dotnet restore`, retain
-the resulting native lock for the experiment and use `dotnet restore
---locked-mode` thereafter.
+the resulting native lock for the experiment and use
+`dotnet restore --locked-mode` thereafter.
 
 ```sh
 dotnet run -c Release -- --filter '*DelimiterBench*' --exporters csv json
@@ -161,13 +163,17 @@ and `file`. The verifier copies this project to a temporary directory and runs
 it with .NET 10. Exit zero means the mismatch was reproduced.
 
 [c-14]: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-14
-[enum-hasflag]: https://learn.microsoft.com/en-us/dotnet/api/system.enum.hasflag?view=net-10.0
-[dotnet-counters]: https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters
-[benchmarkdotnet-good-practices]: https://benchmarkdotnet.org/articles/guides/good-practices.html
-[msbuild-command-line-reference]: https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-command-line-reference
+[enum-hasflag]:
+  https://learn.microsoft.com/en-us/dotnet/api/system.enum.hasflag?view=net-10.0
+[dotnet-counters]:
+  https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters
+[benchmarkdotnet-good-practices]:
+  https://benchmarkdotnet.org/articles/guides/good-practices.html
+[msbuild-command-line-reference]:
+  https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-command-line-reference
 [source]: https://benchmarkdotnet.org/articles/overview.html
 [source-2]: https://github.com/dotnet/BenchmarkDotNet/releases/tag/v0.15.8
-
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  dotnet-csharp-performance-executable-performance-fixtures.md
 [ref-semantics-cs]: ../assets/examples/correctness/Semantics.cs
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

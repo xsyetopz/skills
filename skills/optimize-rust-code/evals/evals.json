@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-rust-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Rust workload under the target profile/features while preserving ownership, lifetimes, errors, synchronization, target CPU, and safe behavior.",
+      "expected_output": "A repository-aware Rust optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Rust optimization workflow instead of returning only generic advice.",
+        "For unsafe, Require measured need, documented invariants, and tests/Miri/sanitizers where applicable.",
+        "For feature/profile, Match target-cpu, LTO, panic, allocator, and features.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Introduce unsafe code solely because it may be faster.",
+      "expected_output": "The agent does not activate optimize-rust-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-rust-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Rust workload under the target profile/features while preserving ownership, lifetimes, errors, synchronization, target CPU, and safe behavior. Stress case: Borrowing/allocation.",
+      "expected_output": "A Rust optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Preserve observable lifetime and ownership.",
+        "The evidence can detect this failure: Borrowed data outlives owner.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

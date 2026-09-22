@@ -3,10 +3,8 @@ name: develop-neovim-plugins
 description: >-
   Use when implementing, debugging, testing, or distributing Neovim plugins
   using Lua, commands, autocmds, buffers, jobs, or libuv handles. Not for
-  standalone Lua libraries, Vim-only APIs, or an isolated personal key
-  mapping.
+  standalone Lua libraries, Vim-only APIs, or an isolated personal key mapping.
 ---
-
 
 # Develop Neovim Plugins
 
@@ -29,6 +27,31 @@ packaging.
   grant trust, or expose secrets merely because the extension can.
 - Verify asynchronous freshness, cancellation, ownership, cleanup, reload, and
   packaging in addition to the happy-path feature.
+
+## Host-aware execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a Neovim plugin; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide Neovim version, Lua API, buffer identity,
+  changedtick, autocmd ownership, jobs, and libuv handles, hard constraints,
+  available tools, and the finish condition once. Remove repeated directions and
+  examples unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with headless host tests, reload tests,
+  help checks, and lifecycle observation. Report commands, observed results, and
+  gaps. A parser, build, or single green test proves only the property that it
+  can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -77,37 +100,38 @@ sequenceDiagram
    install/run it in a clean target host when packaging is claimed. Report
    target versions/hosts not exercised.
 
-## Read only the material needed
+## Choose the host-platform reference
 
 | Situation | Read or use |
 | --- | --- |
 | Buffers, async callbacks, ownership, jobs, timers, and cleanup | [Runtime and ownership](references/runtime-and-ownership.md) |
 | Commands, autocmds, configuration, headless tests, help, and distribution | [Integration and validation](references/integration-and-validation.md) |
-| Selecting host boundary, lifecycle, and compatibility approach | [Decision guide](references/decision-guide.md) |
-| Understanding host concepts and ownership | [Domain model](references/domain-model.md) |
-| Using complete host-specific code and packaging examples | [Worked examples](references/worked-examples.md) |
-| Matching compile/unit/host/package claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding stale async results, leaks, and host-version mistakes | [Failure modes](references/failure-modes.md) |
-| Applying enterprise trust, secrets, rollout, and audit controls | [Enterprise operation](references/enterprise-operation.md) |
-| Checking current official host sources | [Source index](references/source-index.md) |
+| Selecting host boundary, lifecycle, and compatibility approach | [Extension design decisions](references/neovim-lua-plugin-extension-design-decisions.md) |
+| Understanding host concepts and ownership | [Domain model](references/neovim-lua-plugin-host-api-and-lifecycle-model.md) |
+| Using complete host-specific code and packaging examples | [Extension case studies](references/neovim-lua-plugin-extension-case-studies.md) |
+| Matching compile/unit/host/package claims to evidence | [Host test and package evidence](references/neovim-lua-plugin-host-test-and-package-evidence.md) |
+| Avoiding stale async results, leaks, and host-version mistakes | [Extension failures and recovery](references/neovim-lua-plugin-extension-failures-and-recovery.md) |
+| Applying enterprise trust, secrets, rollout, and audit controls | [Deployment, security, and support](references/neovim-lua-plugin-deployment-security-and-support.md) |
+| Checking current official host sources | [Extension API and toolchain authorities](references/neovim-lua-plugin-extension-api-and-toolchain-authorities.md) |
 
-## Additional specialized references
+## Extension engineering references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Extension fixture and template map](references/neovim-lua-plugin-extension-fixture-and-template-map.md) | Use when locating bundled resources for the Neovim plugin. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

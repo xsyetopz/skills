@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-cpp-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this C++ path while preserving the selected standard, lifetime, iterator/reference validity, exceptions, ABI, concurrency, and workload.",
+      "expected_output": "A repository-aware C++ optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the C++ optimization workflow instead of returning only generic advice.",
+        "For container optimization, Verify invalidation and ownership.",
+        "For build profile, Match flags, LTO, features, and allocator.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize C-only source.",
+      "expected_output": "The agent does not activate optimize-cpp-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-cpp-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this C++ path while preserving the selected standard, lifetime, iterator/reference validity, exceptions, ABI, concurrency, and workload. Stress case: Benchmark framework.",
+      "expected_output": "A C++ optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Separate setup from measured operation.",
+        "The evidence can detect this failure: Initialization dominates result.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

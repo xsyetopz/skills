@@ -8,7 +8,6 @@ description: >-
   adding planning ceremony to routine edits.
 ---
 
-
 # Write Implementation Plans
 
 Write an implementation-ready plan for an agreed change: exact current-state
@@ -22,13 +21,39 @@ plan guides work; it does not perform or claim it.
   files, symbols, APIs, commands, or architecture from memory.
 - Do not invent product behavior, owners, estimates, support obligations,
   approval stages, documents, services, or cleanup work.
-- Use the repository’s established planning format and level of detail. A small
+- Use the repository's established planning format and level of detail. A small
   change needs a small plan; a cross-boundary migration needs explicit
   sequencing and recovery.
 - Resolve routine implementation choices from code and conventions. Surface only
   material external/product/contract decisions.
 - Each task must have a concrete change, prerequisites, outputs, and acceptance
   evidence. “Implement feature” is not an executable step.
+
+## Implementation-planning contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a implementation plan; it MUST
+  NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide agreed requirements, current repository,
+  dependencies, migrations, rollout constraints, and acceptance boundary, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with path validation, dependency
+  ordering, migration rehearsal, and acceptance-test traceability. Report
+  commands, observed results, and gaps. A parser, build, or single green test
+  proves only the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -45,7 +70,7 @@ flowchart TD
 
 ## Procedure
 
-1. Confirm the plan’s outcome, in/out of scope, requirements authority, target
+1. Confirm the plan's outcome, in/out of scope, requirements authority, target
    repository/revision, and expected deliverable. Use an existing
    issue/spec/design decision rather than restating it unless necessary for
    execution.
@@ -74,39 +99,40 @@ flowchart TD
    wrong source-of-truth edits, irreversible steps, unbounded work, and
    completion claims. Deliver the plan without executing it.
 
-## Read only the material needed
+## Choose the planning-evidence reference
 
 | Situation | Read or use |
 | --- | --- |
 | Planning maintenance and codebase changes | [Maintenance planning](references/maintenance-and-change-planning.md) |
 | Choosing process/detail proportionate to risk | [Process selection](references/process-selection.md) |
 | Handling estimates and risk without fabricated precision | [Estimation and risk](references/estimation-and-risk.md) |
-| Choosing task decomposition and dependency order | [Decision guide](references/decision-guide.md) |
-| Using complete API, data, plugin, and rollout plan examples | [Worked examples](references/worked-examples.md) |
-| Mapping plan completion to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding invented services, stages, and generic cleanup | [Failure modes](references/failure-modes.md) |
+| Choosing task decomposition and dependency order | [Operational decisions](references/implementation-planning-operational-decisions.md) |
+| Using complete API, data, plugin, and rollout plan examples | [Worked scenarios](references/implementation-planning-worked-scenarios.md) |
+| Mapping plan completion to evidence | [Verification and claim evidence](references/implementation-planning-verification-and-claim-evidence.md) |
+| Avoiding invented services, stages, and generic cleanup | [Failure patterns and recovery](references/implementation-planning-failure-patterns-and-recovery.md) |
 | Using the change-plan example | [Change plan example](assets/change-plan-example.md) |
-| Checking planning and engineering sources | [Source index](references/source-index.md) |
+| Checking planning and engineering sources | [Standards, APIs, and authorities](references/implementation-planning-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Planning decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/implementation-planning-concepts-contracts-and-invariants.md) | Use when distinguishing the requested implementation plan from observed repository state. |
+| [Enterprise operation and governance](references/implementation-planning-organizational-controls-and-scale.md) | Use when the implementation plan crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/implementation-planning-bundled-resource-map.md) | Use when locating bundled resources for the implementation plan. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-javascript-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this JavaScript workload in the named browser or server runtime while preserving coercion, ordering, async behavior, errors, and equivalent work.",
+      "expected_output": "A repository-aware JavaScript optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the JavaScript optimization workflow instead of returning only generic advice.",
+        "For runtime/version, Measure the actual target engine.",
+        "For async completion, Await equivalent work and error paths.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Migrate the runtime to Bun.",
+      "expected_output": "The agent does not activate optimize-javascript-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-javascript-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this JavaScript workload in the named browser or server runtime while preserving coercion, ordering, async behavior, errors, and equivalent work. Stress case: TypeScript-only fixture.",
+      "expected_output": "A JavaScript optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Do not claim JavaScript coverage from TS type checks.",
+        "The evidence can detect this failure: Language evidence conflated.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

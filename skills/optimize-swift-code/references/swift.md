@@ -49,9 +49,9 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the swift
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the swift assets](../assets/examples). Copy that directory intact when adapting
+a fixture. Run only this language; the target project keeps its own toolchain.
 
 ### Semantic regression cases
 
@@ -71,8 +71,9 @@ Source: [Semantics.swift][ref-semantics-swift].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](swift-target-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -81,8 +82,8 @@ following commands relative to that copied directory.
 
 Use the project's existing Swift Benchmark target; do not turn the comparison
 CLI into a home-made timing library. The bundled comparison programs test
-equivalence and expose callable functions, not speedup claims. Run `sh verify.sh
-comparisons` from its root first.
+equivalence and expose callable functions, not speedup claims. Run
+`sh verify.sh comparisons` from its root first.
 
 Use the same release build, optimization and whole-module settings. Keep ARC
 traffic, copies and task completion inside the boundary when callers pay them.
@@ -112,11 +113,14 @@ Actual: slicing preserves the original start index (`2`) and can retain the
 owner's storage. The verifier copies, compiles, and runs `Repro.swift` in a
 temporary directory. Exit zero reproduces the documented index behavior.
 
-[swift-optimization-tips]: https://github.com/swiftlang/swift/blob/main/docs/OptimizationTips.rst
-[swift-concurrency]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/
-[swift-memory-safety]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/memorysafety/
+[swift-optimization-tips]:
+  https://github.com/swiftlang/swift/blob/main/docs/OptimizationTips.rst
+[swift-concurrency]:
+  https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/
+[swift-memory-safety]:
+  https://docs.swift.org/swift-book/documentation/the-swift-programming-language/memorysafety/
 [source]: https://github.com/ordo-one/package-benchmark
-
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  swift-target-performance-executable-performance-fixtures.md
 [ref-semantics-swift]: ../assets/examples/correctness/Semantics.swift
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

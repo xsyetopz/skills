@@ -1,12 +1,11 @@
 ---
 name: find-implementation-plan-flaws
 description: >-
-  Use when examining an existing implementation, migration, or delivery plan
-  for contradictions, unsupported decisions, missing prerequisites, and
-  inadequate acceptance checks. Compare it with requirements and repository
-  evidence. Not for creating or executing a replacement plan.
+  Use when examining an existing implementation, migration, or delivery plan for
+  contradictions, unsupported decisions, missing prerequisites, and inadequate
+  acceptance checks. Compare it with requirements and repository evidence. Not
+  for creating or executing a replacement plan.
 ---
-
 
 # Find Implementation Plan Flaws
 
@@ -26,6 +25,31 @@ Report only evidenced flaws and consequences; a clean audit is valid.
   obligations, or approval stages.
 - Recommendations do not authorize changes. Preserve user-owned product and
   policy decisions.
+
+## Review-only execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a implementation-plan review;
+  it MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide the submitted plan, requirements, repository
+  evidence, dependencies, and acceptance boundary, hard constraints, available
+  tools, and the finish condition once. Remove repeated directions and examples
+  unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with source citations, contradiction
+  checks, dependency traces, and discriminating acceptance tests. Report
+  commands, observed results, and gaps. A parser, build, or single green test
+  proves only the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -67,37 +91,38 @@ flowchart TD
    supports the plan. Do not produce a rewritten plan unless separately
    requested.
 
-## Read only the material needed
+## Choose the plan-evidence reference
 
 | Situation | Read or use |
 | --- | --- |
 | Studying a complete plan review | [Worked review](references/review-example.md) |
-| Choosing finding types and evidence thresholds | [Decision guide](references/decision-guide.md) |
-| Reviewing code, migration, rollout, and verification examples | [Worked examples](references/worked-examples.md) |
-| Matching plan claims to repository evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding architecture preference and finding quotas | [Failure modes](references/failure-modes.md) |
+| Choosing finding types and evidence thresholds | [Operational decisions](references/implementation-plan-review-operational-decisions.md) |
+| Reviewing code, migration, rollout, and verification examples | [Worked scenarios](references/implementation-plan-review-worked-scenarios.md) |
+| Matching plan claims to repository evidence | [Verification and claim evidence](references/implementation-plan-review-verification-and-claim-evidence.md) |
+| Avoiding architecture preference and finding quotas | [Failure patterns and recovery](references/implementation-plan-review-failure-patterns-and-recovery.md) |
 | Using a structured finding format | [Plan review template](assets/plan-review-template.md) |
-| Checking authoritative planning sources | [Source index](references/source-index.md) |
+| Checking authoritative planning sources | [Standards, APIs, and authorities](references/implementation-plan-review-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Plan review references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/implementation-plan-review-concepts-contracts-and-invariants.md) | Use when distinguishing the requested implementation-plan review from observed repository state. |
+| [Enterprise operation and governance](references/implementation-plan-review-organizational-controls-and-scale.md) | Use when the implementation-plan review crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/implementation-plan-review-bundled-resource-map.md) | Use when locating bundled resources for the implementation-plan review. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

@@ -7,7 +7,6 @@ description: >-
   for requirements wording alone or routine local edits.
 ---
 
-
 # Design System Architecture
 
 Design or review system structure from actual quality attributes, ownership,
@@ -30,6 +29,32 @@ needed by the requested outcome.
   invalidation, and failure behavior.
 - Preserve native provider controls and protocol escape hatches. Unsupported
   settings must fail explicitly rather than disappear in an abstraction.
+
+## Architecture-analysis contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a architecture decision; it
+  MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide quality attributes, workloads, components,
+  dependency direction, data ownership, and deployment topology, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with scenario walkthroughs, dependency
+  checks, prototypes, and operational evidence. Report commands, observed
+  results, and gaps. A parser, build, or single green test proves only the
+  property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -68,10 +93,10 @@ flowchart TD
    rollout. Include rollback and data reconciliation where the change crosses
    persistent or distributed boundaries.
 1. Deliver diagrams, interface/ownership contracts, rejected alternatives,
-   tradeoffs, risks, and required verification. Use the repository’s ADR/design
+   tradeoffs, risks, and required verification. Use the repository's ADR/design
    format only when requested or established process requires it.
 
-## Read only the material needed
+## Choose the architecture evidence reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -83,34 +108,35 @@ flowchart TD
 | Designing host/plugin, LSP, DAP, or editor boundaries | [Host boundaries and ports](references/host-boundaries-and-ports.md) |
 | Selecting language/package/module layout | [Language layout](references/language-layout.md) |
 | Reviewing patterns, pipelines, UI, and governance | [Patterns and pipelines](references/patterns-pipelines.md) |
-| Using enterprise-scale decision examples | [Worked architecture examples](references/worked-examples.md) |
-| Checking design claims and scenarios | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding cargo-cult patterns and source-of-truth errors | [Failure modes](references/failure-modes.md) |
-| Checking standards and source applicability | [Source index](references/source-index.md) |
+| Using enterprise-scale decision examples | [Worked architecture examples](references/system-boundaries-worked-scenarios.md) |
+| Checking design claims and scenarios | [Verification and claim evidence](references/system-boundaries-verification-and-claim-evidence.md) |
+| Avoiding cargo-cult patterns and source-of-truth errors | [Failure patterns and recovery](references/system-boundaries-failure-patterns-and-recovery.md) |
+| Checking standards and source applicability | [Standards, APIs, and authorities](references/system-boundaries-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Architecture decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
+| [Operational decisions](references/system-boundaries-operational-decisions.md) | Use when selecting the next evidence-backed architecture decision action. |
+| [Concepts, contracts, and invariants](references/system-boundaries-concepts-contracts-and-invariants.md) | Use when distinguishing the requested architecture decision from observed repository state. |
 | [Editor-extension boundaries](references/editor-boundaries.md) | Use the host's declarative contribution mechanism first when it fully implements the feature: language configuration, grammar, snippets, theme, key binding, or command contribution. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
+| [Enterprise operation and governance](references/system-boundaries-organizational-controls-and-scale.md) | Use when the architecture decision crosses ownership, data-handling, release, or audit boundaries. |
 | [Coordinate software architecture decisions and implementation](references/governance-delivery.md) | Map product and platform responsibilities: name the team owning each capability and runtime, API/schema, data, on-call response, and deprecation decision. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Bundled resource map](references/system-boundaries-bundled-resource-map.md) | Use when locating bundled resources for the architecture decision. |
 | [Design software user interfaces and state transitions](references/ui-paradigms-principles.md) | A UI pattern is not a system architecture. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

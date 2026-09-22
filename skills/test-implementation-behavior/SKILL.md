@@ -4,11 +4,10 @@ description: >-
   Use when writing, running, reviewing, or retiring tests for software,
   firmware, or hardware behavior against stated contracts. Covers test-first
   changes, regressions, characterization, properties, and integration checks.
-  Establish independent expectations and distinguish source checks,
-  simulation, and physical-device evidence; never substitute implementation
-  prose for behavioral verification.
+  Establish independent expectations and distinguish source checks, simulation,
+  and physical-device evidence; never substitute implementation prose for
+  behavioral verification.
 ---
-
 
 # Test Implementation Behavior
 
@@ -20,7 +19,7 @@ execution layer produced the evidence.
 ## Operating contract
 
 - Establish the required behavior and source of authority before writing
-  assertions. A user’s causal hypothesis, current output, visible test,
+  assertions. A user's causal hypothesis, current output, visible test,
   snapshot, comment, or plan is evidence—not an expected result by itself.
 - For test-first work, select one next behavioral case, run it before the
   implementation, observe the intended failure, implement the behavior, rerun,
@@ -38,6 +37,32 @@ execution layer produced the evidence.
 - Separate compile/static checks, host execution, simulation/emulation,
   hardware-in-the-loop, and physical-device measurements. Do not promote one
   layer into another.
+
+## Behavioral-test execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a behavioral test; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide stated contract, independent oracle, input
+  partitions, failure behavior, platform layer, and test ownership, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with failure-to-green evidence, mutation
+  or negative controls, layer-specific runs, and coverage of contract
+  partitions. Report commands, observed results, and gaps. A parser, build, or
+  single green test proves only the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -91,7 +116,7 @@ flowchart TD
    only when their behavior is removed/covered elsewhere and their unique defect
    discrimination is preserved or no longer required.
 
-## Read only the material needed
+## Choose the test-evidence reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -103,34 +128,35 @@ flowchart TD
 | Handling regressions, nondeterminism, clocks, and concurrency | [Regressions and nondeterminism](references/regressions-and-nondeterminism.md) |
 | Testing firmware, HDL, simulators, HIL, and physical devices | [Hardware and firmware](references/hardware-and-firmware.md) |
 | Retiring or consolidating tests without losing coverage | [Test retirement](references/test-retirement.md) |
-| Studying complete behavior-focused examples | [Worked examples](references/worked-examples.md) |
+| Studying complete behavior-focused examples | [Worked scenarios](references/behavioral-testing-worked-scenarios.md) |
 | Running the filesystem rename contract example | [Rename contract test](assets/rename-contract/test_rename_operation.py) |
 | Running the HDL counter example when a simulator is available | [HDL example](assets/hdl-counter/verify.sh) |
-| Matching claims to actual execution layers | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding false passes and test-as-spec failures | [Failure modes](references/failure-modes.md) |
-| Checking authoritative testing sources | [Source index](references/source-index.md) |
+| Matching claims to actual execution layers | [Verification and claim evidence](references/behavioral-testing-verification-and-claim-evidence.md) |
+| Avoiding false passes and test-as-spec failures | [Failure patterns and recovery](references/behavioral-testing-failure-patterns-and-recovery.md) |
+| Checking authoritative testing sources | [Standards, APIs, and authorities](references/behavioral-testing-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Test design references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
+| [Operational decisions](references/behavioral-testing-operational-decisions.md) | Use when selecting the next evidence-backed behavioral test action. |
+| [Concepts, contracts, and invariants](references/behavioral-testing-concepts-contracts-and-invariants.md) | Use when distinguishing the requested behavioral test from observed repository state. |
+| [Enterprise operation and governance](references/behavioral-testing-organizational-controls-and-scale.md) | Use when the behavioral test crosses ownership, data-handling, release, or audit boundaries. |
 | [Construct examples that demonstrate the claimed behavior](references/pair-construction.md) | Use a stated contract, actual implementations, independent observations, and runnable commands. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Bundled resource map](references/behavioral-testing-bundled-resource-map.md) | Use when locating bundled resources for the behavioral test. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

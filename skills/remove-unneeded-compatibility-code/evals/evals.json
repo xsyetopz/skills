@@ -1,0 +1,35 @@
+{
+  "skill_name": "remove-unneeded-compatibility-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Remove this compatibility alias and fallback after verifying it was never required or is explicitly retired, preserving supported consumers and unique behavior.",
+      "expected_output": "A repository-aware compatibility removal result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the compatibility removal workflow instead of returning only generic advice.",
+        "For agent-added shim plus test, Neither creates product authority by itself.",
+        "For stable external consumer, Preserve according to declared contract even if grep is empty.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Delete old-looking code without evidence about consumers or support policy.",
+      "expected_output": "The agent does not activate remove-unneeded-compatibility-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that remove-unneeded-compatibility-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Remove this compatibility alias and fallback after verifying it was never required or is explicitly retired, preserving supported consumers and unique behavior. Stress case: Wrapper removal.",
+      "expected_output": "A compatibility removal result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Retain unique validation/error/cleanup behavior.",
+        "The evidence can detect this failure: Thin wrapper deleted with required semantics.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

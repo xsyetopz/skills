@@ -3,10 +3,9 @@ name: document-codebases
 description: >-
   Use when writing, correcting, or formatting repository setup, usage, API, or
   contribution documentation. Verify commands and technical claims; preserve
-  meaning for formatting-only requests. Not for release history or
-  coding-agent instruction files.
+  meaning for formatting-only requests. Not for release history or coding-agent
+  instruction files.
 ---
-
 
 # Document Codebases
 
@@ -28,6 +27,31 @@ model memory.
   imagined compatibility, or future plans as current behavior.
 - Preserve generated/manual boundaries and repository-native documentation
   structure.
+
+## Documentation execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a codebase documentation; it
+  MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide current source, commands, supported workflows,
+  audience, generated boundaries, and repository terminology, hard constraints,
+  available tools, and the finish condition once. Remove repeated directions and
+  examples unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with executed examples, link checks,
+  rendered review, and source-to-doc comparisons. Report commands, observed
+  results, and gaps. A parser, build, or single green test proves only the
+  property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -68,40 +92,41 @@ flowchart TD
    claims, accidental semantic edits, duplicate docs, and stale references.
    Report unexecuted platform/credential-dependent steps.
 
-## Read only the material needed
+## Choose the documentation authority
 
 | Situation | Read or use |
 | --- | --- |
 | Writing repository overview and contribution guides | [Repository guides](references/readme-and-contributing.md) |
 | Using GitHub-flavored Markdown and Mermaid | [GitHub Markdown](references/github-markdown.md) |
 | Choosing document structure and validation | [Structure and validation](references/structure-and-validation.md) |
-| Selecting documentation type and source authority | [Decision guide](references/decision-guide.md) |
-| Writing complete command/API/config examples | [Worked examples](references/worked-examples.md) |
-| Checking claims, links, commands, and rendered behavior | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding stale, aspirational, and formatting-driven changes | [Failure modes](references/failure-modes.md) |
+| Selecting documentation type and source authority | [Operational decisions](references/codebase-documentation-operational-decisions.md) |
+| Writing complete command/API/config examples | [Worked scenarios](references/codebase-documentation-worked-scenarios.md) |
+| Checking claims, links, commands, and rendered behavior | [Verification and claim evidence](references/codebase-documentation-verification-and-claim-evidence.md) |
+| Avoiding stale, aspirational, and formatting-driven changes | [Failure patterns and recovery](references/codebase-documentation-failure-patterns-and-recovery.md) |
 | Using repository templates when they match | [Repository overview template](assets/repository-overview.template.md) |
 | Using contribution structure when requested | [Contribution template](assets/CONTRIBUTING.template.md) |
-| Checking source freshness | [Source index](references/source-index.md) |
+| Checking source freshness | [Standards, APIs, and authorities](references/codebase-documentation-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Documentation quality references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/codebase-documentation-concepts-contracts-and-invariants.md) | Use when distinguishing the requested codebase documentation from observed repository state. |
+| [Enterprise operation and governance](references/codebase-documentation-organizational-controls-and-scale.md) | Use when the codebase documentation crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/codebase-documentation-bundled-resource-map.md) | Use when locating bundled resources for the codebase documentation. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

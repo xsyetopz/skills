@@ -2,11 +2,10 @@
 name: optimize-go-code
 description: >-
   Use when profiling or optimizing Go CPU time, latency, throughput,
-  allocations, or memory use with the project’s native benchmarks and
-  profiles. Preserve interfaces, goroutine lifetime, cancellation, and data
-  ownership. Not for style-only edits.
+  allocations, or memory use with the project's native benchmarks and profiles.
+  Preserve interfaces, goroutine lifetime, cancellation, and data ownership. Not
+  for style-only edits.
 ---
-
 
 # Optimize Go Code
 
@@ -33,6 +32,32 @@ deployment contracts. Correctness and matched workload come before timing.
 - Use repeated matched measurements and report variability. One run, debug
   build, changed runtime flags, or incomparable environment cannot establish an
   improvement.
+
+## Measured optimization contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a Go optimization; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide Go version, GOOS/GOARCH, build tags, workload,
+  goroutine lifecycle, cancellation, races, and data ownership, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with go test benchmarks, benchstat,
+  pprof, race tests, and semantic checks. Report commands, observed results, and
+  gaps. A parser, build, or single green test proves only the property that it
+  can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -74,7 +99,7 @@ flowchart TD
    errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
    behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
    fixtures as examples, not proof for target code.
-1. Measure with the package’s `testing.B` benchmarks with `ResetTimer`, setup
+1. Measure with the package's `testing.B` benchmarks with `ResetTimer`, setup
    placement, `ReportAllocs`, stable inputs and outputs, repeated counts, and
    `benchstat` under matched toolchain/CPU/environment. Reject missing rows,
    invalid values, ambiguous units, unstable setup, incomparable identities, or
@@ -89,42 +114,43 @@ flowchart TD
    unexecuted targets. Do not generalize beyond the measured
    workload/environment.
 
-## Read only the material needed
+## Choose the language-performance reference
 
 | Situation | Read or use |
 | --- | --- |
 | Reading Go-specific profiling, runtime, and semantic constraints | [Go language guide](references/go.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/executable-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmarking](references/profiling-and-benchmarking.md) |
-| Selecting optimization techniques after profiling | [Optimization patterns](references/optimization-patterns.md) |
-| Reviewing language-specific semantic traps | [Semantic traps](references/semantic-traps.md) |
-| Using complete benchmark and optimization examples | [Worked examples](references/worked-examples.md) |
-| Matching performance and correctness claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Failure modes](references/failure-modes.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Enterprise operation](references/enterprise-operation.md) |
+| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/go-runtime-performance-executable-performance-fixtures.md) |
+| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/go-runtime-performance-profiling-and-benchmark-protocol.md) |
+| Selecting optimization techniques after profiling | [Measured optimization techniques](references/go-runtime-performance-measured-optimization-techniques.md) |
+| Reviewing language-specific semantic traps | [Performance semantic hazards](references/go-runtime-performance-performance-semantic-hazards.md) |
+| Using complete benchmark and optimization examples | [Optimization case studies](references/go-runtime-performance-optimization-case-studies.md) |
+| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/go-runtime-performance-benchmark-profile-and-equivalence-evidence.md) |
+| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/go-runtime-performance-optimization-regressions-and-recovery.md) |
+| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/go-runtime-performance-performance-rollout-and-governance.md) |
 | Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
 | Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Source index](references/source-index.md) |
+| Checking current official sources | [Performance, language, and runtime authorities](references/go-runtime-performance-performance-language-and-runtime-authorities.md) |
 
-## Additional specialized references
+## Optimization decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Cost model and optimization rules](references/go-runtime-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Go optimization action. |
+| [Runtime semantics and invariants](references/go-runtime-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Go optimization from observed repository state. |
+| [Performance fixture and tool map](references/go-runtime-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Go optimization. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

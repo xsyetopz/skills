@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-python-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Python workload with pyperf/cProfile while preserving supported versions, iterator consumption, errors, identity, side effects, and equivalent inputs.",
+      "expected_output": "A repository-aware Python optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Python optimization workflow instead of returning only generic advice.",
+        "For iterator optimization, Preserve single-use/eager/lazy behavior.",
+        "For pyperf, Use stable environment and repeated runs.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Apply PEP 20 readability principles without a performance goal.",
+      "expected_output": "The agent does not activate optimize-python-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-python-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Python workload with pyperf/cProfile while preserving supported versions, iterator consumption, errors, identity, side effects, and equivalent inputs. Stress case: Validation removal.",
+      "expected_output": "A Python optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Keep required checks and error behavior.",
+        "The evidence can detect this failure: Candidate is faster by doing less.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

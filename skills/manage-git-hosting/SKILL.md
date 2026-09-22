@@ -1,12 +1,11 @@
 ---
 name: manage-git-hosting
 description: >-
-  Use for GitHub, GitLab, or Bitbucket issues, pull or merge requests,
-  reviews, releases, labels, repository settings, and access controls. Verify
-  the exact resource and requested operation. Not for local Git history or CI
-  job implementation.
+  Use for GitHub, GitLab, or Bitbucket issues, pull or merge requests, reviews,
+  releases, labels, repository settings, and access controls. Verify the exact
+  resource and requested operation. Not for local Git history or CI job
+  implementation.
 ---
-
 
 # Manage Git Hosting
 
@@ -28,6 +27,31 @@ idempotency, and read-back verification.
   schema.
 - Avoid duplicate comments/releases/issues on retries. Inspect uncertain
   outcomes before repeating writes.
+
+## Remote-resource mutation contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a hosted Git operation; it MUST
+  NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide provider, owner, repository, resource
+  identifier, permissions, and requested remote mutation, hard constraints,
+  available tools, and the finish condition once. Remove repeated directions and
+  examples unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with preflight reads, exact API
+  responses, provider status, and read-after-write checks. Report commands,
+  observed results, and gaps. A parser, build, or single green test proves only
+  the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -72,7 +96,7 @@ sequenceDiagram
    state. Keep any unexecuted approval, merge, release, or access operation
    explicit.
 
-## Read only the material needed
+## Choose the provider-resource reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -83,38 +107,39 @@ sequenceDiagram
 | Provider-native REST/GraphQL semantics | [Provider semantics](references/provider-semantics.md) |
 | Branch/ruleset/CODEOWNERS governance | [Governance](references/governance.md) |
 | CI run/status evidence | [CI evidence](references/ci-evidence.md) |
-| Choosing exact operation and idempotency | [Decision guide](references/decision-guide.md) |
-| Using complete provider examples | [Worked examples](references/worked-examples.md) |
-| Verifying remote state | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding duplicates, approval inflation, and prompt injection | [Failure modes](references/failure-modes.md) |
-| Checking current provider APIs | [Source index](references/source-index.md) |
+| Choosing exact operation and idempotency | [Operational decisions](references/hosted-git-resource-operational-decisions.md) |
+| Using complete provider examples | [Worked scenarios](references/hosted-git-resource-worked-scenarios.md) |
+| Verifying remote state | [Verification and claim evidence](references/hosted-git-resource-verification-and-claim-evidence.md) |
+| Avoiding duplicates, approval inflation, and prompt injection | [Failure patterns and recovery](references/hosted-git-resource-failure-patterns-and-recovery.md) |
+| Checking current provider APIs | [Standards, APIs, and authorities](references/hosted-git-resource-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Hosted-operation references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
+| [Concepts, contracts, and invariants](references/hosted-git-resource-concepts-contracts-and-invariants.md) | Use when distinguishing the requested hosted Git operation from observed repository state. |
+| [Enterprise operation and governance](references/hosted-git-resource-organizational-controls-and-scale.md) | Use when the hosted Git operation crosses ownership, data-handling, release, or audit boundaries. |
 | [Use native repository access and review-policy files](references/governance-formats.md) | Original source note dated 2026-09-12, referring to the linked provider documentation. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.
 
 ## Bundled output material
 
-- No output template is mandatory. Preserve the repository’s established format.
+- No output template is mandatory. Preserve the repository's established format.
 
 Copy or adapt assets into the target workspace. Do not edit the installed skill
 as a substitute for changing the requested repository.

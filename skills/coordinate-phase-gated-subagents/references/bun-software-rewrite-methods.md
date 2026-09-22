@@ -1,4 +1,4 @@
-# Adapt subagent methods from Bun’s software rewrite
+# Adapt subagent methods from Bun's software rewrite
 
 Primary source: <https://bun.com/blog/bun-in-rust> (Jarred Sumner, July 8,
 2026).

@@ -1,0 +1,35 @@
+{
+	"skill_name": "define-requirements",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Define observable behavior, failures, state transitions, constraints, and acceptance criteria for the requested import feature.",
+			"expected_output": "A repository-aware behavioral requirement set result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the behavioral requirement set workflow instead of returning only generic advice.",
+				"For unknown threshold, Leave unresolved or measure; do not invent a number.",
+				"For current implementation, Treat it as evidence, not desired behavior.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Choose the service architecture for complete requirements that already exist.",
+			"expected_output": "The agent does not activate define-requirements for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that define-requirements is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Define observable behavior, failures, state transitions, constraints, and acceptance criteria for the requested import feature. Stress case: User causal claim.",
+			"expected_output": "A behavioral requirement set result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Separate hypothesis from requested result.",
+				"The evidence can detect this failure: Requirement encodes an unverified explanation.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

@@ -33,7 +33,7 @@ for cases that need their explicit byte semantics. Do not confuse patch `word`
 with the debugger `.sym` format's `.wrd` element size.
 
 | Place | Application time |
-| ----- | ---------------------------------------------------------------- |
+| --- | --- |
 | `0` | First execution entry/startup application. |
 | `1` | Repeated at vertical blank. |
 | `2` | Both startup and vertical blank. |

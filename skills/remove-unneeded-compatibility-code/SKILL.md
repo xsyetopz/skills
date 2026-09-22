@@ -1,13 +1,12 @@
 ---
 name: remove-unneeded-compatibility-code
 description: >-
-  Use when removing compatibility aliases, shims, fallbacks, or version
-  branches shown to be unnecessary: support invented without a requirement, or
-  support explicitly retired. Trace callers, persisted data, and declared
-  public contracts first. Age, a failing test, or an empty search alone does
-  not authorize deletion.
+  Use when removing compatibility aliases, shims, fallbacks, or version branches
+  shown to be unnecessary: support invented without a requirement, or support
+  explicitly retired. Trace callers, persisted data, and declared public
+  contracts first. Age, a failing test, or an empty search alone does not
+  authorize deletion.
 ---
-
 
 # Remove Unneeded Compatibility Code
 
@@ -30,6 +29,32 @@ persisted-data, deployment, and external-consumer obligations.
   validation, cleanup, or error behavior.
 - Do not reintroduce the same behavior under a synonym, catch-all fallback, or
   “temporary” alias.
+
+## Compatibility-retirement contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a compatibility removal; it
+  MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide declared support policy, external consumers,
+  persisted data, aliases, fallbacks, version branches, and unique wrapper
+  behavior, hard constraints, available tools, and the finish condition once.
+  Remove repeated directions and examples unless a recorded evaluation shows
+  that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with consumer searches, contract tests,
+  migration checks, and before/after behavior. Report commands, observed
+  results, and gaps. A parser, build, or single green test proves only the
+  property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -75,42 +100,43 @@ flowchart TD
    surface. Inspect artifact exports and runtime registration. Report
    consumers/evidence, classification, changes, and remaining uncertainty.
 
-## Read only the material needed
+## Choose the consumer-evidence reference
 
 | Situation | Read or use |
 | --- | --- |
 | Tracing authority, consumers, data, and complete removal | [Removal evidence](references/removal-evidence.md) |
-| Classifying required, never-required, retired, and unresolved support | [Decision guide](references/decision-guide.md) |
-| Using API, CLI, config, data, and platform examples | [Worked examples](references/worked-examples.md) |
-| Verifying removal and supported behavior | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding empty-search, test-as-spec, and alias-reintroduction errors | [Failure modes](references/failure-modes.md) |
-| Applying enterprise version/support governance | [Enterprise operation](references/enterprise-operation.md) |
-| Checking SemVer/package export sources | [Source index](references/source-index.md) |
+| Classifying required, never-required, retired, and unresolved support | [Operational decisions](references/compatibility-retirement-operational-decisions.md) |
+| Using API, CLI, config, data, and platform examples | [Worked scenarios](references/compatibility-retirement-worked-scenarios.md) |
+| Verifying removal and supported behavior | [Verification and claim evidence](references/compatibility-retirement-verification-and-claim-evidence.md) |
+| Avoiding empty-search, test-as-spec, and alias-reintroduction errors | [Failure patterns and recovery](references/compatibility-retirement-failure-patterns-and-recovery.md) |
+| Applying enterprise version/support governance | [Organizational controls and scale](references/compatibility-retirement-organizational-controls-and-scale.md) |
+| Checking SemVer/package export sources | [Standards, APIs, and authorities](references/compatibility-retirement-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Compatibility decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
+| [Concepts, contracts, and invariants](references/compatibility-retirement-concepts-contracts-and-invariants.md) | Use when distinguishing the requested compatibility removal from observed repository state. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.
 
 ## Bundled output material
 
-- No output template is mandatory. Preserve the repository’s established format.
+- No output template is mandatory. Preserve the repository's established format.
 
 Copy or adapt assets into the target workspace. Do not edit the installed skill
 as a substitute for changing the requested repository.

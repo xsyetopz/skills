@@ -82,5 +82,35 @@ Use [description evaluation](description-evaluation.md) for actual experiments.
 Sources: [Agent Skills descriptions][descriptions], [creator
 guidance][guidance].
 
+## Use normative words and controlled technical English
+
+Use RFC 2119 meanings only when a rule controls a material safety,
+interoperability, correctness, or authority boundary:
+
+- **MUST** means no conforming execution can omit the action. Use it for rules
+  such as “The script MUST NOT overwrite an existing output without explicit
+  authorization.” Do not use it to express a preferred heading or tone.
+- **SHOULD** means the stated action is the default, but a valid exception can
+  exist. Require the agent to identify the exception and its consequence.
+- **MAY** identifies a supported option. It does not tell the agent which option
+  to choose. Supply a selection rule when the choice affects the result.
+
+Use STE-inspired sentence construction: put one action in a sentence, use active
+voice, keep the actor and object explicit, use one term for one concept, and
+avoid pronouns whose antecedent can change. Keep API names and source terms
+exact even when they are not in a controlled vocabulary. Do not claim ASD-STE100
+conformance unless a licensed conformance process actually occurred.
+
+| Weak instruction | Controlled instruction |
+| --- | --- |
+| Handle it correctly. | Run `skills-ref validate SKILL_DIR`; stop if it returns nonzero. |
+| Use the right version. | Read the version from the repository lockfile and use that exact version. |
+| Usually do not overwrite files. | The helper MUST reject an existing output unless the user supplies `--force`. |
+| Test everything. | Run the checks that can fail because of the changed files; record unavailable target-host checks. |
+
+Sources: [RFC 2119][rfc2119], [ASD-STE100][ste100].
+
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
 [guidance]: https://agentskills.io/skill-creation/best-practices
+[rfc2119]: https://datatracker.ietf.org/doc/html/rfc2119
+[ste100]: https://www.asd-ste100.org/

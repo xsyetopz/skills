@@ -169,7 +169,7 @@ class ValidatorTests(unittest.TestCase):
             ("## [1.0.0](https://example.com/tag) - 2026-01-01 [YANKED]", ""),
             ("## [1.0.0] - 2026-01-01", "[1.0.0]: https://example.com/tag\n"),
             ("## 1.0.0 - 2026-01-01 ##", ""),
-            ("[1.0.0] - 2026-01-01\n------------------------", ""),
+            ("[1.0.0] - 2026-01-01\n---", ""),
         ):
             with self.subTest(heading=heading):
                 record = self.audit_text(
@@ -207,7 +207,7 @@ hosted HTML is outside the profile
 ### Added
     indented code is content
 [Unreleased]
-------------
+---
 ### Changed
 ~~~text
 fenced code is content

@@ -1,12 +1,11 @@
 ---
 name: create-agent-hooks
 description: >-
-  Use when creating, configuring, debugging, or auditing a coding agent’s
-  native tool, permission, session, or completion-event hooks. Match the named
-  client and version, event payload, and blocking behavior. Not for Git hooks,
-  CI jobs, or editor callbacks.
+  Use when creating, configuring, debugging, or auditing a coding agent's native
+  tool, permission, session, or completion-event hooks. Match the named client
+  and version, event payload, and blocking behavior. Not for Git hooks, CI jobs,
+  or editor callbacks.
 ---
-
 
 # Create Agent Hooks
 
@@ -30,6 +29,31 @@ hook schema or assume similar event names have equivalent authority.
 - Keep secrets out of hook files, command lines, stdout/stderr, and captured
   payload fixtures.
 
+## Model and skill execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a agent hook; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide the named client version, native event,
+  payload, permission mode, and rollback path, hard constraints, available
+  tools, and the finish condition once. Remove repeated directions and examples
+  unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with schema checks, live registration,
+  event observation, and failure-path tests. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+
 ## Workflow
 
 ```mermaid
@@ -50,12 +74,12 @@ sequenceDiagram
 
 1. Inspect the installed host/version and existing hook configuration before
    choosing an event or file path. Read the matching host reference and official
-   documentation; do not adapt another host’s payload by name alone.
+   documentation; do not adapt another host's payload by name alone.
 1. Define the hook contract: trigger, input fields, trust boundary, allowed side
    effects, output format, exit codes, timeout, failure policy, ordering, and
    proof of registration. Decide whether the goal is telemetry, context
    injection, validation, or blocking.
-1. Implement a small handler using the host’s native transport. Prefer
+1. Implement a small handler using the host's native transport. Prefer
    structured parsing and argument arrays over shell interpolation. Resolve
    repository-relative paths against documented context and reject unsupported
    or ambiguous inputs explicitly.
@@ -72,7 +96,7 @@ sequenceDiagram
 1. Document rollback as removal of the added entry and task-created files only.
    Report live registration evidence and untested host behavior separately.
 
-## Read only the material needed
+## Choose the agent-integration reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -83,27 +107,28 @@ sequenceDiagram
 | GitHub Copilot hooks | [GitHub Copilot](references/github-copilot.md) |
 | OpenCode plugin hooks | [OpenCode](references/opencode.md) |
 | VS Code agent hooks | [VS Code](references/vscode.md) |
-| Choosing observe, annotate, or block semantics | [Decision guide](references/decision-guide.md) |
-| Implementing robust structured handlers | [Worked hook examples](references/worked-examples.md) |
-| Testing fixtures versus live registration | [Verification and evidence](references/verification-and-evidence.md) |
-| Reviewing injection, timeout, rollback, and fail-open risks | [Failure modes](references/failure-modes.md) |
-| Checking current host documentation | [Source index](references/source-index.md) |
+| Choosing observe, annotate, or block semantics | [Operational decisions](references/agent-hook-operational-decisions.md) |
+| Implementing robust structured handlers | [Worked hook examples](references/agent-hook-worked-scenarios.md) |
+| Testing fixtures versus live registration | [Verification and claim evidence](references/agent-hook-verification-and-claim-evidence.md) |
+| Reviewing injection, timeout, rollback, and fail-open risks | [Failure patterns and recovery](references/agent-hook-failure-patterns-and-recovery.md) |
+| Checking current host documentation | [Standards, APIs, and authorities](references/agent-hook-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Agent behavior references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/agent-hook-concepts-contracts-and-invariants.md) | Use when distinguishing the requested agent hook from observed repository state. |
+| [Enterprise operation and governance](references/agent-hook-organizational-controls-and-scale.md) | Use when the agent hook crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/agent-hook-bundled-resource-map.md) | Use when locating bundled resources for the agent hook. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 

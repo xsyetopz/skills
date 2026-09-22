@@ -56,9 +56,9 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the c-cpp
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the c-cpp assets](../assets/examples). Copy that directory intact when adapting
+a fixture. Run only this language; the target project keeps its own toolchain.
 
 ### Semantic regression cases
 
@@ -78,8 +78,9 @@ Source: [semantics.cpp][ref-semantics-cpp].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](cpp-native-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -123,11 +124,13 @@ Actual: growth changes the allocation, so the saved pointer is invalidated. The
 verifier copies `repro.cpp` to a temporary directory, compiles it as C++17, and
 runs it. Exit zero means the invalidation was reproduced.
 
-[clang-optimization-remarks]: https://clang.llvm.org/docs/UsersManual.html#options-to-emit-optimization-reports
+[clang-optimization-remarks]:
+  https://clang.llvm.org/docs/UsersManual.html#options-to-emit-optimization-reports
 [google-benchmark-guide]: https://google.github.io/benchmark/user_guide.html
-[gcc-instrumentation-options]: https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+[gcc-instrumentation-options]:
+  https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
 [source]: https://google.github.io/benchmark/user_guide.html
-
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  cpp-native-performance-executable-performance-fixtures.md
 [ref-semantics-cpp]: ../assets/examples/correctness/semantics.cpp
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

@@ -2,17 +2,16 @@
 name: create-agent-skills
 description: >-
   Use when creating, revising, auditing, or consolidating Agent Skills,
-  including SKILL.md descriptions, instructions, executable helpers, assets,
-  and native agent metadata. Not for repository-wide AGENTS.md instructions or
+  including SKILL.md descriptions, instructions, executable helpers, assets, and
+  native agent metadata. Not for repository-wide AGENTS.md instructions or
   implementing a task described by an installed skill.
 ---
-
 
 # Create Agent Skills
 
 Build a focused, discoverable, self-contained skill that supplies non-obvious
 domain knowledge and deterministic resources without replacing user intent,
-repository controls, or the base agent’s ordinary competence. Treat a skill as
+repository controls, or the base agent's ordinary competence. Treat a skill as
 versioned software: research it, implement it, evaluate it against realistic
 tasks, and maintain it from observed failures.
 
@@ -20,7 +19,7 @@ tasks, and maintain it from observed failures.
 
 - Start from real tasks, domain evidence, target harnesses, and failure cases.
   Do not generate a generic skill from a topic name alone.
-- Keep the skill’s capability coherent. Split only when separate tasks have
+- Keep the skill's capability coherent. Split only when separate tasks have
   distinct triggers, procedures, resources, or ownership; avoid both catchalls
   and microscopic fragments.
 - Use progressive disclosure: routing and invariants in `SKILL.md`, detailed
@@ -32,6 +31,32 @@ tasks, and maintain it from observed failures.
   intended contexts, and a boundary that prevents likely false activation.
 - Static validation is necessary but cannot establish trigger accuracy, task
   quality, directive compliance, or operational efficiency.
+
+## Model and skill execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a Agent Skill package; it MUST
+  NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide representative tasks, target clients and
+  models, activation boundaries, resources, and package consumers, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with official validation, script tests,
+  activation trials, and paired task evaluations. Report commands, observed
+  results, and gaps. A parser, build, or single green test proves only the
+  property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -84,7 +109,7 @@ flowchart TD
    held-out cases and coexistence tests with neighboring skills. Package only
    the authorized subtree and record unexecuted evaluations.
 
-## Read only the material needed
+## Choose the agent-integration reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -95,32 +120,33 @@ flowchart TD
 | Configuring Codex 0.154.0 native metadata | [Codex metadata](references/codex-metadata.md) |
 | Choosing exact, non-ambiguous task language | [Precise task language](references/precise-task-language.md) |
 | Using repository and external validation tools | [Validation tools](references/validation-tools.md) |
-| Applying enterprise packaging and governance | [Enterprise operation](references/enterprise-operation.md) |
-| Studying complete authoring and evaluation examples | [Worked examples](references/worked-examples.md) |
-| Avoiding under-specified references and false evaluation claims | [Failure modes](references/failure-modes.md) |
-| Checking official guidance and large public collections | [Source index](references/source-index.md) |
+| Applying enterprise packaging and governance | [Organizational controls and scale](references/agent-skill-organizational-controls-and-scale.md) |
+| Studying complete authoring and evaluation examples | [Worked scenarios](references/agent-skill-worked-scenarios.md) |
+| Avoiding under-specified references and false evaluation claims | [Failure patterns and recovery](references/agent-skill-failure-patterns-and-recovery.md) |
+| Checking official guidance and large public collections | [Standards, APIs, and authorities](references/agent-skill-standards-apis-and-authorities.md) |
 | Comparing public skill collections and enterprise quality patterns | [Industry skill patterns](references/industry-skill-patterns.md) |
 
-## Additional specialized references
+## Agent behavior references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
-| [Verification and evidence](references/verification-and-evidence.md) | Select evidence at the boundary of the claim. |
+| [Operational decisions](references/agent-skill-operational-decisions.md) | Use when selecting the next evidence-backed Agent Skill package action. |
+| [Concepts, contracts, and invariants](references/agent-skill-concepts-contracts-and-invariants.md) | Use when distinguishing the requested Agent Skill package from observed repository state. |
+| [Bundled resource map](references/agent-skill-bundled-resource-map.md) | Use when locating bundled resources for the Agent Skill package. |
+| [Verification and claim evidence](references/agent-skill-verification-and-claim-evidence.md) | Select evidence at the boundary of the claim. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

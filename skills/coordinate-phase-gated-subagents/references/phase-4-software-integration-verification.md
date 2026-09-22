@@ -71,7 +71,7 @@ For every mandatory requirement and affected nonfunctional constraint, record:
 - observed result and relevant raw artifact/log location;
 - evidence layer: static, build, unit, integration, simulator/emulator, device,
   end-to-end, staging, or production observation;
-- status using the project’s existing vocabulary, preserving pass, fail,
+- status using the project's existing vocabulary, preserving pass, fail,
   blocked/unavailable, and not-run distinctions;
 - approved deviation or risk decision where applicable.
 
@@ -98,4 +98,4 @@ Advance only when:
 - critical diagnostics are resolved or have an explicit authorized disposition;
 - remaining limitations and unexecuted environments are visible;
 - no child agent, workspace, or integration branch can still mutate the result;
-- any required approval uses the repository’s real mechanism.
+- any required approval uses the repository's real mechanism.

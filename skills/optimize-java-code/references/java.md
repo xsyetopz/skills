@@ -47,9 +47,9 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the java
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only the selected language, not all toolchains.
+The complete project and its native configuration are in
+[the java assets](../assets/examples). Copy that directory intact when adapting
+a fixture. Run only the selected language, not all toolchains.
 
 ### Semantic regression cases
 
@@ -69,8 +69,9 @@ Source: [Semantics.java][ref-semantics-java].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](java-jvm-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -112,11 +113,12 @@ Expected: equal numeric values compare equal.
 Actual: reference identity for separately boxed `1000` values is false. The
 verifier copies, compiles, and runs this source in a temporary directory.
 
-[jdk-flight-recorder]: https://docs.oracle.com/en/java/javase/25/jfapi/flight-recorder.html
+[jdk-flight-recorder]:
+  https://docs.oracle.com/en/java/javase/25/jfapi/flight-recorder.html
 [source]: https://github.com/openjdk/jmh
 [source-2]: https://github.com/openjdk/jmh/tree/master/jmh-samples
-
 [ref-openjdk-jmh]: https://openjdk.org/projects/code-tools/jmh/
 [ref-jdk-mission-control]: https://openjdk.org/projects/jmc/
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  java-jvm-performance-executable-performance-fixtures.md
 [ref-semantics-java]: ../assets/examples/correctness/Semantics.java

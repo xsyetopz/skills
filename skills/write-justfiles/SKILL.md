@@ -3,10 +3,9 @@ name: write-justfiles
 description: >-
   Use when writing, debugging, or simplifying justfiles for the just command
   runner: recipes, parameters, prerequisites, shell execution, quoting, and
-  discovery. Reuse existing project commands. Not for replacing a working
-  build system or inventing a task format.
+  discovery. Reuse existing project commands. Not for replacing a working build
+  system or inventing a task format.
 ---
-
 
 # Write Justfiles
 
@@ -26,6 +25,32 @@ or making platform/tool assumptions that the project does not support.
   not concatenate untrusted values into evaluated shell code.
 - Avoid implicit platform assumptions. Use project-supported shell/OS mechanisms
   and explicit recipe attributes only for the installed version.
+
+## Recipe-authoring contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a justfile recipe; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide just version, selected shell, existing project
+  commands, working directories, arguments, dependencies, and exit behavior,
+  hard constraints, available tools, and the finish condition once. Remove
+  repeated directions and examples unless a recorded evaluation shows that they
+  prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with just parsing, recipe execution,
+  argv probes, and failure-propagation tests. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -52,9 +77,9 @@ flowchart TD
    ordering; avoid phony dependency webs that rerun expensive or stateful
    actions unexpectedly.
 1. Implement with native just syntax supported by the installed version. Prefer
-   script recipes or argument arrays where quoting is fragile. Use `set
-   dotenv-load`, positional args, variadics, OS selectors, and functions only
-   when the project requires them.
+   script recipes or argument arrays where quoting is fragile. Use
+   `set dotenv-load`, positional args, variadics, OS selectors, and functions
+   only when the project requires them.
 1. Validate parsing and listing. Exercise normal, boundary, invalid,
    quoted-space, missing-tool, and underlying-command failure cases. Verify the
    recipe returns the underlying failure and runs from the intended directory.
@@ -64,34 +89,35 @@ flowchart TD
 1. Document only non-obvious parameters/side effects in the existing project
    docs or comments. Do not create a new task framework around one recipe.
 
-## Read only the material needed
+## Choose the command-semantics reference
 
 | Situation | Read or use |
 | --- | --- |
 | Checking current syntax, settings, functions, and recipe behavior | [Current just API](references/current-just-api.md) |
-| Choosing recipes, dependencies, shell, and parameters | [Decision guide](references/decision-guide.md) |
-| Using complete quoting, OS, dependency, and failure examples | [Worked examples](references/worked-examples.md) |
-| Verifying parse, invocation, outputs, and exit propagation | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding duplicated build logic and masked failures | [Failure modes](references/failure-modes.md) |
+| Choosing recipes, dependencies, shell, and parameters | [Operational decisions](references/just-command-runner-operational-decisions.md) |
+| Using complete quoting, OS, dependency, and failure examples | [Worked scenarios](references/just-command-runner-worked-scenarios.md) |
+| Verifying parse, invocation, outputs, and exit propagation | [Verification and claim evidence](references/just-command-runner-verification-and-claim-evidence.md) |
+| Avoiding duplicated build logic and masked failures | [Failure patterns and recovery](references/just-command-runner-failure-patterns-and-recovery.md) |
 | Using the example justfile | [Example justfile](assets/example.just) |
 | Running the local checker | [Justfile checker](scripts/check_justfiles.py) |
-| Checking current official manual | [Source index](references/source-index.md) |
+| Checking current official manual | [Standards, APIs, and authorities](references/just-command-runner-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Justfile decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/just-command-runner-concepts-contracts-and-invariants.md) | Use when distinguishing the requested justfile recipe from observed repository state. |
+| [Enterprise operation and governance](references/just-command-runner-organizational-controls-and-scale.md) | Use when the justfile recipe crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/just-command-runner-bundled-resource-map.md) | Use when locating bundled resources for the justfile recipe. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 

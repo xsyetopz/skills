@@ -50,9 +50,10 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the TypeScript
-examples](../assets/examples). Copy that directory intact when adapting a
-fixture. Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the TypeScript examples](../assets/examples). Copy that directory intact when
+adapting a fixture. Run only this language; the target project keeps its own
+toolchain.
 
 ### Semantic regression cases
 
@@ -72,7 +73,7 @@ Source: [semantics.ts][ref-semantics-ts].
 ## Baseline and candidate
 
 Use [the comparison sources][ref-the-comparison-sources] and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
+expected-result checks. The [shared contract][fixture-contract] explains
 input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
@@ -82,8 +83,8 @@ following commands relative to that copied directory.
 
 Use the project's existing JavaScript benchmark harness; do not turn the
 comparison CLI into a home-made timing library. The bundled comparison programs
-test equivalence and expose callable functions, not speedup claims. Run `sh
-verify.sh comparisons` from its root first.
+test equivalence and expose callable functions, not speedup claims. Run
+`sh verify.sh comparisons` from its root first.
 
 Keep the actual browser/Node/Bun runtime fixed. Await each complete async
 operation; do not time promise construction alone. Keep a result sink and
@@ -114,11 +115,14 @@ zero. The top-level verifier copies the assets and runs `repro.ts` with Node and
 `--experimental-strip-types` in a temporary directory.
 
 [node-js-profiling]: https://nodejs.org/en/learn/getting-started/profiling
-[chrome-devtools-performance]: https://developer.chrome.com/docs/devtools/performance
+[chrome-devtools-performance]:
+  https://developer.chrome.com/docs/devtools/performance
 [source]: https://nodejs.org/api/perf_hooks.html
-
 [ref-node-performance-hooks]: https://nodejs.org/api/perf_hooks.html
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  typescript-runtime-performance-executable-performance-fixtures.md
+[fixture-contract]:
+  typescript-runtime-performance-executable-performance-fixtures.md
 [ref-semantics-ts]: ../assets/examples/correctness/semantics.ts
 [ref-the-comparison-sources]: ../assets/examples/comparisons
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

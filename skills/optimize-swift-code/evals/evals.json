@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-swift-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Swift workload on the specified target while preserving copy-on-write, ownership, exclusivity, Unicode, errors, and actor isolation.",
+      "expected_output": "A repository-aware Swift optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Swift optimization workflow instead of returning only generic advice.",
+        "For cow, Verify uniqueness/sharing and mutation semantics.",
+        "For string/data conversion, Measure allocations and preserve indexing/Unicode.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Change deployment targets without a performance request.",
+      "expected_output": "The agent does not activate optimize-swift-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-swift-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Swift workload on the specified target while preserving copy-on-write, ownership, exclusivity, Unicode, errors, and actor isolation. Stress case: Concurrency.",
+      "expected_output": "A Swift optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Preserve actor/sendability contracts.",
+        "The evidence can detect this failure: Isolation removed for speed.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

@@ -53,23 +53,32 @@ hooks or emulators, or perform security testing.
 
 [descriptions]: https://agentskills.io/skill-creation/optimizing-descriptions
 
-## Source decisions for reliability audits
+## Apply current OpenAI model guidance
 
 The specification governs portable format. Body headings, numbered workflows,
-resource directories and recommended size limits are not a universal authoring
+resource directories, and recommended size limits are not a universal authoring
 schema. Keep client metadata and behavior separate from that portable contract.
 
-OpenAI's [Astra guidance][astra] recommends focused descriptions, conditional
-resource loading, less elaborate procedural scaffolding and explicit completion
-boundaries. Apply those observations to Astra; do not infer that every model
-will follow implicit constraints or that shorter always means more reliable.
+For GPT-5.6, state the task intent, relevant context, hard constraints, approval
+boundary, available tools, and success evidence once. Remove duplicated
+directions and examples one group at a time, then run the held-out evaluations.
+Compare the selected reasoning level with the next lower level on the same
+tasks. Do not assume that a higher reasoning setting improves quality enough to
+justify its token, latency, or monetary cost. Use prompt caching or preserved
+reasoning only through the target API's documented mechanism.
 
-OpenAI's [model prompting guidance][prompting] favors plain language, precise
-verbs, the main point early, and completing the user's intended task without
-unnecessary approval pauses. Apply that writing guidance here: state the result,
-actions, and stopping evidence directly. Keep explicit rules that prevent known
-mistakes. Its model settings and delegation advice are provider-specific, not
-permission to change the model or delegate a skill's work.
+For GPT-6, inspect the effective user, repository, skill, and tool instructions
+for conflict because the model is more sensitive to loaded context. State how
+far the agent can proceed without a question, which actions require approval,
+what tests are proportional to the change, and what evidence completes the task.
+The user's current instruction outranks a skill guideline when they conflict. A
+skill cannot use model initiative to expand task authority.
+
+Use parallel agents or predicted tool calls only when the target client supports
+them and evaluation shows a benefit for independent or predictable work. Do not
+make either mechanism a portable skill requirement. Record the target model,
+reasoning setting, tool set, client, skill revision, tokens, latency, and result
+quality when comparing configurations.
 
 Anthropic's [authoring guidance][claude-authoring] calibrates specificity to
 fragility and variability and recommends evaluation on intended models. Its
@@ -83,25 +92,16 @@ execution feedback; treat claims about ideal detail or structure as hypotheses
 to test locally. Preserve repository lint policy; heading and list preferences
 need no invented model-performance claim.
 
-The community [incomplete-read report][read-report], titled “Codex may only read
-the first ~220 lines of a skill file, so put critical instructions at the top.”
-It reports partial reads in observed sessions, not a model or format limit. Put
-critical instructions first and inspect read coverage when diagnosing an
-omission. Do not infer its suggested cap or commenters' module-size rules as
-model limits.
-
-[SkillsBench v4][skillsbench] uses paired skill/no-skill comparisons and reports
-configuration-dependent results. It supports holding model and agent host fixed,
-not an optimal skill length, universal module limit or Astra-specific gain. An
-instruction repair and passing package tests do not establish agent uplift.
-
-[astra]: https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra
-[prompting]: https://developers.openai.com/api/docs/guides/latest-model
-[read-report]: https://www.reddit.com/r/codex/comments/1t1rbqt/codex_may_only_read_the_first_220_lines_of_a/
-[claude-authoring]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
-[claude-evaluation]: https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
+[gpt-56]:
+  https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.6
+[gpt-6]: https://developers.openai.com/api/docs/guides/latest-model
+[claude-authoring]:
+  https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
+[claude-evaluation]:
+  https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills
 [skill-practices]: https://agentskills.io/skill-creation/best-practices
-[skillsbench]: https://arxiv.org/pdf/2602.12670v4
+
+Sources: [GPT-5.6 guidance][gpt-56], [GPT-6 guidance][gpt-6].
 
 ## Resource roles and native descriptors
 

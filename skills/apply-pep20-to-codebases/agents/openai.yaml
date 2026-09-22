@@ -1,4 +1,4 @@
 interface:
   display_name: "Apply PEP 20 to Codebases"
   short_description: "Apply Zen principles across programming languages"
-  default_prompt: "Use $apply-pep20-to-codebases to improve this codebase’s design, control flow, contracts, and names without imposing Python syntax or tooling."
+  default_prompt: "Use $apply-pep20-to-codebases to improve this codebase's design, control flow, contracts, and names without imposing Python syntax or tooling."

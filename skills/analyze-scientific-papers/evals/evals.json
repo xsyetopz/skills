@@ -1,0 +1,35 @@
+{
+	"skill_name": "analyze-scientific-papers",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Find primary studies on whether intervention X changes outcome Y in population Z, compare methods and effect estimates, and identify corrections or replications.",
+			"expected_output": "A repository-aware paper synthesis result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the paper synthesis workflow instead of returning only generic advice.",
+				"For abstract-only source, Treat methods and unavailable results as unknown; do not infer them from metadata.",
+				"For conflicting populations, Separate applicability before synthesis.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Reformat this supplied bibliography in APA style without researching the papers.",
+			"expected_output": "The agent does not activate analyze-scientific-papers for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that analyze-scientific-papers is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Find primary studies on whether intervention X changes outcome Y in population Z, compare methods and effect estimates, and identify corrections or replications. Stress case: Retraction or correction.",
+			"expected_output": "A paper synthesis result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Follow and report the later record.",
+				"The evidence can detect this failure: Stale original result presented as current evidence.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

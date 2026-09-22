@@ -1,0 +1,35 @@
+{
+  "skill_name": "document-codebases",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Update repository setup and API usage documentation from current source and commands, preserving meaning outside the requested section.",
+      "expected_output": "A repository-aware codebase documentation result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the codebase documentation workflow instead of returning only generic advice.",
+        "For formatting-only request, Do not change technical meaning.",
+        "For command example, Execute or otherwise verify it in applicable environment.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Update AGENTS.md rules for coding agents.",
+      "expected_output": "The agent does not activate document-codebases for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that document-codebases is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Update repository setup and API usage documentation from current source and commands, preserving meaning outside the requested section. Stress case: Generated docs.",
+      "expected_output": "A codebase documentation result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Edit source/generator rather than output when established.",
+        "The evidence can detect this failure: Generated file patched directly.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

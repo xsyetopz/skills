@@ -1,0 +1,35 @@
+{
+  "skill_name": "migrate-js-tooling-to-bun",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Migrate dependency installation and tests to Bun while retaining the declared Node production runtime and verifying lock resolution and lifecycle scripts.",
+      "expected_output": "A repository-aware Bun migration result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Bun migration workflow instead of returning only generic advice.",
+        "For selected responsibility only, Do not replace package manager, runtime, test, and bundler together.",
+        "For registry/auth, Preserve existing private registry controls.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize JavaScript allocations without changing tooling.",
+      "expected_output": "The agent does not activate migrate-js-tooling-to-bun for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that migrate-js-tooling-to-bun is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Migrate dependency installation and tests to Bun while retaining the declared Node production runtime and verifying lock resolution and lifecycle scripts. Stress case: Compatibility.",
+      "expected_output": "A Bun migration result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Add workarounds only for evidenced consumers.",
+        "The evidence can detect this failure: Speculative Node shim.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

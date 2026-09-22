@@ -1,0 +1,35 @@
+{
+  "skill_name": "develop-intellij-platform-plugins",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement this IntelliJ Platform plugin feature with PSI freshness, read/write actions, undo, disposal, target IDE tests, and package verification.",
+      "expected_output": "A repository-aware IntelliJ Platform plugin result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the IntelliJ Platform plugin workflow instead of returning only generic advice.",
+        "For async psi result, Revalidate element/document before write.",
+        "For write operation, Use write command/undo mechanism.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Refactor a standalone Kotlin CLI.",
+      "expected_output": "The agent does not activate develop-intellij-platform-plugins for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that develop-intellij-platform-plugins is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement this IntelliJ Platform plugin feature with PSI freshness, read/write actions, undo, disposal, target IDE tests, and package verification. Stress case: Compatibility.",
+      "expected_output": "A IntelliJ Platform plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Keep declared IDE range unless user changes it.",
+        "The evidence can detect this failure: Tests made green by broad version shims.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

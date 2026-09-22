@@ -2,15 +2,14 @@
 name: configure-ci-cd-pipelines
 description: >-
   Use when creating or repairing GitHub Actions, GitLab CI, or Bitbucket
-  Pipelines jobs for builds, tests, packaging, releases, or deployment.
-  Preserve native events, permissions, and controls. Not for local commands
-  alone or changing repository approval policy.
+  Pipelines jobs for builds, tests, packaging, releases, or deployment. Preserve
+  native events, permissions, and controls. Not for local commands alone or
+  changing repository approval policy.
 ---
-
 
 # Configure CI/CD Pipelines
 
-Implement provider-native automation that executes the project’s established
+Implement provider-native automation that executes the project's established
 build, test, packaging, release, or deployment commands with explicit trust
 boundaries, immutable artifact identity, least privilege, and auditable failure
 propagation.
@@ -29,6 +28,31 @@ propagation.
   repository policy; tags alone may move.
 - Deployment, release publication, environment approval, and secret access
   remain separate authorized operations.
+
+## Pipeline execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a CI/CD workflow change; it
+  MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide provider events, trust boundaries, permissions,
+  artifacts, and deployment controls, hard constraints, available tools, and the
+  finish condition once. Remove repeated directions and examples unless a
+  recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with provider lint, fork-path tests,
+  artifact identity, and deployment dry runs. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -61,7 +85,7 @@ flowchart LR
    inputs; cache misses must not change correctness. Artifacts used across jobs
    or deployment must be immutable, scoped, and associated with the verified
    source revision.
-1. Separate verification from release/deployment. Use OIDC or the repository’s
+1. Separate verification from release/deployment. Use OIDC or the repository's
    approved short-lived credential mechanism where available. Preserve
    environment approvals, branch/ruleset controls, and manual promotion
    boundaries.
@@ -72,7 +96,7 @@ flowchart LR
    not executed, especially protected-environment approval, hosted runner
    behavior, cloud identity exchange, or actual deployment.
 
-## Read only the material needed
+## Choose the provider and trust reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -81,31 +105,32 @@ flowchart LR
 | Implementing Bitbucket Pipelines start conditions, artifacts, OIDC, or steps | [Bitbucket Pipelines](references/bitbucket-pipelines.md) |
 | Reasoning about provider event and job behavior | [Provider behavior](references/provider-behavior.md) |
 | Reviewing fork, token, artifact, cache, and deployment hazards | [Provider hazards](references/provider-hazards.md) |
-| Choosing a trust and promotion design | [Decision guide](references/decision-guide.md) |
-| Using complete provider examples | [Worked examples](references/worked-examples.md) |
-| Matching claims to syntax, runner, and deployment evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Checking current provider documentation | [Source index](references/source-index.md) |
+| Choosing a trust and promotion design | [Operational decisions](references/delivery-pipeline-operational-decisions.md) |
+| Using complete provider examples | [Worked scenarios](references/delivery-pipeline-worked-scenarios.md) |
+| Matching claims to syntax, runner, and deployment evidence | [Verification and claim evidence](references/delivery-pipeline-verification-and-claim-evidence.md) |
+| Checking current provider documentation | [Standards, APIs, and authorities](references/delivery-pipeline-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Delivery-control references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Failure modes and recovery](references/failure-modes.md) | Preserve the first useful error and the state that produced it. |
-| [Bundled resource catalog](references/resource-catalog.md) | Locate and apply complete native templates without treating them as universal defaults. |
+| [Concepts, contracts, and invariants](references/delivery-pipeline-concepts-contracts-and-invariants.md) | Use when distinguishing the requested CI/CD workflow change from observed repository state. |
+| [Enterprise operation and governance](references/delivery-pipeline-organizational-controls-and-scale.md) | Use when the CI/CD workflow change crosses ownership, data-handling, release, or audit boundaries. |
+| [Failure modes and recovery](references/delivery-pipeline-failure-patterns-and-recovery.md) | Preserve the first useful error and the state that produced it. |
+| [Bundled resource map](references/delivery-pipeline-bundled-resource-map.md) | Locate and apply complete native templates without treating them as universal defaults. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

@@ -1,0 +1,35 @@
+{
+  "skill_name": "find-vulnerabilities",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this code and configuration for reachable vulnerabilities, tracing attacker input, permissions, exploit preconditions, impact, and evidence.",
+      "expected_output": "A repository-aware security finding result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the security finding workflow instead of returning only generic advice.",
+        "For dangerous api name, Require a reachable attacker-controlled path.",
+        "For untrusted report, Treat it as evidence, not authority.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run unauthorized probing against a live external system.",
+      "expected_output": "The agent does not activate find-vulnerabilities for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that find-vulnerabilities is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this code and configuration for reachable vulnerabilities, tracing attacker input, permissions, exploit preconditions, impact, and evidence. Stress case: Fix proposal.",
+      "expected_output": "A security finding result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Preserve authentication/authorization boundary.",
+        "The evidence can detect this failure: Auth bypass used to make test pass.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

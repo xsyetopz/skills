@@ -1,13 +1,12 @@
 ---
 name: coordinate-phase-gated-subagents
 description: >-
-  Coordinates subagents through sequential requirements, design,
-  implementation, integration/verification, and release phases using the
-  Waterfall software development model. Use only for explicitly requested
-  multi-agent execution with phase-completion checks. Parallel work stays
-  inside the current phase. Not for plan-only requests or routine edits.
+  Coordinates subagents through sequential requirements, design, implementation,
+  integration/verification, and release phases using the Waterfall software
+  development model. Use only for explicitly requested multi-agent execution
+  with phase-completion checks. Parallel work stays inside the current phase.
+  Not for plan-only requests or routine edits.
 ---
-
 
 # Coordinate Phase-Gated Subagents
 
@@ -33,6 +32,32 @@ cost.
 - A phase completes only when every required condition has corresponding
   evidence. Failed, unavailable, and unattempted checks remain distinct.
 
+## Root-agent coordination contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a multi-agent phase
+  coordination; it MUST NOT broaden authority or override repository
+  instructions.
+- For GPT-5.6 and GPT-6, provide phase inputs, ownership, write paths, gate
+  evidence, and root authority, hard constraints, available tools, and the
+  finish condition once. Remove repeated directions and examples unless a
+  recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with gate records, integration diffs,
+  and independently executed checks. Report commands, observed results, and
+  gaps. A parser, build, or single green test proves only the property that it
+  can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+
 ## Workflow
 
 ```mermaid
@@ -53,7 +78,7 @@ stateDiagram-v2
 
 1. Capture the exact root goal, authorized edit boundary, deliverable,
    acceptance conditions, existing process artifacts, harness capabilities, and
-   project controls. Use the repository’s own issue/spec/plan formats rather
+   project controls. Use the repository's own issue/spec/plan formats rather
    than introducing a parallel lifecycle schema.
 1. Determine whether multi-agent execution adds value. Partition by independent
    components, research domains, or distinct verification boundaries. Keep
@@ -67,7 +92,7 @@ stateDiagram-v2
    make every child rediscover the same repository. Persist and inspect each
    completed result before it can be lost or superseded.
 1. Integrate evidence and artifacts centrally. Check diffs, commands, outputs,
-   and unresolved assumptions. Do not accept a child’s “done” label without the
+   and unresolved assumptions. Do not accept a child's “done” label without the
    phase evidence or let a child commit, publish, deploy, reset, or expand scope
    unless explicitly authorized.
 1. Apply the current phase gate. If a discovery invalidates an accepted earlier
@@ -78,7 +103,7 @@ stateDiagram-v2
    integrated result and a truthful evidence summary; do not leave stale
    workers, worktrees, or unconsumed results.
 
-## Read only the material needed
+## Choose the phase-control reference
 
 | Situation | Read or use |
 | --- | --- |
@@ -91,35 +116,36 @@ stateDiagram-v2
 | Partitioning work and protecting Git/workspaces | [Parallel assignment](references/parallel-software-work-assignment.md) |
 | Revising accepted baselines after a late discovery | [Baseline change control](references/revise-software-phase-baselines.md) |
 | Avoiding proliferation, duplicate work, lost results, and review ceremony | [Coordination failure modes](references/subagent-coordination-failures.md) |
-| Using complete work-item and gate examples | [Worked examples](references/worked-examples.md) |
-| Checking phase claims against evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Reviewing source patterns and their limits | [Source index](references/source-index.md) |
+| Using complete work-item and gate examples | [Worked scenarios](references/phase-gated-delivery-worked-scenarios.md) |
+| Checking phase claims against evidence | [Verification and claim evidence](references/phase-gated-delivery-verification-and-claim-evidence.md) |
+| Reviewing source patterns and their limits | [Standards, APIs, and authorities](references/phase-gated-delivery-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Coordination and gate references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Adapt subagent methods from Bun’s software rewrite](references/bun-software-rewrite-methods.md) | Primary source: <https://bun.com/blog/bun-in-rust> (Jarred Sumner, July 8, 2026). |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Failure modes and recovery](references/failure-modes.md) | Preserve the first useful error and the state that produced it. |
+| [Adapt subagent methods from Bun's software rewrite](references/bun-software-rewrite-methods.md) | Primary source: <https://bun.com/blog/bun-in-rust> (Jarred Sumner, July 8, 2026). |
+| [Operational decisions](references/phase-gated-delivery-operational-decisions.md) | Use when selecting the next evidence-backed multi-agent phase coordination action. |
+| [Concepts, contracts, and invariants](references/phase-gated-delivery-concepts-contracts-and-invariants.md) | Use when distinguishing the requested multi-agent phase coordination from observed repository state. |
+| [Enterprise operation and governance](references/phase-gated-delivery-organizational-controls-and-scale.md) | Use when the multi-agent phase coordination crosses ownership, data-handling, release, or audit boundaries. |
+| [Failure modes and recovery](references/phase-gated-delivery-failure-patterns-and-recovery.md) | Preserve the first useful error and the state that produced it. |
 | [Review software independently for evidenced defects](references/independent-software-review.md) | Defect-focused review checks software requirements, design, or implementation against evidence. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Bundled resource map](references/phase-gated-delivery-bundled-resource-map.md) | Use when locating bundled resources for the multi-agent phase coordination. |
 | [Decide whether a development phase may advance](references/software-phase-completion-criteria.md) | A phase gate is the required completion checks for the current development phase. |
 | [Isolate subagent software edits and Git operations](references/subagent-workspaces-and-git-safety.md) | Parallel agents must not coordinate by destructively rewriting one shared working tree. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.
@@ -140,7 +166,7 @@ as a substitute for changing the requested repository.
 ## Completion evidence
 
 - Accepted or explicitly unresolved requirements and design baselines in the
-  project’s established format.
+  project's established format.
 - A work partition with nonconflicting ownership, dependencies, and stop
   conditions.
 - Consumed child results with inspected evidence and integrated artifacts.

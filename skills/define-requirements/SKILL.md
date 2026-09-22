@@ -3,10 +3,9 @@ name: define-requirements
 description: >-
   Use when essential behavior for a requested system change needs explicit
   inputs, outputs, state transitions, failure outcomes, constraints, and
-  acceptance criteria. Distinguish desired behavior from existing behavior.
-  Not for choosing an architecture or rewriting complete requirements.
+  acceptance criteria. Distinguish desired behavior from existing behavior. Not
+  for choosing an architecture or rewriting complete requirements.
 ---
-
 
 # Define Requirements
 
@@ -27,6 +26,31 @@ transitions; design and planning decide how to build it.
   concurrency/cancellation behavior, and observability only where material.
 - Acceptance criteria must discriminate the requested behavior; they are not
   implementation prose or a preferred class/file layout.
+
+## Requirement-authoring contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a behavioral requirement set;
+  it MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide actors, inputs, outputs, state, failures,
+  constraints, and unresolved decisions, hard constraints, available tools, and
+  the finish condition once. Remove repeated directions and examples unless a
+  recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with examples, counterexamples,
+  traceability, and acceptance checks. Report commands, observed results, and
+  gaps. A parser, build, or single green test proves only the property that it
+  can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -67,39 +91,40 @@ flowchart TD
    decisions; do not disguise them as requirements.
 1. Review for implementation leakage, duplicated statements, unverifiable
    adjectives, invented numbers, example-as-requirement, and conflict with prior
-   corrections. Deliver in the repository’s existing issue/spec format.
+   corrections. Deliver in the repository's existing issue/spec format.
 
-## Read only the material needed
+## Choose the behavior-model reference
 
 | Situation | Read or use |
 | --- | --- |
 | Checking behavior, failure, state, and acceptance completeness | [Contract checks](references/contract-checks.md) |
-| Choosing how much specification the task needs | [Decision guide](references/decision-guide.md) |
-| Using complete requirement examples for APIs, async work, and data changes | [Worked examples](references/worked-examples.md) |
-| Checking criterion-to-claim evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding implementation leakage and invented constraints | [Failure modes](references/failure-modes.md) |
-| Applying enterprise authority, traceability, and change control | [Enterprise operation](references/enterprise-operation.md) |
+| Choosing how much specification the task needs | [Operational decisions](references/behavioral-requirements-operational-decisions.md) |
+| Using complete requirement examples for APIs, async work, and data changes | [Worked scenarios](references/behavioral-requirements-worked-scenarios.md) |
+| Checking criterion-to-claim evidence | [Verification and claim evidence](references/behavioral-requirements-verification-and-claim-evidence.md) |
+| Avoiding implementation leakage and invented constraints | [Failure patterns and recovery](references/behavioral-requirements-failure-patterns-and-recovery.md) |
+| Applying enterprise authority, traceability, and change control | [Organizational controls and scale](references/behavioral-requirements-organizational-controls-and-scale.md) |
 | Using the export/cancellation example | [Export cancellation specification](assets/export-cancellation-spec.md) |
-| Checking requirements sources | [Source index](references/source-index.md) |
+| Checking requirements sources | [Standards, APIs, and authorities](references/behavioral-requirements-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Requirement decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/behavioral-requirements-concepts-contracts-and-invariants.md) | Use when distinguishing the requested behavioral requirement set from observed repository state. |
+| [Bundled resource map](references/behavioral-requirements-bundled-resource-map.md) | Use when locating bundled resources for the behavioral requirement set. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

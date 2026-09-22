@@ -1,0 +1,35 @@
+{
+	"skill_name": "configure-ci-cd-pipelines",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Add a GitHub Actions build and test workflow for this repository, preserving fork security, artifact identity, and existing deploy approval.",
+			"expected_output": "A repository-aware CI/CD workflow change result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the CI/CD workflow change workflow instead of returning only generic advice.",
+				"For fork pull request, No privileged secrets or write token reach untrusted code.",
+				"For artifact promotion, Promote the exact built revision and immutable artifact.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Change branch protection to require two reviewers without editing CI jobs.",
+			"expected_output": "The agent does not activate configure-ci-cd-pipelines for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that configure-ci-cd-pipelines is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Add a GitHub Actions build and test workflow for this repository, preserving fork security, artifact identity, and existing deploy approval. Stress case: Provider syntax.",
+			"expected_output": "A CI/CD workflow change result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Validate against the selected provider/version.",
+				"The evidence can detect this failure: GitLab or remembered syntax copied into GitHub Actions.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

@@ -1,12 +1,11 @@
 ---
 name: analyze-scientific-papers
 description: >-
-  Use when finding, reading, comparing, or synthesizing scientific papers for
-  a research question, including methods, results, replications, corrections,
-  and limitations. Not for citation formatting alone or conclusions drawn only
-  from search metadata.
+  Use when finding, reading, comparing, or synthesizing scientific papers for a
+  research question, including methods, results, replications, corrections, and
+  limitations. Not for citation formatting alone or conclusions drawn only from
+  search metadata.
 ---
-
 
 # Analyze Scientific Papers
 
@@ -27,6 +26,31 @@ inaccessible method or missing dataset is not filled from model memory.
   quotations, DOI records, or replication status.
 - Handle paywalled or unavailable material as an explicit evidence gap. Do not
   substitute a neighboring paper or review without labeling it.
+
+## Evidence-handling contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a paper synthesis; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide scientific claims, study methods, and source
+  provenance, hard constraints, available tools, and the finish condition once.
+  Remove repeated directions and examples unless a recorded evaluation shows
+  that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with claim-to-source checks, correction
+  searches, and design-specific appraisal. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -69,34 +93,35 @@ flowchart LR
    paper-reported facts, your inference, and recommendations. Include the search
    and access limits when they could change the conclusion.
 
-## Read only the material needed
+## Choose the next research reference
 
 | Situation | Read or use |
 | --- | --- |
 | Designing a search, de-duplicating records, or separating metadata from evidence | [Discovery and evidence boundaries](references/discovery-and-evidence.md) |
-| Choosing review scope, inclusion rules, and synthesis method | [Decision guide](references/decision-guide.md) |
-| Extracting methods and comparing claims | [Worked evidence-extraction examples](references/worked-examples.md) |
-| Judging what a source or analysis actually establishes | [Verification and evidence](references/verification-and-evidence.md) |
-| Handling inaccessible papers, conflicting studies, or weak designs | [Failure modes](references/failure-modes.md) |
+| Choosing review scope, inclusion rules, and synthesis method | [Study selection and synthesis rules](references/scientific-literature-study-selection-and-synthesis-rules.md) |
+| Extracting methods and comparing claims | [Worked evidence-extraction examples](references/scientific-literature-paper-synthesis-case-studies.md) |
+| Judging what a source or analysis actually establishes | [Claim-to-source verification](references/scientific-literature-claim-to-source-verification.md) |
+| Handling inaccessible papers, conflicting studies, or weak designs | [Literature-review biases and recovery](references/scientific-literature-literature-review-biases-and-recovery.md) |
 | Using the bundled metadata retriever | [Metadata retrieval helper](scripts/fetch_metadata.py) |
 | Preparing a structured research note | [Evidence note template](assets/evidence-note-template.md) |
-| Checking official APIs and source freshness | [Source index](references/source-index.md) |
+| Checking official APIs and source freshness | [Scholarly data and method authorities](references/scientific-literature-scholarly-data-and-method-authorities.md) |
 
-## Additional specialized references
+## Research decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Claims, methods, and applicability](references/scientific-literature-claims-methods-and-applicability.md) | Use when distinguishing the requested paper synthesis from observed repository state. |
+| [Enterprise operation and governance](references/scientific-literature-research-provenance-and-governance.md) | Use when the paper synthesis crosses ownership, data-handling, release, or audit boundaries. |
+| [Review tools and output templates](references/scientific-literature-review-tools-and-output-templates.md) | Use when locating bundled resources for the paper synthesis. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 

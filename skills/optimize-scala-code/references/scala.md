@@ -47,9 +47,9 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the scala
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the scala assets](../assets/examples). Copy that directory intact when adapting
+a fixture. Run only this language; the target project keeps its own toolchain.
 
 ### Semantic regression cases
 
@@ -69,8 +69,9 @@ Source: [Semantics.scala][ref-semantics-scala].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](scala-backend-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -109,11 +110,12 @@ Actual: a view consumed with `take(1)` invokes it once.
 Run `scala-cli run Repro.scala --server=false` from a clean copy. Exit zero
 means the documented timing difference was reproduced.
 
-[scala-collection-views]: https://docs.scala-lang.org/overviews/collections-2.13/views.html
+[scala-collection-views]:
+  https://docs.scala-lang.org/overviews/collections-2.13/views.html
 [scala-futures]: https://docs.scala-lang.org/overviews/core/futures.html
 [source]: https://github.com/openjdk/jmh/tree/master/jmh-samples
-
 [ref-openjdk-jmh]: https://openjdk.org/projects/code-tools/jmh/
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  scala-backend-performance-executable-performance-fixtures.md
 [ref-semantics-scala]: ../assets/examples/correctness/Semantics.scala
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

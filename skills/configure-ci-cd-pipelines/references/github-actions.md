@@ -87,7 +87,7 @@ success, including the actual final required-check status.
 
 Reusable workflows use `workflow_call`; declare typed inputs, outputs and
 secrets and call them at job level. Keep reusable-workflow token permissions
-within the caller’s grants. Prefer explicit secret mapping over inheriting
+within the caller's grants. Prefer explicit secret mapping over inheriting
 unrelated secrets. `workflow_run` can grant privileges despite an unprivileged
 upstream run; validate the source run and artifact before privileged
 consumption.

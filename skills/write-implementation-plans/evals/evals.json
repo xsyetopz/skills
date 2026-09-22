@@ -1,0 +1,35 @@
+{
+  "skill_name": "write-implementation-plans",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write an ordered implementation plan for the agreed change, with exact components, dependencies, migrations, acceptance checks, and scope exclusions.",
+      "expected_output": "A repository-aware implementation plan result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the implementation plan workflow instead of returning only generic advice.",
+        "For small change, Keep the plan proportionate.",
+        "For unknown technical choice, Plan an experiment or expose decision.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Execute the plan or review an existing plan only for flaws.",
+      "expected_output": "The agent does not activate write-implementation-plans for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that write-implementation-plans is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write an ordered implementation plan for the agreed change, with exact components, dependencies, migrations, acceptance checks, and scope exclusions. Stress case: Consumer paths.",
+      "expected_output": "A implementation plan result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Include actual configs/tests/docs affected.",
+        "The evidence can detect this failure: Plan ignores repository integration.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

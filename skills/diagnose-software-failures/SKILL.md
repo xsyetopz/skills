@@ -2,11 +2,10 @@
 name: diagnose-software-failures
 description: >-
   Use when investigating software crashes, hangs, incorrect results,
-  intermittent failures, or build failures whose cause is unknown. Reproduce
-  the failure and distinguish competing causes. Not for a known mechanical
-  fix, performance measurement alone, or Git bisect alone.
+  intermittent failures, or build failures whose cause is unknown. Reproduce the
+  failure and distinguish competing causes. Not for a known mechanical fix,
+  performance measurement alone, or Git bisect alone.
 ---
-
 
 # Diagnose Software Failures
 
@@ -26,6 +25,32 @@ explanations before changing production behavior.
   fix.
 - Diagnosis does not authorize mutation, production experiments, destructive
   cleanup, or disclosure of sensitive logs.
+
+## Investigation contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a root-cause investigation; it
+  MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide failure signature, reproduction conditions,
+  state timeline, competing hypotheses, and instrumentation limits, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with controlled reproductions,
+  discriminating experiments, traces, and first-bad-state evidence. Report
+  commands, observed results, and gaps. A parser, build, or single green test
+  proves only the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -71,37 +96,38 @@ flowchart TD
    executed checks, and uncertainty. Keep infrastructure gaps and untested
    production conditions explicit.
 
-## Read only the material needed
+## Choose the diagnostic evidence reference
 
 | Situation | Read or use |
 | --- | --- |
 | Designing discriminating experiments and stopping patch accumulation | [Causal investigation](references/causal-investigation.md) |
-| Choosing debugger, trace, sanitizer, log, or reduction strategies | [Decision guide](references/decision-guide.md) |
-| Using crash, deadlock, race, memory, build, and data-corruption examples | [Worked investigations](references/worked-examples.md) |
-| Mapping diagnosis claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding retries, symptom patches, and harness conflation | [Failure modes](references/failure-modes.md) |
-| Handling enterprise logs, incidents, and production boundaries | [Enterprise operation](references/enterprise-operation.md) |
+| Choosing debugger, trace, sanitizer, log, or reduction strategies | [Operational decisions](references/failure-investigation-operational-decisions.md) |
+| Using crash, deadlock, race, memory, build, and data-corruption examples | [Worked investigations](references/failure-investigation-worked-scenarios.md) |
+| Mapping diagnosis claims to evidence | [Verification and claim evidence](references/failure-investigation-verification-and-claim-evidence.md) |
+| Avoiding retries, symptom patches, and harness conflation | [Failure patterns and recovery](references/failure-investigation-failure-patterns-and-recovery.md) |
+| Handling enterprise logs, incidents, and production boundaries | [Organizational controls and scale](references/failure-investigation-organizational-controls-and-scale.md) |
 | Reviewing a worked parser/default investigation | [Investigation example](assets/investigation-example.md) |
-| Checking diagnostic tool sources | [Source index](references/source-index.md) |
+| Checking diagnostic tool sources | [Standards, APIs, and authorities](references/failure-investigation-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Failure-analysis references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/failure-investigation-concepts-contracts-and-invariants.md) | Use when distinguishing the requested root-cause investigation from observed repository state. |
+| [Bundled resource map](references/failure-investigation-bundled-resource-map.md) | Use when locating bundled resources for the root-cause investigation. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

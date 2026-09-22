@@ -1,0 +1,35 @@
+{
+	"skill_name": "coordinate-phase-gated-subagents",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Use subagents to deliver this cross-component change through sequential requirements, design, implementation, integration/verification, and release-preparation gates.",
+			"expected_output": "A repository-aware multi-agent phase coordination result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the multi-agent phase coordination workflow instead of returning only generic advice.",
+				"For unexecuted required check, Do not advance the phase.",
+				"For simple task, Keep work local instead of spawning agents.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Write a comparison of development methodologies without launching subagents.",
+			"expected_output": "The agent does not activate coordinate-phase-gated-subagents for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that coordinate-phase-gated-subagents is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Use subagents to deliver this cross-component change through sequential requirements, design, implementation, integration/verification, and release-preparation gates. Stress case: Child proposes extra scope.",
+			"expected_output": "A multi-agent phase coordination result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Treat it as evidence/recommendation only.",
+				"The evidence can detect this failure: Child mutates the root goal.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

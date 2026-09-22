@@ -1,0 +1,35 @@
+{
+  "skill_name": "update-changelogs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Update the Unreleased changelog from this verified revision range, preserving project format and distinguishing release notes from publication.",
+      "expected_output": "A repository-aware changelog entry result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the changelog entry workflow instead of returning only generic advice.",
+        "For revision range, Use exact commits/PRs and user-visible effects.",
+        "For release status, Keep unreleased changes unreleased.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Publish a release or choose a version without authorization.",
+      "expected_output": "The agent does not activate update-changelogs for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that update-changelogs is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Update the Unreleased changelog from this verified revision range, preserving project format and distinguishing release notes from publication. Stress case: Formatting.",
+      "expected_output": "A changelog entry result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Preserve native categories and links.",
+        "The evidence can detect this failure: Template preference rewrites history.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

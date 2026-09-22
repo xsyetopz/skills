@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-scala-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Scala workload for the declared backend while preserving collection/evaluation order, effects, exceptions, futures, and equivalent JVM settings.",
+      "expected_output": "A repository-aware Scala optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Scala optimization workflow instead of returning only generic advice.",
+        "For backend, Do not transfer Scala/JVM evidence to Scala.js/Native.",
+        "For collections, Preserve strict/lazy semantics and ordering.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize Java or Kotlin source.",
+      "expected_output": "The agent does not activate optimize-scala-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-scala-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Scala workload for the declared backend while preserving collection/evaluation order, effects, exceptions, futures, and equivalent JVM settings. Stress case: Benchmark.",
+      "expected_output": "A Scala optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Use appropriate JMH/setup/forks.",
+        "The evidence can detect this failure: REPL timing presented as robust result.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

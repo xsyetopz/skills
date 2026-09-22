@@ -1,0 +1,35 @@
+{
+  "skill_name": "develop-neovim-plugins",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement this Neovim Lua plugin command with buffer identity, changedtick checks, owned autocmd groups, job cancellation, tests, and help.",
+      "expected_output": "A repository-aware Neovim plugin result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Neovim plugin workflow instead of returning only generic advice.",
+        "For stale callback, Reject result when buffer/generation changed.",
+        "For reload, Clear only owned groups/handles and register idempotently.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add one personal key mapping to my local config.",
+      "expected_output": "The agent does not activate develop-neovim-plugins for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that develop-neovim-plugins is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement this Neovim Lua plugin command with buffer identity, changedtick checks, owned autocmd groups, job cancellation, tests, and help. Stress case: Vim-only API.",
+      "expected_output": "A Neovim plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Do not claim Neovim support from adjacent docs.",
+        "The evidence can detect this failure: Product substitution.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

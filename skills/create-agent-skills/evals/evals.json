@@ -1,0 +1,35 @@
+{
+	"skill_name": "create-agent-skills",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Create an Agent Skill for this repeated workflow with sufficient references, tested scripts, realistic evaluation cases, and native Codex metadata.",
+			"expected_output": "A repository-aware Agent Skill package result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the Agent Skill package workflow instead of returning only generic advice.",
+				"For useful existing asset, Retain or repair it after inspecting consumers.",
+				"For description near-miss, Do not trigger on neighboring tasks.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Implement the task described by an already installed skill without changing the skill package.",
+			"expected_output": "The agent does not activate create-agent-skills for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that create-agent-skills is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Create an Agent Skill for this repeated workflow with sufficient references, tested scripts, realistic evaluation cases, and native Codex metadata. Stress case: Evaluation.",
+			"expected_output": "A Agent Skill package result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Compare skill and baseline outputs with held-out cases.",
+				"The evidence can detect this failure: Static validation presented as effectiveness proof.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

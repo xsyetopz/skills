@@ -29,8 +29,32 @@ Do not claim exhaustive safety from a comment checker, effective build settings
 from raw XML alone, or a working host integration from parsing a configuration
 file. Test at the layer where the property exists.
 
+## Script decision record
+
+Before adding a helper, record the repeated operation, the native command or
+library considered, the error class that deterministic code removes, and the
+test that observes that reduction. Use a direct command when it is short,
+versioned, and already present in the target package. Add a script when repeated
+argument construction, parsing, normalization, or validation would otherwise
+consume tokens and produce inconsistent results.
+
+The measurable benefit is not “automation.” Compare at least three realistic
+tasks with and without the helper. Record tool calls, generated-token count when
+available, elapsed time, malformed-output rate, and task assertions. Retain the
+script only when it reduces repeated reasoning or mechanical errors without
+hiding a decision the model must make.
+
+Use paths relative to the skill root and list every helper in `SKILL.md` with
+its exact contract. Pin or declare non-standard dependencies. A helper MUST
+return nonzero for invalid input and MUST write diagnostics to stderr. Test an
+ordinary case, empty or malformed input, missing dependency, path with spaces,
+existing output, and repeat execution. Run it from a directory other than the
+skill root to detect ambient-working-directory assumptions.
+
 Sources: [using scripts in skills][ref-using-scripts-in-skills], [official
 skills-ref][ref-official-skills-ref].
 
-[ref-using-scripts-in-skills]: https://agentskills.io/skill-creation/using-scripts
-[ref-official-skills-ref]: https://github.com/agentskills/agentskills/tree/main/skills-ref
+[ref-using-scripts-in-skills]:
+  https://agentskills.io/skill-creation/using-scripts
+[ref-official-skills-ref]:
+  https://github.com/agentskills/agentskills/tree/main/skills-ref

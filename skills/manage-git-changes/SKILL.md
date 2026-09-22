@@ -3,10 +3,9 @@ name: manage-git-changes
 description: >-
   Use for authorized Git staging, commits, branches, merges, rebases,
   cherry-picks, reverts, worktrees, and recovery. Preserve unrelated
-  working-tree and index changes. Not for routine source edits or
-  automatically committing completed work.
+  working-tree and index changes. Not for routine source edits or automatically
+  committing completed work.
 ---
-
 
 # Manage Git Changes
 
@@ -28,6 +27,31 @@ history-changing operation.
   history changes.
 - Remote operations, force updates, tags, and published-history rewrites require
   explicit authority and branch/ruleset awareness.
+
+## Git-state mutation contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a local Git operation; it MUST
+  NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide HEAD, index, worktree, refs, remotes, unrelated
+  changes, and requested history operation, hard constraints, available tools,
+  and the finish condition once. Remove repeated directions and examples unless
+  a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with before/after status, diffs,
+  reflogs, and commit graph checks. Report commands, observed results, and gaps.
+  A parser, build, or single green test proves only the property that it can
+  discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -68,35 +92,36 @@ stateDiagram-v2
    state, protections, and result. Report exact commits/refs changed and
    preserved unrelated state.
 
-## Read only the material needed
+## Choose the Git-state reference
 
 | Situation | Read or use |
 | --- | --- |
 | Staging, committing, restore/reset, hooks, and snapshots | [Snapshots and refs](references/snapshots-and-refs.md) |
 | Merge, rebase, cherry-pick, revert, push, and recovery | [Integration and recovery](references/integration-and-recovery.md) |
 | Interpreting local Git feedback safely | [Local feedback](references/local-feedback.md) |
-| Choosing the least destructive operation | [Decision guide](references/decision-guide.md) |
-| Using complete mixed-index, conflict, worktree, and recovery examples | [Worked examples](references/worked-examples.md) |
-| Proving state transitions and preservation | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding resets, force updates, and retry mistakes | [Failure modes](references/failure-modes.md) |
+| Choosing the least destructive operation | [Operational decisions](references/local-git-state-operational-decisions.md) |
+| Using complete mixed-index, conflict, worktree, and recovery examples | [Worked scenarios](references/local-git-state-worked-scenarios.md) |
+| Proving state transitions and preservation | [Verification and claim evidence](references/local-git-state-verification-and-claim-evidence.md) |
+| Avoiding resets, force updates, and retry mistakes | [Failure patterns and recovery](references/local-git-state-failure-patterns-and-recovery.md) |
 | Testing staged-snapshot assumptions | [Commit snapshot tests](scripts/test_commit_snapshots.py) |
-| Checking official Git semantics | [Source index](references/source-index.md) |
+| Checking official Git semantics | [Standards, APIs, and authorities](references/local-git-state-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Git operation references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/local-git-state-concepts-contracts-and-invariants.md) | Use when distinguishing the requested local Git operation from observed repository state. |
+| [Enterprise operation and governance](references/local-git-state-organizational-controls-and-scale.md) | Use when the local Git operation crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/local-git-state-bundled-resource-map.md) | Use when locating bundled resources for the local Git operation. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
@@ -107,7 +132,7 @@ zero exit status proves only the checks implemented by that helper.
 
 ## Bundled output material
 
-- No output template is mandatory. Preserve the repository’s established format.
+- No output template is mandatory. Preserve the repository's established format.
 
 Copy or adapt assets into the target workspace. Do not edit the installed skill
 as a substitute for changing the requested repository.

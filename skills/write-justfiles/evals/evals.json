@@ -1,0 +1,35 @@
+{
+  "skill_name": "write-justfiles",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write or repair justfile recipes that wrap existing project commands with correct parameters, dependencies, quoting, working directory, and exit propagation.",
+      "expected_output": "A repository-aware justfile recipe result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the justfile recipe workflow instead of returning only generic advice.",
+        "For underlying failure, Propagate nonzero status.",
+        "For quoting/arguments, Preserve exact argv semantics across selected shell.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Replace the project build system with just.",
+      "expected_output": "The agent does not activate write-justfiles for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that write-justfiles is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write or repair justfile recipes that wrap existing project commands with correct parameters, dependencies, quoting, working directory, and exit propagation. Stress case: Unavailable just.",
+      "expected_output": "A justfile recipe result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Report parser/execution unverified.",
+        "The evidence can detect this failure: Text inspection presented as native validation.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

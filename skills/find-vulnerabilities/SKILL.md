@@ -3,11 +3,9 @@ name: find-vulnerabilities
 description: >-
   Use for requested code-security reviews or vulnerability investigations in
   code, configuration, dependencies, and trust boundaries. Trace
-  attacker-controlled input, reachability, permissions, and exploit
-  conditions. Not for unauthorized live probing or unsupported compliance
-  certification.
+  attacker-controlled input, reachability, permissions, and exploit conditions.
+  Not for unauthorized live probing or unsupported compliance certification.
 ---
-
 
 # Find Vulnerabilities
 
@@ -28,7 +26,33 @@ improvements, and nonissues.
 - Do not weaken authentication, authorization, validation, sandboxing, logging,
   or secret controls to demonstrate a finding.
 - Protect secrets, personal data, exploit details, and vulnerable artifacts
-  according to the organization’s disclosure and handling process.
+  according to the organization's disclosure and handling process.
+
+## Authorized security-review contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a security finding; it MUST NOT
+  broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide assets, trust boundaries, attacker control,
+  reachability, permissions, exploit preconditions, and scope authorization,
+  hard constraints, available tools, and the finish condition once. Remove
+  repeated directions and examples unless a recorded evaluation shows that they
+  prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with source-to-sink traces, negative
+  controls, isolated proofs, and affected-version checks. Report commands,
+  observed results, and gaps. A parser, build, or single green test proves only
+  the property that it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -61,7 +85,7 @@ flowchart LR
    dramatic.
 1. Assess exploitability and impact from actual deployment/configuration.
    Distinguish default, optional, unreachable, mitigated, and
-   production-specific conditions. Use the organization’s severity rubric when
+   production-specific conditions. Use the organization's severity rubric when
    one exists; otherwise describe factual consequences.
 1. Recommend the smallest fix at the owning boundary. Preserve useful errors and
    security controls, avoid speculative compatibility, and include regression
@@ -71,39 +95,40 @@ flowchart LR
    verification. Keep unverified risks separate and disclose test limitations.
    Follow coordinated disclosure for external vulnerabilities.
 
-## Read only the material needed
+## Choose the security evidence reference
 
 | Situation | Read or use |
 | --- | --- |
 | Mapping actors, assets, entry points, and trust boundaries | [Trust boundaries](references/trust-boundaries.md) |
 | Running a structured threat and code review | [Threat review](references/threat-review.md) |
 | Reviewing dependencies, build inputs, agents, and supply-chain paths | [Supply chain and agents](references/supply-chain-and-agents.md) |
-| Choosing evidence and severity treatment | [Decision guide](references/decision-guide.md) |
-| Using complete injection, authorization, path, and dependency examples | [Worked examples](references/worked-examples.md) |
-| Matching security claims to tests and deployment evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding API-name findings, auth bypass, and unsafe proof | [Failure modes](references/failure-modes.md) |
+| Choosing evidence and severity treatment | [Operational decisions](references/software-security-review-operational-decisions.md) |
+| Using complete injection, authorization, path, and dependency examples | [Worked scenarios](references/software-security-review-worked-scenarios.md) |
+| Matching security claims to tests and deployment evidence | [Verification and claim evidence](references/software-security-review-verification-and-claim-evidence.md) |
+| Avoiding API-name findings, auth bypass, and unsafe proof | [Failure patterns and recovery](references/software-security-review-failure-patterns-and-recovery.md) |
 | Writing a consistent finding | [Finding template](assets/finding-template.md) |
-| Checking primary security standards and sources | [Source index](references/source-index.md) |
+| Checking primary security standards and sources | [Standards, APIs, and authorities](references/software-security-review-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Security analysis references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Enterprise operation and governance](references/enterprise-operation.md) | The skill may be used in repositories with protected branches, regulated data, separate owning teams, long support windows, and reproducible-build or audit requirements. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Concepts, contracts, and invariants](references/software-security-review-concepts-contracts-and-invariants.md) | Use when distinguishing the requested security finding from observed repository state. |
+| [Enterprise operation and governance](references/software-security-review-organizational-controls-and-scale.md) | Use when the security finding crosses ownership, data-handling, release, or audit boundaries. |
+| [Bundled resource map](references/software-security-review-bundled-resource-map.md) | Use when locating bundled resources for the security finding. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
-- No bundled script is mandatory. Use the target repository’s established tools.
+- No bundled script is mandatory. Use the target repository's established tools.
 
 Run a helper only for the contract it documents. Inspect arguments and output; a
 zero exit status proves only the checks implemented by that helper.

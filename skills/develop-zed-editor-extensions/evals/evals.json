@@ -1,0 +1,35 @@
+{
+  "skill_name": "develop-zed-editor-extensions",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement this Zed extension using the target release APIs, language configuration, Tree-sitter queries, WASM constraints, LSP launch, tests, and packaging.",
+      "expected_output": "A repository-aware Zed extension result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Zed extension workflow instead of returning only generic advice.",
+        "For unsupported ui api, State the host limitation.",
+        "For toolchain, Use the project-selected Rust toolchain.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Change a normal Zed user setting.",
+      "expected_output": "The agent does not activate develop-zed-editor-extensions for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that develop-zed-editor-extensions is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement this Zed extension using the target release APIs, language configuration, Tree-sitter queries, WASM constraints, LSP launch, tests, and packaging. Stress case: Downloaded binary.",
+      "expected_output": "A Zed extension result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Verify platform, integrity, permissions, and lifecycle.",
+        "The evidence can detect this failure: Unverified executable launched.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

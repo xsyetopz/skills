@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-java-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Java/JVM workload with JFR/JMH while preserving target JDK, warmup, synchronization, ordering, exceptions, and allocation semantics.",
+      "expected_output": "A repository-aware Java/JVM optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Java/JVM optimization workflow instead of returning only generic advice.",
+        "For warmup, Separate startup from steady state.",
+        "For jmh state, Use correct scope, forks, and result consumption.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize Kotlin source.",
+      "expected_output": "The agent does not activate optimize-java-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-java-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Java/JVM workload with JFR/JMH while preserving target JDK, warmup, synchronization, ordering, exceptions, and allocation semantics. Stress case: Concurrency.",
+      "expected_output": "A Java/JVM optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Verify happens-before and ordering.",
+        "The evidence can detect this failure: Race introduced for throughput.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

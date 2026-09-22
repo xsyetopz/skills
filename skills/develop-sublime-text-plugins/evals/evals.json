@@ -1,0 +1,35 @@
+{
+  "skill_name": "develop-sublime-text-plugins",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement this Sublime Text command using the embedded Python version, Edit lifetime, view freshness, unload cleanup, host tests, and package layout.",
+      "expected_output": "A repository-aware Sublime Text plugin result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Sublime Text plugin workflow instead of returning only generic advice.",
+        "For edit token, Use it only during the command callback.",
+        "For stub test, Label it as stub-based evidence.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Format an ordinary Python script.",
+      "expected_output": "The agent does not activate develop-sublime-text-plugins for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that develop-sublime-text-plugins is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement this Sublime Text command using the embedded Python version, Edit lifetime, view freshness, unload cleanup, host tests, and package layout. Stress case: Reload.",
+      "expected_output": "A Sublime Text plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Clean up owned timers/listeners only.",
+        "The evidence can detect this failure: Existing package/user state removed.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

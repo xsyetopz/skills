@@ -29,8 +29,8 @@ runtime/compiler behavior is version-sensitive; verify closure and loop-variable
 semantics against the project's language/toolchain version rather than repeating
 pre-change folklore.
 
-Sources: [Go diagnostics](https://go.dev/doc/diagnostics), [testing
-package](https://pkg.go.dev/testing), [benchstat][ref-benchstat],
+Sources: [Go diagnostics](https://go.dev/doc/diagnostics),
+[testing package](https://pkg.go.dev/testing), [benchstat][ref-benchstat],
 [sync.Pool](https://pkg.go.dev/sync#Pool).
 
 ## Executable fixtures
@@ -50,9 +50,9 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the go
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only the selected language, not all toolchains.
+The complete project and its native configuration are in
+[the go assets](../assets/examples). Copy that directory intact when adapting a
+fixture. Run only the selected language, not all toolchains.
 
 ### Semantic regression cases
 
@@ -72,8 +72,9 @@ Source: [go.mod](../assets/examples/correctness/go.mod).
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](go-runtime-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -115,6 +116,6 @@ element. The verifier copies and runs `repro.go` in a temporary directory.
 
 [source]: https://pkg.go.dev/testing
 [source-2]: https://pkg.go.dev/golang.org/x/perf/cmd/benchstat
-
 [ref-benchstat]: https://pkg.go.dev/golang.org/x/perf/cmd/benchstat
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  go-runtime-performance-executable-performance-fixtures.md

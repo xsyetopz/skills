@@ -42,7 +42,9 @@ instrumentation options][gcc-instrumentation-options].
 ## Executable fixtures
 
 The self-contained examples require C17 and POSIX `sh`; no C++ compiler is
-needed. Read [the fixture contract](executable-fixtures.md) before running:
+needed. Read
+[the fixture contract](c-native-performance-executable-performance-fixtures.md)
+before running:
 
 ```sh
 sh assets/examples/verify.sh
@@ -53,9 +55,9 @@ Copy [the native examples](../assets/examples) intact before adaptation. The
 [comparison functions](../assets/examples/comparisons/c_pairs.c) cover string
 joining, byte histograms, matrix traversal, and filtering with independent
 expected results. The preserved
-[justfile](../assets/examples/comparisons/justfile) and [xmake
-configuration](../assets/examples/comparisons/xmake.lua) supply optional native
-build/sanitizer commands; the shell runner needs neither tool.
+[justfile](../assets/examples/comparisons/justfile) and
+[xmake configuration](../assets/examples/comparisons/xmake.lua) supply optional
+native build/sanitizer commands; the shell runner needs neither tool.
 
 ### Semantic regression cases
 
@@ -95,5 +97,7 @@ passed.
 sh assets/examples/verify.sh reproduction
 ```
 
-[clang-optimization-remarks]: https://clang.llvm.org/docs/UsersManual.html#options-to-emit-optimization-reports
-[gcc-instrumentation-options]: https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+[clang-optimization-remarks]:
+  https://clang.llvm.org/docs/UsersManual.html#options-to-emit-optimization-reports
+[gcc-instrumentation-options]:
+  https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html

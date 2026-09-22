@@ -1,0 +1,35 @@
+{
+	"skill_name": "create-agent-hooks",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Create a blocking pre-tool hook for the named coding agent version, validate its native payload, and prove live registration and failure semantics.",
+			"expected_output": "A repository-aware agent hook result with observable evidence, preserved constraints, and explicit verification limits.",
+			"assertions": [
+				"The response performs the agent hook workflow instead of returning only generic advice.",
+				"For notification-only event, Do not claim it blocks execution.",
+				"For rollback, Remove only task-owned entries and files.",
+				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Create a Git pre-commit hook.",
+			"expected_output": "The agent does not activate create-agent-hooks for this neighboring request and does not apply its procedures by keyword alone.",
+			"assertions": [
+				"The response does not claim that create-agent-hooks is required.",
+				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Create a blocking pre-tool hook for the named coding agent version, validate its native payload, and prove live registration and failure semantics. Stress case: Versioned payload.",
+			"expected_output": "A agent hook result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"assertions": [
+				"Use current native schema and event names.",
+				"The evidence can detect this failure: Universal invented hook format.",
+				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+			]
+		}
+	]
+}

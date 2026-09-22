@@ -7,7 +7,6 @@ description: >-
   PCSX2 or obtaining BIOS and game images.
 ---
 
-
 # Build and Debug DuckStation
 
 Build, launch, or investigate DuckStation while keeping emulator
@@ -29,6 +28,31 @@ rendering, patches, saves, and host environment as separate evidence layers.
   not prove another.
 - Treat save states as revision/settings-dependent diagnostic artifacts, not
   durable portable correctness evidence. Record provenance before use.
+
+## Build-and-guest execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a DuckStation build or guest
+  diagnosis; it MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide the DuckStation revision, PlayStation guest
+  artifact, host, and isolated user-data directory, hard constraints, available
+  tools, and the finish condition once. Remove repeated directions and examples
+  unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with build logs, isolated guest runs,
+  renderer captures, and state comparisons. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -74,39 +98,40 @@ flowchart LR
    Clean task-owned state only after preserving useful evidence. Report which
    layer was executed and what remains unverified.
 
-## Read only the material needed
+## Choose the emulator evidence reference
 
 | Situation | Read or use |
 | --- | --- |
-| Building from source and inspecting upstream requirements | [Source builds](references/source-builds.md) |
+| Building from source and inspecting upstream requirements | [Source builds](references/duckstation-ps1-source-builds.md) |
 | Using packaged/native launch options and isolated data | [Native launch](references/launch-and-isolation.md) |
 | Building exact command lines safely | [Commands and isolation](references/commands-and-isolation.md) |
-| Debugging guest execution, logs, rendering, and evidence | [Debugging evidence](references/debugging-and-evidence.md) |
+| Debugging guest execution, logs, rendering, and evidence | [Debugging evidence](references/duckstation-ps1-debugging-and-evidence.md) |
 | Guest code, renderer, GDB, PCDrv, and logging | [Guest and rendering](references/guest-and-rendering.md) |
 | Textures and patches | [Textures and patches](references/textures-and-patches.md) |
-| Choosing build, launch, guest, renderer, or patch evidence | [Decision guide](references/decision-guide.md) |
-| Using complete build/launch/debug examples | [Worked examples](references/worked-examples.md) |
-| Matching process, guest, and renderer claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding user-state damage and layer conflation | [Failure modes](references/failure-modes.md) |
-| Applying enterprise provenance and sandbox controls | [Enterprise operation](references/enterprise-operation.md) |
-| Checking current upstream sources | [Source index](references/source-index.md) |
+| Choosing build, launch, guest, renderer, or patch evidence | [Operational decisions](references/duckstation-ps1-operational-decisions.md) |
+| Using complete build/launch/debug examples | [Worked scenarios](references/duckstation-ps1-worked-scenarios.md) |
+| Matching process, guest, and renderer claims to evidence | [Verification and claim evidence](references/duckstation-ps1-verification-and-claim-evidence.md) |
+| Avoiding user-state damage and layer conflation | [Failure patterns and recovery](references/duckstation-ps1-failure-patterns-and-recovery.md) |
+| Applying enterprise provenance and sandbox controls | [Organizational controls and scale](references/duckstation-ps1-organizational-controls-and-scale.md) |
+| Checking current upstream sources | [Standards, APIs, and authorities](references/duckstation-ps1-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Emulator diagnosis references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [DuckStation PS1 emulator: select the source-build task](references/build.md) | Read the README/build files at the selected revision and identify the supported host architecture, compiler, CMake generator, dependency provisioning, and packaging layout. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
+| [DuckStation PS1 emulator: select the source-build task](references/duckstation-ps1-build.md) | Read the README/build files at the selected revision and identify the supported host architecture, compiler, CMake generator, dependency provisioning, and packaging layout. |
+| [Concepts, contracts, and invariants](references/duckstation-ps1-concepts-contracts-and-invariants.md) | Use when distinguishing the requested DuckStation build or guest diagnosis from observed repository state. |
 | [DuckStation PS1 emulator: isolate launch data](references/launch-and-isolation.md) | First inspect the selected binary's help and matching parser. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Bundled resource map](references/duckstation-ps1-bundled-resource-map.md) | Use when locating bundled resources for the DuckStation build or guest diagnosis. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
@@ -118,7 +143,7 @@ zero exit status proves only the checks implemented by that helper.
 
 ## Bundled output material
 
-- No output template is mandatory. Preserve the repository’s established format.
+- No output template is mandatory. Preserve the repository's established format.
 
 Copy or adapt assets into the target workspace. Do not edit the installed skill
 as a substitute for changing the requested repository.

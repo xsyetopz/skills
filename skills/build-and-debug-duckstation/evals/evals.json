@@ -1,0 +1,35 @@
+{
+  "skill_name": "build-and-debug-duckstation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build DuckStation at this revision in an isolated tree, launch the supplied legal test image with an isolated data directory, and diagnose the renderer failure.",
+      "expected_output": "A repository-aware DuckStation build or guest diagnosis result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the DuckStation build or guest diagnosis workflow instead of returning only generic advice.",
+        "For command construction only, Label it as an unexecuted command.",
+        "For existing user data, Use isolated state and preserve saves/configuration.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Configure or build PCSX2 for PlayStation 2.",
+      "expected_output": "The agent does not activate build-and-debug-duckstation for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that build-and-debug-duckstation is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Build DuckStation at this revision in an isolated tree, launch the supplied legal test image with an isolated data directory, and diagnose the renderer failure. Stress case: Unknown option.",
+      "expected_output": "A DuckStation build or guest diagnosis result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Verify current source/help or preserve explicit passthrough.",
+        "The evidence can detect this failure: Option silently dropped or invented.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

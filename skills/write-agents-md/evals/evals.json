@@ -1,0 +1,35 @@
+{
+  "skill_name": "write-agents-md",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create scoped AGENTS.md instructions from inspected repository commands, file ownership, generated boundaries, precedence, and the named agent client.",
+      "expected_output": "A repository-aware AGENTS.md instructions result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the AGENTS.md instructions workflow instead of returning only generic advice.",
+        "For scope, Place instructions at the narrowest applicable tree.",
+        "For command, Verify it exists and working directory/arguments.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a reusable Agent Skill package.",
+      "expected_output": "The agent does not activate write-agents-md for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that write-agents-md is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create scoped AGENTS.md instructions from inspected repository commands, file ownership, generated boundaries, precedence, and the named agent client. Stress case: Stale current text.",
+      "expected_output": "A AGENTS.md instructions result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Update from source/config evidence.",
+        "The evidence can detect this failure: Existing AGENTS.md treated as infallible.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

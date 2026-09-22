@@ -107,7 +107,7 @@ To move storage access out of UI components:
 1. Migrate remaining authorized consumers, then remove the obsolete direct path
    when no supported consumers remain.
 1. Verify dependency direction and the representative read/write/conflict
-   operation with the repository’s existing validation checks.
+   operation with the repository's existing validation checks.
 
 For rolling deployments, use expand/contract only if compatibility requires it:
 add the new representation, deploy readers that understand both, backfill with
@@ -118,7 +118,7 @@ becomes constrained once new-only data exists, so define that point before
 deployment. For immediate replacement, remove the old path after migrating its
 consumers.
 
-Use Michael Nygard’s ADR format for consequential decisions: title, status,
+Use Michael Nygard's ADR format for consequential decisions: title, status,
 context, decision, and consequences. Record considered alternatives under
 context. Mark superseded decisions and link their replacements. Retain the
 original decision history. [ADR technique][source-1].

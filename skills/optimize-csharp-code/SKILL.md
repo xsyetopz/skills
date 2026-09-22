@@ -3,10 +3,9 @@ name: optimize-csharp-code
 description: >-
   Use when profiling or optimizing C#/.NET CPU time, latency, throughput,
   allocations, or memory use. Inspect effective build/runtime settings and
-  preserve behavior. Includes the supplied .NET 10/C# 14 material; not a
-  mandate to upgrade other projects.
+  preserve behavior. Includes the supplied .NET 10/C# 14 material; not a mandate
+  to upgrade other projects.
 ---
-
 
 # Optimize C# Code
 
@@ -33,6 +32,32 @@ and deployment contracts. Correctness and matched workload come before timing.
 - Use repeated matched measurements and report variability. One run, debug
   build, changed runtime flags, or incomparable environment cannot establish an
   improvement.
+
+## Measured optimization contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a C#/.NET optimization; it MUST
+  NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide target framework, runtime, JIT/AOT mode, GC,
+  build properties, workload, async behavior, and interop lifetime, hard
+  constraints, available tools, and the finish condition once. Remove repeated
+  directions and examples unless a recorded evaluation shows that they prevent a
+  real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with BenchmarkDotNet, EventPipe traces,
+  allocation counters, and semantic tests. Report commands, observed results,
+  and gaps. A parser, build, or single green test proves only the property that
+  it can discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -74,7 +99,7 @@ flowchart TD
    errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
    behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
    fixtures as examples, not proof for target code.
-1. Measure with BenchmarkDotNet or the project’s established harness with
+1. Measure with BenchmarkDotNet or the project's established harness with
    complete benchmark identity: method, parameters, job, runtime, GC,
    architecture, JIT/AOT, environment, diagnosers, and independently checked
    result. Reject missing rows, invalid values, ambiguous units, unstable setup,
@@ -89,40 +114,41 @@ flowchart TD
    unexecuted targets. Do not generalize beyond the measured
    workload/environment.
 
-## Read only the material needed
+## Choose the language-performance reference
 
 | Situation | Read or use |
 | --- | --- |
 | Reading C#-specific profiling, runtime, and semantic constraints | [C# language guide](references/csharp-dotnet.md) |
 | Inspecting effective MSBuild/runtime and .NET experiments | [.NET experiments](references/dotnet-experiments.md) |
 | Reviewing native interop, SDL/audio/image/font lifetime | [.NET interop](references/dotnet-interop.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/executable-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmarking](references/profiling-and-benchmarking.md) |
-| Selecting optimization techniques after profiling | [Optimization patterns](references/optimization-patterns.md) |
-| Reviewing language-specific semantic traps | [Semantic traps](references/semantic-traps.md) |
-| Using complete benchmark and optimization examples | [Worked examples](references/worked-examples.md) |
-| Matching performance and correctness claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Failure modes](references/failure-modes.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Enterprise operation](references/enterprise-operation.md) |
+| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/dotnet-csharp-performance-executable-performance-fixtures.md) |
+| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/dotnet-csharp-performance-profiling-and-benchmark-protocol.md) |
+| Selecting optimization techniques after profiling | [Measured optimization techniques](references/dotnet-csharp-performance-measured-optimization-techniques.md) |
+| Reviewing language-specific semantic traps | [Performance semantic hazards](references/dotnet-csharp-performance-performance-semantic-hazards.md) |
+| Using complete benchmark and optimization examples | [Optimization case studies](references/dotnet-csharp-performance-optimization-case-studies.md) |
+| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/dotnet-csharp-performance-benchmark-profile-and-equivalence-evidence.md) |
+| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/dotnet-csharp-performance-optimization-regressions-and-recovery.md) |
+| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/dotnet-csharp-performance-performance-rollout-and-governance.md) |
 | Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
 | Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Source index](references/source-index.md) |
+| Checking current official sources | [Performance, language, and runtime authorities](references/dotnet-csharp-performance-performance-language-and-runtime-authorities.md) |
 
-## Additional specialized references
+## Optimization decision references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [Decision guide](references/decision-guide.md) | Use this guide after inspecting the target repository and current request. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [Cost model and optimization rules](references/dotnet-csharp-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed C#/.NET optimization action. |
+| [Runtime semantics and invariants](references/dotnet-csharp-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested C#/.NET optimization from observed repository state. |
+| [Performance fixture and tool map](references/dotnet-csharp-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the C#/.NET optimization. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 

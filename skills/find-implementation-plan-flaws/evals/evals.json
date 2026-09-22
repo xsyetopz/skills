@@ -1,0 +1,35 @@
+{
+  "skill_name": "find-implementation-plan-flaws",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this implementation plan against requirements and repository evidence, identifying contradictions, missing prerequisites, unsupported decisions, and inadequate checks.",
+      "expected_output": "A repository-aware implementation-plan review result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the implementation-plan review workflow instead of returning only generic advice.",
+        "For no findings, Report none when evidence supports that result.",
+        "For alternative architecture, Do not reject by preference alone.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a new implementation plan because none exists.",
+      "expected_output": "The agent does not activate find-implementation-plan-flaws for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that find-implementation-plan-flaws is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this implementation plan against requirements and repository evidence, identifying contradictions, missing prerequisites, unsupported decisions, and inadequate checks. Stress case: Missing evidence.",
+      "expected_output": "A implementation-plan review result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Name the unresolved condition and consequence.",
+        "The evidence can detect this failure: Confidence substitutes for repository evidence.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

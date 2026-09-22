@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-kotlin-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this Kotlin workload for its declared backend while preserving coroutine cancellation, collection/lazy semantics, nullability, exceptions, and target behavior.",
+      "expected_output": "A repository-aware Kotlin optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the Kotlin optimization workflow instead of returning only generic advice.",
+        "For backend, Use JVM tools only for Kotlin/JVM.",
+        "For sequence conversion, Measure allocations and preserve evaluation timing.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Optimize Java source.",
+      "expected_output": "The agent does not activate optimize-kotlin-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-kotlin-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this Kotlin workload for its declared backend while preserving coroutine cancellation, collection/lazy semantics, nullability, exceptions, and target behavior. Stress case: Coroutines.",
+      "expected_output": "A Kotlin optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Preserve structured concurrency and cancellation.",
+        "The evidence can detect this failure: Detached work improves latency artificially.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

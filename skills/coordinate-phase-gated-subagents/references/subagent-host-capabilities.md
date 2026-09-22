@@ -1,4 +1,4 @@
-# Map software subagent roles to the agent host’s tools
+# Map software subagent roles to the agent host's tools
 
 The agent host is the CLI, IDE, or service that creates independent subagent
 contexts and exposes coordination tools. The orchestrator assigns software work

@@ -1,0 +1,35 @@
+{
+  "skill_name": "optimize-c-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Profile and optimize this C hot path under the declared compiler/standard and representative workload while preserving ABI, ownership, errors, and undefined-behavior constraints.",
+      "expected_output": "A repository-aware C optimization result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the C optimization workflow instead of returning only generic advice.",
+        "For mismatched work, Benchmark identical inputs, outputs, setup boundary, and build flags.",
+        "For integer/aliasing edge, Use correctness oracles and sanitizers where applicable.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Refactor C formatting without a performance objective.",
+      "expected_output": "The agent does not activate optimize-c-code for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that optimize-c-code is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Profile and optimize this C hot path under the declared compiler/standard and representative workload while preserving ABI, ownership, errors, and undefined-behavior constraints. Stress case: Single run.",
+      "expected_output": "A C optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Repeat and report distribution/stability.",
+        "The evidence can detect this failure: One-run superiority claim.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill_name": "manage-git-changes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Stage and commit only the authorized files while preserving unrelated staged and unstaged work, then perform the requested rebase safely.",
+      "expected_output": "A repository-aware local Git operation result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the local Git operation workflow instead of returning only generic advice.",
+        "For partial staging, Preserve unrelated index/worktree content.",
+        "For uncertain command result, Inspect state before retry.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Edit application code without any requested Git operation.",
+      "expected_output": "The agent does not activate manage-git-changes for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that manage-git-changes is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Stage and commit only the authorized files while preserving unrelated staged and unstaged work, then perform the requested rebase safely. Stress case: Force operation.",
+      "expected_output": "A local Git operation result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Require explicit authority and verify remote rules.",
+        "The evidence can detect this failure: Tool availability treated as permission.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

@@ -46,9 +46,10 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the kotlin
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the kotlin assets](../assets/examples). Copy that directory intact when
+adapting a fixture. Run only this language; the target project keeps its own
+toolchain.
 
 ### Semantic regression cases
 
@@ -68,8 +69,9 @@ Source: [Semantics.kt][ref-semantics-kt].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
-input-domain limits and why these programs are not speed claims.
+expected-result checks. The
+[shared contract](kotlin-backend-performance-executable-performance-fixtures.md)
+explains input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
 
@@ -111,10 +113,12 @@ documented repeated evaluation was reproduced.
 
 [kotlin-inline-functions]: https://kotlinlang.org/docs/inline-functions.html
 [kotlin-value-classes]: https://kotlinlang.org/docs/inline-classes.html
-[kotlin-coroutine-cancellation]: https://kotlinlang.org/docs/cancellation-and-timeouts.html
-[kotlin-native-memory-management]: https://kotlinlang.org/docs/native-memory-manager.html
+[kotlin-coroutine-cancellation]:
+  https://kotlinlang.org/docs/cancellation-and-timeouts.html
+[kotlin-native-memory-management]:
+  https://kotlinlang.org/docs/native-memory-manager.html
 [source]: https://github.com/openjdk/jmh/tree/master/jmh-samples
-
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  kotlin-backend-performance-executable-performance-fixtures.md
 [ref-semantics-kt]: ../assets/examples/correctness/Semantics.kt
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

@@ -1,0 +1,35 @@
+{
+  "skill_name": "develop-vscode-extensions",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement this VS Code extension feature for desktop and remote hosts with URI-safe access, cancellation, document version checks, Workspace Trust, tests, and VSIX inspection.",
+      "expected_output": "A repository-aware VS Code extension result with observable evidence, preserved constraints, and explicit verification limits.",
+      "assertions": [
+        "The response performs the VS Code extension workflow instead of returning only generic advice.",
+        "For remote uri, Use workspace/file-system APIs, not local path assumptions.",
+        "For stale async result, Check URI and version before publishing.",
+        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a Visual Studio IDE extension.",
+      "expected_output": "The agent does not activate develop-vscode-extensions for this neighboring request and does not apply its procedures by keyword alone.",
+      "assertions": [
+        "The response does not claim that develop-vscode-extensions is required.",
+        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Implement this VS Code extension feature for desktop and remote hosts with URI-safe access, cancellation, document version checks, Workspace Trust, tests, and VSIX inspection. Stress case: Trust.",
+      "expected_output": "A VS Code extension result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "assertions": [
+        "Do not execute workspace content before trust permits it.",
+        "The evidence can detect this failure: Untrusted repository gains execution.",
+        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+      ]
+    }
+  ]
+}

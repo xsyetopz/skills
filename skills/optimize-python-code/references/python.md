@@ -53,9 +53,10 @@ sh assets/examples/verify.sh
 sh assets/examples/verify.sh correctness 1
 ```
 
-The complete project and its native configuration are in [the python
-assets](../assets/examples). Copy that directory intact when adapting a fixture.
-Run only this language; the target project keeps its own toolchain.
+The complete project and its native configuration are in
+[the python assets](../assets/examples). Copy that directory intact when
+adapting a fixture. Run only this language; the target project keeps its own
+toolchain.
 
 ### Semantic regression cases
 
@@ -75,7 +76,7 @@ Source: [semantics.py][ref-semantics-py].
 ## Baseline and candidate
 
 Use [the comparison sources](../assets/examples/comparisons) and their
-expected-result checks. The [shared contract](executable-fixtures.md) explains
+expected-result checks. The [shared contract][fixture-contract] explains
 input-domain limits and why these programs are not speed claims.
 
 ## Benchmark fixture
@@ -90,11 +91,11 @@ resolve the inline dependency). Installation is not part of `verify.sh`.
 From this directory, after `sh ../verify.sh comparisons` passes:
 
 ```sh
-python bench_pyperf.py --variant baseline --rigorous -o baseline.json
-python bench_pyperf.py --variant candidate --rigorous -o candidate.json
-python -m pyperf compare_to baseline.json candidate.json --table
-python -m pyperf stats baseline.json
-python -m pyperf stats candidate.json
+python3 bench_pyperf.py --variant baseline --rigorous -o baseline.json
+python3 bench_pyperf.py --variant candidate --rigorous -o candidate.json
+python3 -m pyperf compare_to baseline.json candidate.json --table
+python3 -m pyperf stats baseline.json
+python3 -m pyperf stats candidate.json
 ```
 
 Benchmark names are identical across variants; worker processes receive the
@@ -124,11 +125,14 @@ From a clean copy, run `python3 repro.py`. Exit zero means the documented
 mismatch was reproduced; it does not mean the implementation is correct.
 
 [python-profiling]: https://docs.python.org/3/library/profile.html
-[free-threading-howto]: https://docs.python.org/3/howto/free-threading-python.html
+[free-threading-howto]:
+  https://docs.python.org/3/howto/free-threading-python.html
 [source]: https://pyperf.readthedocs.io/en/latest/api.html
 [source-2]: https://pyperf.readthedocs.io/en/latest/runner.html
-
 [ref-tracemalloc]: https://docs.python.org/3/library/tracemalloc.html
-[ref-the-fixture-execution-contract]: executable-fixtures.md
+[ref-the-fixture-execution-contract]:
+  python-interpreter-performance-executable-performance-fixtures.md
+[fixture-contract]:
+  python-interpreter-performance-executable-performance-fixtures.md
 [ref-semantics-py]: ../assets/examples/correctness/semantics.py
 [ref-the-isolated-reproducer]: ../assets/examples/reproduction

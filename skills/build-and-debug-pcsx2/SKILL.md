@@ -7,7 +7,6 @@ description: >-
   images.
 ---
 
-
 # Build and Debug PCSX2
 
 Build, launch, or investigate PCSX2 while keeping emulator build/configuration,
@@ -28,6 +27,31 @@ saves, and host environment as separate evidence layers.
   not prove another.
 - Treat save states as revision/settings-dependent diagnostic artifacts, not
   durable portable correctness evidence. Record provenance before use.
+
+## Build-and-guest execution contract
+
+- Treat the user goal, scope, approval boundary, and required evidence as
+  controlling. This skill narrows how to produce a PCSX2 build or guest
+  diagnosis; it MUST NOT broaden authority or override repository instructions.
+- For GPT-5.6 and GPT-6, provide the PCSX2 revision, PlayStation 2 ELF or disc
+  artifact, host, and isolated settings directory, hard constraints, available
+  tools, and the finish condition once. Remove repeated directions and examples
+  unless a recorded evaluation shows that they prevent a real failure.
+- Infer routine, reversible steps from inspected evidence. Ask only when an
+  unresolved choice changes an external contract. Stop before an external write,
+  destructive action, credential use, or material scope expansion that the user
+  did not authorize.
+- Load a linked reference only when its subject affects the current decision.
+  Use scripts for deterministic mechanics; use model judgment for semantic
+  decisions. Inspect tool output before relying on it.
+- Validate at the boundary of the claim with build logs, isolated VM runs, GS
+  dumps, and state comparisons. Report commands, observed results, and gaps. A
+  parser, build, or single green test proves only the property that it can
+  discriminate.
+- Use **MUST** only for an absolute safety or interoperability requirement,
+  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
+  Write short active sentences and use one stable term for each concept. This
+  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
 
 ## Workflow
 
@@ -73,38 +97,39 @@ flowchart LR
    Clean task-owned state only after preserving useful evidence. Report which
    layer was executed and what remains unverified.
 
-## Read only the material needed
+## Choose the emulator evidence reference
 
 | Situation | Read or use |
 | --- | --- |
-| Building from source and inspecting upstream requirements | [Source builds](references/source-builds.md) |
+| Building from source and inspecting upstream requirements | [Source builds](references/pcsx2-ps2-source-builds.md) |
 | Using documented CLI options and isolated data paths | [Native launch](references/native-launch.md) |
 | Building exact command lines and data paths | [Commands and data paths](references/commands-and-data-paths.md) |
-| Debugging guest execution, GS dumps, rendering, and evidence | [Debugging evidence](references/debugging-and-evidence.md) |
+| Debugging guest execution, GS dumps, rendering, and evidence | [Debugging evidence](references/pcsx2-ps2-debugging-and-evidence.md) |
 | Debugger and rendering behavior | [Debugger and rendering](references/debugging-and-rendering.md) |
 | PNACH patches and texture replacement | [Patches and textures](references/patches-and-textures.md) |
-| Choosing build, launch, guest, renderer, or patch evidence | [Decision guide](references/decision-guide.md) |
-| Using complete build/launch/debug examples | [Worked examples](references/worked-examples.md) |
-| Matching process, guest, and renderer claims to evidence | [Verification and evidence](references/verification-and-evidence.md) |
-| Avoiding user-state damage and layer conflation | [Failure modes](references/failure-modes.md) |
-| Applying enterprise provenance and sandbox controls | [Enterprise operation](references/enterprise-operation.md) |
-| Checking current upstream sources | [Source index](references/source-index.md) |
+| Choosing build, launch, guest, renderer, or patch evidence | [Operational decisions](references/pcsx2-ps2-operational-decisions.md) |
+| Using complete build/launch/debug examples | [Worked scenarios](references/pcsx2-ps2-worked-scenarios.md) |
+| Matching process, guest, and renderer claims to evidence | [Verification and claim evidence](references/pcsx2-ps2-verification-and-claim-evidence.md) |
+| Avoiding user-state damage and layer conflation | [Failure patterns and recovery](references/pcsx2-ps2-failure-patterns-and-recovery.md) |
+| Applying enterprise provenance and sandbox controls | [Organizational controls and scale](references/pcsx2-ps2-organizational-controls-and-scale.md) |
+| Checking current upstream sources | [Standards, APIs, and authorities](references/pcsx2-ps2-standards-apis-and-authorities.md) |
 
-## Additional specialized references
+## Emulator diagnosis references
 
 Read only the reference whose subject affects the current task.
 
 | Reference | Use when |
 | --- | --- |
-| [PCSX2 PS2 emulator: select the source-build task](references/build.md) | Resolve the requested source revision and read its build documentation, CMake options, dependency provisioning, and supported host/target architectures. |
-| [Domain model and authority](references/domain-model.md) | Current implementation is evidence of state, not automatically the desired contract. |
-| [Bundled resource catalog](references/resource-catalog.md) | Use this catalog to locate the exact skill-local files needed for the task. |
+| [PCSX2 PS2 emulator: select the source-build task](references/pcsx2-ps2-build.md) | Resolve the requested source revision and read its build documentation, CMake options, dependency provisioning, and supported host/target architectures. |
+| [Concepts, contracts, and invariants](references/pcsx2-ps2-concepts-contracts-and-invariants.md) | Use when distinguishing the requested PCSX2 build or guest diagnosis from observed repository state. |
+| [Bundled resource map](references/pcsx2-ps2-bundled-resource-map.md) | Use when locating bundled resources for the PCSX2 build or guest diagnosis. |
 
-## Evaluation cases
+## Behavioral evaluation
 
-Use [evaluation cases](references/evaluation-cases.md) for realistic activation,
-near-miss, and instruction-conformance probes. These are maintained test inputs,
-not claimed results.
+Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
+target-client contexts. Compare this revision with a no-skill or prior-skill
+baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
+checked-in cases are test inputs, not claimed results.
 
 ## Bundled executable helpers
 
@@ -116,7 +141,7 @@ zero exit status proves only the checks implemented by that helper.
 
 ## Bundled output material
 
-- No output template is mandatory. Preserve the repository’s established format.
+- No output template is mandatory. Preserve the repository's established format.
 
 Copy or adapt assets into the target workspace. Do not edit the installed skill
 as a substitute for changing the requested repository.

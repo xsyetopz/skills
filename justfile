@@ -23,7 +23,7 @@ metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
 
 markdown:
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2@0.23.2 "*.md" "skills/**/*.md" "docs/**/*.md"
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md"
 
 tests: provision
     "{{ venv }}/bin/python" scripts/run_python_tests.py
@@ -39,7 +39,7 @@ python-lint: provision
     "{{ venv }}/bin/ruff" format --check --exclude '*.md' scripts skills typings
 
 python-types: provision
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun pyright@1.1.414 --pythonpath "{{ venv }}/bin/python"
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun pyright --pythonpath "{{ venv }}/bin/python"
 
 shell:
     if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi

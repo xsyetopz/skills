@@ -1,0 +1,8 @@
+comment=see https://example.invalid/notes
+patch=1,EE,00100000,byte,1FF
+patchs=1,EE,00100000,word,00000001
+[g]
+patch=1,EE,00100000,bytes,ABC
+dpatch=0,1,1,2,00000000,0,00000000
+[g]
+patch=1,EE,00100004,word,00000001

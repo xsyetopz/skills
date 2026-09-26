@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debug DuckStation"
+  short_description: "Run and debug official DuckStation releases in isolation"
+  default_prompt: "Use $debug-duckstation to run an official DuckStation release in a portable copy and diagnose the specified emulator or PlayStation guest behavior without building from source."

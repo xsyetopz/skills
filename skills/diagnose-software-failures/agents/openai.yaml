@@ -1,4 +1,0 @@
-interface:
-  display_name: "Diagnose Software Failures"
-  short_description: "Find causes of crashes, hangs, and wrong results"
-  default_prompt: "Use $diagnose-software-failures to reproduce this failure, distinguish competing causes, identify the first incorrect state, and verify the causal explanation."

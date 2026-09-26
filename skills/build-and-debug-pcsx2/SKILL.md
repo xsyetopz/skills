@@ -1,172 +1,134 @@
 ---
 name: build-and-debug-pcsx2
 description: >-
-  Use when building PCSX2, configuring an isolated emulator run, or debugging
-  PlayStation 2 guest execution, ELF loading, PNACH patches, textures,
-  rendering, or save states. Not for DuckStation or obtaining BIOS and game
-  images.
+  Builds PCSX2 (PS2 emulator) at a pinned commit and debugs it and its games
+  with isolated data, logs, breakpoints, and bisection. Use for PCSX2 build
+  failures, crashes, or rendering bugs. Not for DuckStation or obtaining BIOS
+  or games.
 ---
 
 # Build and Debug PCSX2
 
-Build, launch, or investigate PCSX2 while keeping emulator build/configuration,
-PlayStation 2 guest behavior, media/firmware provenance, rendering, patches,
-saves, and host environment as separate evidence layers.
-
-## Operating contract
-
-- Use the exact PCSX2 revision/release and current upstream source/options. Do
-  not transfer commands or configuration from the other emulator.
-- Use a task-owned isolated data/config/cache/log directory for experiments.
-  Preserve ordinary user saves, states, memory cards, settings, textures,
-  cheats, and game lists.
-- Do not obtain or redistribute BIOS, firmware, copyrighted game images, keys,
-  or proprietary assets. Use only user-authorized legally available inputs.
-- Separate command construction, emulator process startup, guest boot, specific
-  guest behavior, renderer output, and performance. Evidence at one layer does
-  not prove another.
-- Treat save states as revision/settings-dependent diagnostic artifacts, not
-  durable portable correctness evidence. Record provenance before use.
-
-## Build-and-guest execution contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a PCSX2 build or guest
-  diagnosis; it MUST NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide the PCSX2 revision, PlayStation 2 ELF or disc
-  artifact, host, and isolated settings directory, hard constraints, available
-  tools, and the finish condition once. Remove repeated directions and examples
-  unless a recorded evaluation shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with build logs, isolated VM runs, GS
-  dumps, and state comparisons. Report commands, observed results, and gaps. A
-  parser, build, or single green test proves only the property that it can
-  discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Build PCSX2 from an exact commit, or take an official release. Run it
+against a throwaway data root with a file log, and decide which layer owns
+a failure (build, setup, guest, renderer, or host) before changing
+anything. The cards are pinned to PCSX2 commit `2c804670` (`v2.9.84`) and
+the official `v2.8.2` macOS release ([sources](references/sources.md)).
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    Src[PCSX2 source / release] --> Build[Host build and packaging]
-    Build --> Launch[Isolated launch + native config]
-    Firmware[Authorized firmware/media] --> Launch
-    Launch --> Emu[Emulator core and devices]
-    Emu --> Guest[PlayStation 2 guest execution]
-    Emu --> Render[Renderer / audio / input]
-    Patch[Patches / textures / save state] --> Guest
-    Guest --> Evidence[Logs, debugger, dumps, exact reproduction]
-    Render --> Evidence
-```
+1. Read [upstream policy][policy] first when the task touches PCSX2
+   source or GitHub. Agents must not open PRs, issues, or comments. New
+   contributors must not submit LLM-generated code.
+1. Record the exact build: a release tag and sha256, or
+   `git rev-parse HEAD` of a
+   [pinned checkout](references/build-from-source.md#pinned-source-checkout).
+1. Make a case directory. Run with
+   [`-datapath`](references/run-and-log.md#isolated-data-root-with--datapath)
+   or [portable mode](references/run-and-log.md#portable-mode), and always
+   add `-logfile`. Before the first unattended run, set
+   [the wizard flag](references/run-and-log.md#first-run-wizard-flag) to
+   false.
+1. Build the argv with `scripts/build_command.py` ([launch][launch]), and
+   bound the run with an external alarm.
+1. Classify the failure by [layer][layer], and quote the log line that
+   proves each layer. The [exit status is not a boot oracle][exit].
+1. Change one variable at a time: the renderer, one patch group, one
+   build. Keep an unmodified baseline run.
+1. Re-run the same oracle. Report each claim with its layer and
+   verification tier.
 
-## Procedure
+## Route the task to a card
 
-1. Classify the task: source build, packaged launch, configuration, guest/ELF
-   debugging, patch/texture work, rendering, save-state analysis, or upstream
-   issue reproduction. Record PCSX2 revision/version, host OS/architecture, and
-   authorized inputs.
-1. Inspect upstream build files/docs and existing repository changes before
-   selecting dependencies, generator, compiler, build type, feature flags, or
-   packaging. Do not use remembered commands for a different release.
-1. For experiments, create an isolated task-owned data/config/log/cache path.
-   Inventory native settings and passthrough options. Use the bundled command
-   builder only to construct/validate arguments; inspect the result before
-   execution.
-1. Establish a minimum reproduction with game/ELF/serial/hash, exact scene or
-   frame, settings, renderer, patches/textures, save-state provenance, and
-   expected versus actual PlayStation 2 behavior. Reproduce on the same revision
-   before changing code.
-1. Locate the owning layer: host build/package, configuration/paths,
-   core/CPU/devices, guest program/data, patch, save state, renderer/driver,
-   audio/input, or external dependency. Use logs/debugger/dumps and controlled
-   A/B settings rather than broad toggles.
-1. Change one causal factor and preserve a known-good comparison. For source
-   fixes, add the narrowest suitable test or repeatable reproduction; for guest
-   patches, record target identity and address/condition constraints. Do not
-   suppress emulator errors or reset user state.
-1. Re-run the exact reproduction and relevant build/core/renderer/guest checks.
-   Clean task-owned state only after preserving useful evidence. Report which
-   layer was executed and what remains unverified.
-
-## Choose the emulator evidence reference
-
-| Situation | Read or use |
+| Task or symptom | Card |
 | --- | --- |
-| Building from source and inspecting upstream requirements | [Source builds](references/pcsx2-ps2-source-builds.md) |
-| Using documented CLI options and isolated data paths | [Native launch](references/native-launch.md) |
-| Building exact command lines and data paths | [Commands and data paths](references/commands-and-data-paths.md) |
-| Debugging guest execution, GS dumps, rendering, and evidence | [Debugging evidence](references/pcsx2-ps2-debugging-and-evidence.md) |
-| Debugger and rendering behavior | [Debugger and rendering](references/debugging-and-rendering.md) |
-| PNACH patches and texture replacement | [Patches and textures](references/patches-and-textures.md) |
-| Choosing build, launch, guest, renderer, or patch evidence | [Operational decisions](references/pcsx2-ps2-operational-decisions.md) |
-| Using complete build/launch/debug examples | [Worked scenarios](references/pcsx2-ps2-worked-scenarios.md) |
-| Matching process, guest, and renderer claims to evidence | [Verification and claim evidence](references/pcsx2-ps2-verification-and-claim-evidence.md) |
-| Avoiding user-state damage and layer conflation | [Failure patterns and recovery](references/pcsx2-ps2-failure-patterns-and-recovery.md) |
-| Applying enterprise provenance and sandbox controls | [Organizational controls and scale](references/pcsx2-ps2-organizational-controls-and-scale.md) |
-| Checking current upstream sources | [Standards, APIs, and authorities](references/pcsx2-ps2-standards-apis-and-authorities.md) |
+| Build on Linux, macOS, Windows | [Linux](references/build-from-source.md#linux-dependency-script), [macOS](references/build-from-source.md#macos-dependency-script), [Windows](references/build-from-source.md#windows-dependency-pack) |
+| Pick Release, Devel, Debug, LTO | [CMake configure](references/build-from-source.md#cmake-configure-and-build-types) |
+| Faster rebuilds | [ccache](references/build-from-source.md#ccache-compiler-launcher) |
+| Check core code without a BIOS | [Unit tests](references/build-from-source.md#unit-tests-target) |
+| Build the GS dump runner | [GS runner](references/build-from-source.md#gs-runner-target) |
+| Run without touching the user's profile | [-datapath](references/run-and-log.md#isolated-data-root-with--datapath), [portable](references/run-and-log.md#portable-mode) |
+| Unattended run hangs on a new root | [Wizard flag](references/run-and-log.md#first-run-wizard-flag) |
+| Boot an ELF, ISO, BIOS, or state | [Launch arguments](references/run-and-log.md#launch-arguments-for-an-elf-or-disc-image) |
+| "It exited 0, so it booted" | [Exit status](references/run-and-log.md#exit-status-is-not-a-boot-oracle) |
+| Need emulog or guest printf | [Logging](references/run-and-log.md#logging-to-a-file) |
+| Find what writes a guest value | [Breakpoints](references/debug-and-render.md#debugger-layouts-and-breakpoints), [expressions](references/debug-and-render.md#debugger-expressions) |
+| Names for a stripped ELF | [Symbols](references/debug-and-render.md#symbol-import-and-sym-files) |
+| Test what a function does | [Stubbing](references/debug-and-render.md#function-stubbing) |
+| Someone wants `target remote` | [No GDB stub](references/debug-and-render.md#no-gdb-stub) |
+| Graphics glitch | [Software oracle](references/debug-and-render.md#gs-renderer-choice-with-the-software-renderer-as-oracle), [GS dump](references/debug-and-render.md#gs-dump-capture), [replay](references/debug-and-render.md#gs-dump-replay-comparison) |
+| Emulator process crashes or hangs | [lldb](references/debug-and-render.md#lldb-on-host-crashes) |
+| Patch does not load or apply | [Naming](references/patches-textures-states.md#pnach-file-placement-and-naming), [patch](references/patches-textures-states.md#patch-command) |
+| Conditional or pointer cheat | [RAW codes](references/patches-textures-states.md#raw-extended-codes) |
+| Code moves between loads | [dpatch](references/patches-textures-states.md#dpatch-dynamic-patch) |
+| Replace textures | [Textures](references/patches-textures-states.md#texture-dump-and-replacement) |
+| State refuses to load, or reuse across builds | [Save states](references/patches-textures-states.md#save-state-version-caveats) |
+| Worked in version A, broken in B | [Release bisect](references/triage-and-bisect.md#bisecting-over-release-builds), [git bisect](references/triage-and-bisect.md#bisecting-source-commits-with-git-bisect) |
 
-## Emulator diagnosis references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Never download, generate, or copy a PS2 BIOS, a game image, or keys. Use
+  only files the user supplies and owns, or self-built homebrew. Without a
+  BIOS, guest-level checks are "Not runnable here". Report them that way.
+- Never run PCSX2 against the default profile
+  (`~/Library/Application Support/PCSX2`, `~/.config/PCSX2`,
+  `Documents\PCSX2`). Use a stamp file and `find -newer` to prove it is
+  untouched.
+- `-datapath DIR` needs an existing `DIR` and writes to `DIR/PCSX2`.
+  Portable mode overrides it.
+- A green build, `-testconfig`, or exit 0 does not prove a boot. Quote a
+  guest-produced log line or an artifact.
+- Check every `.pnach` with `scripts/check_pnach.py` before booting. The
+  loader drops bad lines with only a console error.
+- Label each command with the version it applies to. `-gamecfg` and the
+  breakpoint Log When Hit option exist at `v2.9.84`, not in `v2.8.2`.
+- On Apple Silicon, build x86-64 dependencies only (the arm64 recompilers
+  are missing). Keep `/opt/homebrew` libraries out of the dependency
+  prefix.
+- Do not open PCSX2 PRs, issues, or comments, and do not write their text
+  (upstream `AGENTS.md`).
 
-| Reference | Use when |
-| --- | --- |
-| [PCSX2 PS2 emulator: select the source-build task](references/pcsx2-ps2-build.md) | Resolve the requested source revision and read its build documentation, CMake options, dependency provisioning, and supported host/target architectures. |
-| [Concepts, contracts, and invariants](references/pcsx2-ps2-concepts-contracts-and-invariants.md) | Use when distinguishing the requested PCSX2 build or guest diagnosis from observed repository state. |
-| [Bundled resource map](references/pcsx2-ps2-bundled-resource-map.md) | Use when locating bundled resources for the PCSX2 build or guest diagnosis. |
+## Bundled tools
 
-## Behavioral evaluation
+- `scripts/check_pnach.py FILE... [--json] [--limit N]`: loader-equivalent
+  PNACH errors and warnings. Exits 1 on any error.
+- `scripts/build_command.py --exe BIN [options]`: prints a checked argv
+  for the `v2.8.2` CLI and never launches. Use `--native` to pass other
+  options through.
+- `assets/examples/verify.sh [offline|release|build]`: offline checks by
+  default. The opt-in `release` and `build` modes exercise a real v2.8.2
+  binary and the upstream build; the script header states each mode's
+  cost.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- `scripts/build_command.py --help`
-- `scripts/test_build_command.py`
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- No output template is mandatory. Preserve the repository's established format.
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Build from source](references/build-from-source.md): policy, checkout,
+  per-platform dependencies, CMake, ccache, unit tests, GS runner.
+- [Run and log](references/run-and-log.md): data isolation, portable mode,
+  wizard flag, launch arguments, exit status, logging.
+- [Debug and render](references/debug-and-render.md): debugger,
+  expressions, symbols, stubbing, GDB, renderer oracle, GS dumps, lldb.
+- [Patches, textures, states](references/patches-textures-states.md):
+  PNACH naming, `patch`, RAW codes, `dpatch`, textures, save states.
+- [Triage and bisect](references/triage-and-bisect.md): layer
+  classification, release bisect, git bisect.
+- [Sources](references/sources.md): pinned revisions, doc and source
+  conflicts, verification tiers.
 
 ## Completion evidence
 
-- Exact PCSX2 revision/release, host/toolchain, build options, and produced
-  artifact when building.
-- Isolated data/config/log paths and inspected native argument vector.
-- Authorized firmware/media/ELF/patch/texture/save-state identities without
-  redistributing them.
-- Minimum reproduction with expected/actual behavior and owning-layer analysis.
-- Executed host build, emulator launch, guest, renderer, debugger/dump, and
-  regression checks distinguished.
-- Task-owned cleanup and preserved user data/settings.
+The final report contains:
 
-## Stop or escalate
+- the PCSX2 version, tag, or SHA and the release sha256;
+- the host, and the case directory with its data root;
+- each command with its exit status and the quoted log line that proves
+  its layer;
+- the checker output for any PNACH;
+- the profile-untouched check;
+- which checks were Executed, Compiled, or Not runnable here, with the
+  exact error for the last group.
 
-- Required firmware/media/input is unavailable or not authorized.
-- The only available experiment would overwrite user data/configuration or
-  require unapproved system access.
-- The exact upstream version/options cannot be established.
-- A result depends on an unavailable physical GPU/driver/game scene and narrower
-  evidence would be misleading if promoted.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[policy]: references/build-from-source.md#licence-and-ai-assistant-policy
+[launch]: references/run-and-log.md#launch-arguments-for-an-elf-or-disc-image
+[layer]: references/triage-and-bisect.md#build-failure-versus-guest-behaviour
+[exit]: references/run-and-log.md#exit-status-is-not-a-boot-oracle

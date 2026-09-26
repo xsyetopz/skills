@@ -1,0 +1,15 @@
+; Negative fixture: every code below must be reported.
+[Bad Activation]
+Type = Gameshark
+Activation = Always
+80010000 0001
+
+[Wildcard Without Option]
+Type = Gameshark
+Activation = EndFrame
+80010002 00??
+
+[Letter O Instead Of Zero]
+Type = Gameshark
+Activation = EndFrame
+8008DA9A OCOO

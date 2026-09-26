@@ -1,0 +1,37 @@
+// Synthetic fixture: serial, CRC, and addresses are invented. Do not apply
+// these lines to a real game.
+gametitle=Synthetic fixture (SLPM-99999)
+
+[Fixture\Counter at boot]
+author=fixture
+description=Set a 32-bit counter once, when the entry point first runs.
+patch=0,EE,00100000,word,00000001
+
+[Fixture\Every frame]
+description=Freeze two bytes each vsync; spaces after commas are allowed.
+patch=1, EE, 00100010, short, 0203
+patch=1,EE,00100014,beword,78563412
+patch=1,EE,00100020,bytes,48656C6C6F00
+
+[Fixture\Conditional]
+description=Write 16-bit 1234 to two addresses while 0x100000 == ABCD.
+patch=1,EE,D0100000,extended,0200ABCD
+patch=1,EE,10100010,extended,00001234
+patch=1,EE,10100020,extended,00001234
+
+[Fixture\Pointer]
+description=Follow one pointer at 0x110000 and write 7 at +0x10.
+patch=1,EE,60110000,extended,00000007
+patch=1,EE,00020001,extended,00000010
+
+[Fixture\Dynamic]
+description=Change addiu v0,zero,1 to addiu v0,zero,2 before jr ra.
+dpatch=0,2,1,0,24020001,4,03E00008,0,24020002
+
+[Widescreen 16:9]
+gsaspectratio=16:9
+patch=1,EE,00100030,word,3F400000
+
+[No-Interlacing]
+gsinterlacemode=1
+patch=1,IOP,00001000,byte,01

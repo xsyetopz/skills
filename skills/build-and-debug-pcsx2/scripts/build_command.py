@@ -7,9 +7,28 @@ import json
 import shlex
 from pathlib import Path
 
+EPILOG = """\
+Exit status:
+  0  the command line was printed (nothing is executed)
+  2  usage error: conflicting or incomplete switches, or a NUL in an argument
+
+Output: a JSON array of argv strings (--format argv, the default), or one
+POSIX-shell-quoted line (--format posix).
+
+Examples:
+  python3 scripts/build_command.py --exe /opt/pcsx2/pcsx2-qt --boot game.iso \\
+    --batch
+  python3 scripts/build_command.py --exe pcsx2-qt --elf demo.elf --format posix
+  python3 scripts/build_command.py --exe pcsx2-qt --native -help
+"""
+
 
 def parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description=__doc__)
+    p = argparse.ArgumentParser(
+        description=__doc__,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     p.add_argument(
         "--format",
         choices=("argv", "posix"),

@@ -1,0 +1,15 @@
+; Example patch file in the chtdb format. Addresses and values are
+; placeholders for a self-built test program, not codes for a real game.
+[Example Fixed Write]
+Type = Gameshark
+Activation = EndFrame
+Description = 16-bit constant write to 0x80010000 every frame.
+Author = example
+80010000 0001
+
+[Example Chosen Value]
+Type = Gameshark
+Activation = Manual
+Description = Writes the value picked in the UI spinbox.
+OptionRange = 1:100
+80010002 00??

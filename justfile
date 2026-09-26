@@ -50,6 +50,14 @@ shell:
 validate: skills metadata markdown tests assets justfiles python-lint python-types shell benchmarks
     git diff --check
 
+[positional-arguments]
+eval-triggers *args:
+    python3 scripts/evals/trigger_eval.py "$@"
+
+[positional-arguments]
+eval-outputs *args:
+    python3 scripts/evals/output_eval.py "$@"
+
 benchmarks:
     sh skills/optimize-javascript-code/assets/examples/verify.sh benchmark
     sh skills/optimize-rust-code/assets/examples/verify.sh benchmark

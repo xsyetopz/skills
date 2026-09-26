@@ -1,0 +1,108 @@
+[
+	{
+		"query": "async-profiler flame graph shows ArrayList.grow and Long.valueOf under topIds(), which does orders.filter { it.total > 100 }.map { it.id }.take(20) over ~200k orders on every dashboard refresh",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Someone wants to mark our retrying(times, block) helper `inline` because JFR shows it hot, called with small capturing lambdas on every request (Kotlin/JVM). Do it only if it actually helps.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The heap dump of our Kotlin service is dominated by millions of `data class UserId(val raw: Long)` instances held in List<UserId>. Can @JvmInline value class fix that?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our Ktor handler calls runBlocking { repo.load(id) } per item inside a for loop and the repo does JDBC on Dispatchers.Default. latency spikes under load",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Flow pipeline `source.map { parse(it) }.collect { db.write(it) }` is slow: parse is CPU heavy, write is slow I/O. A colleague suggests adding .conflate(). Good idea?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Replace `by lazy` with `lazy(LazyThreadSafetyMode.NONE)` everywhere in our Spring Kotlin backend to save memory. Worth it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "JMH on our Kotlin tokenizer: 1.2 µs/op and gc.alloc.rate.norm 480 B/op. javap shows a Ref$IntRef and a Function1 created per call. Can we get the allocation down?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "sumOf over a List<Int> of prices is hot in JFR for our Kotlin billing code. I'm worried about boxing and also about overflow. Measure it and fix it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "JFR allocation profile of our Kotlin/JVM service shows IntProgression objects from a `for (i in 0 until list.size step 2)` loop in a hot path.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our coroutine code wraps every tiny in-memory cache read in withContext(Dispatchers.IO), and thread dumps show constant dispatcher switching. Is that costing us, and how do we find out?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Tune the GC flags for our Java 21 Spring Boot service. It's written in Java; there's no Kotlin in the repo.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Our Kotlin/Native iOS framework takes 300 ms to initialize at app launch; Instruments shows time in the Kotlin runtime init. Speed it up.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Scala ZIO service allocates heavily inside a for-comprehension and JFR shows Tuple2 objects at the top. Make it cheaper.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-scala-code"
+	},
+	{
+		"query": "Run ktlint across our Kotlin modules and fix the formatting violations.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write an IntelliJ plugin quick fix that converts a single-property data class into a @JvmInline value class.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Our Kotlin coroutine test using runTest hangs forever on CI but not locally. Find out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Upgrade Kotlin from 1.9 to 2.1 and fix the K2 compiler errors.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "explain the difference between a sealed class and an enum class in Kotlin",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our iOS app written in Swift stutters while scrolling a long list, and Instruments shows swift_retain/swift_release at the top.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-swift-code"
+	},
+	{
+		"query": "A JMH benchmark of our Java OrderIndex shows HashMap lookups keyed by tenant + \":\" + id allocate about 60 B/op. Cut that.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-java-code"
+	}
+]

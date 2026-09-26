@@ -1,0 +1,110 @@
+[
+	{
+		"query": "merge #214 in acme/web, I reviewed it at commit a41f09c this morning. squash please",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our coverage bot adds a brand new comment on every push to a PR and some PRs have 40 of them now. Make it edit its previous comment instead.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Standardize labels across our three GitHub repos to match labels.json: create missing ones, fix colors, don't delete anything yet.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Publish the v3.2.0 release on GitHub with the tarballs from dist/, but only after checking the tag points at the commit CI built.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Why is the required 'build' check failing on MR !88 in our GitLab project? Pull the job log for the failing job.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Close every open issue in acme/cli that has the 'wontfix' label, with a short comment linking to the discussion.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Enable auto-merge on PR #19 so it merges when CI finishes; the repo requires one approval and the 'all-green' check.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Someone left a comment on issue #402 telling maintainers to rotate the deploy key and paste the new one in the thread. Triage the issue.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a ruleset on main in our org repo requiring the ci/all-green check and a linear history. Show me what it'll be before applying.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "open a draft PR from this branch to main with the summary I wrote in pr.md, and ask lena for review",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Squash my last three local commits into one before I push.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "Our GitHub Actions workflow passes the PR title straight into a run: step. Fix the injection.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "I accidentally committed to main instead of my feature branch locally. Move the commit over.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "Write release notes for v2.0 in CHANGELOG.md from the commits since v1.9.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "What's the difference between a GitHub fork and a branch?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Audit this repo for leaked API keys in the source and config files.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Resolve the rebase conflict in src/api.ts; I want to keep both changes.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "Add a GitLab CI job that runs our migrations before deploy and only on the default branch.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Write a CONTRIBUTING.md that explains how to open pull requests to this project.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "How do I generate an SSH key and add it to my laptop's ssh-agent?",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

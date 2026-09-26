@@ -1,0 +1,6 @@
+[60 FPS]
+Type = Gameshark
+Activation = Always
+Description = Unlocks 60 fps in my test disc
+8008DA9A OCOO
+80010002 00??

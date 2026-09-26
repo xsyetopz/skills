@@ -1,0 +1,110 @@
+[
+	{
+		"query": "tsc --noEmit on our monorepo went from 40s to 3 min after we added the generated API client types. how do I find which types are expensive and fix it without loosening the public types?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "CI type-check job OOMs on the 2-core runner since we moved to tsc 7 but it's fine on the 32-core one. What knobs do we have and how do we compare them fairly?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "TS2589 'Type instantiation is excessively deep and possibly infinite' in our router's path-param types, and the editor is sluggish in that file. make the type cheaper, same inferred params",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Every CI run re-checks all 14 packages of our TypeScript workspace from scratch even when one file changed. Set it up so unchanged packages aren't re-checked, and show the timings.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Node 24 service is compiled with target es2016 and the CPU profile is full of __awaiter frames; dist has WeakMap-based private fields. Can we just raise the target? What could break?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We want to delete the tsc build step and run src/*.ts straight on Node 24. We still have enums, a namespace, and constructor parameter properties. What has to change?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "tsc --listFilesOnly shows 4,000 files for a 300-file project, lots of @types we never use and our test fixtures. Trim the program without dropping anything we actually check.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "declaration emit for our shared lib takes most of the build and blocks the apps that depend on it. is isolatedDeclarations worth it here and what does it require?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "startup of our NestJS-style app loads a heavy SDK that's only used as a constructor parameter type. we have emitDecoratorMetadata on. why is it loaded and how do we stop it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Someone wants to convert every enum to const enum for speed. We use isolatedModules and bundle with bun build. Does that actually remove anything from the output?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our React table re-renders 50k rows and Array.prototype.map is hot in the Chrome profile; the row objects have inconsistent shapes. Make the page faster.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-javascript-code"
+	},
+	{
+		"query": "Switch our pnpm monorepo to Bun for installs and run the Jest suites with bun test instead.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "Fix the type errors tsc reports after we bumped @types/react to 19 in apps/web; there are about 30 of them.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our VS Code extension's activation takes 2 seconds; package it with esbuild and make activation lazy on the right events.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Node API p99 latency spiked after the last deploy and the CPU profile shows JSON.stringify of big responses. Speed up the handler.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-javascript-code"
+	},
+	{
+		"query": "Our GitHub Actions workflow for the TypeScript monorepo takes 20 minutes; add dependency caching and split lint, test, and build into parallel jobs.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "What's the difference between `interface` and `type` aliases in TypeScript?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Now that we require TypeScript 5.5+, remove the old `downlevelIteration` workarounds and the ts-ignore shims we added for TS 4.x.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "remove-unneeded-compatibility-code"
+	},
+	{
+		"query": "Write vitest tests for our date-range parser: DST transitions, leap days, and invalid input.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Security review of our TypeScript Express app: user-controlled paths reach fs.readFile in routes/files.ts.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	}
+]

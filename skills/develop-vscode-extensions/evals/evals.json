@@ -1,35 +1,149 @@
 {
-  "skill_name": "develop-vscode-extensions",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Implement this VS Code extension feature for desktop and remote hosts with URI-safe access, cancellation, document version checks, Workspace Trust, tests, and VSIX inspection.",
-      "expected_output": "A repository-aware VS Code extension result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the VS Code extension workflow instead of returning only generic advice.",
-        "For remote uri, Use workspace/file-system APIs, not local path assumptions.",
-        "For stale async result, Check URI and version before publishing.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Create a Visual Studio IDE extension.",
-      "expected_output": "The agent does not activate develop-vscode-extensions for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that develop-vscode-extensions is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Implement this VS Code extension feature for desktop and remote hosts with URI-safe access, cancellation, document version checks, Workspace Trust, tests, and VSIX inspection. Stress case: Trust.",
-      "expected_output": "A VS Code extension result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Do not execute workspace content before trust permits it.",
-        "The evidence can detect this failure: Untrusted repository gains execution.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "develop-vscode-extensions",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Users on VS Code 1.70 report \"command 'acme.format' not found\" when they run \"Acme: Format File\" from the Command Palette. The extension is in acme-format/ (package.json and src/). It works for me on the latest VS Code. Fix it so it works on 1.70 again; we must keep supporting 1.70.",
+			"expected_output": "package.json keeps engines.vscode ^1.70.0, lists onCommand:acme.format and onCommand:acme.formatSelection in activationEvents (no \"*\"), and pins @types/vscode to the 1.70 floor. The reply explains that contributed commands activate the extension implicitly only from VS Code 1.74 and says which checks ran.",
+			"files": [
+				"evals/files/acme-format/package.json",
+				"evals/files/acme-format/src/extension.ts",
+				"evals/files/acme-format/src/format.ts"
+			],
+			"assertions": [
+				{
+					"text": "acme-format/package.json passes the bundled manifest checker with --src (no M016 or M020 errors).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\"; out=$(python3 \"$t\" acme-format/package.json --src acme-format/src 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ]"
+				},
+				{
+					"text": "engines.vscode still starts at 1.70, activationEvents holds onCommand for both contributed commands, and \"*\" is absent.",
+					"check": "python3 -c 'import json; m = json.load(open(\"acme-format/package.json\")); e = m.get(\"activationEvents\", []); assert m[\"engines\"][\"vscode\"].lstrip(\"^~>= \").startswith(\"1.70.\"), m[\"engines\"]; assert {\"onCommand:acme.format\", \"onCommand:acme.formatSelection\"} <= set(e), e; assert \"*\" not in e, e'"
+				},
+				{
+					"text": "devDependencies @types/vscode is no newer than 1.70.",
+					"check": "python3 -c 'import json, re; m = json.load(open(\"acme-format/package.json\")); v = m[\"devDependencies\"][\"@types/vscode\"]; x = re.match(r\"[~^>=\\s]*(\\d+)\\.(\\d+)\", v); assert x and (int(x[1]), int(x[2])) <= (1, 70), v'"
+				},
+				"The reply states that contributed commands activate an extension implicitly only from VS Code 1.74, which is why 1.70 needs explicit onCommand events.",
+				"The reply says which checks actually ran and does not claim the fix was tested on a real VS Code 1.70 unless the transcript shows such a run."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Security review of acme-lint/ (our VS Code extension): a cloned repo can put \"acme.linterPath\": \"./evil.sh\" in its .vscode/settings.json and we execute it as soon as a .acme file opens. Make it safe. In folders the user has not trusted, the hover provider must keep working; linting can wait until the folder is trusted and should then start without a reload.",
+			"expected_output": "package.json declares capabilities.untrustedWorkspaces {supported: \"limited\", description, restrictedConfigurations: [\"acme.linterPath\"]}; the lint path checks vscode.workspace.isTrusted before execFile; onDidGrantWorkspaceTrust starts linting; the hover provider stays registered unconditionally.",
+			"files": [
+				"evals/files/acme-lint/package.json",
+				"evals/files/acme-lint/src/extension.ts",
+				"evals/files/acme-lint/src/hover.ts"
+			],
+			"assertions": [
+				{
+					"text": "untrustedWorkspaces.supported is \"limited\" with a non-empty description, and restrictedConfigurations lists acme.linterPath.",
+					"check": "python3 -c 'import json; m = json.load(open(\"acme-lint/package.json\")); u = m[\"capabilities\"][\"untrustedWorkspaces\"]; assert u[\"supported\"] == \"limited\", u; assert u.get(\"description\"), u; assert \"acme.linterPath\" in u.get(\"restrictedConfigurations\", []), u'"
+				},
+				{
+					"text": "The manifest passes the bundled checker with --src and no longer warns M021.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\"; out=$(python3 \"$t\" acme-lint/package.json --src acme-lint/src 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ] && ! printf \"%s\" \"$out\" | grep -q \"M021\""
+				},
+				{
+					"text": "The sources read vscode.workspace.isTrusted and subscribe to onDidGrantWorkspaceTrust.",
+					"check": "grep -rq 'isTrusted' acme-lint/src && grep -rq 'onDidGrantWorkspaceTrust' acme-lint/src"
+				},
+				{
+					"text": "The hover provider is still registered.",
+					"check": "grep -rq 'registerHoverProvider' acme-lint/src"
+				},
+				"The trust check guards the code path that calls execFile (in the lint function or immediately before the spawn), not only a when clause or the activation event; quote the guarding lines."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Make acme-blame/ work in VS Code for the Web (vscode.dev, github.dev). Highlighting the lines listed in .acmeblame.json must work there too; the git blame command can stay desktop-only but must not crash or show up as broken on the web. Keep the desktop build working. The build is esbuild.mjs.",
+			"expected_output": "package.json gains a browser entry built by a second esbuild step with platform browser and vscode external; the config file is read with vscode.workspace.fs and a URI instead of fs/fsPath; child_process stays in a Node-only module; the blame command is hidden or reports it is unavailable on the web; the manifest check passes.",
+			"files": [
+				"evals/files/acme-blame/package.json",
+				"evals/files/acme-blame/esbuild.mjs",
+				"evals/files/acme-blame/src/extension.ts"
+			],
+			"assertions": [
+				{
+					"text": "package.json keeps main and adds a browser entry that points to a different file.",
+					"check": "python3 -c 'import json; m = json.load(open(\"acme-blame/package.json\")); assert m.get(\"main\") and m.get(\"browser\"), m; assert m[\"main\"] != m[\"browser\"], m'"
+				},
+				{
+					"text": "esbuild.mjs contains a build with platform \"browser\".",
+					"check": "grep -Eq \"platform:[[:space:]]*['\\\"]browser['\\\"]\" acme-blame/esbuild.mjs"
+				},
+				{
+					"text": "No source file reads the config with Node fs any more, and the sources use vscode.workspace.fs.",
+					"check": "! grep -rEq 'readFileSync|existsSync' acme-blame/src && grep -rq 'workspace.fs' acme-blame/src"
+				},
+				{
+					"text": "The manifest passes the bundled checker with --src.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\"; out=$(python3 \"$t\" acme-blame/package.json --src acme-blame/src 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ]"
+				},
+				"The module used as the browser entry (and everything it imports) does not import child_process, fs, or path; quote the browser entry's imports.",
+				"The git blame command is hidden on the web (for example a when clause using isWeb) or reports that it is unavailable there, and the reply does not claim a browser run that the transcript does not show."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "The diagnostics from our checker extension (acme-check/src/extension.ts) flicker: when I type fast, errors for text I already fixed come back for a second, and closing a file leaves its problems in the Problems view. The server takes 50-800 ms per check. Fix it and add a unit test for whatever logic decides which result wins.",
+			"expected_output": "The handler records document.version and a per-URI request generation before the await and publishes only when both are still current; change events with no contentChanges are skipped; diagnostics are deleted on close; the guard lives in a module without vscode and has a unit test.",
+			"files": [
+				"evals/files/acme-check/src/extension.ts",
+				"evals/files/acme-check/src/client.ts"
+			],
+			"assertions": [
+				{
+					"text": "The sources compare document versions and delete diagnostics when a document closes.",
+					"check": "grep -rq '\\.version' acme-check/src && grep -rq 'onDidCloseTextDocument' acme-check/src && grep -rEq '\\.delete\\(' acme-check/src"
+				},
+				{
+					"text": "A unit test file was added under acme-check/.",
+					"check": "find acme-check -type f \\( -name '*.test.*' -o -name '*.spec.*' -o -path '*/test/*' \\) | grep -q ."
+				},
+				"The handler captures the version (or a request counter) before `await server.check(...)` and compares it after the await, before calling collection.set; quote those lines.",
+				"The guard also covers out-of-order responses at the same version (a per-document request generation or cancellation of the older request), not only the version number.",
+				"Change events with an empty contentChanges array are skipped or the reply explains why they are harmless."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "acme-docfmt/: people run \"Acme Doc: Normalize Headings\" and get \"command 'acmeDocfmt.formatDocument' not found\". I'm pretty sure it's because activationEvents is empty, so please just add \"*\" so the extension always loads.",
+			"expected_output": "Does not add \"*\": with engines ^1.88 contributed commands activate implicitly. The real bug is that activate() registers acmeDocfmt.formatDoc while package.json contributes acmeDocfmt.formatDocument; the registration is fixed to the contributed ID and the manifest check passes.",
+			"files": [
+				"evals/files/acme-docfmt/package.json",
+				"evals/files/acme-docfmt/src/extension.ts"
+			],
+			"assertions": [
+				{
+					"text": "The manifest passes the bundled checker with --src (the contributed command is registered) and has no M017 warning.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-vscode-extensions/scripts/check_manifest.py\"; out=$(python3 \"$t\" acme-docfmt/package.json --src acme-docfmt/src 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ] && ! printf \"%s\" \"$out\" | grep -q \"M017\""
+				},
+				{
+					"text": "activationEvents does not contain \"*\" and the contributed command ID is still acmeDocfmt.formatDocument.",
+					"check": "python3 -c 'import json; m = json.load(open(\"acme-docfmt/package.json\")); assert \"*\" not in m.get(\"activationEvents\", []), m.get(\"activationEvents\"); assert [c[\"command\"] for c in m[\"contributes\"][\"commands\"]] == [\"acmeDocfmt.formatDocument\"]'"
+				},
+				"The reply identifies the mismatch between the registered ID (acmeDocfmt.formatDoc) and the contributed ID as the cause.",
+				"The reply explains that on VS Code 1.74 and later a contributed command activates the extension without an activation event, so \"*\" is unnecessary (and slows startup)."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Create a Visual Studio 2022 extension in ToolsCommand/ that adds a \"Insert GUID\" command to the Tools menu, written in C# with the VisualStudio.Extensibility SDK (out-of-process model). Don't build it, just give me the project.",
+			"expected_output": "A C# project using Microsoft.VisualStudio.Extensibility (an Extension class and a Command with a Tools menu placement). No VS Code package.json contributions, vscode API, or vsce.",
+			"assertions": [
+				{
+					"text": "ToolsCommand/ contains C# code that uses Microsoft.VisualStudio.Extensibility.",
+					"check": "grep -rq --include='*.cs' 'Microsoft.VisualStudio.Extensibility' ToolsCommand"
+				},
+				{
+					"text": "No package.json with VS Code contributions was created.",
+					"check": "test -z \"$(find . -path ./.claude -prune -o -name package.json -print | xargs grep -l contributes 2>/dev/null)\""
+				},
+				"The reply treats the request as Visual Studio IDE extensibility and does not use VS Code concepts (vscode API, contributes, vsce)."
+			]
+		}
+	]
 }

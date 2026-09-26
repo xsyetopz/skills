@@ -1,0 +1,109 @@
+[
+	{
+		"query": "pprof -top on our ingest worker says runtime.mallocgc + growslice are ~38% of CPU. the hot func appends parsed records to a nil slice for every batch (~50k records). how do I cut that down and actually prove it helped?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "BenchmarkMarshal went from 1800 ns/op to 2600 ns/op after my last PR (benchstat p=0.000, n=10). The diff swapped a reused []byte for a bytes.Buffer created per call. Help me get the time back without reverting the rest of the PR.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our gRPC gateway (Go) p99 jumped from 12ms to 40ms after we started logging every request. GODEBUG=gctrace=1 shows a GC cycle roughly every 80ms under load. Figure out what's allocating and fix it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "go test -bench=ParseHeader -benchmem says 12 allocs/op and -gcflags=-m prints `&hdr escapes to heap`. I'd like that as close to zero as possible.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "is it worth putting a sync.Pool around the 64KB scratch buffers in our image resize handler? ~3k calls/s across goroutines, heap profile alloc_space is dominated by those buffers. I want numbers not vibes",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "cmd/crawler starts one goroutine per URL (about 2M URLs) and the box pegs at 100% CPU with runtime.schedule and chansend near the top of the profile. make it scale",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "service pod keeps getting OOMKilled at its 1GiB limit even though inuse heap is ~500MiB. go1.26 binary. what should we change and how do we check it worked",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We captured a CPU profile from a production-sized run of our indexer CLI (written in Go). Can we feed that back into the build so the binary itself runs faster?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "our Go json-to-csv converter takes 14s on a 2GB file. the cpu profile is mostly syscall.write, nothing is buffered as far as I can tell",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The rate limiter looks things up with `buckets[tenant + \":\" + strconv.Itoa(id)]` and that line is the top allocation site in the heap profile. Can we avoid building a string on every request?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Rename the exported helpers in pkg/strutil so they follow Go naming conventions, and add doc comments to each.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "run gofmt and golangci-lint across the repo and fix whatever they report, no behavior changes",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "TestReconcile in our Go operator fails about 1 in 20 CI runs and -race reports a data race on the cache map. find out why",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Our Rust tokio service's allocations per request doubled after upgrading serde; dhat shows it in the deserializer. Help me cut it back down.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Our Java 21 order service does `index.get(tenant + \":\" + id)` in a hot path and JFR allocation-by-class shows String and byte[] at the top. Make find() cheaper.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Add a GitHub Actions workflow that runs go vet and go test -race on every pull request and caches the module download.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Our Go file server does http.ServeFile(w, r, filepath.Join(root, r.URL.Path)). Can someone reach files outside root with this?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "The Python ETL step that reads parquet and groups by customer takes 20 minutes; cProfile shows most of it inside a pandas apply. Speed it up.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Write table-driven tests for our Go ParseDuration wrapper, covering negative values, overflow, and empty strings.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Bump our Go module from go 1.21 to 1.24 and fix whatever breaks in the build.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

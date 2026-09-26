@@ -1,0 +1,21 @@
+{
+	"Table-driven test": {
+		"prefix": "tdt",
+		"body": [
+			"func Test${1:Name}(t *testing.T) {",
+			"\ttests := []struct {",
+			"\t\tname string",
+			"\t\t$2",
+			"\t}{",
+			"\t\t{name: \"$3\"},",
+			"\t}",
+			"\tfor _, tt := range tests {",
+			"\t\tt.Run(tt.name, func(t *testing.T) {",
+			"\t\t\t$0",
+			"\t\t})",
+			"\t}",
+			"}"
+		],
+		"description": "Table-driven test with subtests"
+	}
+}

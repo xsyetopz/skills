@@ -1,35 +1,97 @@
 {
-  "skill_name": "optimize-c-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this C hot path under the declared compiler/standard and representative workload while preserving ABI, ownership, errors, and undefined-behavior constraints.",
-      "expected_output": "A repository-aware C optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the C optimization workflow instead of returning only generic advice.",
-        "For mismatched work, Benchmark identical inputs, outputs, setup boundary, and build flags.",
-        "For integer/aliasing edge, Use correctness oracles and sanitizers where applicable.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Refactor C formatting without a performance objective.",
-      "expected_output": "The agent does not activate optimize-c-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-c-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this C hot path under the declared compiler/standard and representative workload while preserving ABI, ownership, errors, and undefined-behavior constraints. Stress case: Single run.",
-      "expected_output": "A C optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Repeat and report distribution/stability.",
-        "The evidence can detect this failure: One-run superiority claim.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-c-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "parsetree/ parses a file of whitespace-separated integers into a binary search tree (build: `cc -O2 -std=c17 -o pt parsetree/*.c`, input: `sh parsetree/gen.sh > in.txt`, run: `./pt in.txt`). Instruments puts malloc and free at about 30% of CPU for the 2-million-key input. Cut the allocator cost without leaking and without changing the printed results, the behavior on malformed input, or the API in parsetree/tree.h. The build compiles every .c file in parsetree/, so leave only shipped sources there. Tell me the allocator call counts and the run time before and after.",
+			"expected_output": "Nodes come from an arena (or equivalent bulk allocator) released in tree_free, results and NULL-on-error behavior are unchanged, an allocator-call count and repeated timings are reported for baseline and candidate, and the oracle ran under ASan/UBSan or is stated as not run.",
+			"files": [
+				"evals/files/parsetree/tree.h",
+				"evals/files/parsetree/tree.c",
+				"evals/files/parsetree/main.c",
+				"evals/files/parsetree/gen.sh"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned harness gets the original's count, height, and checksum for empty, whitespace-only, duplicate, LONG_MIN/LONG_MAX, and 200000-key inputs, NULL for malformed and out-of-range tokens, and no allocation live after tree_free or a failed parse.",
+					"check": "command -v cc >/dev/null || { echo 'FAIL: no C compiler (cc) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(void){return 0;}\\n' > \"$d/probe.c\"\nif ! cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\nsrcs=\nfor f in parsetree/*.c; do\n  case $f in */main.c) continue ;; esac\n  if grep -Eq '^(static +)?(void|int) *\\** *(malloc|calloc|realloc|free|aligned_alloc|posix_memalign) *\\(' \"$f\"; then echo \"note: skipping $f (defines an allocator function)\"; continue; fi\n  srcs=\"$srcs $f\"\ndone\ncat > \"$d/zz_count.c\" <<'EOF'\n#include <stdlib.h>\nlong eval_allocs, eval_live;\nstatic void *note(void *p) { if (p) { eval_allocs++; eval_live++; } return p; }\nvoid *eval_malloc(size_t n) { return note(malloc(n)); }\nvoid *eval_calloc(size_t a, size_t b) { return note(calloc(a, b)); }\nvoid *eval_aligned_alloc(size_t a, size_t n) { return note(aligned_alloc(a, n)); }\nint eval_posix_memalign(void **p, size_t a, size_t n) { int r = posix_memalign(p, a, n); if (!r) note(*p); return r; }\nvoid *eval_realloc(void *q, size_t n) { void *p = realloc(q, n); if (p) { eval_allocs++; if (!q) eval_live++; } return p; }\nvoid eval_free(void *p) { if (p) eval_live--; free(p); }\nEOF\ncat > \"$d/zz_main.c\" <<'EOF'\n#include \"tree.h\"\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nextern long eval_allocs, eval_live;\nstatic int bad;\nstatic void one(const char *src) {\n    struct tree *t = tree_parse(src);\n    if (t == NULL) printf(\"NULL\");\n    else { printf(\"%zu %zu %lu\", tree_count(t), tree_height(t), tree_checksum(t)); tree_free(t); }\n    printf(\" live=%ld\\n\", eval_live);\n    if (eval_live != 0) bad = 1;\n}\nint main(void) {\n    const char *cases[] = {\"\", \" \\n\\t \", \"42\", \"5 3 8 3\", \"-9223372036854775808 9223372036854775807 0\",\n        \"1 2 x\", \"9223372036854775808\", \"1 2-3\", \"0x10\", \"7\\n7\\n7\", NULL};\n    for (int i = 0; cases[i]; i++) one(cases[i]);\n    size_t n = 200000, len = 0;\n    char *big = malloc(n * 13 + 1);\n    unsigned long long x = 12345;\n    for (size_t i = 0; i < n; i++) { x = (x * 69069 + 1) % 4294967296ULL; len += (size_t)sprintf(big + len, \"%lld \", (long long)x - 2147483648LL); }\n    long before = eval_allocs;\n    struct tree *t = tree_parse(big);\n    long used = eval_allocs - before;\n    printf(\"%zu %zu %lu\\n\", tree_count(t), tree_height(t), tree_checksum(t));\n    tree_free(t);\n    free(big);\n    printf(\"allocs=%ld live=%ld\\n\", used, eval_live);\n    return bad || eval_live != 0;\n}\nEOF\nflags='-Dmalloc=eval_malloc -Dcalloc=eval_calloc -Drealloc=eval_realloc -Dfree=eval_free -Daligned_alloc=eval_aligned_alloc -Dposix_memalign=eval_posix_memalign'\nfor f in $srcs \"$d/zz_main.c\"; do\n  cc -O2 -std=c17 -Iparsetree $flags -c \"$f\" -o \"$d/$(basename \"$f\" .c).o\" || exit 1\ndone\ncc -O2 -std=c17 -c \"$d/zz_count.c\" -o \"$d/zz_count.o\" && cc \"$d\"/*.o -o \"$d/zz_eval\" || exit 1\n\"$d/zz_eval\" > \"$d/out.txt\"; status=$?\ncat \"$d/out.txt\"\ncat > \"$d/want.txt\" <<'EOF'\n0 0 0 live=0\n0 0 0 live=0\n1 1 42 live=0\n4 3 56 live=0\n3 3 18446744073709551613 live=0\nNULL live=0\nNULL live=0\nNULL live=0\nNULL live=0\n3 3 42 live=0\n200000 45 14343261929455044142\nEOF\ngrep -v '^allocs=' \"$d/out.txt\" | diff \"$d/want.txt\" - && [ \"$status\" -eq 0 ] || { echo 'FAIL: results differ from the original or memory is still live after tree_free'; exit 1; }"
+				},
+				{
+					"text": "tree_parse makes at most 2000 counted allocator calls (malloc, calloc, realloc, aligned_alloc, posix_memalign) for 200000 keys, down from the original's 200001.",
+					"check": "command -v cc >/dev/null || { echo 'FAIL: no C compiler (cc) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(void){return 0;}\\n' > \"$d/probe.c\"\nif ! cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\nsrcs=\nfor f in parsetree/*.c; do\n  case $f in */main.c) continue ;; esac\n  if grep -Eq '^(static +)?(void|int) *\\** *(malloc|calloc|realloc|free|aligned_alloc|posix_memalign) *\\(' \"$f\"; then echo \"note: skipping $f (defines an allocator function)\"; continue; fi\n  srcs=\"$srcs $f\"\ndone\ncat > \"$d/zz_count.c\" <<'EOF'\n#include <stdlib.h>\nlong eval_allocs, eval_live;\nstatic void *note(void *p) { if (p) { eval_allocs++; eval_live++; } return p; }\nvoid *eval_malloc(size_t n) { return note(malloc(n)); }\nvoid *eval_calloc(size_t a, size_t b) { return note(calloc(a, b)); }\nvoid *eval_aligned_alloc(size_t a, size_t n) { return note(aligned_alloc(a, n)); }\nint eval_posix_memalign(void **p, size_t a, size_t n) { int r = posix_memalign(p, a, n); if (!r) note(*p); return r; }\nvoid *eval_realloc(void *q, size_t n) { void *p = realloc(q, n); if (p) { eval_allocs++; if (!q) eval_live++; } return p; }\nvoid eval_free(void *p) { if (p) eval_live--; free(p); }\nEOF\ncat > \"$d/zz_main.c\" <<'EOF'\n#include \"tree.h\"\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nextern long eval_allocs, eval_live;\nstatic int bad;\nstatic void one(const char *src) {\n    struct tree *t = tree_parse(src);\n    if (t == NULL) printf(\"NULL\");\n    else { printf(\"%zu %zu %lu\", tree_count(t), tree_height(t), tree_checksum(t)); tree_free(t); }\n    printf(\" live=%ld\\n\", eval_live);\n    if (eval_live != 0) bad = 1;\n}\nint main(void) {\n    const char *cases[] = {\"\", \" \\n\\t \", \"42\", \"5 3 8 3\", \"-9223372036854775808 9223372036854775807 0\",\n        \"1 2 x\", \"9223372036854775808\", \"1 2-3\", \"0x10\", \"7\\n7\\n7\", NULL};\n    for (int i = 0; cases[i]; i++) one(cases[i]);\n    size_t n = 200000, len = 0;\n    char *big = malloc(n * 13 + 1);\n    unsigned long long x = 12345;\n    for (size_t i = 0; i < n; i++) { x = (x * 69069 + 1) % 4294967296ULL; len += (size_t)sprintf(big + len, \"%lld \", (long long)x - 2147483648LL); }\n    long before = eval_allocs;\n    struct tree *t = tree_parse(big);\n    long used = eval_allocs - before;\n    printf(\"%zu %zu %lu\\n\", tree_count(t), tree_height(t), tree_checksum(t));\n    tree_free(t);\n    free(big);\n    printf(\"allocs=%ld live=%ld\\n\", used, eval_live);\n    return bad || eval_live != 0;\n}\nEOF\nflags='-Dmalloc=eval_malloc -Dcalloc=eval_calloc -Drealloc=eval_realloc -Dfree=eval_free -Daligned_alloc=eval_aligned_alloc -Dposix_memalign=eval_posix_memalign'\nfor f in $srcs \"$d/zz_main.c\"; do\n  cc -O2 -std=c17 -Iparsetree $flags -c \"$f\" -o \"$d/$(basename \"$f\" .c).o\" || exit 1\ndone\ncc -O2 -std=c17 -c \"$d/zz_count.c\" -o \"$d/zz_count.o\" && cc \"$d\"/*.o -o \"$d/zz_eval\" || exit 1\n\"$d/zz_eval\" > \"$d/out.txt\"; status=$?\ncat \"$d/out.txt\"\nn=$(sed -n 's/^allocs=\\([0-9]*\\).*/\\1/p' \"$d/out.txt\")\n[ -n \"$n\" ] && [ \"$n\" -le 2000 ] || { echo \"FAIL: tree_parse made ${n:-?} allocator calls for 200000 keys; the original makes 200001 and the target is at most 2000\"; exit 1; }"
+				},
+				"The reply reports allocator call counts for baseline and candidate, from a counting wrapper, Instruments Allocations, or an equivalent tool that was actually run.",
+				"The reply reports before and after timings from the same -O2 build and machine with repeated runs (hyperfine or a timing loop), not a single run.",
+				"The reply states the result of an ASan/UBSan oracle run over the candidate, or states that it was not run."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Our CSV exporter (C17, clang -O2) is slow. `sample` shows 85% of time in strcat under build_line(): `char line[65536]; line[0] = 0; for (size_t i = 0; i < ncols; i++) { strcat(line, cols[i]); strcat(line, \",\"); }`. Then each line goes out with `write(fd, line, strlen(line))`. Make it faster without changing the output bytes.",
+			"expected_output": "An end-offset join with memcpy and a computed length check, batched writes with a partial-write loop, an oracle comparing output bytes (cksum) on empty, one-column, and UTF-8 input, and hyperfine or timing-loop numbers before and after.",
+			"assertions": [
+				"Replaces the repeated strcat with a tracked end offset (memcpy or equivalent) and checks that the total length fits the buffer.",
+				"Batches output into a buffer written with a loop that handles partial writes and EINTR, or uses stdio full buffering.",
+				"Compares baseline and candidate output bytes (cksum, cmp, or an oracle) including empty and multi-byte input.",
+				"Reports before/after measurements from the same build flags and machine with repeats, not a single run."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Add `restrict` to every pointer parameter in src/image.c to speed it up. One function is `void blend(uint8_t *dst, const uint8_t *a, const uint8_t *b, size_t n)` and callers sometimes pass dst == a for in-place blending.",
+			"expected_output": "The agent refuses to add restrict to blend because an in-place call aliases dst and a (undefined behavior), audits call sites before adding restrict elsewhere, and verifies any change with -S or remarks plus a timing comparison.",
+			"assertions": [
+				"States that restrict on blend is undefined behavior for the dst == a call and does not apply it there.",
+				"Audits call sites for overlap before adding restrict to any other function.",
+				"Uses -S assembly, optimization remarks, or timing to show a benefit before keeping any restrict change."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Turn on -ffast-math globally in our Makefile so the sum loop in stats.c vectorizes. stats.c also has `if (isnan(x)) continue;` to skip missing values.",
+			"expected_output": "The agent rejects global -ffast-math because finite-math makes NaN handling undefined and would break the isnan filter, and offers a scoped #pragma clang fp reassociate(on) on the sum loop (or explicit accumulators) verified with -S (fadd.4s) or remarks and a tolerance-based oracle.",
+			"assertions": [
+				"Explains that -ffast-math implies finite-math and makes the isnan check unreliable.",
+				"Proposes a scoped alternative (#pragma clang fp reassociate or explicit accumulators) limited to the reduction.",
+				"Verifies vectorization with -S or optimization remarks rather than assuming it.",
+				"Notes that the summation order and therefore rounding change and tests with a tolerance or exact inputs."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our release build ships to customers' x86-64 servers of mixed age. A teammate wants `-march=native` in CFLAGS because the build server has AVX-512 and a checksum loop got 2x faster there.",
+			"expected_output": "The agent explains that -march=native binaries can fault with illegal instructions on older CPUs, proposes an explicit baseline (-march=x86-64-v2/v3 matching the fleet) or runtime dispatch with __attribute__((target)) and __builtin_cpu_supports, and requires testing on the oldest supported CPU.",
+			"assertions": [
+				"States that -march=native can produce illegal-instruction crashes on older fleet CPUs.",
+				"Offers runtime dispatch (target attribute plus __builtin_cpu_supports) or an explicit baseline level instead.",
+				"Requires the oracle and timing on the oldest supported CPU or states that it was not verified."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Reformat the C sources in stats/ with clang-format (stats/.clang-format is our style) and fix the -Wshadow warnings the Makefile build prints. No behavior or performance changes.",
+			"expected_output": "Sources pass clang-format, the build is warning-free under -Wshadow, the program prints the same line, and the Makefile flags and code carry no optimization changes.",
+			"files": [
+				"evals/files/stats/.clang-format",
+				"evals/files/stats/Makefile",
+				"evals/files/stats/stats.h",
+				"evals/files/stats/stats.c",
+				"evals/files/stats/main.c"
+			],
+			"assertions": [
+				{
+					"text": "clang-format --dry-run --Werror reports no violations in stats/.",
+					"check": "command -v clang-format >/dev/null || { echo 'FAIL: clang-format not found on PATH'; exit 1; }\nclang-format --dry-run --Werror stats/*.c stats/*.h"
+				},
+				{
+					"text": "stats/ builds with -Wall -Wshadow -Werror and prints the original line `mean=5.000 variance=4.000 above4=4 records=9`.",
+					"check": "command -v cc >/dev/null || { echo 'FAIL: no C compiler (cc) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(void){return 0;}\\n' > \"$d/probe.c\"\nif ! cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\ncc -O2 -std=c17 -Wall -Wshadow -Werror -o \"$d/stats\" stats/main.c stats/stats.c || exit 1\nout=$(\"$d/stats\") && [ \"$out\" = 'mean=5.000 variance=4.000 above4=4 records=9' ] || { echo \"FAIL: output changed: $out\"; exit 1; }"
+				},
+				{
+					"text": "The Makefile's CFLAGS line is unchanged and no restrict, pragma, attribute, inline, or branch-hint constructs were added.",
+					"check": "grep -qx 'CFLAGS = -O2 -std=c17 -Wall -Wshadow' stats/Makefile || { echo 'FAIL: CFLAGS in stats/Makefile changed'; exit 1; }\nif grep -Eq '\\brestrict\\b|__builtin_expect|#pragma|__attribute__|\\binline\\b' stats/*.c stats/*.h; then echo 'FAIL: optimization constructs added'; exit 1; fi"
+				}
+			]
+		}
+	]
 }

@@ -1,0 +1,54 @@
+{
+	"name": "acme-lint",
+	"displayName": "Acme Lint",
+	"description": "Runs the Acme linter and shows hovers for Acme files.",
+	"version": "0.9.0",
+	"publisher": "acme",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Linters"
+	],
+	"main": "./out/extension.js",
+	"activationEvents": [
+		"onLanguage:acme"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "acme",
+				"extensions": [
+					".acme"
+				]
+			}
+		],
+		"commands": [
+			{
+				"command": "acme.lintNow",
+				"title": "Acme: Lint Current File"
+			}
+		],
+		"configuration": {
+			"title": "Acme Lint",
+			"properties": {
+				"acme.linterPath": {
+					"type": "string",
+					"default": "acme-lint",
+					"description": "Path to the acme-lint executable."
+				},
+				"acme.maxProblems": {
+					"type": "number",
+					"default": 100,
+					"description": "Maximum number of problems to report per file."
+				}
+			}
+		}
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.6.0"
+	}
+}

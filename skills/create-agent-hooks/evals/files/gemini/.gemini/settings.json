@@ -1,0 +1,33 @@
+{
+  "general": {
+    "vimMode": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "name": "branch-context",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/branch_context.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "name": "shell-guard",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.gemini/hooks/shell_guard.py\"",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}

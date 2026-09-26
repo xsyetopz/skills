@@ -1,0 +1,45 @@
+{
+	"name": "acme-blame",
+	"displayName": "Acme Blame",
+	"description": "Shows who last touched the current line and highlights lines listed in .acmeblame.json.",
+	"version": "2.1.0",
+	"publisher": "acme",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"main": "./dist/extension.js",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": false,
+			"description": "Runs git in the workspace."
+		}
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "acmeBlame.showLineAuthor",
+				"title": "Acme Blame: Show Line Author"
+			},
+			{
+				"command": "acmeBlame.highlightWatched",
+				"title": "Acme Blame: Highlight Watched Lines"
+			}
+		]
+	},
+	"scripts": {
+		"build": "node esbuild.mjs"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.85.0",
+		"esbuild": "^0.24.0",
+		"typescript": "^5.6.0"
+	}
+}

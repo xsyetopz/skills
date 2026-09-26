@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message": {
+    "filter": "updates:10.5555/jcbr.2019.0077",
+    "total-results": 2,
+    "items": [
+      {
+        "DOI": "10.5555/jcbr.2020.0011",
+        "type": "journal-article",
+        "title": ["Correction to: Blue-Light Glasses Improve Programmer Sleep Quality"],
+        "published": {"date-parts": [[2020, 2, 14]]},
+        "update-to": [{"DOI": "10.5555/jcbr.2019.0077", "type": "correction",
+                       "updated": {"date-parts": [[2020, 2, 14]]}}]
+      },
+      {
+        "DOI": "10.5555/jcbr.2022.0003",
+        "type": "journal-article",
+        "title": ["Retraction notice: Blue-Light Glasses Improve Programmer Sleep Quality"],
+        "published": {"date-parts": [[2022, 1, 20]]},
+        "update-to": [{"DOI": "10.5555/jcbr.2019.0077", "type": "retraction",
+                       "updated": {"date-parts": [[2022, 1, 20]]}}]
+      }
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+[    0.1907] PCSX2 v2.8.2
+[    0.1909] Savestate version: 0x9a590000
+[    0.2568] DataRoot Directory: /tmp/ci/data/PCSX2
+[    0.2571] Settings Directory: /tmp/ci/data/PCSX2/inis
+[    0.2574] Bios Directory: /tmp/ci/data/PCSX2/bios
+[    0.6012] ReportErrorAsync: Startup Error: PCSX2 requires a PlayStation 2 BIOS in order to run.

@@ -1,0 +1,110 @@
+[
+	{
+		"query": "Set up an AGENTS.md for this repo so Codex knows how to run the tests and what not to touch.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Claude keeps using npm in this project even though we switched to pnpm months ago. Where should I tell it, and can you fix it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our CLAUDE.md is 600 lines and Claude seems to ignore half of it. Trim it down to what matters.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We have AGENTS.md for Codex; I just added a CLAUDE.md for Claude-only stuff and now Claude doesn't follow the AGENTS.md rules anymore. Why?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "In our monorepo, the web package needs different test commands than the API. How do I give agents per-package instructions?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "review AGENTS.md — half the commands in it probably don't work anymore",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want personal instructions for Claude in this repo that my teammates don't get. What file and where?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a rule to our agent instructions that only applies when Claude edits files under migrations/.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Document for coding agents that src/gen/ is generated and must be rebuilt with `make proto` instead of edited.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Codex doesn't pick up the rules in services/billing/AGENTS.md when I launch it from services/ledger.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write a CONTRIBUTING.md explaining our branch naming and review process for human contributors.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "Create a skill that teaches agents our API error-handling conventions.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-skills"
+	},
+	{
+		"query": "Add a Claude Code hook that runs the linter after every file edit.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "Add a `just test` recipe that runs pytest with coverage.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "What's the difference between Claude Code and Codex?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Update the README install section; it still says to use Python 3.9.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "Our GitHub Actions workflow runs `npm test` but we moved to Bun. Update the workflow.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Move this project from npm to Bun: lockfile, scripts, and tests.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "Make the description of our pdf skill trigger more reliably.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "create-agent-skills"
+	},
+	{
+		"query": "Explain what this regex does: ^(?:[a-z0-9-]+\\.)+[a-z]{2,}$",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

@@ -1,0 +1,6 @@
+$ python3 scripts/pii_scan.py build/app.log
+build/app.log:88: email address found (j***@example.com)
+build/app.log:131: email address found (m***@example.org)
+2 findings
+$ echo $?
+1

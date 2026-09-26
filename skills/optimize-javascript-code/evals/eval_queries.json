@@ -1,0 +1,110 @@
+[
+	{
+		"query": "node --cpu-prof on our API puts 40% self time in buildReport(), which chains filter/map/reduce over ~1000 rows per request at 5k rps, and --trace-gc prints scavenges nonstop. make it cheaper and prove it",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A teammate wants to replace every `str += piece` in our template renderer with parts.push(piece) + join('') because 'string concatenation is quadratic'. We ship on Bun 1.4 and Node 26. Should we?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our node image service computes a ~400ms perceptual hash per upload on the main thread, and health checks time out during upload bursts",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Chrome DevTools flags 'Forced reflow' in our dashboard's resize handler. It reads offsetWidth and writes style.height for each card in the same loop.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "node --trace-deopt keeps printing 'wrong map' deopts for parseRecord() in our ingest worker, and it got 3x slower after we started adding optional fields to the record objects",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "structuredClone of a 2 MB config object on every request is 25% of our Node 22 CPU profile. Is there a cheaper deep copy that behaves the same for our data?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "monitorEventLoopDelay reports a p99 of 180 ms on our Node service, and the CPU profile shows JSON.parse of a 20 MB payload in the request path.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Bun HTTP handler counts words per request with a Map and it's slower on Bun than on Node. Which approach is faster on each runtime, and how do I measure both fairly?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "vanilla JS canvas app: every animation frame allocates fresh arrays for particle positions and the Performance panel shows a minor GC every few frames",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "saveAll() does items.forEach(async (item) => { await db.insert(item) }) and our benchmark says it takes 0.1 ms. something feels off. make it actually fast",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Migrate our Express app from Node 20 to Bun and update the Dockerfile.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "tsc --noEmit takes 90 seconds on our monorepo and --extendedDiagnostics reports 2M instantiations. Speed up type-checking.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-typescript-builds"
+	},
+	{
+		"query": "Set up ESLint and Prettier for our Node project and fix the lint errors they report.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Jest test for the checkout flow times out randomly on CI but passes locally. Find out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Our Flask endpoint builds a report with pandas and takes 2 seconds; py-spy shows most of it in DataFrame.apply. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Build a VS Code extension command that pretty-prints the selected JSON in the active editor.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "what's the difference between setImmediate and process.nextTick in node",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Rewrite our Express route handlers from nested callbacks to async/await so they're easier to follow.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Our Node server passes a query parameter to eval() to compute totals. Is that a problem, and how would someone abuse it?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Our Rust crate compiled to wasm is slow in the browser, and a criterion benchmark on the Rust side shows the hash function at 40%. Speed it up.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-rust-code"
+	}
+]

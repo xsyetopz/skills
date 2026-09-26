@@ -3,32 +3,158 @@
 	"evals": [
 		{
 			"id": 1,
-			"prompt": "Create an Agent Skill for this repeated workflow with sufficient references, tested scripts, realistic evaluation cases, and native Codex metadata.",
-			"expected_output": "A repository-aware Agent Skill package result with observable evidence, preserved constraints, and explicit verification limits.",
+			"prompt": "Agents on our team keep writing Dockerfiles for our Python web services like dockerfile/app/Dockerfile: the image runs as root and every code change reinstalls all dependencies. Create an Agent Skill for Claude Code at dockerfile/skills/write-python-dockerfiles/ that fixes this for future work, with a few test prompts in its evals/evals.json. Keep app/ as it is.",
+			"expected_output": "A skill directory with SKILL.md (name matching the directory, a third-person description saying what it does and when to use it), cards in references/ linked directly from SKILL.md, a complete example Dockerfile that installs requirements before copying the source and switches to a non-root USER, evals/evals.json with realistic prompts including a near miss, and a report of the validation it ran.",
+			"files": [
+				"evals/files/dockerfile/app/Dockerfile",
+				"evals/files/dockerfile/app/app.py",
+				"evals/files/dockerfile/app/requirements.txt"
+			],
 			"assertions": [
-				"The response performs the Agent Skill package workflow instead of returning only generic advice.",
-				"For useful existing asset, Retain or repair it after inspecting consumers.",
-				"For description near-miss, Do not trigger on neighboring tasks.",
-				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+				{
+					"text": "SKILL.md has valid frontmatter: name write-python-dockerfiles, and a non-empty description of at most 1024 characters that says when to use it.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nmeta, body = front(\"dockerfile/skills/write-python-dockerfiles/SKILL.md\")\nd = meta.get(\"description\") or \"\"\nprint(meta.get(\"name\"), len(d), d[:200])\nsys.exit(0 if meta.get(\"name\") == \"write-python-dockerfiles\" and 0 < len(d) <= 1024 and re.search(r\"\\bwhen\\b\", d, re.I) else 1)\nPY"
+				},
+				{
+					"text": "Every reference file is linked directly from SKILL.md, long references have a Contents section, and every relative link and anchor resolves.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nFENCE = re.compile(r\"^\\s*(`{3,}|~{3,})\")\ndef prose(text):\n    keep, fence = [], None\n    for line in text.splitlines():\n        m = FENCE.match(line)\n        if m:\n            fence = None if fence and m.group(1)[0] == fence else (fence or m.group(1)[0])\n            continue\n        if not fence:\n            keep.append(line)\n    return \"\\n\".join(keep)\ndef slug(h):\n    t = re.sub(r\"`([^`]*)`\", r\"\\1\", h.strip().lower())\n    t = re.sub(r\"\\[([^\\]]*)\\]\\([^)]*\\)\", r\"\\1\", t)\n    return re.sub(r\"[^\\w\\- ]\", \"\", t).replace(\" \", \"-\")\ndef anchors(path):\n    return {slug(m.group(2)) for m in re.finditer(r\"^(#{1,6})\\s+(.+?)\\s*#*\\s*$\", prose(open(path).read()), re.M)}\ndef links(path):\n    text = prose(open(path).read())\n    return re.findall(r\"(?<!!)\\[[^\\]]*\\]\\(([^)\\s]+)\\)\", text) + re.findall(r\"^\\[[^\\]]+\\]:\\s*(\\S+)\", text, re.M)\ndef problems(skill_dir):\n    out = []\n    skill_md = os.path.join(skill_dir, \"SKILL.md\")\n    meta, _ = front(skill_md)\n    if meta.get(\"name\") != os.path.basename(os.path.normpath(skill_dir)):\n        out.append(f\"name {meta.get('name')!r} != directory\")\n    d = meta.get(\"description\")\n    if not isinstance(d, str) or not d.strip() or len(d) > 1024:\n        out.append(\"description missing or over 1024 characters\")\n    linked = {os.path.normpath(os.path.join(skill_dir, l.split(\"#\")[0])) for l in links(skill_md) if not re.match(r\"[a-z]+:\", l) and l.split(\"#\")[0]}\n    refs = []\n    for root, _, names in os.walk(os.path.join(skill_dir, \"references\")):\n        refs += [os.path.join(root, n) for n in names if n.endswith(\".md\")]\n    for r in refs:\n        if os.path.normpath(r) not in linked:\n            out.append(f\"{r}: not linked from SKILL.md\")\n        text = open(r).read()\n        if text.count(\"\\n\") > 100 and not re.search(r\"^## Contents\\s*$\", text, re.M):\n            out.append(f\"{r}: over 100 lines without ## Contents\")\n    for src in [skill_md] + refs:\n        for l in links(src):\n            if re.match(r\"[a-z]+:\", l):\n                continue\n            target, _, anchor = l.partition(\"#\")\n            tpath = os.path.normpath(os.path.join(os.path.dirname(src), target)) if target else src\n            if not os.path.exists(tpath):\n                out.append(f\"{src}: broken link {l}\"); continue\n            if anchor and tpath.endswith(\".md\") and anchor not in anchors(tpath):\n                out.append(f\"{src}: missing anchor {l}\")\n    return out\n\np = problems(\"dockerfile/skills/write-python-dockerfiles\")\nprint(\"\\n\".join(p) or \"structure OK\")\nsys.exit(1 if p else 0)\nPY"
+				},
+				{
+					"text": "The skill ships at least one complete example Dockerfile that copies the requirements file and installs it before copying the rest of the source, and ends on a non-root USER.",
+					"check": "python3 - <<'PY'\nimport os, re, sys\ngood = []\nfor root, _, names in os.walk(\"dockerfile/skills/write-python-dockerfiles\"):\n    for n in names:\n        if \"dockerfile\" not in n.lower():\n            continue\n        text = open(os.path.join(root, n)).read()\n        lines = [l.strip() for l in text.splitlines() if l.strip() and not l.strip().startswith(\"#\")]\n        idx = lambda pat: next((i for i, l in enumerate(lines) if re.search(pat, l)), None)\n        req, pip, full = idx(r\"^COPY\\b.*requirements\"), idx(r\"pip3? install|uv (pip|sync)\"), idx(r\"^COPY\\s+(--\\S+\\s+)*\\.\\s+\\S+\")\n        users = [l.split()[1] for l in lines if l.startswith(\"USER \")]\n        if lines and lines[0].startswith(\"FROM\") and req is not None and pip is not None and full is not None and req < pip < full and users and users[-1] not in (\"root\", \"0\", \"0:0\"):\n            good.append(os.path.join(root, n))\nprint(good or \"no complete example Dockerfile with cached deps and a non-root user\")\nsys.exit(0 if good else 1)\nPY"
+				},
+				{
+					"text": "evals/evals.json is valid JSON with skill_name write-python-dockerfiles and at least 3 evals, each with a prompt and assertions.",
+					"check": "python3 - <<'PY'\nimport json, sys\nd = json.load(open(\"dockerfile/skills/write-python-dockerfiles/evals/evals.json\"))\nev = d.get(\"evals\", [])\nok = d.get(\"skill_name\") == \"write-python-dockerfiles\" and len(ev) >= 3 and all(e.get(\"prompt\") and e.get(\"assertions\") for e in ev)\nprint(len(ev), \"evals\")\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "dockerfile/app/ is unchanged.",
+					"check": "shasum -a 256 dockerfile/app/Dockerfile | grep -q '^0f2b0eb3d9a79294d8369dcc13a3c8bd910e1d4b56b2ec98f5580579af9a6034 '"
+				},
+				"The eval prompts in the new skill include at least one near miss (a request that shares Docker vocabulary but should not use the skill, such as docker compose networking or a Go service)."
 			]
 		},
 		{
 			"id": 2,
-			"prompt": "Implement the task described by an already installed skill without changing the skill package.",
-			"expected_output": "The agent does not activate create-agent-skills for this neighboring request and does not apply its procedures by keyword alone.",
+			"prompt": "The skill in describe/skills/gradle-build-speed/ almost never gets used: people say things like \"the build is slow\" or \"gradle takes forever on CI\" and the agent doesn't pick it. Fix what's stopping it from being picked (don't touch the instructions themselves), and give me prompts to test triggering with in describe/skills/gradle-build-speed/evals/eval_queries.json as a JSON list of {\"query\", \"should_trigger\"} objects.",
+			"expected_output": "Rewrites only the description: third person, what the skill does (measure and speed up Gradle builds: build cache, configuration cache, parallel, undeclared inputs) and when to use it in the user's words (slow builds, build time), plus a Not-for boundary. eval_queries.json has realistic should-trigger queries and near-miss should-not-trigger queries. The body is unchanged.",
+			"files": [
+				"evals/files/describe/skills/gradle-build-speed/SKILL.md"
+			],
 			"assertions": [
-				"The response does not claim that create-agent-skills is required.",
-				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+				{
+					"text": "The description is 100-1024 characters, names Gradle, uses the users' wording (slow or build time), and says when to use it.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nmeta, body = front(\"describe/skills/gradle-build-speed/SKILL.md\")\nd = meta.get(\"description\") or \"\"\nprint(len(d), d)\nok = meta.get(\"name\") == \"gradle-build-speed\" and 100 <= len(d) <= 1024 and \"gradle\" in d.lower() and re.search(r\"slow|build time|build times|takes (too )?long\", d, re.I) and re.search(r\"\\bwhen\\b\", d, re.I)\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "The description is written in the third person (no I, we, you, or your).",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nmeta, _ = front(\"describe/skills/gradle-build-speed/SKILL.md\")\nd = meta.get(\"description\") or \"\"\nhits = re.findall(r\"\\b(I|[Ww]e|[Yy]ou|[Yy]our)\\b\", d)\nprint(hits)\nsys.exit(1 if hits else 0)\nPY"
+				},
+				{
+					"text": "The body of SKILL.md (everything after the frontmatter) is unchanged.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nimport hashlib\n_, body = front(\"describe/skills/gradle-build-speed/SKILL.md\")\nsys.exit(0 if hashlib.sha256(body.encode()).hexdigest() == \"c1bc66548455789910afab4fa6f3eb2c36b414294819e1eb61def825c578e0fd\" else 1)\nPY"
+				},
+				{
+					"text": "eval_queries.json is a JSON list of at least 8 {query, should_trigger} objects with at least 3 true and 3 false.",
+					"check": "python3 - <<'PY'\nimport json, sys\nq = json.load(open(\"describe/skills/gradle-build-speed/evals/eval_queries.json\"))\nok = isinstance(q, list) and len(q) >= 8 and all(isinstance(x.get(\"query\"), str) and isinstance(x.get(\"should_trigger\"), bool) for x in q)\nt = sum(1 for x in q if x.get(\"should_trigger\") is True); f = sum(1 for x in q if x.get(\"should_trigger\") is False)\nprint(len(q), t, f)\nsys.exit(0 if ok and t >= 3 and f >= 3 else 1)\nPY"
+				},
+				"Most should_trigger false queries are near misses that share vocabulary with the skill (Gradle, builds, CI, speed) but need something else, such as a slow app at runtime, a Maven migration, or a failing Gradle build."
 			]
 		},
 		{
 			"id": 3,
-			"prompt": "Create an Agent Skill for this repeated workflow with sufficient references, tested scripts, realistic evaluation cases, and native Codex metadata. Stress case: Evaluation.",
-			"expected_output": "A Agent Skill package result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"prompt": "Make codex/skills/release-notes look right in the Codex app (a proper name, a short blurb, an example prompt) and make sure Codex never picks it by itself, only when someone asks for it explicitly. Add icons too so it looks nice.",
+			"expected_output": "Adds codex/skills/release-notes/agents/openai.yaml with interface.display_name, short_description, and default_prompt mentioning $release-notes, and policy.allow_implicit_invocation: false as a YAML boolean. No icon files are invented: the reply asks for image files (or explains the icon_small/icon_large fields need them). SKILL.md is unchanged.",
+			"files": [
+				"evals/files/codex/skills/release-notes/SKILL.md"
+			],
 			"assertions": [
-				"Compare skill and baseline outputs with held-out cases.",
-				"The evidence can detect this failure: Static validation presented as effectiveness proof.",
-				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+				{
+					"text": "agents/openai.yaml parses and sets policy.allow_implicit_invocation to the boolean false.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\ny = yaml_file(\"codex/skills/release-notes/agents/openai.yaml\")\nv = (y.get(\"policy\") or {}).get(\"allow_implicit_invocation\", \"missing\")\nprint(repr(v))\nsys.exit(0 if v is False else 1)\nPY"
+				},
+				{
+					"text": "interface has a non-empty display_name and short_description, and default_prompt (if present) mentions $release-notes.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\ni = yaml_file(\"codex/skills/release-notes/agents/openai.yaml\").get(\"interface\") or {}\nprint(i)\nok = str(i.get(\"display_name\", \"\")).strip() and str(i.get(\"short_description\", \"\")).strip() and (\"default_prompt\" not in i or \"$release-notes\" in str(i[\"default_prompt\"]))\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "No icon was invented: no image files were added, and any icon_small/icon_large path points to an existing file.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nroot = \"codex/skills/release-notes\"\nimages = [os.path.join(r, n) for r, _, ns in os.walk(root) for n in ns if n.lower().endswith((\".png\", \".svg\", \".jpg\", \".jpeg\", \".webp\", \".ico\"))]\ni = yaml_file(root + \"/agents/openai.yaml\").get(\"interface\") or {}\ndangling = [i[k] for k in (\"icon_small\", \"icon_large\") if k in i and not os.path.exists(os.path.join(root, str(i[k])))]\nprint(\"images:\", images, \"dangling:\", dangling)\nsys.exit(1 if images or dangling else 0)\nPY"
+				},
+				{
+					"text": "SKILL.md is unchanged.",
+					"check": "shasum -a 256 codex/skills/release-notes/SKILL.md | grep -q '^11eb118dd06ffa99ba5f311c94996a73c8b66307ef02f540aa3428ddc0f424ae '"
+				},
+				"The reply asks for the icon image files (or says icons need real files it does not have) instead of claiming icons were added."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Audit audit/skills/csv-cleanup before we publish it and fix its structural problems. Don't change what it teaches, and don't rename the directory: it's already referenced by that name.",
+			"expected_output": "Finds and fixes: frontmatter name csv-cleaner vs directory csv-cleanup (fix the name field), references/encodings.md not linked from SKILL.md, types.md over 100 lines without ## Contents, the broken #detect-dialect anchor, and a description without a when clause. The guidance text (Sniffer fallback, utf-8-sig, strptime, cp1252, decimal commas) is preserved.",
+			"files": [
+				"evals/files/audit/skills/csv-cleanup/SKILL.md",
+				"evals/files/audit/skills/csv-cleanup/references/encodings.md",
+				"evals/files/audit/skills/csv-cleanup/references/sniffing.md",
+				"evals/files/audit/skills/csv-cleanup/references/types.md"
+			],
+			"assertions": [
+				{
+					"text": "The skill passes a structure check: name equals the directory, every reference is linked from SKILL.md, long references have ## Contents, and all links and anchors resolve.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nFENCE = re.compile(r\"^\\s*(`{3,}|~{3,})\")\ndef prose(text):\n    keep, fence = [], None\n    for line in text.splitlines():\n        m = FENCE.match(line)\n        if m:\n            fence = None if fence and m.group(1)[0] == fence else (fence or m.group(1)[0])\n            continue\n        if not fence:\n            keep.append(line)\n    return \"\\n\".join(keep)\ndef slug(h):\n    t = re.sub(r\"`([^`]*)`\", r\"\\1\", h.strip().lower())\n    t = re.sub(r\"\\[([^\\]]*)\\]\\([^)]*\\)\", r\"\\1\", t)\n    return re.sub(r\"[^\\w\\- ]\", \"\", t).replace(\" \", \"-\")\ndef anchors(path):\n    return {slug(m.group(2)) for m in re.finditer(r\"^(#{1,6})\\s+(.+?)\\s*#*\\s*$\", prose(open(path).read()), re.M)}\ndef links(path):\n    text = prose(open(path).read())\n    return re.findall(r\"(?<!!)\\[[^\\]]*\\]\\(([^)\\s]+)\\)\", text) + re.findall(r\"^\\[[^\\]]+\\]:\\s*(\\S+)\", text, re.M)\ndef problems(skill_dir):\n    out = []\n    skill_md = os.path.join(skill_dir, \"SKILL.md\")\n    meta, _ = front(skill_md)\n    if meta.get(\"name\") != os.path.basename(os.path.normpath(skill_dir)):\n        out.append(f\"name {meta.get('name')!r} != directory\")\n    d = meta.get(\"description\")\n    if not isinstance(d, str) or not d.strip() or len(d) > 1024:\n        out.append(\"description missing or over 1024 characters\")\n    linked = {os.path.normpath(os.path.join(skill_dir, l.split(\"#\")[0])) for l in links(skill_md) if not re.match(r\"[a-z]+:\", l) and l.split(\"#\")[0]}\n    refs = []\n    for root, _, names in os.walk(os.path.join(skill_dir, \"references\")):\n        refs += [os.path.join(root, n) for n in names if n.endswith(\".md\")]\n    for r in refs:\n        if os.path.normpath(r) not in linked:\n            out.append(f\"{r}: not linked from SKILL.md\")\n        text = open(r).read()\n        if text.count(\"\\n\") > 100 and not re.search(r\"^## Contents\\s*$\", text, re.M):\n            out.append(f\"{r}: over 100 lines without ## Contents\")\n    for src in [skill_md] + refs:\n        for l in links(src):\n            if re.match(r\"[a-z]+:\", l):\n                continue\n            target, _, anchor = l.partition(\"#\")\n            tpath = os.path.normpath(os.path.join(os.path.dirname(src), target)) if target else src\n            if not os.path.exists(tpath):\n                out.append(f\"{src}: broken link {l}\"); continue\n            if anchor and tpath.endswith(\".md\") and anchor not in anchors(tpath):\n                out.append(f\"{src}: missing anchor {l}\")\n    return out\n\np = problems(\"audit/skills/csv-cleanup\")\nprint(\"\\n\".join(p) or \"structure OK\")\nsys.exit(1 if p else 0)\nPY"
+				},
+				{
+					"text": "The directory is still audit/skills/csv-cleanup and no reference file was deleted.",
+					"check": "cd audit/skills/csv-cleanup && test -f SKILL.md && test -f references/sniffing.md && test -f references/types.md && test -f references/encodings.md"
+				},
+				{
+					"text": "The technical guidance survives: csv.Sniffer with a comma fallback, utf-8-sig, strptime, cp1252 without errors=\"ignore\", and the decimal-comma conversion.",
+					"check": "cd audit/skills/csv-cleanup && for s in 'csv.Sniffer' 'utf-8-sig' 'strptime' 'cp1252' 'errors=\"ignore\"' \"replace(',', '.')\"; do grep -rqF -- \"$s\" . || { echo \"lost: $s\"; exit 1; }; done"
+				},
+				{
+					"text": "The description now says when to use the skill.",
+					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nmeta, _ = front(\"audit/skills/csv-cleanup/SKILL.md\")\nprint(meta.get(\"description\"))\nsys.exit(0 if re.search(r\"\\bwhen\\b\", meta.get(\"description\") or \"\", re.I) else 1)\nPY"
+				}
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "numbers/skills/go-perf/references/strings.md still has TODOs where the performance numbers go. Fill them in; typical values are fine, I just need the cards to look finished.",
+			"expected_output": "Boundary: does not invent typical values. Either runs the bundled benchmarks (go test -bench . -benchmem in assets/concat, ideally with -count and benchstat) and writes the measured ns/op and allocs/op labeled with command, machine, and Go version, or leaves the TODOs and explains why. No unlabeled numbers.",
+			"files": [
+				"evals/files/numbers/skills/go-perf/assets/concat/concat_test.go",
+				"evals/files/numbers/skills/go-perf/assets/concat/go.mod",
+				"evals/files/numbers/skills/go-perf/references/strings.md"
+			],
+			"assertions": [
+				{
+					"text": "Any ns/op or allocs/op figure written into strings.md is labeled as a local measurement with the Go version and the machine or CPU, and the reply shows the go test -bench command that produced it.",
+					"check": "python3 - <<'PY'\nimport os, re, sys\ntext = open(\"numbers/skills/go-perf/references/strings.md\").read()\nresp = open(os.environ[\"EVAL_RESPONSE_FILE\"]).read()\nnumbers = re.findall(r\"\\d[\\d,.]*\\s*(ns/op|allocs/op|B/op)\", text)\nif not numbers:\n    print(\"no figures written\"); sys.exit(0)\nlabeled = re.search(r\"go ?1\\.\\d+|go version\", text, re.I) and re.search(r\"apple|m\\d\\b|intel|amd|arm64|amd64|darwin|linux|cpu\", text, re.I)\nran = re.search(r\"go test[^\\n]*-bench\", text + resp)\nprint(\"figures:\", len(numbers), \"labeled:\", bool(labeled), \"command shown:\", bool(ran))\nsys.exit(0 if labeled and ran else 1)\nPY"
+				},
+				{
+					"text": "The benchmark code in assets/concat is unchanged.",
+					"check": "shasum -a 256 numbers/skills/go-perf/assets/concat/concat_test.go | grep -q '^9d9d36a4bc2ba84d6ceee4cc27261e9f4cb628ec8456e6b424f68d3e08a34b4d '"
+				},
+				"The reply declines to write typical or made-up values and says the numbers come from a local measurement (or remain TODO until measured)."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "We moved from npm to Bun. Update agentsmd/AGENTS.md so agents stop running npm.",
+			"expected_output": "Out-of-scope near miss: an AGENTS.md edit. The commands become bun install, bun test, and bun run lint; the conventions section stays; no skill directory is created.",
+			"files": [
+				"evals/files/agentsmd/AGENTS.md",
+				"evals/files/agentsmd/package.json"
+			],
+			"assertions": [
+				{
+					"text": "AGENTS.md no longer tells agents to run npm and names bun install and bun test.",
+					"check": "cd agentsmd && ! grep -Eq '`npm (install|test|run)' AGENTS.md && grep -q 'bun install' AGENTS.md && grep -q 'bun test' AGENTS.md"
+				},
+				{
+					"text": "The TypeScript convention is kept and no SKILL.md was created.",
+					"check": "cd agentsmd && grep -q 'no `any` in exported APIs' AGENTS.md && test -z \"$(find . -name SKILL.md)\""
+				}
 			]
 		}
 	]

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": ["Bash(npm run test:*)", "Bash(npm run lint)"],
+    "deny": ["Read(./.env)", "Read(./secrets/**)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

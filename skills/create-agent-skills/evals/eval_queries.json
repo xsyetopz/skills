@@ -1,0 +1,110 @@
+[
+	{
+		"query": "Turn our release checklist in docs/release.md into something Claude Code can pick up on its own whenever someone says they're cutting a release.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "my SKILL.md is 900 lines and the agent seems to skip half of it. how should I split it up?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The pdf-forms skill fires when people ask about PDFs in general, like 'summarize this pdf'. Tighten it so it only fires for filling forms.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write evals for skills/terraform-plan-review so we can tell whether it actually helps compared to no skill.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add agents/openai.yaml to all our skills so they show up with proper names in Codex.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review skills/k8s-debug: the cards feel generic and repetitive. Tell me what's thin and rewrite it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Package our internal API conventions as a skill both Claude Code and Codex can load, with a script that lints route names.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The skill I wrote never gets picked. Here's the description: 'Useful helper for data stuff.'",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Is it okay to put 20 reference files in a skill, or should they link to each other?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Make a /deploy-preview slash skill that only runs when I type it, never automatically.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Update CLAUDE.md so agents know to use pnpm and run `pnpm verify` before finishing.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Add a PreToolUse hook that blocks editing files under migrations/.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "Use the optimize-go-code skill's approach to speed up our JSON encoder; benchmarks are in encoder_test.go.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-go-code"
+	},
+	{
+		"query": "What is the difference between an MCP server and a plugin?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a README for this repo that explains how to install and run it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "Build an MCP server that exposes our Jira instance to Claude.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a requirements spec with acceptance criteria for the new export feature.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "define-requirements"
+	},
+	{
+		"query": "Update the changelog for the skills we changed this week.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "Our justfile's `validate` recipe should also run the markdown linter. Add it.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "Fix the failing test in tests/test_skill_loader.py; it errors with KeyError: 'description'.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-software-failures"
+	}
+]

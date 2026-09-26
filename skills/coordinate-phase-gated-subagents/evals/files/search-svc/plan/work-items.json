@@ -1,0 +1,12 @@
+{
+  "phase": "implementation",
+  "items": [
+    {"id": "store", "phase": "implementation",
+     "owns": ["src/store/postgres.py", "tests/test_store.py"],
+     "depends_on": []},
+    {"id": "api", "phase": "implementation",
+     "owns": ["src/api/", "tests/test_api.py"], "depends_on": ["store"]},
+    {"id": "cli", "phase": "implementation",
+     "owns": ["src/cli/", "tests/test_cli.py"], "depends_on": ["store"]}
+  ]
+}

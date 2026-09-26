@@ -1,0 +1,46 @@
+{
+ "repo": {
+  "full_name": "acme/api",
+  "visibility": "private",
+  "private": true,
+  "default_branch": "main",
+  "viewer_permission": "WRITE",
+  "permissions": {
+   "admin": false,
+   "maintain": false,
+   "push": true,
+   "triage": true,
+   "pull": true
+  }
+ },
+ "viewer": "dana-dev",
+ "labels": [
+  {
+   "name": "bug",
+   "color": "d73a4a",
+   "description": "Something isn't working"
+  },
+  {
+   "name": "question",
+   "color": "d876e3",
+   "description": "Further information is requested"
+  },
+  {
+   "name": "needs-info",
+   "color": "fbca04",
+   "description": "Waiting on the reporter"
+  },
+  {
+   "name": "enhancement",
+   "color": "a2eeef",
+   "description": "New feature or request"
+  },
+  {
+   "name": "docs",
+   "color": "0075ca",
+   "description": "Documentation"
+  }
+ ],
+ "issues": [],
+ "checks": {}
+}

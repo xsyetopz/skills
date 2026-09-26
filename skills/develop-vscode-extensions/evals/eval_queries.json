@@ -1,0 +1,107 @@
+[
+	{
+		"query": "our extension's palette command works on my machine but a user on vscode 1.68 gets \"command 'acme.sort' not found\". engines is ^1.66.0 and activationEvents is []. what's going on",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want red squiggles under TODO comments that don't have an owner like TODO(alice), shown in the Problems panel and updated as you type, plus a quick fix that inserts the git user name. Add this to my Code extension in src/extension.ts",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "vsce package spits out a 38 MB .vsix and it's full of node_modules and src/*.ts. We already bundle with esbuild into dist/. Also it complains about the README. Can you get the package down to what it actually needs?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A security reviewer says anyone can get code execution through our editor add-on: it reads a binary path from the workspace's .vscode/settings.json and spawns it on file open. Fix this properly without breaking the read-only features in untrusted folders.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a hover to my extension that shows the doc comment for a field when you hover a field name in a .proto file, and make sure it doesn't fire for untitled or git: documents",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "the extension works locally but when I connect with Remote-SSH the command runs on my laptop and can't find the files on the server. How do I make it run on the remote side?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We keep the user's API token for our extension in settings.json as acme.token, which is bad. Move it somewhere safe and migrate existing values.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Set up tests that launch a real VS Code instance, open tests/fixture-workspace, run our acme.organizeImports command and assert on the document text. We use Bun, not npm.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Can our extension run on vscode.dev? It uses child_process for git and fs.readFileSync on uri.fsPath.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "I'd like a CodeLens above every `test(` call in .spec.ts files with a Run link that calls our runner, and it should refresh when the file changes",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I make VS Code format on save with Prettier, but use 4-space tabs only for Python files? Where does that go in settings.json?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Create a Visual Studio 2022 extension (VSIX, C#) that adds a Tools menu command using the VisualStudio.Extensibility SDK.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a standalone Language Server Protocol server in Rust with tower-lsp for our config DSL. It should work in any LSP-capable editor over stdio; no editor-specific client code.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add a hook for Copilot agent mode in VS Code that blocks any terminal command containing `rm -rf` before it runs.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "Write a Zed extension that starts ruff as the Python language server and downloads it from GitHub releases if it isn't on PATH.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-zed-editor-extensions"
+	},
+	{
+		"query": "tsc --noEmit takes 90 seconds on our extension repo with 1,200 .ts files. How do we speed up type-checking?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-typescript-builds"
+	},
+	{
+		"query": "Port our VS Code extension's 'Count Words' command to IntelliJ: I need the plugin.xml action registration and a Kotlin AnAction that works in IDEA 2026.2.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Our extension repo's release.yml uses pull_request_target and checks out the PR head before running `bun run build`. Is that workflow safe, and what permissions should the token have?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Build a Chrome extension (Manifest V3) that highlights TODO comments on GitHub pull request pages.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "In VS Code, how do I bind ctrl+shift+t to run my 'test' task? I just want to edit keybindings.json.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

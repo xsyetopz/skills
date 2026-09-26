@@ -1,35 +1,154 @@
 {
-  "skill_name": "optimize-rust-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Rust workload under the target profile/features while preserving ownership, lifetimes, errors, synchronization, target CPU, and safe behavior.",
-      "expected_output": "A repository-aware Rust optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Rust optimization workflow instead of returning only generic advice.",
-        "For unsafe, Require measured need, documented invariants, and tests/Miri/sanitizers where applicable.",
-        "For feature/profile, Match target-cpu, LTO, panic, allocator, and features.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Introduce unsafe code solely because it may be faster.",
-      "expected_output": "The agent does not activate optimize-rust-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-rust-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Rust workload under the target profile/features while preserving ownership, lifetimes, errors, synchronization, target CPU, and safe behavior. Stress case: Borrowing/allocation.",
-      "expected_output": "A Rust optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Preserve observable lifetime and ownership.",
-        "The evidence can detect this failure: Borrowed data outlives owner.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-rust-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our log summarizer in logparse/ is too slow on big days: samply puts ~70% of samples under parse() and the allocator. summarize() is the only public entry point (the CLI and the dashboard call it); everything else in the crate is private and can change. Make it faster without changing any Summary it returns, and tell me what you measured. There's a small logparse/sample.log if you need the format.",
+			"expected_output": "parse no longer allocates a String per field (borrowed &str fields or a single pass over lines), the service key is cloned only when first inserted, an oracle compares against the old code on empty input, \\r\\n, empty fields, and non-ASCII text, and allocation counts plus release-build timings are reported before and after.",
+			"files": [
+				"evals/files/logparse/Cargo.toml",
+				"evals/files/logparse/sample.log",
+				"evals/files/logparse/src/lib.rs",
+				"evals/files/logparse/src/main.rs"
+			],
+			"assertions": [
+				{
+					"text": "summarize returns the same Summary as the original code on empty input, a bare newline, empty fields, \\r\\n line endings, non-ASCII fields, and a 500-line corpus",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd logparse && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering::Relaxed};\nstruct Counting;\nstatic ALLOCS: AtomicUsize = AtomicUsize::new(0);\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, l: Layout) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.alloc(l) } }\n    unsafe fn dealloc(&self, p: *mut u8, l: Layout) { unsafe { System.dealloc(p, l) } }\n    unsafe fn realloc(&self, p: *mut u8, l: Layout, n: usize) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.realloc(p, l, n) } }\n}\n#[global_allocator]\nstatic COUNTER: Counting = Counting;\nfn allocs() -> usize { ALLOCS.load(Relaxed) }\nuse std::collections::BTreeMap;\n\nfn reference(text: &str) -> (usize, usize, BTreeMap<String, usize>) {\n    let mut rows_v: Vec<Vec<String>> = Vec::new();\n    for line in text.lines() {\n        let fields: Vec<String> = line.split(',').map(|f| f.to_string()).collect();\n        rows_v.push(fields);\n    }\n    let (mut rows, mut max_fields, mut errors) = (0, 0, BTreeMap::new());\n    for row in &rows_v {\n        rows += 1;\n        max_fields = max_fields.max(row.len());\n        if row.len() > 2 && row[2] == \"ERROR\" {\n            *errors.entry(row[1].clone()).or_insert(0) += 1;\n        }\n    }\n    (rows, max_fields, errors)\n}\n\nfn corpus(n: usize) -> String {\n    let mut s = String::new();\n    let levels = [\"INFO\", \"WARN\", \"ERROR\"];\n    for i in 0..n {\n        s.push_str(&format!(\"{i},svc-{},{},request done,id={i},ms={}\\n\", i * 7 % 40, levels[i * 13 % 3], i % 900));\n    }\n    s\n}\n\n#[test]\nfn equivalent() {\n    let cases = [\n        String::new(), \"\\n\".to_string(), \"a\".to_string(), \",,\".to_string(),\n        \"t,svc,ERROR,x\\r\\nt,svc,ERROR\\nt,other,INFO\".to_string(),\n        \"t,s\\u{e9}rvice-\\u{65e5}\\u{672c},ERROR,m\\u{fc}ll,\\u{1f600}\\n\\nt,,ERROR,\\n\".to_string(),\n        \"t,svc,ERROR,x\\n\".to_string(), corpus(500),\n    ];\n    for c in &cases {\n        let s = logparse::summarize(c);\n        assert_eq!((s.rows, s.max_fields, s.errors_by_service), reference(c), \"input {c:?}\");\n    }\n}\n\n#[test]\nfn fewer_allocations() {\n    let text = corpus(20_000);\n    let a0 = allocs();\n    let base = std::hint::black_box(reference(std::hint::black_box(&text)));\n    let a1 = allocs();\n    let cand = std::hint::black_box(logparse::summarize(std::hint::black_box(&text)));\n    let a2 = allocs();\n    assert_eq!(base.0, cand.rows);\n    println!(\"baseline allocs {} candidate allocs {}\", a1 - a0, a2 - a1);\n    assert!((a2 - a1) * 2 <= a1 - a0, \"baseline {} candidate {}\", a1 - a0, a2 - a1);\n}\nRS\ncargo test --release -q --test zz_eval_oracle equivalent -- --test-threads=1"
+				},
+				{
+					"text": "summarize makes at most half the heap allocations of the original on a 20,000-line log (counted by a global allocator in the same test run)",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd logparse && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering::Relaxed};\nstruct Counting;\nstatic ALLOCS: AtomicUsize = AtomicUsize::new(0);\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, l: Layout) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.alloc(l) } }\n    unsafe fn dealloc(&self, p: *mut u8, l: Layout) { unsafe { System.dealloc(p, l) } }\n    unsafe fn realloc(&self, p: *mut u8, l: Layout, n: usize) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.realloc(p, l, n) } }\n}\n#[global_allocator]\nstatic COUNTER: Counting = Counting;\nfn allocs() -> usize { ALLOCS.load(Relaxed) }\nuse std::collections::BTreeMap;\n\nfn reference(text: &str) -> (usize, usize, BTreeMap<String, usize>) {\n    let mut rows_v: Vec<Vec<String>> = Vec::new();\n    for line in text.lines() {\n        let fields: Vec<String> = line.split(',').map(|f| f.to_string()).collect();\n        rows_v.push(fields);\n    }\n    let (mut rows, mut max_fields, mut errors) = (0, 0, BTreeMap::new());\n    for row in &rows_v {\n        rows += 1;\n        max_fields = max_fields.max(row.len());\n        if row.len() > 2 && row[2] == \"ERROR\" {\n            *errors.entry(row[1].clone()).or_insert(0) += 1;\n        }\n    }\n    (rows, max_fields, errors)\n}\n\nfn corpus(n: usize) -> String {\n    let mut s = String::new();\n    let levels = [\"INFO\", \"WARN\", \"ERROR\"];\n    for i in 0..n {\n        s.push_str(&format!(\"{i},svc-{},{},request done,id={i},ms={}\\n\", i * 7 % 40, levels[i * 13 % 3], i % 900));\n    }\n    s\n}\n\n#[test]\nfn equivalent() {\n    let cases = [\n        String::new(), \"\\n\".to_string(), \"a\".to_string(), \",,\".to_string(),\n        \"t,svc,ERROR,x\\r\\nt,svc,ERROR\\nt,other,INFO\".to_string(),\n        \"t,s\\u{e9}rvice-\\u{65e5}\\u{672c},ERROR,m\\u{fc}ll,\\u{1f600}\\n\\nt,,ERROR,\\n\".to_string(),\n        \"t,svc,ERROR,x\\n\".to_string(), corpus(500),\n    ];\n    for c in &cases {\n        let s = logparse::summarize(c);\n        assert_eq!((s.rows, s.max_fields, s.errors_by_service), reference(c), \"input {c:?}\");\n    }\n}\n\n#[test]\nfn fewer_allocations() {\n    let text = corpus(20_000);\n    let a0 = allocs();\n    let base = std::hint::black_box(reference(std::hint::black_box(&text)));\n    let a1 = allocs();\n    let cand = std::hint::black_box(logparse::summarize(std::hint::black_box(&text)));\n    let a2 = allocs();\n    assert_eq!(base.0, cand.rows);\n    println!(\"baseline allocs {} candidate allocs {}\", a1 - a0, a2 - a1);\n    assert!((a2 - a1) * 2 <= a1 - a0, \"baseline {} candidate {}\", a1 - a0, a2 - a1);\n}\nRS\ncargo test --release -q --test zz_eval_oracle fewer_allocations -- --test-threads=1 --nocapture"
+				},
+				{
+					"text": "The CLI prints the same summary for logparse/sample.log",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd logparse && test \"$(cargo run --release -q < sample.log | shasum -a 256 | cut -d' ' -f1)\" = 4e3ab9f7997bc3d53489d1da84368e3034576b26fe3713b9241356f39565a006"
+				},
+				"The reply reports baseline and candidate numbers (allocation counts or time per run) measured from a --release build on the same input, with the machine or toolchain stated."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "dot() in dot/src/lib.rs is the hottest function in our ranking service. Someone suggested get_unchecked to kill the bounds checks. Do it if it actually helps. Scores are compared against golden values, so results must stay bit-for-bit identical, and it has to keep panicking when b is shorter than a.",
+			"expected_output": "The agent inspects release assembly for panic_bounds_check, tries safe forms (reslice b to a.len() or zip after an explicit length check) before any unsafe, explains that splitting the f32 sum into several accumulators would change rounding, keeps bit-identical results and the panic, and measures; if removing the check does not change the time it says so and does not keep unsafe code.",
+			"files": [
+				"evals/files/dot/Cargo.toml",
+				"evals/files/dot/src/lib.rs"
+			],
+			"assertions": [
+				{
+					"text": "dot returns bit-identical results to the original for lengths 0 through 4099",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd dot && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nfn reference(a: &[f32], b: &[f32]) -> f32 {\n    let mut s = 0.0f32;\n    for i in 0..a.len() {\n        s += a[i] * b[i];\n    }\n    s\n}\n\nfn data(n: usize, seed: u32) -> Vec<f32> {\n    let mut x = seed;\n    (0..n).map(|_| { x = x.wrapping_mul(1_664_525).wrapping_add(1_013_904_223); (x >> 8) as f32 / 65_536.0 - 128.0 }).collect()\n}\n\n#[test]\nfn bit_identical() {\n    for n in [0usize, 1, 3, 7, 8, 15, 16, 17, 64, 1000, 4099] {\n        let a = data(n, 1);\n        let b = data(n + 5, 2);\n        assert_eq!(dot::dot(&a, &b).to_bits(), reference(&a, &b).to_bits(), \"n = {n}\");\n    }\n}\n\n#[test]\nfn short_b_panics() {\n    for n in [1usize, 9, 100] {\n        let a = data(n, 3);\n        let b = data(n - 1, 4);\n        assert!(std::panic::catch_unwind(|| dot::dot(&a, &b)).is_err(), \"no panic for n = {n}\");\n    }\n}\nRS\ncargo test --release -q --test zz_eval_oracle bit_identical"
+				},
+				{
+					"text": "dot still panics when b is shorter than a",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd dot && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nfn reference(a: &[f32], b: &[f32]) -> f32 {\n    let mut s = 0.0f32;\n    for i in 0..a.len() {\n        s += a[i] * b[i];\n    }\n    s\n}\n\nfn data(n: usize, seed: u32) -> Vec<f32> {\n    let mut x = seed;\n    (0..n).map(|_| { x = x.wrapping_mul(1_664_525).wrapping_add(1_013_904_223); (x >> 8) as f32 / 65_536.0 - 128.0 }).collect()\n}\n\n#[test]\nfn bit_identical() {\n    for n in [0usize, 1, 3, 7, 8, 15, 16, 17, 64, 1000, 4099] {\n        let a = data(n, 1);\n        let b = data(n + 5, 2);\n        assert_eq!(dot::dot(&a, &b).to_bits(), reference(&a, &b).to_bits(), \"n = {n}\");\n    }\n}\n\n#[test]\nfn short_b_panics() {\n    for n in [1usize, 9, 100] {\n        let a = data(n, 3);\n        let b = data(n - 1, 4);\n        assert!(std::panic::catch_unwind(|| dot::dot(&a, &b)).is_err(), \"no panic for n = {n}\");\n    }\n}\nRS\ncargo test --release -q --test zz_eval_oracle short_b_panics"
+				},
+				{
+					"text": "Any unsafe code in dot/src carries a SAFETY comment stating why every index is in bounds",
+					"check": "cd dot && python3 - <<'PY'\nimport pathlib, re, sys\nfor p in pathlib.Path(\"src\").rglob(\"*.rs\"):\n    lines = p.read_text().splitlines()\n    for i, line in enumerate(lines):\n        if re.search(r\"\\bunsafe\\b|get_unchecked\", line) and not line.lstrip().startswith(\"//\"):\n            window = \"\\n\".join(lines[max(0, i - 4):i + 1])\n            if \"SAFETY\" not in window:\n                sys.exit(f\"{p}:{i + 1}: unsafe without SAFETY comment\")\nPY"
+				},
+				"The reply says whether the release assembly of the original loop contains a per-iteration bounds check (panic_bounds_check) and bases the decision on that plus a timing comparison.",
+				"The reply states that summing with several independent accumulators (or letting the compiler reassociate) would change f32 rounding and so is ruled out by the bit-identical requirement."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "wordcount::count_words (wordcount/src/lib.rs) is hot when people upload big documents to our public web service. Switch it to FxHashMap from rustc-hash and do whatever else helps. Other crates call count_words.",
+			"expected_output": "The double lookup becomes one lookup on hits (get_mut then insert, or equivalent) without allocating a String key on hits; the FxHashMap switch is declined or gated because the keys come from untrusted uploads (HashDoS) and because it would change the public return type; counts are checked against the old code.",
+			"files": [
+				"evals/files/wordcount/Cargo.toml",
+				"evals/files/wordcount/src/lib.rs"
+			],
+			"assertions": [
+				{
+					"text": "count_words still returns std HashMap<String, usize> with the same counts as the original",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd wordcount && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering::Relaxed};\nstruct Counting;\nstatic ALLOCS: AtomicUsize = AtomicUsize::new(0);\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, l: Layout) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.alloc(l) } }\n    unsafe fn dealloc(&self, p: *mut u8, l: Layout) { unsafe { System.dealloc(p, l) } }\n    unsafe fn realloc(&self, p: *mut u8, l: Layout, n: usize) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.realloc(p, l, n) } }\n}\n#[global_allocator]\nstatic COUNTER: Counting = Counting;\nfn allocs() -> usize { ALLOCS.load(Relaxed) }\nuse std::collections::HashMap;\n\nfn reference(text: &str) -> HashMap<String, usize> {\n    let mut map: HashMap<String, usize> = HashMap::new();\n    for w in text.split_whitespace() {\n        *map.entry(w.to_string()).or_insert(0) += 1;\n    }\n    map\n}\n\nfn corpus() -> String {\n    let words = [\"alpha\", \"beta\", \"gamma\", \"delta\", \"\\u{fc}ber\", \"na\\u{ef}ve\", \"\\u{65e5}\\u{672c}\", \"x\"];\n    let mut s = String::new();\n    for i in 0..40_000usize {\n        s.push_str(words[i * 7 % words.len()]);\n        s.push_str(&format!(\"{}\", i % 50));\n        s.push_str(if i % 11 == 0 { \"\\n\" } else if i % 5 == 0 { \"\\t \" } else { \" \" });\n    }\n    s\n}\n\n#[test]\nfn same_counts_and_public_type() {\n    for t in [String::new(), \"   \".to_string(), \"a a  b\\n\\ta\".to_string(), corpus()] {\n        let got: HashMap<String, usize> = wordcount::count_words(&t);\n        assert_eq!(got, reference(&t));\n    }\n}\n\n#[test]\nfn allocates_only_for_new_words() {\n    let text = corpus();\n    let distinct = reference(&text).len();\n    let a0 = allocs();\n    let got = std::hint::black_box(wordcount::count_words(std::hint::black_box(&text)));\n    let used = allocs() - a0;\n    assert_eq!(got.len(), distinct);\n    println!(\"{used} allocations for {distinct} distinct words\");\n    assert!(used <= distinct + 64, \"{used} allocations for {distinct} distinct words\");\n}\nRS\ncargo test --release -q --test zz_eval_oracle same_counts_and_public_type -- --test-threads=1"
+				},
+				{
+					"text": "count_words allocates only for new words (no String key allocated on hits)",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd wordcount && mkdir -p tests && cat > tests/zz_eval_oracle.rs <<'RS'\nuse std::alloc::{GlobalAlloc, Layout, System};\nuse std::sync::atomic::{AtomicUsize, Ordering::Relaxed};\nstruct Counting;\nstatic ALLOCS: AtomicUsize = AtomicUsize::new(0);\nunsafe impl GlobalAlloc for Counting {\n    unsafe fn alloc(&self, l: Layout) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.alloc(l) } }\n    unsafe fn dealloc(&self, p: *mut u8, l: Layout) { unsafe { System.dealloc(p, l) } }\n    unsafe fn realloc(&self, p: *mut u8, l: Layout, n: usize) -> *mut u8 { ALLOCS.fetch_add(1, Relaxed); unsafe { System.realloc(p, l, n) } }\n}\n#[global_allocator]\nstatic COUNTER: Counting = Counting;\nfn allocs() -> usize { ALLOCS.load(Relaxed) }\nuse std::collections::HashMap;\n\nfn reference(text: &str) -> HashMap<String, usize> {\n    let mut map: HashMap<String, usize> = HashMap::new();\n    for w in text.split_whitespace() {\n        *map.entry(w.to_string()).or_insert(0) += 1;\n    }\n    map\n}\n\nfn corpus() -> String {\n    let words = [\"alpha\", \"beta\", \"gamma\", \"delta\", \"\\u{fc}ber\", \"na\\u{ef}ve\", \"\\u{65e5}\\u{672c}\", \"x\"];\n    let mut s = String::new();\n    for i in 0..40_000usize {\n        s.push_str(words[i * 7 % words.len()]);\n        s.push_str(&format!(\"{}\", i % 50));\n        s.push_str(if i % 11 == 0 { \"\\n\" } else if i % 5 == 0 { \"\\t \" } else { \" \" });\n    }\n    s\n}\n\n#[test]\nfn same_counts_and_public_type() {\n    for t in [String::new(), \"   \".to_string(), \"a a  b\\n\\ta\".to_string(), corpus()] {\n        let got: HashMap<String, usize> = wordcount::count_words(&t);\n        assert_eq!(got, reference(&t));\n    }\n}\n\n#[test]\nfn allocates_only_for_new_words() {\n    let text = corpus();\n    let distinct = reference(&text).len();\n    let a0 = allocs();\n    let got = std::hint::black_box(wordcount::count_words(std::hint::black_box(&text)));\n    let used = allocs() - a0;\n    assert_eq!(got.len(), distinct);\n    println!(\"{used} allocations for {distinct} distinct words\");\n    assert!(used <= distinct + 64, \"{used} allocations for {distinct} distinct words\");\n}\nRS\ncargo test --release -q --test zz_eval_oracle allocates_only_for_new_words -- --test-threads=1 --nocapture"
+				},
+				{
+					"text": "No non-DoS-resistant hasher (rustc-hash, fxhash, FxHashMap, FxBuildHasher) was introduced",
+					"check": "! grep -Eiq 'rustc-hash|rustc_hash|fxhash|FxHashMap|FxBuildHasher' wordcount/Cargo.toml wordcount/src/*.rs"
+				},
+				"The reply explains that the keys are attacker-controlled upload text, so a fast non-randomized hasher such as FxHash exposes the service to hash-flooding (HashDoS), and declines the switch or makes it conditional on trusted input."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "emit/ is a small CLI that writes about 2 million CSV rows with println!, and it takes seconds when our ingest job pipes it to a file. Make it fast. The output bytes and the exit behavior must stay exactly the same, including the `stop_at` error path described at the top of emit/src/main.rs.",
+			"expected_output": "stdout is locked once and wrapped in a BufWriter, the buffer is flushed before the normal return and before std::process::exit(3) on the stop_at path, output equality is checked with cmp or a hash, and whole-process timing is compared with repeated runs.",
+			"files": [
+				"evals/files/emit/Cargo.toml",
+				"evals/files/emit/src/main.rs"
+			],
+			"assertions": [
+				{
+					"text": "The default run's stdout is byte-identical to the original",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd emit && cargo build --release -q && ./target/release/emit > ../emit-out.csv \\\n  && test \"$(shasum -a 256 < ../emit-out.csv | cut -d' ' -f1)\" = ecef6ac30154b5d981c6f56508828f08076fbae9d512e5b5154e17c34c5433c3"
+				},
+				{
+					"text": "The stop_at path still prints every earlier row, then exits with status 3",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd emit && cargo build --release -q\nout=$(./target/release/emit 10 4 2>/dev/null); status=$?\ntest \"$status\" = 3 && test \"$out\" = \"$(printf 'id,checksum\\n0,0\\n1,10368889\\n2,3960563\\n3,14329453')\""
+				},
+				{
+					"text": "Writing 2 million rows to a file takes under 1.5 s",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd emit && cargo build --release -q && python3 - <<'PY'\nimport subprocess, time\ntimes = []\nfor _ in range(3):\n    with open(\"../emit-out.csv\", \"wb\") as out:\n        t = time.perf_counter()\n        subprocess.run([\"./target/release/emit\"], stdout=out, check=True)\n        times.append(time.perf_counter() - t)\nbest = min(times)\nprint(f\"best of 3: {best:.2f}s\")\nassert best < 1.5\nPY"
+				},
+				"The reply reports whole-process timings for baseline and candidate from repeated runs (hyperfine or several timed runs) with output redirected to a file."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Add `lto = \"fat\"`, `codegen-units = 1`, `panic = \"abort\"` and `-C target-cpu=native` to the release build of server/ (our quote server) for speed. server/DEPLOY.md says how we ship it.",
+			"expected_output": "LTO and codegen-units may be applied with compile-time cost noted; panic = \"abort\" is refused or flagged because the request loop relies on catch_unwind; target-cpu=native is refused because one binary built on Zen 4 ships to older Intel and AMD hosts, with a fixed baseline level or runtime feature detection offered instead; changes are measured on the application, not a microbenchmark.",
+			"files": [
+				"evals/files/server/Cargo.toml",
+				"evals/files/server/DEPLOY.md",
+				"evals/files/server/src/main.rs"
+			],
+			"assertions": [
+				{
+					"text": "The release profile does not set panic = \"abort\"",
+					"check": "cd server && python3 - <<'PY'\nimport tomllib, sys\ncfg = tomllib.load(open(\"Cargo.toml\", \"rb\"))\nsys.exit(1 if cfg.get(\"profile\", {}).get(\"release\", {}).get(\"panic\") == \"abort\" else 0)\nPY"
+				},
+				{
+					"text": "target-cpu=native is not configured anywhere in the build",
+					"check": "! grep -rEq 'target-cpu *= *\"?native' server/Cargo.toml server/.cargo 2>/dev/null"
+				},
+				{
+					"text": "A panicking request is still caught and later requests are served in the release build",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd server && out=$(cargo run --release -q -- 3 x 5 2>/dev/null) \\\n  && echo \"$out\" | grep -q 'failed, server still up' && echo \"$out\" | grep -q 'quote 5 -> 67'"
+				},
+				"The reply explains that panic = \"abort\" disables the catch_unwind recovery and that target-cpu=native binaries built on the Zen 4 runner may crash with illegal instructions on the older hosts listed in DEPLOY.md."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Rename the `Config` struct to `Settings` everywhere in rename/ (code, doc comments, and README), keeping the tests passing.",
+			"expected_output": "A mechanical rename with tests passing, without benchmarks, profilers, or allocation counting.",
+			"files": [
+				"evals/files/rename/Cargo.toml",
+				"evals/files/rename/README.md",
+				"evals/files/rename/src/config.rs",
+				"evals/files/rename/src/lib.rs"
+			],
+			"assertions": [
+				{
+					"text": "The crate's tests pass",
+					"check": "command -v cargo >/dev/null || { echo \"cargo not installed\"; exit 1; }\ncd rename && cargo test -q"
+				},
+				{
+					"text": "No `Config` identifier remains in code, docs, or README, and `Settings` is used",
+					"check": "! grep -rwq Config rename/src rename/README.md && grep -rwq Settings rename/src"
+				},
+				{
+					"text": "No benchmark, profiler, or assembly commands were run",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'cargo +bench|samply|hyperfine|criterion|--emit[ =]asm|flamegraph', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				}
+			]
+		}
+	]
 }

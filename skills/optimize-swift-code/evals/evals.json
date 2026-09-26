@@ -1,35 +1,124 @@
 {
-  "skill_name": "optimize-swift-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Swift workload on the specified target while preserving copy-on-write, ownership, exclusivity, Unicode, errors, and actor isolation.",
-      "expected_output": "A repository-aware Swift optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Swift optimization workflow instead of returning only generic advice.",
-        "For cow, Verify uniqueness/sharing and mutation semantics.",
-        "For string/data conversion, Measure allocations and preserve indexing/Unicode.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Change deployment targets without a performance request.",
-      "expected_output": "The agent does not activate optimize-swift-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-swift-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Swift workload on the specified target while preserving copy-on-write, ownership, exclusivity, Unicode, errors, and actor isolation. Stress case: Concurrency.",
-      "expected_output": "A Swift optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Preserve actor/sendability contracts.",
-        "The evidence can detect this failure: Isolation removed for speed.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-swift-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our CSV importer is slow on 2 million lines and Instruments puts most of the time in fields(_:) in csv/Sources/Importer/Fields.swift, mostly allocation. Every caller goes through importStats and only counts fields and compares them to constants. Make it faster without changing any result, including for non-ASCII text.",
+			"expected_output": "fields stops copying each field into a String (returns [Substring] or feeds importStats directly), keeps Character-based splitting so a combining mark after a comma is not split, notes that fields up to 15 UTF-8 bytes are small strings, compares old and new on empty, empty-field, and Unicode inputs, and reports allocation counts or timings from a release build.",
+			"files": [
+				"evals/files/csv/Package.swift",
+				"evals/files/csv/Sources/Importer/Fields.swift",
+				"evals/files/csv/Sources/importer-cli/main.swift"
+			],
+			"assertions": [
+				{
+					"text": "fields gives the same fields as the original for empty lines, empty fields, \\r\\n, a combining mark after a comma, flags and ZWJ emoji, and importStats is unchanged",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/csv-eq && cat > .evalcheck/csv-eq/main.swift <<'SWIFT'\nimport Darwin\nlet cases = [\"\", \",\", \"a\", \"a,,b\", \",x,\", \"t,svc,ERROR,msg\",\n             \"caf\\u{E9},na\\u{EF}ve,\\u{65E5}\\u{672C}\",\n             \"a,\\u{301}b,c\",\n             \"flag,\\u{1F1F5}\\u{1F1F1},family,\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F467}\",\n             \"a\\r\\nb,c\", \"long-field-number-one-over-15-bytes,long-field-number-two-over-15-bytes\"]\nfor line in cases {\n    let expected = line.split(separator: \",\", omittingEmptySubsequences: false).map { String($0) }\n    let got = fields(line).map { String($0) }\n    guard got == expected else { print(\"mismatch for \\(line.debugDescription): \\(got) vs \\(expected)\"); exit(1) }\n}\nlet lines = [\"t,svc,ERROR,a,b\", \"t,svc,INFO\", \"x\", \"t,\\u{E9}t\\u{E9},ERROR\"]\nlet s = importStats(lines)\nguard s.rows == 4, s.errors == 2, s.wide == 1 else { print(\"importStats changed: \\(s)\"); exit(1) }\nprint(\"equivalent\")\nSWIFT\nxcrun swiftc -O -wmo csv/Sources/Importer/*.swift .evalcheck/csv-eq/main.swift -o .evalcheck/csv-eq/run || exit 1\n.evalcheck/csv-eq/run"
+				},
+				{
+					"text": "Holding the result of fields for 20,000 lines retains at most 2 heap blocks per line (the original retains about 4: one per long field plus the array)",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/csv-alloc && cat > .evalcheck/csv-alloc/main.swift <<'SWIFT'\nimport Darwin\nfunc liveBlocks() -> Int {\n    var s = malloc_statistics_t()\n    malloc_zone_statistics(nil, &s)\n    return Int(s.blocks_in_use)\n}\nlet lines = (0..<20_000).map { i in\n    \"2026-09-01T10:00:00.000Z,billing-service-eu-west-\\(i % 7),request finished after retry \\(i),x\"\n}\nvar keep: [Any] = []\nkeep.reserveCapacity(lines.count)\nlet before = liveBlocks()\nfor line in lines { keep.append(fields(line)) }\nlet perLine = Double(liveBlocks() - before) / Double(lines.count)\nprint(\"retained heap blocks per line: \\(perLine) (original: about 4)\")\nexit(perLine <= 2.0 ? 0 : 1)\nSWIFT\nxcrun swiftc -O -wmo csv/Sources/Importer/*.swift .evalcheck/csv-alloc/main.swift -o .evalcheck/csv-alloc/run || exit 1\n.evalcheck/csv-alloc/run"
+				},
+				{
+					"text": "The package still builds in release",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\ncd csv && xcrun swift build -c release"
+				},
+				"The reply reports baseline and candidate numbers (allocation counts or timings) from a release (-O) build on the same input."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "schedule(_:limit:) in jobs/Sources/Jobs/Scheduler.swift takes ages once a batch has a few hundred thousand jobs. Make it fast; the returned run order must stay exactly the same.",
+			"expected_output": "Identifies Array.removeFirst as O(n) per call (quadratic drain), replaces it with a head index, popFirst on a slice or Deque-like structure while keeping FIFO order for appended halves, checks order equality against the old code, and reports release-build timings before and after.",
+			"files": [
+				"evals/files/jobs/Package.swift",
+				"evals/files/jobs/Sources/Jobs/Scheduler.swift"
+			],
+			"assertions": [
+				{
+					"text": "schedule returns the same run order as the original on empty, single, splitting, and 500-job inputs at several limits",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/jobs-eq && cat > .evalcheck/jobs-eq/main.swift <<'SWIFT'\nimport Darwin\nfunc reference(_ jobs: [Job], limit: Int) -> [Int] {\n    var queue = jobs\n    var order: [Int] = []\n    while !queue.isEmpty {\n        let job = queue.removeFirst()\n        if job.cost > limit {\n            queue.append(Job(id: job.id, cost: job.cost / 2))\n            queue.append(Job(id: job.id, cost: job.cost - job.cost / 2))\n        } else {\n            order.append(job.id)\n        }\n    }\n    return order\n}\nlet inputs: [[Job]] = [[], [Job(id: 1, cost: 3)], [Job(id: 1, cost: 40), Job(id: 2, cost: 1)],\n                       (0..<500).map { Job(id: $0, cost: ($0 * 37) % 50) }]\nfor jobs in inputs {\n    for limit in [0, 1, 10, 100] where !(limit == 0 && jobs.contains { $0.cost > 0 }) {\n        guard schedule(jobs, limit: limit) == reference(jobs, limit: limit) else {\n            print(\"order differs for \\(jobs.count) jobs, limit \\(limit)\"); exit(1)\n        }\n    }\n}\nprint(\"equivalent\")\nSWIFT\nxcrun swiftc -O -wmo jobs/Sources/Jobs/*.swift .evalcheck/jobs-eq/main.swift -o .evalcheck/jobs-eq/run || exit 1\n.evalcheck/jobs-eq/run"
+				},
+				{
+					"text": "Scheduling 300,000 jobs (390,000 runs) takes under 1 second in an -O build (the original takes over 20 seconds)",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/jobs-fast && cat > .evalcheck/jobs-fast/main.swift <<'SWIFT'\nimport Darwin\nalarm(20)\nlet jobs = (0..<300_000).map { Job(id: $0, cost: $0 % 10 == 0 ? 25 : 5) }\nlet clock = ContinuousClock()\nvar out: [Int] = []\nlet elapsed = clock.measure { out = schedule(jobs, limit: 10) }\nprint(out.count, elapsed)\nexit(out.count == 390_000 && elapsed < .seconds(1) ? 0 : 1)\nSWIFT\nxcrun swiftc -O -wmo jobs/Sources/Jobs/*.swift .evalcheck/jobs-fast/main.swift -o .evalcheck/jobs-fast/run || exit 1\n.evalcheck/jobs-fast/run"
+				},
+				"The reply names removeFirst on Array as linear in the remaining count, making the drain quadratic, and reports measured before and after times from an optimized build."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Replace the loop in checksum/Sources/Checksum/Sum.swift with withUnsafeBufferPointer to get rid of the bounds checks; total(_:) is hot in our ingest path. Only keep the change if it's actually worth it.",
+			"expected_output": "Reads the -O assembly first and finds whether a per-iteration bounds check remains; separates the bounds check from the overflow check of +=; keeps the overflow trap the doc comment requires (no &+); adds unsafe code only with a PERF/SAFETY comment and a measured gain, otherwise keeps the safe loop and reports the null result.",
+			"files": [
+				"evals/files/checksum/Package.swift",
+				"evals/files/checksum/Sources/Checksum/Sum.swift"
+			],
+			"assertions": [
+				{
+					"text": "total returns the same sums as the original for lengths 0 through 100,003",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/sum-eq && cat > .evalcheck/sum-eq/main.swift <<'SWIFT'\nimport Darwin\nvar x: UInt64 = 42\nfunc next() -> Int { x = x &* 6364136223846793005 &+ 1442695040888963407; return Int(truncatingIfNeeded: x >> 40) - (1 << 23) }\nfor n in [0, 1, 2, 7, 64, 1000, 100_003] {\n    let v = (0..<n).map { _ in next() }\n    guard total(v) == v.reduce(0, +) else { print(\"sum differs for n = \\(n)\"); exit(1) }\n}\nprint(\"equivalent\")\nSWIFT\nxcrun swiftc -O -wmo checksum/Sources/Checksum/*.swift .evalcheck/sum-eq/main.swift -o .evalcheck/sum-eq/run || exit 1\n.evalcheck/sum-eq/run"
+				},
+				{
+					"text": "total still traps on overflow in an -O build",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/sum-trap && cat > .evalcheck/sum-trap/main.swift <<'SWIFT'\nimport Darwin\nlet values = [Int.max, 1] + Array(repeating: 0, count: 100)\nprint(total(values))\nSWIFT\nxcrun swiftc -O -wmo checksum/Sources/Checksum/*.swift .evalcheck/sum-trap/main.swift -o .evalcheck/sum-trap/run || exit 1\n.evalcheck/sum-trap/run >/dev/null 2>&1; status=$?; echo \"exit status $status\"; test $status -ge 128"
+				},
+				{
+					"text": "Any unsafe buffer code carries a PERF/SAFETY comment",
+					"check": "cd checksum && python3 - <<'PY'\nimport pathlib, re, sys\nfor p in pathlib.Path(\"Sources\").rglob(\"*.swift\"):\n    lines = p.read_text().splitlines()\n    for i, line in enumerate(lines):\n        code = line.split(\"//\")[0]\n        if re.search(r\"withUnsafe|Unsafe(Mutable)?(Raw)?BufferPointer|unsafe \", code):\n            if \"SAFETY\" not in \"\\n\".join(lines[max(0, i - 4):i + 1]):\n                sys.exit(f\"{p}:{i + 1}: unsafe code without a PERF/SAFETY comment\")\nPY"
+				},
+				"The reply says whether the -O assembly or SIL of the original loop contains a per-iteration bounds check and bases the keep-or-revert decision on that plus a timing comparison.",
+				"The reply distinguishes the overflow check of `+=` from the bounds check and does not switch to wrapping `&+` because the function must trap on overflow."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "stats/Sources/Stats/Stats.swift: every ingestion task calls record(_:into:), which does `await stats.add(x)` for each of ~100k values, and the actor hops show up in profiles. We ship on iOS 17 and macOS 14 (see stats/Package.swift). Should we switch to Mutex or Atomic from the Synchronization module? Make it cheaper; totals must stay exact.",
+			"expected_output": "Notes that Mutex and Atomic need iOS 18 / macOS 15, so they are unavailable for these deployment targets without availability guards; batches the per-value actor calls into one call per batch (or uses OSAllocatedUnfairLock on iOS 16+), keeps the deployment targets, verifies exact totals under concurrency, and measures before and after.",
+			"files": [
+				"evals/files/stats/Package.swift",
+				"evals/files/stats/Sources/Stats/Stats.swift"
+			],
+			"assertions": [
+				{
+					"text": "The package still builds for its declared macOS 14 / iOS 17 targets, which are unchanged",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\ncd stats && grep -q '.macOS(.v14)' Package.swift && grep -q '.iOS(.v17)' Package.swift && xcrun swift build"
+				},
+				{
+					"text": "Eight concurrent tasks recording 10,000 values each produce exactly total 360,000 and count 80,000 (compiled for macOS 14)",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/stats-oracle && cat > .evalcheck/stats-oracle/main.swift <<'SWIFT'\nimport Darwin\nlet stats = Stats()\nawait withTaskGroup(of: Void.self) { group in\n    for t in 1...8 {\n        group.addTask { await record(Array(repeating: t, count: 10_000), into: stats) }\n    }\n}\nlet total = await stats.total\nlet count = await stats.count\nprint(\"total \\(total) count \\(count)\")\nexit(total == 360_000 && count == 80_000 ? 0 : 1)\nSWIFT\nxcrun swiftc -O -wmo -target \"$(uname -m)-apple-macos14.0\" stats/Sources/Stats/*.swift .evalcheck/stats-oracle/main.swift -o .evalcheck/stats-oracle/run || exit 1\n.evalcheck/stats-oracle/run"
+				},
+				{
+					"text": "Eight concurrent tasks recording 100,000 values each finish in under 200 ms in an -O build (the per-value actor version takes about 600 ms)",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\nmkdir -p .evalcheck/stats-fast && cat > .evalcheck/stats-fast/main.swift <<'SWIFT'\nimport Darwin\nlet stats = Stats()\nlet clock = ContinuousClock()\nlet elapsed = await clock.measure {\n    await withTaskGroup(of: Void.self) { group in\n        for t in 1...8 {\n            group.addTask { await record(Array(repeating: t, count: 100_000), into: stats) }\n        }\n    }\n}\nlet total = await stats.total\nprint(\"8 x 100k values in \\(elapsed), total \\(total)\")\nexit(total == 3_600_000 && elapsed < .milliseconds(200) ? 0 : 1)\nSWIFT\nxcrun swiftc -O -wmo -target \"$(uname -m)-apple-macos14.0\" stats/Sources/Stats/*.swift .evalcheck/stats-fast/main.swift -o .evalcheck/stats-fast/run || exit 1\n.evalcheck/stats-fast/run"
+				},
+				"The reply states that Synchronization's Mutex and Atomic require iOS 18 / macOS 15 and so cannot be used unguarded with these deployment targets.",
+				"The reply considers batching the per-value actor calls (one await per batch) and reports a timing it measured for baseline and candidate, with machine and run count."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Bump the Geometry package in platform/ from macOS 13 to macOS 15 (Package.swift) and update the CI matrix in platform/.github/workflows/ci.yml to match. No performance work.",
+			"expected_output": "Package.swift declares .macOS(.v15), the CI matrix drops the macOS 13 runner, the manifest still parses, and no benchmarking or profiling is done.",
+			"files": [
+				"evals/files/platform/.github/workflows/ci.yml",
+				"evals/files/platform/Package.swift",
+				"evals/files/platform/Sources/Geometry/Vector2.swift"
+			],
+			"assertions": [
+				{
+					"text": "Package.swift declares macOS 15 and no longer macOS 13, and the manifest parses",
+					"check": "xcrun --find swiftc >/dev/null 2>&1 || { echo \"Swift toolchain (xcrun swiftc) not installed\"; exit 1; }\ncd platform && grep -q '.macOS(.v15)' Package.swift && ! grep -q '.macOS(.v13)' Package.swift && xcrun swift package dump-package >/dev/null"
+				},
+				{
+					"text": "The CI matrix no longer runs on macos-13",
+					"check": "! grep -q 'macos-13' platform/.github/workflows/ci.yml"
+				},
+				{
+					"text": "No benchmark, profiler, or assembly commands were run",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'xctrace|package-benchmark|swift +package +benchmark|-emit-(assembly|sil)|Instruments', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				}
+			]
+		}
+	]
 }

@@ -1,0 +1,111 @@
+[
+	{
+		"query": "etl/rollup.py takes ~40 min on the full dump now. cProfile (sorted by cumtime) has merge_rows at the top with 31M calls to list.__contains__ under it. can you make it faster without changing the output file? we're on 3.12",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our internal CLI takes almost a second before --help even shows up. I ran python -X importtime and got a wall of output I can't read. which imports should we defer and how do I prove it got better?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "py-spy says the hot spot is `if row.sku in active_skus` inside a loop over 2M rows (active_skus is a list of ~30k strings). rewrite it so it's faster but gives identical results, and back it up with a real benchmark not a single time.time()",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is it worth moving our pure-Python Monte Carlo loop (10M iterations of float math, simulate.py) to multiprocessing or to the free-threaded 3.14t build? I want numbers before we commit to either.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Since PR #412 our FastAPI scoring endpoint's p99 went from 40 ms to 180 ms. The handler does sorted(scores)[:10] over ~500k floats and builds the response by string += in a loop. Find what's actually costing time and fix it without changing responses.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our ingest worker peaks at 9 GB RSS while parsing one 2 GB export. I'd like to know which lines allocate the most and get the peak down; Python 3.11, can't add native deps.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "benchmark tok_v1.py against tok_v2.py (two tokenizer implementations) properly on 3.13 and tell me which one is faster; timeit gives me numbers that jump around by 20%",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We allocate ~20M Point objects in our geometry package and the process hits 6 GB. Would __slots__ or @dataclass(slots=True) help, and how much? Some code sets extra attributes on points.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "log parser (parse_logs.py) chews through 3 GB/day and profiling shows re.match(PATTERN, line) and datetime.strptime eating most of the time. need it faster with byte-identical output",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "My asyncio crawler awaits each of 300 API calls one after another and a batch takes 5 minutes. How do I speed it up without hammering the API, and how do I check the gain?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "services/billing.py is a mess of 200-line functions. Split them into smaller, more Pythonic pieces so new people can follow it. No behavior change and speed doesn't matter here.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Our Node.js API's event-loop lag spikes to 800 ms under load and the CPU profile shows JSON.parse on big request bodies. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-javascript-code"
+	},
+	{
+		"query": "test_scheduler_timeout in our pytest suite fails roughly 1 run in 20 on CI and never locally. Can you figure out why?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "we just bumped requires-python to >=3.11. strip out the sys.version_info < (3, 8) branches and the typing_extensions import fallbacks across the package",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "remove-unneeded-compatibility-code"
+	},
+	{
+		"query": "Our PyO3 extension's inner loop is slow: the Criterion bench shows most time in parse_record allocating a String per field. Make the Rust side faster.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Write pytest tests for utils/retry.py's backoff decorator: max attempts, the jitter bounds, and that it gives up on non-retryable exceptions.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Why does CPython have a GIL at all, and did 3.13 actually remove it?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Security review please: our Flask admin blueprint passes request.args['host'] into subprocess.run(..., shell=True) in admin/tools.py. What else should we look at?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Our GitHub Actions python matrix spends 4 minutes on pip install every run. Add caching and cut the workflow time.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "tsc --noEmit on our monorepo takes 3 minutes in CI since we added the generated API types. How do we make type-checking faster?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-typescript-builds"
+	}
+]

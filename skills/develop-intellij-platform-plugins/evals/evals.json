@@ -1,35 +1,158 @@
 {
-  "skill_name": "develop-intellij-platform-plugins",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Implement this IntelliJ Platform plugin feature with PSI freshness, read/write actions, undo, disposal, target IDE tests, and package verification.",
-      "expected_output": "A repository-aware IntelliJ Platform plugin result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the IntelliJ Platform plugin workflow instead of returning only generic advice.",
-        "For async psi result, Revalidate element/document before write.",
-        "For write operation, Use write command/undo mechanism.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Refactor a standalone Kotlin CLI.",
-      "expected_output": "The agent does not activate develop-intellij-platform-plugins for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that develop-intellij-platform-plugins is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Implement this IntelliJ Platform plugin feature with PSI freshness, read/write actions, undo, disposal, target IDE tests, and package verification. Stress case: Compatibility.",
-      "expected_output": "A IntelliJ Platform plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Keep declared IDE range unless user changes it.",
-        "The evidence can detect this failure: Tests made green by broad version shims.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "develop-intellij-platform-plugins",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Tools > Count TODOs in Project in our IntelliJ plugin (todo-finder/) freezes the IDE on large projects, and even opening the Tools menu stutters. Target is IntelliJ IDEA 2026.2. Make the count run in the background with a cancellable progress indicator and still show the result to the user when it finishes.",
+			"expected_output": "update() does no index or PSI work and getActionUpdateThread() is overridden; actionPerformed starts a background task (Task.Backgroundable or withBackgroundProgress) that reads files in a (non-blocking) read action with checkCanceled and isValid checks, and shows the message on the EDT afterwards.",
+			"files": [
+				"evals/files/todo-finder/src/main/resources/META-INF/plugin.xml",
+				"evals/files/todo-finder/src/main/kotlin/org/acme/todofinder/FindTodosAction.kt"
+			],
+			"assertions": [
+				{
+					"text": "The descriptor passes the bundled checker with --src-root (classes resolve, no errors).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\"; python3 \"$t\" --src-root todo-finder/src/main/kotlin todo-finder/src/main/resources/META-INF/plugin.xml"
+				},
+				{
+					"text": "FindTodosAction overrides getActionUpdateThread and its update() no longer queries indexes or PSI.",
+					"check": "grep -q 'getActionUpdateThread' todo-finder/src/main/kotlin/org/acme/todofinder/FindTodosAction.kt && python3 -c 'import re; s = open(\"todo-finder/src/main/kotlin/org/acme/todofinder/FindTodosAction.kt\").read(); m = re.search(r\"fun update\\(.*?(?=\\n    (override )?fun |\\Z)\", s, re.S); body = m.group(0) if m else \"\"; assert not re.search(r\"FilenameIndex|PsiManager|FileTypeIndex|findFile\", body), body'"
+				},
+				{
+					"text": "The sources run the count in a background task and use a read action for the index and PSI access.",
+					"check": "grep -rEq 'Task\\.Backgroundable|withBackgroundProgress|runBackgroundableTask' todo-finder/src && grep -rEq 'readAction|ReadAction|runReadAction|smartReadAction' todo-finder/src"
+				},
+				{
+					"text": "The loop checks for cancellation.",
+					"check": "grep -rEq 'checkCanceled|ProgressManager\\.checkCanceled|indicator\\.checkCanceled' todo-finder/src"
+				},
+				"The result message is shown on the EDT (for example withContext(Dispatchers.EDT), invokeLater, or Task.onSuccess), not from the background thread; quote the line.",
+				"The reply labels what was executed, compiled, or not run and does not claim a test or runIde result that the transcript does not show."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "In result-limits/ (IntelliJ Platform 2026.2, Kotlin) SearchSymbolsAction has maxResults and includeTests hardcoded. Add a settings page under Settings > Tools where users set maxResults (1..500, default 100) and includeTests (default off), saved once per application, and make the action use the saved values.",
+			"expected_output": "An application-level PersistentStateComponent service with @State and @Storage, an applicationConfigurable with parentId=\"tools\" registered in plugin.xml (Kotlin UI DSL or Configurable), range validation 1..500, and the action reading the service.",
+			"files": [
+				"evals/files/result-limits/src/main/resources/META-INF/plugin.xml",
+				"evals/files/result-limits/src/main/kotlin/org/acme/search/SearchSymbolsAction.kt",
+				"evals/files/result-limits/src/main/kotlin/org/acme/search/SymbolSearch.kt"
+			],
+			"assertions": [
+				{
+					"text": "The descriptor passes the bundled checker with --src-root (the configurable and any service classes exist).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\"; python3 \"$t\" --src-root result-limits/src/main/kotlin result-limits/src/main/resources/META-INF/plugin.xml"
+				},
+				{
+					"text": "plugin.xml registers an applicationConfigurable with parentId tools.",
+					"check": "python3 -c 'import xml.etree.ElementTree as ET; r = ET.parse(\"result-limits/src/main/resources/META-INF/plugin.xml\").getroot(); c = [e for e in r.iter(\"applicationConfigurable\")]; assert c and all(e.get(\"parentId\") == \"tools\" for e in c), [e.attrib for e in c]'"
+				},
+				{
+					"text": "The settings are persisted with a PersistentStateComponent and @State.",
+					"check": "grep -rEq 'PersistentStateComponent|SimplePersistentStateComponent|SerializablePersistentStateComponent' result-limits/src && grep -rq '@State' result-limits/src"
+				},
+				{
+					"text": "SearchSymbolsAction no longer hardcodes maxResults = 100.",
+					"check": "! grep -Eq 'val maxResults = 100' result-limits/src/main/kotlin/org/acme/search/SearchSymbolsAction.kt"
+				},
+				"Values outside 1..500 are rejected or clamped in the settings UI or state (quote the validation), and the service is application-level, not project-level."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "`gradle verifyPlugin` fails for gitstats/ with: \"Invalid plugin descriptor 'plugin.xml'. The plugin ID 'com.example.gitstats' has a prefix 'com.example' that is not allowed.\" The build still uses the old org.jetbrains.intellij 1.17.4 Gradle plugin and targets 2026.1. We have never published it; our company domain is quillsoft.io. Fix the build and descriptor, and while you're at it set until-build to 999.* so we never have to touch compatibility again.",
+			"expected_output": "The plugin ID becomes io.quillsoft.gitstats (IDs and action IDs updated consistently), the build migrates to org.jetbrains.intellij.platform 2.x with the intellijPlatform dependencies block, a bundledPlugin for Git4Idea, and the matching Java toolchain; until-build is not set to 999.* (an open range or the tested range instead) and the reply explains why.",
+			"files": [
+				"evals/files/gitstats/build.gradle.kts",
+				"evals/files/gitstats/settings.gradle.kts",
+				"evals/files/gitstats/src/main/resources/META-INF/plugin.xml",
+				"evals/files/gitstats/src/main/kotlin/com/example/gitstats/ShowStatsAction.kt"
+			],
+			"assertions": [
+				{
+					"text": "The descriptor passes the bundled checker (no forbidden ID prefix).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\"; python3 \"$t\" gitstats/src/main/resources/META-INF/plugin.xml"
+				},
+				{
+					"text": "build.gradle.kts applies org.jetbrains.intellij.platform and no longer applies org.jetbrains.intellij 1.x.",
+					"check": "grep -q 'org.jetbrains.intellij.platform' gitstats/build.gradle.kts && ! grep -Eq 'id\\(\"org\\.jetbrains\\.intellij\"\\)' gitstats/build.gradle.kts"
+				},
+				{
+					"text": "Git4Idea is declared as a bundled plugin dependency in an intellijPlatform dependencies block.",
+					"check": "grep -Eq 'bundledPlugin(s)?\\([^)]*Git4Idea' gitstats/build.gradle.kts"
+				},
+				{
+					"text": "No 999 until-build was added anywhere in the build or descriptor.",
+					"check": "! grep -rq '999' gitstats/build.gradle.kts gitstats/gradle.properties gitstats/src/main/resources 2>/dev/null"
+				},
+				"The reply explains why until-build 999.* is refused (the plugin would claim compatibility with IDE versions nobody verified) and says how to extend the range safely (Plugin Verifier over the new IDEs)."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "lint-rules/ is our IntelliJ plugin. Two things: other plugins should be able to add their own LintRule implementations, and right now the plugin refuses to load when the Markdown plugin is disabled. It must work without Markdown and still use MarkdownHeadingRule when Markdown is installed. Plugins get installed and removed without restarts, so keep it dynamic.",
+			"expected_output": "plugin.xml declares a dynamic extensionPoint with interface org.acme.lint.LintRule and registers TrailingSpaceRule through it; the Markdown dependency becomes <depends optional=\"true\" config-file=\"org.acme.lint-markdown.xml\"> (named <pluginId>-<name>.xml) whose file registers MarkdownHeadingRule; LintService reads rules from ExtensionPointName instead of a hardcoded list.",
+			"files": [
+				"evals/files/lint-rules/src/main/resources/META-INF/plugin.xml",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/TrailingSpaceRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/MarkdownHeadingRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintService.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintFileAction.kt"
+			],
+			"assertions": [
+				{
+					"text": "The descriptor and its optional config file pass the bundled checker with --src-root, and the config file follows the <pluginId>-<name>.xml naming.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-intellij-platform-plugins/scripts/check_plugin_xml.py\"; out=$(python3 \"$t\" --src-root lint-rules/src/main/kotlin lint-rules/src/main/resources/META-INF/plugin.xml 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ] && ! printf \"%s\" \"$out\" | grep -q \"should be named\""
+				},
+				{
+					"text": "plugin.xml declares a dynamic extension point for org.acme.lint.LintRule and depends on Markdown only optionally, with a config file that exists and registers MarkdownHeadingRule.",
+					"check": "python3 -c 'import os, xml.etree.ElementTree as ET; p = \"lint-rules/src/main/resources/META-INF/plugin.xml\"; r = ET.parse(p).getroot(); eps = [e for e in r.iter(\"extensionPoint\") if e.get(\"interface\") == \"org.acme.lint.LintRule\"]; assert eps and all(e.get(\"dynamic\") == \"true\" for e in eps), [e.attrib for e in r.iter(\"extensionPoint\")]; md = [d for d in r.iter(\"depends\") if (d.text or \"\").strip() == \"org.intellij.plugins.markdown\"]; assert md and all(d.get(\"optional\") == \"true\" and d.get(\"config-file\") for d in md), [d.attrib for d in md]; cfg = os.path.join(os.path.dirname(p), md[0].get(\"config-file\")); assert \"MarkdownHeadingRule\" in open(cfg).read(), cfg; assert \"MarkdownHeadingRule\" not in open(p).read()'"
+				},
+				{
+					"text": "LintService no longer constructs MarkdownHeadingRule directly and reads rules from an ExtensionPointName.",
+					"check": "! grep -q 'MarkdownHeadingRule' lint-rules/src/main/kotlin/org/acme/lint/LintService.kt && grep -rq 'ExtensionPointName' lint-rules/src"
+				},
+				"The reply explains that a required <depends> on Markdown is why the plugin does not load without it, and that classes referencing Markdown APIs must be registered only from the optional config file."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "header-stamp/src/main/kotlin/org/acme/header/HeaderInserter.kt sometimes throws \"Write access is allowed inside write-action only\" and similar assertion errors, and when it works, Undo doesn't remove the header. Fix it for IntelliJ 2026.2 so the header insertion is one undoable step.",
+			"expected_output": "The document change runs on the EDT inside WriteCommandAction (a command with a name, group, and the project) so it is undoable; the header uses \\n line separators (Document text is always \\n); the pooled thread no longer touches the Document; the file's validity is re-checked.",
+			"files": [
+				"evals/files/header-stamp/src/main/kotlin/org/acme/header/HeaderInserter.kt"
+			],
+			"assertions": [
+				{
+					"text": "The document edit goes through WriteCommandAction (or CommandProcessor with a write action).",
+					"check": "grep -Eq 'WriteCommandAction|CommandProcessor' header-stamp/src/main/kotlin/org/acme/header/HeaderInserter.kt"
+				},
+				{
+					"text": "The inserted header no longer contains \\r\\n.",
+					"check": "! grep -q '\\\\r' header-stamp/src/main/kotlin/org/acme/header/HeaderInserter.kt"
+				},
+				"No code running on a pooled or background thread calls insertString on the Document directly; the edit is dispatched to the EDT (invokeLater, withContext(Dispatchers.EDT), or similar); quote it.",
+				"The reply explains that Document changes must happen on the EDT in a write action inside a command, and that a command is what makes the change undoable.",
+				"The reply explains why \\r\\n is wrong in a Document (IntelliJ documents always use \\n; the file's separators are applied on save)."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Write a Kotlin command-line tool in todo-count/ that counts TODO comments in a directory of .kt files and prints a per-file summary. It runs in CI, not inside any IDE. Use Gradle with the application plugin.",
+			"expected_output": "A plain Kotlin/JVM Gradle application (main function, file walk, regex count). No IntelliJ Platform Gradle plugin, plugin.xml, AnAction, or PSI.",
+			"assertions": [
+				{
+					"text": "todo-count/ contains Kotlin sources with a main function.",
+					"check": "grep -rqE 'fun main' todo-count --include='*.kt'"
+				},
+				{
+					"text": "No plugin.xml and no IntelliJ Platform Gradle plugin were used.",
+					"check": "test -z \"$(find todo-count -name plugin.xml)\" && ! grep -rq 'org.jetbrains.intellij' todo-count"
+				},
+				"The reply treats this as a standalone command-line program and does not bring in IntelliJ Platform APIs (AnAction, PSI, services)."
+			]
+		}
+	]
 }

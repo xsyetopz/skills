@@ -1,0 +1,11 @@
+{
+	"name": "log-levels",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsc -p ."
+	},
+	"devDependencies": {
+		"typescript": "7.0.2"
+	}
+}

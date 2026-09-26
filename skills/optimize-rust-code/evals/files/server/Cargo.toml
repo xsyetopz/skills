@@ -1,0 +1,9 @@
+[package]
+name = "quote-server"
+version = "0.9.0"
+edition = "2024"
+
+[dependencies]
+
+[profile.release]
+debug = "line-tables-only"

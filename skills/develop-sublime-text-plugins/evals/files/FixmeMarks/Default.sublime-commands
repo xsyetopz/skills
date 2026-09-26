@@ -1,0 +1,4 @@
+[
+  { "caption": "FixmeMarks: Open Settings", "command": "edit_settings",
+    "args": { "base_file": "${packages}/FixmeMarks/FixmeMarks.sublime-settings", "default": "{\n\t$0\n}\n" } },
+]

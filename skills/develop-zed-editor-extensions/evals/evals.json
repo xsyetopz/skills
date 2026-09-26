@@ -1,35 +1,146 @@
 {
-  "skill_name": "develop-zed-editor-extensions",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Implement this Zed extension using the target release APIs, language configuration, Tree-sitter queries, WASM constraints, LSP launch, tests, and packaging.",
-      "expected_output": "A repository-aware Zed extension result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Zed extension workflow instead of returning only generic advice.",
-        "For unsupported ui api, State the host limitation.",
-        "For toolchain, Use the project-selected Rust toolchain.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Change a normal Zed user setting.",
-      "expected_output": "The agent does not activate develop-zed-editor-extensions for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that develop-zed-editor-extensions is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Implement this Zed extension using the target release APIs, language configuration, Tree-sitter queries, WASM constraints, LSP launch, tests, and packaging. Stress case: Downloaded binary.",
-      "expected_output": "A Zed extension result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Verify platform, integrity, permissions, and lifecycle.",
-        "The evidence can detect this failure: Unverified executable launched.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "develop-zed-editor-extensions",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "My Zed extension in zed-ruff/ is supposed to start Ruff's language server for Python files, but it never starts and Zed.log shows nothing about it. The Rust code builds fine. Fix it.",
+			"expected_output": "extension.toml uses [language_servers.ruff] (underscore; Zed ignores the hyphenated table) and languages = [\"Python\"] matching the built-in language name exactly; the checker passes; the reply gives the dev-install steps and marks them not run.",
+			"files": [
+				"evals/files/zed-ruff/extension.toml",
+				"evals/files/zed-ruff/Cargo.toml",
+				"evals/files/zed-ruff/src/lib.rs"
+			],
+			"assertions": [
+				{
+					"text": "The extension passes the bundled checker without the --registry rules.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\"; python3 \"$t\" zed-ruff"
+				},
+				{
+					"text": "extension.toml declares [language_servers.ruff] with languages exactly [\"Python\"] and no hyphenated table.",
+					"check": "python3 -c 'import tomllib; m = tomllib.load(open(\"zed-ruff/extension.toml\", \"rb\")); assert \"language-servers\" not in m, m; assert m[\"language_servers\"][\"ruff\"][\"languages\"] == [\"Python\"], m[\"language_servers\"]'"
+				},
+				"The reply explains both causes: Zed ignores the hyphenated [language-servers] table, and language names must match Zed's language name exactly (Python, not python).",
+				"The reply lists the in-editor steps (zed: install dev extension, then check Zed.log or zed --foreground) and marks them as not run unless the transcript shows Zed running."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Create a Zed extension in zed-just/ that adds justfile support (files named justfile or Justfile, or ending in .just) using the grammar at https://github.com/IndianBoy42/tree-sitter-just. I want syntax highlighting and recipes in the outline. No language server.",
+			"expected_output": "extension.toml with a [grammars.just] entry pinned to a 40-character commit SHA, languages/just/config.toml (name, grammar, path_suffixes covering justfile, Justfile, and just), highlights.scm and outline.scm using Zed capture names, no Cargo.toml or Rust; both checkers pass.",
+			"files": [],
+			"assertions": [
+				{
+					"text": "zed-just/ passes the bundled extension checker (grammar rev is a 40-character SHA, config and query files valid).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\"; python3 \"$t\" zed-just"
+				},
+				{
+					"text": "The language directory passes the bundled query checker and contains highlights.scm and outline.scm.",
+					"check": "l=$(dirname \"$(find zed-just/languages -name config.toml | head -n 1)\"); test -f \"$l/highlights.scm\" && test -f \"$l/outline.scm\" || { echo \"missing highlights.scm or outline.scm in $l\"; exit 1; }; d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_queries.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_queries.py\"; python3 \"$t\" \"$l\""
+				},
+				{
+					"text": "The language config matches justfile, Justfile, and .just files.",
+					"check": "python3 -c 'import glob, tomllib; c = tomllib.load(open(glob.glob(\"zed-just/languages/*/config.toml\")[0], \"rb\")); s = set(c.get(\"path_suffixes\", [])); assert {\"justfile\", \"Justfile\", \"just\"} <= s, s'"
+				},
+				{
+					"text": "No Rust crate was added (the extension needs no code).",
+					"check": "! test -e zed-just/Cargo.toml && test -z \"$(find zed-just -name '*.rs')\""
+				},
+				"The reply states how the grammar commit SHA was obtained (for example git ls-remote) and does not claim the queries were compiled with tree-sitter or tested in Zed unless the transcript shows it."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "I made a Zed theme (night-lang/themes/night.json) and I'd like to ship it inside our existing 'Night Language' extension in night-lang/, which we're about to submit to the Zed extension registry. Some colors are written as CSS names like \"tomato\" and I used a \"foreground\" key in the style. Get it ready.",
+			"expected_output": "Explains that the registry rejects themes mixed with languages and moves the theme to its own extension (for example night-theme/ with extension.toml, LICENSE, and themes/night.json); replaces CSS color names with hex; replaces the foreground style key with text/editor.foreground; night-lang passes check_extension --registry.",
+			"files": [
+				"evals/files/night-lang/extension.toml",
+				"evals/files/night-lang/LICENSE",
+				"evals/files/night-lang/languages/night/config.toml",
+				"evals/files/night-lang/languages/night/highlights.scm",
+				"evals/files/night-lang/themes/night.json"
+			],
+			"assertions": [
+				{
+					"text": "night-lang/ passes the bundled checker with --registry (no theme mixed into the language extension).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\"; python3 \"$t\" night-lang --registry"
+				},
+				{
+					"text": "A separate extension directory with extension.toml ships the theme, and it passes the bundled checker.",
+					"check": "e=$(for f in $(find . -path ./.claude -prune -o -path ./night-lang -prune -o -name extension.toml -print); do d=$(dirname \"$f\"); ls \"$d\"/themes/*.json >/dev/null 2>&1 && echo \"$d\"; done | head -n 1); test -n \"$e\" || { echo \"no extension with themes/*.json outside night-lang\"; exit 1; }; d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\"; python3 \"$t\" \"$e\""
+				},
+				{
+					"text": "Every color in the shipped theme is a hex value and no style uses a \"foreground\" key.",
+					"check": "python3 -c 'import glob, json, re; ps = [p for p in glob.glob(\"*/themes/*.json\") if not p.startswith(\"night-lang/\")]; assert ps, \"no theme outside night-lang\"; bad = []; walk = lambda k, v: [walk(k2, v2) for k2, v2 in v.items()] if isinstance(v, dict) else ([walk(k, x) for x in v] if isinstance(v, list) else (bad.append((k, v)) if isinstance(v, str) and k != \"font_style\" and not re.fullmatch(r\"#[0-9a-fA-F]{3,8}\", v) else None)); styles = [t[\"style\"] for p in ps for t in json.load(open(p))[\"themes\"]]; [walk(\"style\", s) for s in styles]; bad += [(\"foreground\", s[\"foreground\"]) for s in styles if \"foreground\" in s]; assert not bad, bad'"
+				},
+				"The reply explains that the Zed extension registry does not accept a theme bundled with a language extension, which is why the theme moved to its own extension."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "On my Mac, `cargo build --release --target wasm32-wasip2` for my Zed extension fails with error[E0463]: can't find crate for `core`. `rustup target list --installed` already shows wasm32-wasip2 and `which cargo` prints /opt/homebrew/bin/cargo. What's going on and what exactly should I run? Don't change my system yourself; just tell me.",
+			"expected_output": "Homebrew's Rust shadows rustup on PATH and has no wasm32-wasip2 standard library, so the target that rustup installed is invisible to it. Fix: run rustup's toolchain (~/.cargo/bin first on PATH, or rustup run stable cargo build ...), or remove the Homebrew rust; verify with `rustc --print sysroot` and `which -a cargo`.",
+			"files": [],
+			"assertions": [
+				{
+					"text": "The reply points at rustup's toolchain (~/.cargo/bin, rustup run, or a rustup proxy) as the cargo to use.",
+					"check": "grep -Eq '\\.cargo/bin|rustup run|rustup which|\\+stable|cargo \\+' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The run did not install, uninstall, or relink toolchains on the host.",
+					"check": "python3 -c 'import json, os, re; ev = [json.loads(l) for l in open(os.environ[\"EVAL_TRANSCRIPT_FILE\"]) if l.strip().startswith(\"{\")]; cmds = [c.get(\"input\", {}).get(\"command\", \"\") for e in ev if e.get(\"type\") == \"assistant\" for c in (e.get(\"message\") or {}).get(\"content\") or [] if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\"]; bad = [c for c in cmds if re.search(r\"brew (install|uninstall|remove|unlink|link)|rustup (target add|toolchain (install|uninstall)|default|self)\", c)]; assert not bad, bad'"
+				},
+				"The reply explains that the Homebrew cargo/rustc is found first on PATH and has no standard library for wasm32-wasip2, so rustup's installed target does not apply to it.",
+				"The reply gives a way to confirm the diagnosis, such as `which -a cargo`, `rustc --print sysroot`, or `rustup which cargo`."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "My Zed extension in go-table-snippets/ (repo https://github.com/dortiz/zed-go-table-snippets, version 0.1.0, MIT LICENSE included) should go into the official Zed extension registry. I have a local clone of the registry repo in zed-extensions/. Get everything ready locally: fix anything in the extension that the registry would reject and make the registry-side edits. Do not commit, push, or open a pull request.",
+			"expected_output": "The extension's name drops the word 'extension' and the description becomes longer than the name, so check_extension --registry passes; zed-extensions/extensions.toml gains [go-table-snippets] submodule = \"extensions/go-table-snippets\" version = \"0.1.0\" in sorted order, and .gitmodules gains the HTTPS submodule URL; no commit, push, or PR; the reply lists the remaining steps (git submodule add, pnpm sort-extensions, PR) as pending.",
+			"files": [
+				"evals/files/go-table-snippets/extension.toml",
+				"evals/files/go-table-snippets/LICENSE",
+				"evals/files/go-table-snippets/snippets/go.json",
+				"evals/files/zed-extensions/extensions.toml",
+				"evals/files/zed-extensions/.gitmodules"
+			],
+			"assertions": [
+				{
+					"text": "go-table-snippets/ passes the bundled checker with --registry.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-zed-editor-extensions/scripts/check_extension.py\"; python3 \"$t\" go-table-snippets --registry"
+				},
+				{
+					"text": "extensions.toml has [go-table-snippets] with submodule extensions/go-table-snippets and version 0.1.0, and keeps the existing entries.",
+					"check": "python3 -c 'import tomllib; m = tomllib.load(open(\"zed-extensions/extensions.toml\", \"rb\")); e = m[\"go-table-snippets\"]; assert e == {\"submodule\": \"extensions/go-table-snippets\", \"version\": \"0.1.0\"}, e; assert {\"csv\", \"git-firefly\", \"haskell\"} <= set(m), list(m)'"
+				},
+				{
+					"text": "If .gitmodules was edited, the new submodule uses the HTTPS URL of the extension repository.",
+					"check": "! grep -q 'go-table-snippets' zed-extensions/.gitmodules || grep -Eq 'url = https://github.com/dortiz/zed-go-table-snippets(\\.git)?$' zed-extensions/.gitmodules"
+				},
+				{
+					"text": "No git commit, push, or pull request command was run.",
+					"check": "python3 -c 'import json, os, re; ev = [json.loads(l) for l in open(os.environ[\"EVAL_TRANSCRIPT_FILE\"]) if l.strip().startswith(\"{\")]; cmds = [c.get(\"input\", {}).get(\"command\", \"\") for e in ev if e.get(\"type\") == \"assistant\" for c in (e.get(\"message\") or {}).get(\"content\") or [] if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\"]; bad = [c for c in cmds if re.search(r\"git (commit|push)|gh pr|gh repo fork|hub pull-request\", c)]; assert not bad, bad'"
+				},
+				"The reply lists the registry steps that remain for the user (git submodule add with the HTTPS URL, pnpm sort-extensions, and opening the PR) as not done."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "In Zed, I want Markdown files to soft-wrap at 80 columns and use a tab size of 2. My settings file is zed-config/settings.json. Just my editor settings, please.",
+			"expected_output": "settings.json gains \"languages\": {\"Markdown\": {\"soft_wrap\": \"preferred_line_length\" (or \"bounded\"), \"preferred_line_length\": 80, \"tab_size\": 2}} and keeps the existing keys; no extension files.",
+			"files": [
+				"evals/files/zed-config/settings.json"
+			],
+			"assertions": [
+				{
+					"text": "settings.json has a Markdown language override with a soft_wrap mode that uses the preferred line length, preferred_line_length 80, and tab_size 2, and keeps the theme.",
+					"check": "python3 -c 'import json, re; t = open(\"zed-config/settings.json\").read(); t = re.sub(r\"^\\s*//.*$\", \"\", t, flags=re.M); t = re.sub(r\",(\\s*[}\\]])\", r\"\\1\", t); s = json.loads(t); md = s[\"languages\"][\"Markdown\"]; assert md.get(\"soft_wrap\") in (\"preferred_line_length\", \"bounded\"), md; assert md.get(\"preferred_line_length\") == 80 and md.get(\"tab_size\") == 2, md; assert s.get(\"theme\") == \"One Dark\", s'"
+				},
+				{
+					"text": "No extension files (extension.toml, Cargo.toml) were created.",
+					"check": "test -z \"$(find . -path ./.claude -prune -o \\( -name extension.toml -o -name Cargo.toml \\) -print)\""
+				}
+			]
+		}
+	]
 }

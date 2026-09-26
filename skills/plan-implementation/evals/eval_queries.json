@@ -1,0 +1,109 @@
+[
+  {
+    "query": "We're moving user avatars from local disk to S3. Break that into ordered tasks I can hand to a contractor: which files each one touches, how to verify each step, and what happens if the copy dies halfway through.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "can you sanity check this rollout before I start? 1) drop the old_orders table 2) deploy code that stops reading it 3) migrate the data into orders_archive",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Write up the steps for adding rate limiting to the public API, in an order where every step can be merged and verified on its own.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Find the holes in this before I open the PR (concurrency, retries, rollback, anything that'll bite us):\n1. Read the account balance.\n2. If it covers the amount, subtract and save.\n3. On a timeout, retry steps 1-2.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Our tech lead wants a task breakdown with a verify command per task for switching logging from log4j to slf4j plus logback across our three Maven modules, before anyone touches code.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Is there a safe order for renaming `cust_id` to `customer_id` in our Kafka events when four consumer teams deploy independently? Give me the task list.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "How long will moving our CI from Jenkins to GitHub Actions take? We have 14 pipelines; I've ported 2 so far and each took about a day, but the release pipeline is way hairier than those.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "plan it out: replace moment.js with date-fns in the frontend without changing how any date is formatted",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "An agent wrote this implementation plan for me. Check that the files and commands it mentions actually exist in the repo and that the steps are in an order that can actually run.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Draft the implementation plan for REQ-SYNC-001 through REQ-SYNC-007 from the offline sync spec: tasks, dependencies between them, and a done condition for each.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Write the requirements for avatar uploads: size limits, accepted formats, and what the user sees when an upload fails.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "define-requirements"
+  },
+  {
+    "query": "Should rate limiting live in the API gateway or inside each service?",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "design-software-architecture"
+  },
+  {
+    "query": "Run this release as a waterfall with subagents: requirements baseline, a design review gate, implementation in parallel worktrees, a verification gate, then release.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "coordinate-phase-gated-subagents"
+  },
+  {
+    "query": "Implement step 3 of the plan: add the retry decorator to payments/client.py and a test for it.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Squash my last 5 commits into one and rewrite the message.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "manage-git-changes"
+  },
+  {
+    "query": "What's the difference between Scrum and Kanban?",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Write the release notes for v3.2 from the commits since v3.1.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "update-changelogs"
+  },
+  {
+    "query": "The migration script died halfway with 'duplicate key value violates unique constraint \"orders_pkey\"'. Figure out why.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "debug-software-failures"
+  },
+  {
+    "query": "Add a justfile recipe that runs the migrations and then the tests.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "write-justfiles"
+  },
+  {
+    "query": "Turn these milestone dates into a Gantt chart image for the board deck.",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

@@ -1,0 +1,137 @@
+{
+	"skill_name": "debug-software-failures",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our invoice repo is in bisect/invoice.bundle (a git bundle; clone it into ./invoice and work there). `python3 -m unittest tests.test_invoice` passes at tag v1.0 and fails on main. Find the commit that broke it, fix the bug on main without changing the tests, and tell me the commit hash and what went wrong.",
+			"expected_output": "Endpoints verified with one oracle; commits d66324f..603e6a9 fail with ImportError (unrelated) and are skipped, not marked bad; the bisect names 471bcb2 'Add per-line percentage discounts', which replaced the half-up quantize with round(amount, 2) (banker's rounding). The fix restores ROUND_HALF_UP in to_cents while keeping discounts; all tests pass; no bisect is left running.",
+			"files": [
+				"evals/files/bisect/invoice.bundle"
+			],
+			"assertions": [
+				{
+					"text": "The reply names the culprit commit 471bcb2.",
+					"check": "grep -q '471bcb2' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The whole test suite in ./invoice passes (rounding, discount, and export tests).",
+					"check": "cd invoice && python3 -m unittest discover -s tests -t . 2>&1 | tail -3 && python3 -m unittest discover -s tests -t . >/dev/null 2>&1"
+				},
+				{
+					"text": "The tests are unchanged from main (5701189).",
+					"check": "git -C invoice diff --quiet 5701189bd404338dab0ca6199c580524652e8c75 -- tests"
+				},
+				{
+					"text": "to_cents rounds halves away from zero again and discounts still work (hidden cases: 0.125, 2.665, -0.125, a 50% discount on 10.05).",
+					"check": "python3 - <<'PY'\nimport subprocess, sys\nprogram = \"\"\"\nfrom decimal import Decimal as D\nfrom invoice.money import apply_discount, to_cents\nassert to_cents(D(\"0.125\")) == D(\"0.13\"), to_cents(D(\"0.125\"))\nassert to_cents(D(\"2.665\")) == D(\"2.67\"), to_cents(D(\"2.665\"))\nassert to_cents(D(\"-0.125\")) == D(\"-0.13\"), to_cents(D(\"-0.125\"))\nassert apply_discount(D(\"10.05\"), D(\"50\")) == D(\"5.03\"), apply_discount(D(\"10.05\"), D(\"50\"))\nassert apply_discount(D(\"80.00\"), D(\"15\")) == D(\"68.00\")\n\"\"\"\ndone = subprocess.run([sys.executable, \"-c\", program], cwd=\"invoice\", capture_output=True, text=True)\nprint(done.stdout + done.stderr)\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "No bisect session is left in progress in ./invoice.",
+					"check": "test -d invoice/.git && ! test -e invoice/.git/BISECT_START"
+				},
+				"The reply explains that the commits between d66324f and ff94fd9 fail with an ImportError rather than the rounding failure, and that the search skipped them or otherwise kept them from being marked bad.",
+				"The reply shows the culprit was verified: its parent passes test_rounding and the culprit fails it."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "tests/test_digest.py in flaky/ fails in CI some of the time and passes on rerun, and nobody can reproduce it on demand. Run it with `python3 -m unittest tests.test_digest` from flaky/. Find out why it's flaky and fix the actual cause; don't touch the test or add retries.",
+			"expected_output": "The agent measures the failure rate over repeated runs, finds that it depends on PYTHONHASHSEED (set iteration order in _categories), reproduces it deterministically with a pinned seed, and fixes _categories to keep first-appearance order as the docstring promises. The test passes for every seed.",
+			"files": [
+				"evals/files/flaky/alerts/__init__.py",
+				"evals/files/flaky/alerts/digest.py",
+				"evals/files/flaky/tests/__init__.py",
+				"evals/files/flaky/tests/test_digest.py"
+			],
+			"assertions": [
+				{
+					"text": "The provided test passes for PYTHONHASHSEED 0 through 39.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nfailed = []\nfor seed in range(0, 40):\n    env = {**os.environ, \"PYTHONHASHSEED\": str(seed)}\n    done = subprocess.run([sys.executable, \"-m\", \"unittest\", \"-q\", \"tests.test_digest\"],\n                          cwd=\"flaky\", env=env, capture_output=True, text=True)\n    if done.returncode != 0:\n        failed.append(seed)\nprint(\"failing seeds:\", failed or \"none\")\nsys.exit(1 if failed else 0)\nPY"
+				},
+				{
+					"text": "tests/test_digest.py is unchanged.",
+					"check": "shasum -a 256 flaky/tests/test_digest.py | grep -q '^db927af7121bf6e5df9c2402f0198d62df768c4895cb0d119fd98b2cc632b53a '"
+				},
+				{
+					"text": "Categories come out in first-appearance order on a hidden 7-category input for every tested hash seed.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = \"\"\"\nfrom datetime import datetime, timezone\nfrom alerts.digest import Alert, digest\nT = datetime(2026, 1, 2, 3, 4, tzinfo=timezone.utc)\ncats = [\"disk\", \"latency\", \"auth\", \"errors\", \"saturation\", \"cert\", \"queue\"]\nalerts = [Alert(T, f\"svc{i % 3}\", cats[(i * 5) % 7], \"m\") for i in range(21)]\nseen = []\nfor a in alerts:\n    if a.category not in seen:\n        seen.append(a.category)\nlines = digest(alerts, now=T).splitlines()[1:]\nassert [l[2:].split(\":\")[0] for l in lines] == seen, lines\n\"\"\"\nbad = []\nfor seed in range(0, 25):\n    env = {**os.environ, \"PYTHONHASHSEED\": str(seed)}\n    done = subprocess.run([sys.executable, \"-c\", program], cwd=\"flaky\", env=env,\n                          capture_output=True, text=True)\n    if done.returncode != 0:\n        bad.append(seed)\nprint(\"wrong order for seeds:\", bad or \"none\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				{
+					"text": "The reply names PYTHONHASHSEED (or hash randomization) as the source of the variation.",
+					"check": "grep -Eiq 'PYTHONHASHSEED|hash (randomi[sz]ation|seed)' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply reports a measured failure rate over several unpinned runs (N runs and failure count) and a deterministic reproduction with a fixed seed before the fix."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "In crash/, `python3 app.py --user 999` crashes with `AttributeError: 'NoneType' object has no attribute 'email'` in send_welcome, right after `user = store.find_user(user_id)`. Fix it. The tests run with `PYTHONPATH=. python3 -m unittest discover -s tests` from crash/, and they describe the behaviour we want.",
+			"expected_output": "Fast path: the traceback names the faulting state, so the agent reproduces once, sees find_user returns None for unknown ids despite its contract, and fixes find_user to raise LookupError (KeyError subclass is fine); send_welcome then propagates it. No bisect, no reduction. All provided tests pass; the tests are unchanged.",
+			"files": [
+				"evals/files/crash/app.py",
+				"evals/files/crash/users.py",
+				"evals/files/crash/welcome.py",
+				"evals/files/crash/users.json",
+				"evals/files/crash/tests/test_welcome.py"
+			],
+			"assertions": [
+				{
+					"text": "The provided tests pass.",
+					"check": "cd crash && PYTHONPATH=. python3 -m unittest discover -s tests 2>&1 | tail -3 && PYTHONPATH=. python3 -m unittest discover -s tests >/dev/null 2>&1"
+				},
+				{
+					"text": "crash/tests/test_welcome.py is unchanged.",
+					"check": "shasum -a 256 crash/tests/test_welcome.py | grep -q '^199ddb79cf4ddcaccc3c6ddfd292a5fbb5e387be6c67d4a9e7360298362d9b91 '"
+				},
+				{
+					"text": "Known users still work from the command line, and an unknown user no longer ends in an AttributeError.",
+					"check": "cd crash && python3 app.py --user 1 | grep -q 'To: ada@example.invalid' && ! python3 app.py --user 999 2>&1 | grep -q AttributeError"
+				},
+				{
+					"text": "No git bisect or ddmin reduction was run for this failure.",
+					"check": "python3 - <<'PY'\nimport json, os, re, sys\nbad = []\nfor line in open(os.environ[\"EVAL_TRANSCRIPT_FILE\"], encoding=\"utf-8\"):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    if event.get(\"type\") != \"assistant\":\n        continue\n    for block in (event.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(block, dict) and block.get(\"type\") == \"tool_use\" and block.get(\"name\") == \"Bash\":\n            command = str((block.get(\"input\") or {}).get(\"command\", \"\"))\n            if re.search(r\"\"\"git\\s+bisect|ddmin\"\"\", command):\n                bad.append(command[:200])\nprint(\"\\n\".join(bad) or \"no matching command\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				"The reply places the fix at find_user (the store's contract for unknown ids) rather than only adding a None check at the crash line in send_welcome."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Our importer crashes with `KeyError: 'price'` on reduce/events.jsonl (run `python3 reduce/importer.py reduce/events.jsonl`). It's a customer export, so I can't attach it to the bug report. Write the smallest input that still triggers this same crash to repro/min.jsonl, with no real names or e-mail addresses in it, and tell me which records trigger it. Don't fix the importer yet.",
+			"expected_output": "An oracle that matches the KeyError: 'price' traceback, a ddmin (or equivalent) reduction to 2 records (a subscription then a refund for the same customer), names and e-mails replaced by synthetic values with the oracle re-run, the reduction numbers reported, and importer.py untouched.",
+			"files": [
+				"evals/files/reduce/importer.py",
+				"evals/files/reduce/events.jsonl"
+			],
+			"assertions": [
+				{
+					"text": "repro/min.jsonl has at most 3 records, still ends in KeyError: 'price' raised at the refund lookup (original[\"price\"]), and contains no name or e-mail from the original file.",
+					"check": "python3 - <<'PY'\nimport json, re, subprocess, sys\npath = \"repro/min.jsonl\"\nlines = [l for l in open(path, encoding=\"utf-8\") if l.strip()]\nerrors = []\nif len(lines) > 3:\n    errors.append(f\"{len(lines)} records; a 1-minimal reproduction needs 2\")\ndone = subprocess.run([sys.executable, \"reduce/importer.py\", path], capture_output=True, text=True)\nif done.returncode == 0 or not re.search(r\"KeyError: 'price'\\s*$\", done.stderr.strip()):\n    errors.append(\"importer does not end with KeyError: 'price' on repro/min.jsonl: \" + done.stderr.strip()[-200:])\nelif 'original[\"price\"]' not in done.stderr:\n    errors.append(\"KeyError: 'price' raised somewhere other than the refund lookup original['price'] (a different trigger)\")\noriginal = [json.loads(l) for l in open(\"reduce/events.jsonl\", encoding=\"utf-8\")]\nsecrets = {r[\"email\"] for r in original} | {r[\"name\"] for r in original}\ntext = open(path, encoding=\"utf-8\").read()\nleaked = sorted(s for s in secrets if s in text)\nif leaked:\n    errors.append(\"original names or e-mails remain: \" + \", \".join(leaked[:5]))\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "reduce/importer.py is unchanged.",
+					"check": "shasum -a 256 reduce/importer.py | grep -q '^8c7bcebbcfbc2fa869f323e6ee757ced025e3cbe2267d1d0bb0d5936174cd2c4 '"
+				},
+				{
+					"text": "The reply names the trigger as a refund following a subscription for the same customer.",
+					"check": "grep -Eiq 'subscription' \"$EVAL_RESPONSE_FILE\" && grep -Eiq 'refund' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply reports the reduction size (for example 302 records down to 2) and states that the oracle matched the KeyError: 'price' specifically, not any failure."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "What's the git command to list the commits that touched src/billing/ in the last month, with author and date on one line each?",
+			"expected_output": "Out of scope for failure debugging: a git log command with --since and a path, no bisect or reproduction.",
+			"assertions": [
+				{
+					"text": "The reply gives a git log command limited to src/billing/ and a one-month window.",
+					"check": "grep -q 'git log' \"$EVAL_RESPONSE_FILE\" && grep -q 'src/billing' \"$EVAL_RESPONSE_FILE\" && grep -Eq -- '--since|--after' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The reply does not propose a git bisect.",
+					"check": "! grep -q 'bisect' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		}
+	]
+}

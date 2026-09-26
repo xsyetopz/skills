@@ -1,0 +1,109 @@
+[
+	{
+		"query": "cmake keeps saying 'no EE/VU/IOP recompilers' when I build pcsx2 on my M3, and the dependency script dies linking KDDockWidgets. how do I get a working build",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "PCSX2 nightly crashes to desktop when I load a save state in Jak 2. Official release on macOS. How do I get a real backtrace out of it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My pnach does nothing: patch=1,ee,0x0015F444,Word,000003E7 in cheats/SLUS-20062_ABCDEF01.pnach. why",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our CI boots a homebrew PS2 ELF headless with -batch -nogui and -datapath; it exits 0 but the ELF never prints. Make the job actually prove the ELF ran.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Shadows in Ratchet & Clank started flickering sometime between PCSX2 v2.6 and the latest nightly. I'd like to find the exact commit that did it; I can build from source on Linux.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "In the PS2 emulator's debugger I want to break whenever something writes to 0x0015F444 so I can see which function drains my HP. How do I set that up and import symbols from my stripped ELF?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is this Vulkan texture corruption in GT4 a PCSX2 bug or my GPU driver? Happens on v2.9.84, Windows 11, RTX 4070.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "I want to test two PCSX2 versions side by side without either one touching my real memory cards and settings. Set that up.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write a dpatch for my PS2 homebrew so the addiu v0,zero,1 before jr ra becomes addiu v0,zero,2 even when the code loads at a different address each boot.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Compile pcsx2 in Debug with ccache on Ubuntu 24.04 and run its unit tests; I don't have a BIOS.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "DuckStation exits with 134 at shutdown on my Mac and left a .ips crash report. Is it the emulator or my PS1 homebrew?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-duckstation"
+	},
+	{
+		"query": "My DuckStation .cht cheat for a PS1 game isn't applying, can you check the syntax?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-duckstation"
+	},
+	{
+		"query": "Where can I get a PS2 BIOS file for PCSX2? I don't have the console anymore.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Which PS2 games are known to run at full speed on a Steam Deck?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our CMake project fails to link on Apple Silicon with 'symbol(s) not found for architecture arm64' for a Homebrew library. It's a small C++ audio tool, not an emulator.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "The GitHub Actions macOS runner for our emulator frontend times out during the Qt install step. Speed it up and pin the actions.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Profile and speed up my C++ MIPS R5900 interpreter; perf shows the hot loop in the instruction dispatch switch.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-cpp-code"
+	},
+	{
+		"query": "Write a CHANGELOG entry for our PS2 homebrew SDK's v0.4 release from the commits since v0.3.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "How does the PS2's Emotion Engine differ from the PS1's R3000A CPU?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Set up DuckStation in portable mode with a debug log so I can report a hang in a PS1 game.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-duckstation"
+	}
+]

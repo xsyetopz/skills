@@ -1,0 +1,11 @@
+id = "ruff-lsp-lite"
+name = "Ruff LSP Lite"
+version = "0.2.0"
+schema_version = 1
+authors = ["Dana Ortiz <dana@acme.invalid>"]
+description = "Runs the Ruff language server for Python files"
+repository = "https://github.com/acme/zed-ruff-lite"
+
+[language-servers.ruff]
+name = "Ruff"
+languages = ["python"]

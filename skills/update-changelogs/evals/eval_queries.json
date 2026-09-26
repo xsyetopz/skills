@@ -1,0 +1,110 @@
+[
+  {
+    "query": "Update CHANGELOG.md with everything merged since v2.3.0.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "we're cutting 3.0 tomorrow. move the unreleased stuff into a dated section and fix the compare links at the bottom",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Turn these commit subjects into changelog entries a user would understand: 'feat(api): add cursor param', 'fix: npe on empty cart', 'chore: bump deps', 'refactor: split service'.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Is 'exports now default to UTF-8 instead of the OS encoding' a Fixed or a Changed entry, and does it affect which version number we bump?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "We shipped 1.0.1 with an incomplete security fix and pulled it from PyPI. How should our changelog show that?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "What should the next version be? Since v0.8.2 we removed the --legacy flag and added two new subcommands, and our changelog follows Keep a Changelog.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Prepare the v4.1.0 section of CHANGELOG.md from the git log since v4.0.0. We don't use conventional commits, so you'll have to read the merged PR titles.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "our CHANGELOG has 'Improvements' and 'Misc' sections and dates like 2026-9-3. clean it up to the proper format",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Add the CVE-2026-1234 fix to the changelog for the 2.2.1 patch release.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Draft the Unreleased section from the commits on main since the last tag and flag anything that breaks users.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Publish the v3.0.0 release on GitHub and attach the built wheels.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "manage-git-hosting"
+  },
+  {
+    "query": "Tag the current commit as v3.0.0 and push the tag to origin.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "manage-git-changes"
+  },
+  {
+    "query": "Update the README install section for the new Homebrew formula.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "document-codebases"
+  },
+  {
+    "query": "Write a commit message for my staged changes.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "manage-git-changes"
+  },
+  {
+    "query": "What's the difference between SemVer and CalVer?",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Set up semantic-release in GitHub Actions so tags and release notes are generated on every merge to main.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "configure-ci-cd-pipelines"
+  },
+  {
+    "query": "Find which commit between v2.3.0 and v2.4.0 broke CSV import.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "debug-software-failures"
+  },
+  {
+    "query": "Add a rule to AGENTS.md telling agents to update the changelog in every PR.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "write-agents-md"
+  },
+  {
+    "query": "Write the announcement blog post for our 3.0 release.",
+    "should_trigger": false,
+    "split": "validation"
+  },
+  {
+    "query": "Squash the fixup commits on my release branch before I open the PR.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "manage-git-changes"
+  }
+]

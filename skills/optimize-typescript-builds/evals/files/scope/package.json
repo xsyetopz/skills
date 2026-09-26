@@ -1,0 +1,12 @@
+{
+	"name": "pricing-lib",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc -p .",
+		"test": "node --test test/"
+	},
+	"devDependencies": {
+		"typescript": "7.0.2"
+	}
+}

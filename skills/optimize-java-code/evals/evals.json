@@ -1,35 +1,93 @@
 {
-  "skill_name": "optimize-java-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Java/JVM workload with JFR/JMH while preserving target JDK, warmup, synchronization, ordering, exceptions, and allocation semantics.",
-      "expected_output": "A repository-aware Java/JVM optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Java/JVM optimization workflow instead of returning only generic advice.",
-        "For warmup, Separate startup from steady state.",
-        "For jmh state, Use correct scope, forks, and result consumption.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Optimize Kotlin source.",
-      "expected_output": "The agent does not activate optimize-java-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-java-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Java/JVM workload with JFR/JMH while preserving target JDK, warmup, synchronization, ordering, exceptions, and allocation semantics. Stress case: Concurrency.",
-      "expected_output": "A Java/JVM optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Verify happens-before and ordering.",
-        "The evidence can detect this failure: Race introduced for throughput.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-java-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our JDK 21 service spends about 30% of its allocations in shop.OrderIndex.find (orderindex/src/shop/OrderIndex.java); JFR allocation-by-class puts byte[] and String at the top. orderindex/src/shop/Replay.java replays the lookup workload (`javac --release 21 -d out orderindex/src/shop/*.java && java -cp out shop.Replay`). Make find cheaper without changing any result, keep the public API of OrderIndex and Order, and show the bytes allocated per find before and after.",
+			"expected_output": "A record (or equivalent value class) key instead of the concatenated String, HashMap.newHashMap sizing or an explanation of the capacity argument, an equivalence test over present, missing, duplicate, and separator-containing tenants, and JMH -prof gc gc.alloc.rate.norm (or a stored-object allocation measurement) for baseline and candidate.",
+			"files": [
+				"evals/files/orderindex/src/shop/Order.java",
+				"evals/files/orderindex/src/shop/OrderIndex.java",
+				"evals/files/orderindex/src/shop/Replay.java"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned oracle gets the identical Order (or null) from find as the original for present, missing, duplicate, empty, non-ASCII, Integer.MIN_VALUE/MAX_VALUE, case-differing, and ':'-containing tenants, and the same size().",
+					"check": "command -v javac >/dev/null && command -v java >/dev/null || { echo 'FAIL: JDK (javac, java) not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nmkdir \"$d/src\" \"$d/out\" && cp -R orderindex/src/. \"$d/src/\" || exit 1\nfind \"$d/src\" -name '*.java' | xargs grep -lE '^import (org\\.(junit|openjdk\\.jmh)|org\\.assertj)' | xargs rm -f\ncat > \"$d/ZzEval.java\" <<'EOF'\nimport java.lang.management.ManagementFactory;\nimport java.util.*;\nimport shop.Order;\nimport shop.OrderIndex;\n\npublic class ZzEval {\n    static final class Base {\n        final Map<String, Order> m;\n        Base(List<Order> os) { m = new HashMap<>(os.size()); for (Order o : os) m.put(o.tenant() + \":\" + o.id(), o); }\n        Order find(String t, int id) { return m.get(t + \":\" + id); }\n    }\n    interface Finder { Order find(String t, int id); }\n    static long sink;\n    static long bytesPerFind(Finder f, String[] tenants) {\n        var mx = (com.sun.management.ThreadMXBean) ManagementFactory.getThreadMXBean();\n        for (int r = 0; r < 30; r++) for (int i = 0; i < 200_000; i++) { Order o = f.find(tenants[i % 500], i); if (o != null) sink += o.cents(); }\n        long before = mx.getCurrentThreadAllocatedBytes();\n        for (int r = 0; r < 10; r++) for (int i = 0; i < 200_000; i++) { Order o = f.find(tenants[i % 500], i); if (o != null) sink += o.cents(); }\n        return (mx.getCurrentThreadAllocatedBytes() - before) / 2_000_000;\n    }\n    public static void main(String[] args) {\n        if (args[0].equals(\"equiv\")) {\n            List<Order> os = new ArrayList<>(List.of(new Order(\"a:1\", 2, 1), new Order(\"a\", 12, 2), new Order(\"a\", 1, 3),\n                new Order(\"\", 0, 4), new Order(\"żółw\", -7, 5), new Order(\"t\", Integer.MIN_VALUE, 6), new Order(\"t\", Integer.MAX_VALUE, 7),\n                new Order(\"dup\", 9, 8), new Order(\"dup\", 9, 9), new Order(\"A\", 1, 10)));\n            for (int i = 0; i < 1000; i++) os.add(new Order(\"tenant-\" + (i % 37), i, i));\n            OrderIndex cand = new OrderIndex(os); Base base = new Base(os);\n            int bad = 0;\n            if (cand.size() != base.m.size()) { System.out.println(\"MISMATCH size \" + cand.size() + \" vs \" + base.m.size()); bad++; }\n            String[] ts = {\"a:1\", \"a\", \"\", \"żółw\", \"t\", \"dup\", \"A\", \"tenant-5\", \"tenant-50\", \"a:1:2\", \"zolw\"};\n            int[] ids = {2, 12, 1, 0, -7, Integer.MIN_VALUE, Integer.MAX_VALUE, 9, 5, 42, 3, -1};\n            for (String t : ts) for (int id : ids) if (cand.find(t, id) != base.find(t, id)) { System.out.println(\"MISMATCH find(\" + t + \", \" + id + \")\"); bad++; }\n            for (Order o : os) if (cand.find(o.tenant(), o.id()) != base.find(o.tenant(), o.id())) { System.out.println(\"MISMATCH \" + o); bad++; }\n            System.out.println(\"equivalence mismatches=\" + bad);\n            System.exit(bad == 0 ? 0 : 1);\n        }\n        String[] tenants = new String[500];\n        for (int t = 0; t < 500; t++) tenants[t] = \"tenant-\" + t;\n        List<Order> os = new ArrayList<>();\n        for (int i = 0; i < 200_000; i++) os.add(new Order(tenants[i % 500], i, i * 31L));\n        Base base = new Base(os); OrderIndex cand = new OrderIndex(os);\n        long b = bytesPerFind(base::find, tenants), c = bytesPerFind(cand::find, tenants);\n        System.out.println(\"bytes per find: baseline \" + b + \", candidate \" + c);\n        System.exit(c * 2 <= b ? 0 : 1);\n    }\n}\nEOF\njavac -nowarn -d \"$d/out\" $(find \"$d/src\" -name '*.java') \"$d/ZzEval.java\" > \"$d/javac.log\" 2>&1 || { tail -20 \"$d/javac.log\"; exit 1; }\njava -cp \"$d/out\" ZzEval equiv"
+				},
+				{
+					"text": "find allocates at most half of the original's bytes per call after warmup (ThreadMXBean allocated bytes over 2 million finds in one JVM; the original allocates about 59 B).",
+					"check": "command -v javac >/dev/null && command -v java >/dev/null || { echo 'FAIL: JDK (javac, java) not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nmkdir \"$d/src\" \"$d/out\" && cp -R orderindex/src/. \"$d/src/\" || exit 1\nfind \"$d/src\" -name '*.java' | xargs grep -lE '^import (org\\.(junit|openjdk\\.jmh)|org\\.assertj)' | xargs rm -f\ncat > \"$d/ZzEval.java\" <<'EOF'\nimport java.lang.management.ManagementFactory;\nimport java.util.*;\nimport shop.Order;\nimport shop.OrderIndex;\n\npublic class ZzEval {\n    static final class Base {\n        final Map<String, Order> m;\n        Base(List<Order> os) { m = new HashMap<>(os.size()); for (Order o : os) m.put(o.tenant() + \":\" + o.id(), o); }\n        Order find(String t, int id) { return m.get(t + \":\" + id); }\n    }\n    interface Finder { Order find(String t, int id); }\n    static long sink;\n    static long bytesPerFind(Finder f, String[] tenants) {\n        var mx = (com.sun.management.ThreadMXBean) ManagementFactory.getThreadMXBean();\n        for (int r = 0; r < 30; r++) for (int i = 0; i < 200_000; i++) { Order o = f.find(tenants[i % 500], i); if (o != null) sink += o.cents(); }\n        long before = mx.getCurrentThreadAllocatedBytes();\n        for (int r = 0; r < 10; r++) for (int i = 0; i < 200_000; i++) { Order o = f.find(tenants[i % 500], i); if (o != null) sink += o.cents(); }\n        return (mx.getCurrentThreadAllocatedBytes() - before) / 2_000_000;\n    }\n    public static void main(String[] args) {\n        if (args[0].equals(\"equiv\")) {\n            List<Order> os = new ArrayList<>(List.of(new Order(\"a:1\", 2, 1), new Order(\"a\", 12, 2), new Order(\"a\", 1, 3),\n                new Order(\"\", 0, 4), new Order(\"żółw\", -7, 5), new Order(\"t\", Integer.MIN_VALUE, 6), new Order(\"t\", Integer.MAX_VALUE, 7),\n                new Order(\"dup\", 9, 8), new Order(\"dup\", 9, 9), new Order(\"A\", 1, 10)));\n            for (int i = 0; i < 1000; i++) os.add(new Order(\"tenant-\" + (i % 37), i, i));\n            OrderIndex cand = new OrderIndex(os); Base base = new Base(os);\n            int bad = 0;\n            if (cand.size() != base.m.size()) { System.out.println(\"MISMATCH size \" + cand.size() + \" vs \" + base.m.size()); bad++; }\n            String[] ts = {\"a:1\", \"a\", \"\", \"żółw\", \"t\", \"dup\", \"A\", \"tenant-5\", \"tenant-50\", \"a:1:2\", \"zolw\"};\n            int[] ids = {2, 12, 1, 0, -7, Integer.MIN_VALUE, Integer.MAX_VALUE, 9, 5, 42, 3, -1};\n            for (String t : ts) for (int id : ids) if (cand.find(t, id) != base.find(t, id)) { System.out.println(\"MISMATCH find(\" + t + \", \" + id + \")\"); bad++; }\n            for (Order o : os) if (cand.find(o.tenant(), o.id()) != base.find(o.tenant(), o.id())) { System.out.println(\"MISMATCH \" + o); bad++; }\n            System.out.println(\"equivalence mismatches=\" + bad);\n            System.exit(bad == 0 ? 0 : 1);\n        }\n        String[] tenants = new String[500];\n        for (int t = 0; t < 500; t++) tenants[t] = \"tenant-\" + t;\n        List<Order> os = new ArrayList<>();\n        for (int i = 0; i < 200_000; i++) os.add(new Order(tenants[i % 500], i, i * 31L));\n        Base base = new Base(os); OrderIndex cand = new OrderIndex(os);\n        long b = bytesPerFind(base::find, tenants), c = bytesPerFind(cand::find, tenants);\n        System.out.println(\"bytes per find: baseline \" + b + \", candidate \" + c);\n        System.exit(c * 2 <= b ? 0 : 1);\n    }\n}\nEOF\njavac -nowarn -d \"$d/out\" $(find \"$d/src\" -name '*.java') \"$d/ZzEval.java\" > \"$d/javac.log\" 2>&1 || { tail -20 \"$d/javac.log\"; exit 1; }\njava -cp \"$d/out\" ZzEval allocs || { echo \"FAIL: find still allocates more than half of the original bytes per call\"; exit 1; }"
+				},
+				"The reply reports bytes per operation for baseline and candidate from JMH -prof gc (gc.alloc.rate.norm) or another allocation measurement it ran, with units.",
+				"The reply replaces new HashMap<>(orders.size()) with HashMap.newHashMap(n) or explains that the constructor argument is a capacity, not an expected mapping count.",
+				"The build still targets --release 21 and no JDK upgrade is proposed as part of the change."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Please mark every class in our com.acme.pricing package final and replace all `a + \" \" + b` string concatenations with StringBuilder chains; a blog said both make Java faster. We run JDK 25.",
+			"expected_output": "The agent declines the blanket rewrite, explains that CHA already inlines leaf methods and that single-expression concatenation compiles to invokedynamic (JEP 280) with no measured gain, and offers to measure a specific hot path first.",
+			"assertions": [
+				"States that javac compiles single-expression concatenation to invokedynamic StringConcatFactory (JEP 280) and a manual StringBuilder chain does not reduce allocation.",
+				"States that HotSpot class hierarchy analysis and type profiling already inline non-final methods with a single implementation, so final alone gives no measurable speedup.",
+				"Does not apply the requested edits without a profile or JMH measurement showing a cost.",
+				"Distinguishes single-expression concatenation from concatenation inside a loop."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "This JMH benchmark says our new parser is 40x faster. Can we ship it?\n\n```java\n@Benchmark\npublic void parseNew() { Parser.parse(INPUT); }\n@Benchmark\npublic void parseOld() { LegacyParser.parse(INPUT); }\n```\nINPUT is a `static final String`. We ran it with `-f 0 -wi 1 -i 1`.",
+			"expected_output": "The agent identifies dead-code elimination (void method discarding results), constant folding (static final input), and the missing fork, rewrites the benchmark to return the result from a @State field with forks and warmup, and re-runs before any claim.",
+			"assertions": [
+				"Identifies that the results are discarded and requires returning them or using Blackhole.consume.",
+				"Identifies that a static final input allows constant folding and moves it into a non-final @State field initialized in @Setup.",
+				"Rejects -f 0 and single-iteration runs and uses forks and warmup iterations.",
+				"Adds an equivalence check that both parsers produce equal output before timing.",
+				"Does not claim a speedup from the original numbers."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Our JDK 25 gateway uses Executors.newFixedThreadPool(64) to call a downstream REST API with blocking HttpClient.send. Under load, p99 latency climbs and thread dumps show all 64 threads in socket reads with a long executor queue. Some handlers are `synchronized`. What should we change and how do we prove it?",
+			"expected_output": "Switch to Executors.newVirtualThreadPerTaskExecutor with a Semaphore bounding downstream concurrency, note that synchronized no longer pins on JDK 24+ (JEP 491), check jdk.VirtualThreadPinned in JFR, and compare throughput and p99 under the same load.",
+			"assertions": [
+				"Proposes newVirtualThreadPerTaskExecutor (or Thread.ofVirtual) instead of a larger fixed pool, and does not pool virtual threads.",
+				"Bounds downstream concurrency with a Semaphore or equivalent limiter.",
+				"States that on JDK 24+ synchronized does not pin virtual threads (JEP 491) and does not require rewriting it to ReentrantLock for that reason.",
+				"Uses JFR jdk.VirtualThreadPinned events rather than -Djdk.tracePinnedThreads.",
+				"Verifies with a load test comparing throughput and tail latency, not a microbenchmark alone."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our CLI tool (a single fat JAR, JDK 25, run hundreds of times per CI job) takes about 400 ms to start. Can the JVM start it faster without rewriting the code?",
+			"expected_output": "The agent proposes an AOT cache via -XX:AOTCacheOutput from a representative training run (JEP 483/514), notes the JDK/OS/architecture/class-path matching rules and -XX:AOTMode=on, verifies with -Xlog:class+load that classes come from the shared objects file, and measures startup with hyperfine against the default CDS baseline.",
+			"assertions": [
+				"Uses -XX:AOTCacheOutput=<file> for creation and -XX:AOTCache=<file> for runs (or the JDK 24 two-step record/create form).",
+				"States that training and production must use the same JDK, OS, architecture, and class path (JAR files, not directories).",
+				"Verifies cache use with -Xlog:class+load ('source: shared objects file') or -XX:AOTMode=on.",
+				"Measures startup with repeated runs (for example hyperfine) against the default-CDS baseline and reports mean and spread."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "In users/Users.kt, turn UserId into an inline value class so we stop allocating a wrapper per ID. Keep what main prints the same.",
+			"expected_output": "UserId becomes a @JvmInline value class, the file still compiles with kotlinc and prints the same lines, and no Java sources or JMH Java benchmarks are introduced.",
+			"files": [
+				"evals/files/users/Users.kt"
+			],
+			"assertions": [
+				{
+					"text": "UserId is a @JvmInline value class, users/ compiles with kotlinc, and main prints `[1, 3]` then `bob`.",
+					"check": "command -v kotlinc >/dev/null && command -v java >/dev/null || { echo 'FAIL: kotlinc or java not found on PATH'; exit 1; }\ngrep -Eq '^@JvmInline' users/Users.kt && grep -Eq 'value class UserId\\(' users/Users.kt || { echo 'FAIL: UserId is not a @JvmInline value class'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nkotlinc users/*.kt -include-runtime -d \"$d/u.jar\" > \"$d/kc.log\" 2>&1 || { grep -i error \"$d/kc.log\" | head -5; exit 1; }\nout=$(java -cp \"$d/u.jar\" users.UsersKt) && [ \"$out\" = \"$(printf '[1, 3]\\nbob')\" ] || { echo \"FAIL: output changed: $out\"; exit 1; }"
+				},
+				{
+					"text": "No Java source files or JMH benchmarks were added to users/.",
+					"check": "if find users -name '*.java' | grep -q .; then echo 'FAIL: Java sources added to users/'; exit 1; fi\nif grep -rqE 'org\\.openjdk\\.jmh|@Benchmark' users; then echo 'FAIL: JMH benchmark added'; exit 1; fi"
+				},
+				"The reply notes that UserId values used as Map keys or List elements are still boxed, or states that it did not check boxing."
+			]
+		}
+	]
 }

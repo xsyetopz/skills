@@ -1,0 +1,22 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "acme-services",
+    },
+    "packages/api": {
+      "name": "@acme/api",
+      "version": "1.3.0",
+    },
+    "packages/log": {
+      "name": "@acme/log",
+      "version": "0.2.0",
+    },
+  },
+  "packages": {
+    "@acme/api": ["@acme/api@workspace:packages/api"],
+
+    "@acme/log": ["@acme/log@workspace:packages/log"],
+  }
+}

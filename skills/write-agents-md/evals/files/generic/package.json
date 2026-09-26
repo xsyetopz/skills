@@ -1,0 +1,9 @@
+{
+  "name": "tiny-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "gen": "bun run scripts/gen-routes.ts"
+  }
+}

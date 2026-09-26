@@ -1,0 +1,7 @@
+{
+	"name": "codegen",
+	"version": "0.1.0",
+	"scripts": {
+		"postinstall": "node -e \"require('fs').writeFileSync('generated.txt', 'schema v3')\""
+	}
+}

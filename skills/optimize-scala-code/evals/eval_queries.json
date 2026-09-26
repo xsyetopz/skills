@@ -1,0 +1,109 @@
+[
+	{
+		"query": "jfr view hot-methods on our Scala 3 nightly batch job has scala.collection.LinearSeqOps.apply at the very top, called from ReportBuilder.scala. what's going on and can you make it fast without changing the report?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "allocation-by-class in JFR for our scala 3 pricing service: java.lang.Integer and scala.collection.immutable.$colon$colon dominate. what should change, and how do I prove the fix with JMH?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a JMH benchmark via scala-cli comparing `xs.map(f).filter(p).sum` with an iterator chain in our Scala 3 library and report allocation per op for both.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Scala 3.8 service: Futures on ExecutionContext.global stall whenever the blocking HTTP client is slow, and a thread dump shows all 8 scala-execution-context-global threads in socketRead0. How should we fix it and check the fix?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The token-kind match in our Scala lexer (`kind match { case 1 => ... case 57 => ... }`, about 40 Int cases) is the hottest method. Would @switch help? Check the bytecode and measure before we change anything.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "in our scala report builder, `rows.groupBy(_.account).view.mapValues(_.map(_.amount).sum).toMap` is ~40% of the profile for 2M rows. make it cheaper, same totals",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is an opaque type actually cheaper than our `case class Price(cents: Long) extends AnyVal` when we keep millions of them in arrays? I need proof, not folklore.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "sbt-jmh numbers for my Scala benchmark swing ±30% between runs. how do I get a baseline vs candidate comparison I can trust?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Scala 3 stream processor folds each event into an immutable Map and that fold is the top allocation site. Make it cheaper without changing the aggregates.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "logger.trace(s\"...${expensive(x)}\") in our Scala hot loop still shows up in the allocation profile with trace disabled. what's the cheapest fix and how do I verify it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Migrate our sbt build from Scala 2.13 to Scala 3 and fix whatever the new compiler complains about. No behavior changes.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Kotlin/JVM backend's Flow pipeline allocates heavily according to JFR and p99 doubled. Profile it and cut allocations.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-kotlin-code"
+	},
+	{
+		"query": "JMH shows String.format dominating our Java invoice renderer. Make it faster and prove it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Write ScalaCheck property tests for our JSON codec: round-trip, unknown fields, and numbers near Long.MaxValue.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Our Scala order service sometimes returns totals that are off by one order after last week's refactor, and we can't reproduce it locally. Find the cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Add a PSI-based inspection for our Scala DSL to our IntelliJ plugin and make sure the Plugin Verifier passes.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Reformat our Scala 3 sources to braceless significant-indentation style and set up scalafmt to keep it that way.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "We want to split our Scala monolith into billing and catalog services. Propose the module boundaries and who owns which data.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "design-software-architecture"
+	},
+	{
+		"query": "BenchmarkDotNet shows our C# LINQ pipeline allocating 3 KB per call in the order matcher. Cut the allocations.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-csharp-code"
+	},
+	{
+		"query": "What's the difference between a view and an iterator in Scala 3 collections?",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

@@ -1,0 +1,110 @@
+[
+  {
+    "query": "We're adding a 'cancel subscription at period end' option. Before engineering starts I need acceptance criteria QA can turn straight into tests. Cover what happens if the customer resubscribes before the period ends and if a failed-payment retry lands after they cancelled.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "turn this into proper requirements pls: 'the dashboard should load fast and show errors nicely, admins can export stuff'",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Our PRD for bulk invites is a wall of prose (pasted below). Rewrite it as numbered shall-statements, each with where it came from, plus given/when/then scenarios.\n\nPRD: Admins can invite up to a batch of users by CSV. Invites expire. Re-inviting someone who already joined should not send another email. Invalid rows are reported back.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Discount rules from finance: loyalty members get 5% off; coupons can't be combined with sale items unless the coupon is marked STACKABLE; employees get 20% but never together with a coupon. Write these up so there's zero ambiguity about which combinations are allowed.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "What exactly should happen when two pickers try to claim the last free warehouse slot at the same moment? I need that written down as something the team can test, not a comment buried in the ticket.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Draft the spec for password reset tokens: single use, they expire, and users can request a new one. Each behavior should be its own statement with test criteria, and every line has to trace back to ticket SEC-412 because this goes into our ISO 27001 audit.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "our acceptance criteria for offline sync all say 'should work reliably'. can you make them measurable without making up numbers we haven't agreed on?",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Write EARS-style requirements for the thermostat's eco mode: it switches on when nobody is home, and a manual override wins for 2 hours.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Before we build the refund flow I want the refund lifecycle pinned down: states requested, approved, paid, failed, reversed, which events move between them, and the requirement behind each transition.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "PM asked for 'user can undo sending an email'. Help me pin down what that means precisely enough that QA and dev won't argue about it later: undo window, what if it's already delivered, what the sender sees.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Should the notification service be its own deployable or stay a module in the monolith? Three teams touch it and deploys keep colliding.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "design-software-architecture"
+  },
+  {
+    "query": "Break the SSO requirements we agreed on into an ordered implementation plan: tasks, files each one touches, and a verify command per task.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "plan-implementation"
+  },
+  {
+    "query": "Write pytest tests for the acceptance criteria in our login lockout spec; the code is in auth/lockout.py and the spec says five wrong passwords lock the account.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "write-behavior-tests"
+  },
+  {
+    "query": "Our README's setup section is wrong since we moved to Docker Compose. Fix it and make sure the commands actually work.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "document-codebases"
+  },
+  {
+    "query": "Run the new billing feature through formal requirements, design, implementation, verification and release phases with subagents, and don't open a phase until the previous gate has evidence.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "coordinate-phase-gated-subagents"
+  },
+  {
+    "query": "What's the difference between functional and non-functional requirements?",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Review this plan and tell me what's wrong with it: 1) migrate the db schema, 2) deploy the new code, 3) backfill old rows.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "plan-implementation"
+  },
+  {
+    "query": "Define the REST contract for the orders service: resources, idempotency keys on POST, error codes, and how we version it.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "design-software-architecture"
+  },
+  {
+    "query": "Add a CHANGELOG entry for the export cancellation feature that shipped in 2.4.0.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "update-changelogs"
+  },
+  {
+    "query": "Translate this user story into Spanish for the Madrid team: 'As a shopper I want to save my cart so I can finish checkout later.'",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

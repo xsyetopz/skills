@@ -1,35 +1,173 @@
 {
-  "skill_name": "manage-git-changes",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Stage and commit only the authorized files while preserving unrelated staged and unstaged work, then perform the requested rebase safely.",
-      "expected_output": "A repository-aware local Git operation result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the local Git operation workflow instead of returning only generic advice.",
-        "For partial staging, Preserve unrelated index/worktree content.",
-        "For uncertain command result, Inspect state before retry.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Edit application code without any requested Git operation.",
-      "expected_output": "The agent does not activate manage-git-changes for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that manage-git-changes is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Stage and commit only the authorized files while preserving unrelated staged and unstaged work, then perform the requested rebase safely. Stress case: Force operation.",
-      "expected_output": "A local Git operation result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Require explicit authority and verify remote rules.",
-        "The evidence can detect this failure: Tool availability treated as permission.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "manage-git-changes",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "`tar -xzf partial/csvtool.tgz -C partial` unpacks the repository to partial/csvtool. In that repo, commit only the quoted-field fix in csvtool/parser.py. The same file also has a DEBUG print I added while chasing the bug: keep it in my working copy but out of the commit. Leave everything else exactly as it is.",
+			"expected_output": "One new commit on main whose only change is the quoted-field logic in csvtool/parser.py. The DEBUG print stays as an unstaged change, README.md stays staged and uncommitted, notes.txt stays untracked, and the committed snapshot passes the tests. Verified with git diff --cached, git show --stat HEAD, and status.",
+			"files": [
+				"evals/files/partial/csvtool.tgz"
+			],
+			"assertions": [
+				{
+					"text": "main has exactly one new commit on top of 2edcdba, and it changes only csvtool/parser.py.",
+					"check": "cd partial/csvtool && test \"$(git rev-parse HEAD~1)\" = 2edcdba525fff1e3adf6d34a4cc2c65cece0ecee && test \"$(git diff-tree --no-commit-id --name-only -r HEAD)\" = csvtool/parser.py"
+				},
+				{
+					"text": "The committed parser.py has the quoted-field handling and no DEBUG print.",
+					"check": "cd partial/csvtool && git show HEAD:csvtool/parser.py | grep -q 'not quoted' && ! git show HEAD:csvtool/parser.py | grep -q DEBUG"
+				},
+				{
+					"text": "The tests pass on a clean export of the new commit.",
+					"check": "tmp=$(mktemp -d) && git -C partial/csvtool archive HEAD | tar -x -C \"$tmp\" && (cd \"$tmp\" && python3 -m unittest -q 2>&1 | tail -3; cd \"$tmp\" && python3 -m unittest -q >/dev/null 2>&1); rc=$?; rm -rf \"$tmp\"; exit $rc"
+				},
+				{
+					"text": "The working copy of parser.py still has the DEBUG print as an uncommitted change.",
+					"check": "cd partial/csvtool && grep -q 'print(\"DEBUG parse line:\"' csvtool/parser.py && git diff HEAD -- csvtool/parser.py | grep -q '^+.*DEBUG'"
+				},
+				{
+					"text": "README.md is still staged with the new wording and not committed, and notes.txt is still untracked.",
+					"check": "cd partial/csvtool && test \"$(git diff --cached --name-only)\" = README.md && git diff --cached README.md | grep -q 'quoted fields' && git status --porcelain notes.txt | grep -q '^?? notes.txt'"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "`tar -xzf reflog/ledger.tgz -C reflog` unpacks the repository to reflog/ledger. This morning I ran `git reset --hard HEAD~3` on main there by mistake, and then committed the CLI entry point on top before noticing the export code was gone. Get the three lost commits back onto main. I need to keep the CLI commit and my uncommitted change to ledger/settings.py.",
+			"expected_output": "Finds 83475a6 (and 76b7d96, 5b25243) in the reflog, keeps a recovery ref, and brings the three commits back onto main by cherry-pick, rebase, or merge without resetting away 3abd87e or the dirty settings.py. main then has export.py, tests/test_export.py, and cli.py, and the tests pass.",
+			"files": [
+				"evals/files/reflog/ledger.tgz"
+			],
+			"assertions": [
+				{
+					"text": "main contains the CLI commit 3abd87e and the lost commits' changes (ledger/export.py with to_csv and to_tsv, tests/test_export.py).",
+					"check": "cd reflog/ledger && git merge-base --is-ancestor 3abd87e00a86801dc333f5d846725b9b8e39b560 main && git show main:ledger/export.py | grep -q 'def to_tsv' && git show main:ledger/export.py | grep -q 'def to_csv' && git cat-file -e main:tests/test_export.py && git cat-file -e main:ledger/cli.py"
+				},
+				{
+					"text": "main has the three recovered commit subjects (Add CSV export, Add TSV export, Test CSV and TSV export) in history.",
+					"check": "cd reflog/ledger && log=$(git log main --format=%s) && for s in 'Add CSV export' 'Add TSV export' 'Test CSV and TSV export' 'Add command-line entry point'; do printf '%s\\n' \"$log\" | grep -qxF \"$s\" || { echo \"missing: $s\"; exit 1; }; done"
+				},
+				{
+					"text": "All tests pass on a clean export of main.",
+					"check": "tmp=$(mktemp -d) && git -C reflog/ledger archive main | tar -x -C \"$tmp\" && (cd \"$tmp\" && python3 -m unittest -q 2>&1 | tail -3; cd \"$tmp\" && python3 -m unittest -q >/dev/null 2>&1); rc=$?; rm -rf \"$tmp\"; exit $rc"
+				},
+				{
+					"text": "The uncommitted ROUNDING line in ledger/settings.py is still in the working copy and not committed.",
+					"check": "cd reflog/ledger && grep -q 'ROUNDING = 2' ledger/settings.py && ! git show main:ledger/settings.py | grep -q ROUNDING"
+				},
+				{
+					"text": "No cherry-pick, rebase, or merge is left in progress.",
+					"check": "g=$(git -C reflog/ledger rev-parse --absolute-git-dir) && for f in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD BISECT_START; do test -e \"$g/$f\" && { echo \"$f still present\"; exit 1; }; done; echo none"
+				},
+				"The reply names the reflog entry or commit (83475a6 or the three lost commits) it recovered from."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "`tar -xzf rebase/webapp.tgz -C rebase` unpacks the repository to rebase/webapp. Rebase the feature branch onto main (don't merge). config.yaml will conflict: for that file keep the values from my feature branch (workers 8, ttl 300). Don't push anything.",
+			"expected_output": "Creates a recovery ref, rebases feature onto main, resolves config.yaml with the replayed commit's side (--theirs during a rebase), continues, and verifies: feature is linear on top of main with its two commits, config.yaml has workers 8 and ttl 300, CHANGES.md from main is present, and no rebase is in progress.",
+			"files": [
+				"evals/files/rebase/webapp.tgz"
+			],
+			"assertions": [
+				{
+					"text": "feature now sits directly on main (b85b9fe) with its two commits and no merge commits.",
+					"check": "cd rebase/webapp && m=$(git rev-parse main) && test \"$(git merge-base main feature)\" = \"$m\" && test \"$(git rev-list --count main..feature)\" = 2 && test -z \"$(git rev-list --merges main..feature)\" && git log --format=%s main..feature | grep -qx 'Add health endpoint' && git log --format=%s main..feature | grep -qx 'Tune workers and cache for load test'"
+				},
+				{
+					"text": "config.yaml on feature has the feature values (workers: 8, ttl_seconds: 300) and no conflict markers.",
+					"check": "cd rebase/webapp && c=$(git show feature:config.yaml) && printf '%s\\n' \"$c\" | grep -q 'workers: 8' && printf '%s\\n' \"$c\" | grep -q 'ttl_seconds: 300' && ! printf '%s\\n' \"$c\" | grep -Eq '^(<<<<<<<|=======|>>>>>>>)'"
+				},
+				{
+					"text": "feature keeps main's CHANGES.md and its own health endpoint.",
+					"check": "cd rebase/webapp && git cat-file -e feature:CHANGES.md && git show feature:webapp/app.py | grep -q '/health'"
+				},
+				{
+					"text": "main is unchanged at b85b9fe and no rebase is left in progress.",
+					"check": "git -C rebase/webapp rev-parse main | grep -q '^b85b9fe' && g=$(git -C rebase/webapp rev-parse --absolute-git-dir) && for f in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD BISECT_START; do test -e \"$g/$f\" && { echo \"$f still present\"; exit 1; }; done; echo none"
+				},
+				"The reply explains that during a rebase --ours is the branch being rebased onto (main) and --theirs is the feature commit being replayed, or otherwise shows it chose the side holding workers 8 and ttl 300 deliberately."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "`tar -xzf revert/shop.tgz -C revert` unpacks the repository to revert/shop (app/ is my clone, origin.git is our shared remote). Merging feature-x into main broke the cart total: `python3 -m unittest` fails in revert/shop/app. main is shared with the whole team. Undo the feature-x merge on my local main so I can push it after review; don't push, and keep the README commit that came after the merge.",
+			"expected_output": "Reverts merge c35f44c with git revert -m 1 as a new commit on main (no reset or history rewrite), keeps the README commit, leaves origin untouched, and verifies the tests pass. The reply warns that merging feature-x again later needs the revert reverted first.",
+			"files": [
+				"evals/files/revert/shop.tgz"
+			],
+			"assertions": [
+				{
+					"text": "main still contains the pushed tip a9f22ca (no rewrite) and has new commit(s) on top.",
+					"check": "cd revert/shop/app && git merge-base --is-ancestor a9f22cabb68a4bd71083a11e2a8f56d2f67baae3 main && test \"$(git rev-parse main)\" != a9f22cabb68a4bd71083a11e2a8f56d2f67baae3"
+				},
+				{
+					"text": "The tests pass on a clean export of main, and the discount code is gone from main.",
+					"check": "tmp=$(mktemp -d) && git -C revert/shop/app archive main | tar -x -C \"$tmp\" && (cd \"$tmp\" && python3 -m unittest -q 2>&1 | tail -3; cd \"$tmp\" && python3 -m unittest -q >/dev/null 2>&1); rc=$?; rm -rf \"$tmp\"; exit $rc && ! git -C revert/shop/app cat-file -e main:shop/discounts.py"
+				},
+				{
+					"text": "The README change made after the merge is kept on main.",
+					"check": "git -C revert/shop/app show main:README.md | grep -q 'python3 -m unittest'"
+				},
+				{
+					"text": "The shared remote is untouched: origin.git's main is still a9f22ca.",
+					"check": "test \"$(git --git-dir=revert/shop/origin.git rev-parse main)\" = a9f22cabb68a4bd71083a11e2a8f56d2f67baae3"
+				},
+				{
+					"text": "The new commit on main records that it reverts merge c35f44c.",
+					"check": "git -C revert/shop/app log a9f22cabb68a4bd71083a11e2a8f56d2f67baae3..main --format=%B | grep -q 'reverts commit c35f44ccae9b8ee630d4d8f07a7eb99167f0ccf0'"
+				},
+				"The reply warns that merging feature-x again later will not bring its changes back unless the revert is itself reverted (or the branch is rebuilt)."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "`tar -xzf fixup/greeter.tgz -C fixup` unpacks the repository to fixup/greeter. On my farewell branch there, the \"Add thank-you messages\" commit has a typo (\"visitng\"), which is why the last commit's test fails. Nothing on this branch is pushed yet. Fix the typo in the commit that introduced it so the history reads cleanly, and don't lose the README draft I haven't committed.",
+			"expected_output": "Uses a fixup commit and an autosquash rebase (with autostash or a stash for the dirty README) or an equivalent interactive edit, keeping three commits on farewell with the same subjects; the typo is fixed in the messages commit itself, main and Greeter core are untouched, every commit's tests pass, and the README draft is still uncommitted in the working copy.",
+			"files": [
+				"evals/files/fixup/greeter.tgz"
+			],
+			"assertions": [
+				{
+					"text": "farewell still has exactly three commits on top of main with the original subjects in order, and main is unchanged.",
+					"check": "cd fixup/greeter && test \"$(git rev-parse main)\" = 0ec6a68f493f6ceb4024f35678783f8e122ac0d0 && test \"$(git merge-base main farewell)\" = 0ec6a68f493f6ceb4024f35678783f8e122ac0d0 && test \"$(git log --reverse --format=%s main..farewell | tr '\\n' '|')\" = 'Add farewell|Add thank-you messages|Test farewell and messages|'"
+				},
+				{
+					"text": "The \"Add thank-you messages\" commit itself now has the corrected spelling.",
+					"check": "cd fixup/greeter && c=$(git log --format=%H --grep='^Add thank-you messages$' main..farewell) && test -n \"$c\" && git show \"$c:greeter/messages.py\" | grep -q 'Thank you for visiting.' && ! git log -p main..farewell | grep -q '^+.*visitng'"
+				},
+				{
+					"text": "The tests pass on a clean export of the branch tip.",
+					"check": "tmp=$(mktemp -d) && git -C fixup/greeter archive farewell | tar -x -C \"$tmp\" && (cd \"$tmp\" && python3 -m unittest -q 2>&1 | tail -3; cd \"$tmp\" && python3 -m unittest -q >/dev/null 2>&1); rc=$?; rm -rf \"$tmp\"; exit $rc"
+				},
+				{
+					"text": "The uncommitted README draft line is still in the working copy and not committed.",
+					"check": "cd fixup/greeter && grep -q 'Draft: add French.' README.md && ! git show farewell:README.md | grep -q Draft && test -z \"$(git stash list)\" || { git -C fixup/greeter stash list; exit 1; }"
+				},
+				{
+					"text": "No rebase is left in progress.",
+					"check": "g=$(git -C fixup/greeter rev-parse --absolute-git-dir) && for f in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD BISECT_START; do test -e \"$g/$f\" && { echo \"$f still present\"; exit 1; }; done; echo none"
+				}
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "`tar -xzf nearmiss/notes.tgz -C nearmiss` unpacks the repository to nearmiss/notes. I'm about to open a pull request for feature/search against main. Write me a PR title and description based on what the branch actually changes. I'll open it myself; don't change the repository.",
+			"expected_output": "Out-of-scope near miss: a writing and hosting-prep task. The reply gives a title and description covering case-insensitive search and the README update, based on the branch diff, and leaves refs, index, and worktree untouched.",
+			"files": [
+				"evals/files/nearmiss/notes.tgz"
+			],
+			"assertions": [
+				{
+					"text": "The repository is unchanged: feature/search at 0f9bf0b, HEAD on feature/search, clean status, no new refs.",
+					"check": "cd nearmiss/notes && test \"$(git rev-parse HEAD)\" = 0f9bf0bc4ec42c9263646cd74dd8452890021775 && test \"$(git symbolic-ref --short HEAD)\" = feature/search && test -z \"$(git status --porcelain)\" && test \"$(git for-each-ref '--format=%(refname)' | tr '\\n' ' ')\" = 'refs/heads/feature/search refs/heads/main '"
+				},
+				{
+					"text": "The reply's description mentions that search is case-insensitive.",
+					"check": "grep -Eiq 'case[- ]insensitive' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply contains a PR title line and a description that covers both the search function and the README update."
+			]
+		}
+	]
 }

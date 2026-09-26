@@ -1,0 +1,10 @@
+version := `cat VERSION`
+api_key := `./scripts/fetch-secret.sh`
+
+# Print a greeting.
+hello:
+    @echo "hello from {{ version }}"
+
+# Deploy the current version.
+deploy:
+    API_KEY={{ api_key }} ./scripts/deploy.sh {{ version }}

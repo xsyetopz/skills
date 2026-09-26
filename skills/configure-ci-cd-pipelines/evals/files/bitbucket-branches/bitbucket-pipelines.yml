@@ -1,0 +1,24 @@
+image: node:22
+
+definitions:
+  steps:
+    - step: &test
+        name: Test
+        caches:
+          - node
+        script:
+          - npm ci
+          - npm test
+
+pipelines:
+  branches:
+    main:
+      - step: *test
+      - step:
+          name: Deploy
+          deployment: production
+          trigger: manual
+          script:
+            - ./ci/deploy.sh
+    '*':
+      - step: *test

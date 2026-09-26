@@ -1,0 +1,109 @@
+[
+	{
+		"query": "this function is 5 levels of nested ifs, can you clean it up without changing behaviour",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review src/client.py against the Zen of Python: it has `timeout = timeout or 30`, an `except Exception: return None`, and `from .util import *`.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Callers keep swapping userId and tenantId in charge(userId: number, tenantId: number, amount: number). Can the types stop that?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We have config.GetTimeout(), cfg.Delay and settings.RetryWait that are all the same retry delay, some in seconds some in ms. Make it consistent.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review this agent-written diff: it fixes an off-by-one but also renames variables in six functions, adds a utils.py used once, and reformats two files.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "is this Pythonic? a PriceFormatter interface with one implementation plus a factory, and both NewConfig and MakeConfig exported",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This 180-line Python function mixes validation, database writes and emails. Nobody on the team can follow it; restructure it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our loader accepts both `port` and the legacy `listen_port` and silently prefers `port`. Is that a good idea?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Where should the new parser module go in our Rust crate, and what should be pub? Only main.rs uses it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "This TypeScript badge function is one giant chained ternary. Make it readable.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Run black and ruff format over the repo so it follows PEP 8.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Make this Rust hot loop faster; our Criterion benchmark shows it at 40 ms.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Remove the Python 2 compatibility shims now that we require 3.11.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "remove-unneeded-compatibility-code"
+	},
+	{
+		"query": "Write a README section explaining how to configure the retry delay.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "Our AGENTS.md should tell agents to keep functions short and avoid utils modules. Write that.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "What does 'flat is better than nested' mean?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add tests for the shipping rules before anyone refactors them.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Split the monolith's billing code into its own service with a clean API boundary.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "design-software-architecture"
+	},
+	{
+		"query": "The except Exception in fetch_status hides a crash in production; find out what is actually failing.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Convert this JavaScript file to TypeScript with strict mode.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

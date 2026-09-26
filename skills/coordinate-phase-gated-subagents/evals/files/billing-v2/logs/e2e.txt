@@ -1,0 +1,4 @@
+$ make e2e
+python3 -m e2e.run --env staging
+error: STAGING_API_TOKEN is not set; the end-to-end suite needs staging access
+make: *** [e2e] Error 2

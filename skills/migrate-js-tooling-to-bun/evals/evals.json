@@ -1,35 +1,117 @@
 {
-  "skill_name": "migrate-js-tooling-to-bun",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Migrate dependency installation and tests to Bun while retaining the declared Node production runtime and verifying lock resolution and lifecycle scripts.",
-      "expected_output": "A repository-aware Bun migration result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Bun migration workflow instead of returning only generic advice.",
-        "For selected responsibility only, Do not replace package manager, runtime, test, and bundler together.",
-        "For registry/auth, Preserve existing private registry controls.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Optimize JavaScript allocations without changing tooling.",
-      "expected_output": "The agent does not activate migrate-js-tooling-to-bun for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that migrate-js-tooling-to-bun is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Migrate dependency installation and tests to Bun while retaining the declared Node production runtime and verifying lock resolution and lifecycle scripts. Stress case: Compatibility.",
-      "expected_output": "A Bun migration result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Add workarounds only for evidenced consumers.",
-        "The evidence can detect this failure: Speculative Node shim.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "migrate-js-tooling-to-bun",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Switch the npm monorepo in mono/ to `bun install` (it has package-lock.json and two workspaces plus a local codegen tool). Only the package manager moves: scripts, the runtime, and the test runner stay as they are. Update CI (mono/.github/workflows/ci.yml) to match.",
+			"expected_output": "Runs bun install with package-lock.json present so Bun migrates it, compares resolutions (compare_lockfiles.py or bun pm ls) before deleting the old lockfile, reviews the blocked codegen postinstall with bun pm untrusted and trusts it after reading it, keeps start and test on Node, and changes CI to bun ci plus a lockfile-only diff check for workspaces.",
+			"files": [
+				"evals/files/mono/.github/workflows/ci.yml",
+				"evals/files/mono/package-lock.json",
+				"evals/files/mono/package.json",
+				"evals/files/mono/packages/app/index.js",
+				"evals/files/mono/packages/app/package.json",
+				"evals/files/mono/packages/app/slug.test.js",
+				"evals/files/mono/packages/util/index.js",
+				"evals/files/mono/packages/util/package.json",
+				"evals/files/mono/tools/codegen/package.json"
+			],
+			"assertions": [
+				{
+					"text": "A fresh frozen install from the committed bun.lock succeeds and runs the codegen postinstall (generated.txt exists)",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd mono && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\ntest -f bun.lock || { echo \"no bun.lock\"; exit 1; }\nbun install --frozen-lockfile || exit 1\ntest \"$(cat node_modules/codegen/generated.txt 2>/dev/null)\" = \"schema v3\""
+				},
+				{
+					"text": "`bun run start` still runs the app on Node and `bun run test` still passes with node --test",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd mono && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\nbun install --frozen-lockfile >/dev/null 2>&1 || exit 1\nout=$(bun run start 2>/dev/null) || exit 1\necho \"$out\"\necho \"$out\" | grep -q '^hello-acme-world (runtime: node v' || exit 1\ngrep -q '\"test\": *\"node --test packages/\"' package.json && bun run test"
+				},
+				{
+					"text": "CI installs with bun ci (or --frozen-lockfile), no longer uses npm ci, and fails when `bun install --lockfile-only` changes bun.lock",
+					"check": "python3 - mono/.github/workflows/ci.yml <<'PY'\nimport re, sys\nci = open(sys.argv[1]).read()\nok = (re.search(r\"bun ci\\b|bun install[^\\n]*--frozen-lockfile\", ci)\n      and \"npm ci\" not in ci\n      and re.search(r\"bun install[^\\n]*--lockfile-only\", ci)\n      and re.search(r\"git diff[^\\n]*--exit-code[^\\n]*bun\\.lock\", ci))\nsys.exit(0 if ok else 1)\nPY"
+				},
+				"The reply shows a resolution comparison between package-lock.json and bun.lock (compare_lockfiles.py or bun pm ls output) and explains any difference before the old lockfile is removed.",
+				"The reply reports that the codegen postinstall was blocked (bun pm untrusted), that its script was read before trusting it, and why a file: dependency needs an explicit trustedDependencies entry."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "CI for gap/ runs `bun ci`, but a teammate merged a change adding \"@acme/log\": \"workspace:*\" to gap/packages/api/package.json without updating bun.lock, and CI stayed green. How did that pass? Fix the lockfile and make CI catch this next time.",
+			"expected_output": "Explains and reproduces that frozen installs do not detect a new workspace:* edge, updates bun.lock with bun install, keeps bun ci, and adds bun install --lockfile-only followed by git diff --exit-code bun.lock to CI, showing the check failing on the stale lockfile.",
+			"files": [
+				"evals/files/gap/.github/workflows/ci.yml",
+				"evals/files/gap/bun.lock",
+				"evals/files/gap/package.json",
+				"evals/files/gap/packages/api/api.test.js",
+				"evals/files/gap/packages/api/index.js",
+				"evals/files/gap/packages/api/package.json",
+				"evals/files/gap/packages/log/index.js",
+				"evals/files/gap/packages/log/package.json"
+			],
+			"assertions": [
+				{
+					"text": "bun.lock now records the @acme/log edge: `bun install --lockfile-only` leaves it unchanged",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd gap && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\ngrep -q '\"@acme/log\": *\"workspace:\\*\"' bun.lock || { echo \"edge missing from bun.lock\"; exit 1; }\ncp bun.lock bun.lock.before && bun install --lockfile-only >/dev/null 2>&1 && cmp bun.lock bun.lock.before"
+				},
+				{
+					"text": "CI keeps bun ci (or --frozen-lockfile) and adds a lockfile-only regeneration followed by git diff --exit-code on bun.lock",
+					"check": "python3 - gap/.github/workflows/ci.yml <<'PY'\nimport re, sys\nci = open(sys.argv[1]).read()\nlo = re.search(r\"bun install[^\\n]*--lockfile-only\", ci)\ndiff = re.search(r\"git diff[^\\n]*--exit-code[^\\n]*bun\\.lock\", ci)\nok = (re.search(r\"bun ci\\b|bun install[^\\n]*--frozen-lockfile\", ci) and lo and diff\n      and lo.start() < diff.start())\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "The workspace tests still pass",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd gap && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\nbun install --frozen-lockfile >/dev/null 2>&1 && bun test"
+				},
+				"The reply explains that a frozen install (bun ci) exits 0 for a new workspace:* dependency and leaves bun.lock unchanged, and shows the new CI check failing on the stale lockfile."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Move the Jest tests in jestapp/ to `bun test` (we already install with Bun). Keep the setup file, the 90% line-coverage gate, and the lcov upload in jestapp/.github/workflows/ci.yml working.",
+			"expected_output": "Maps setupFiles to [test] preload in bunfig.toml, the coverage gate to coverageThreshold and the lcov reporter (coverage/lcov.info), switches the test scripts to bun test, compares test counts before and after, and never updates snapshots wholesale.",
+			"files": [
+				"evals/files/jestapp/.github/workflows/ci.yml",
+				"evals/files/jestapp/jest.config.js",
+				"evals/files/jestapp/package.json",
+				"evals/files/jestapp/src/invoice.js",
+				"evals/files/jestapp/test/invoice.test.js",
+				"evals/files/jestapp/test/setup.js"
+			],
+			"assertions": [
+				{
+					"text": "`bun test` runs all 4 tests with 0 failures and no extra flags (setup preloaded via bunfig.toml)",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd jestapp && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\nout=$(bun test 2>&1); status=$?\necho \"$out\" | tail -5\ntest $status = 0 && echo \"$out\" | grep -Eq '^ *4 pass' && echo \"$out\" | grep -Eq '^ *0 fail'"
+				},
+				{
+					"text": "The CI test command produces coverage/lcov.info with bun test and still enforces a 90% line threshold",
+					"check": "command -v bun >/dev/null || { echo \"bun not installed\"; exit 1; }\ntmp=$(mktemp -d \"$PWD/.evalcheck-XXXXXX\") || exit 1\n(cd jestapp && tar cf - --exclude node_modules .) | (cd \"$tmp\" && tar xf -) || exit 1\ncd \"$tmp\" || exit 1\ngrep -Eqi 'coverageThreshold[^\\n]*(0\\.9|90)|lines *= *0\\.9' bunfig.toml || { echo \"no 90% threshold in bunfig.toml\"; exit 1; }\ngrep -q 'bun test' package.json || { echo \"scripts do not use bun test\"; exit 1; }\ngrep -q 'coverage/lcov.info' .github/workflows/ci.yml || exit 1\nscript=$(python3 -c \"import json,re,sys; s=json.load(open('package.json'))['scripts']; print(next(k for k,v in s.items() if 'bun test' in v and 'lcov' in v))\") || { echo \"no bun test script with the lcov reporter\"; exit 1; }\ngrep -q \"$script\" .github/workflows/ci.yml || { echo \"CI does not run $script\"; exit 1; }\nbun run \"$script\" >/dev/null 2>&1 && test -s coverage/lcov.info"
+				},
+				{
+					"text": "Snapshots were not bulk-updated",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'--update-snapshots|\\\\s-u(\\\\s|$)', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				},
+				"The reply compares the test count under Jest (or the test files) with the count under bun test and reports both."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Quick question about runtime-q/: we moved installs to Bun last week (see runtime-q/NOTES.md). Production runs `bun run start`. Is our server running on Bun now? Don't change anything; tell me and show me how to check.",
+			"expected_output": "No: bun run executes the script's own `node dist/server.js` command, so the server runs on Node; only `bun --bun run start` or a bun entry point changes the runtime. Shows how to observe it (process.versions.bun or startup log) and leaves the files unchanged.",
+			"files": [
+				"evals/files/runtime-q/NOTES.md",
+				"evals/files/runtime-q/dist/server.js",
+				"evals/files/runtime-q/package.json"
+			],
+			"assertions": [
+				{
+					"text": "runtime-q/package.json is unchanged (no --bun added)",
+					"check": "test \"$(shasum -a 256 runtime-q/package.json | cut -d' ' -f1)\" = d3571082e74b817ad77e8efe24ce5500431d3edcec4f68e82767d0f82149e712"
+				},
+				{
+					"text": "The reply says the server still runs on Node",
+					"check": "grep -Eiq 'runs? (on|under|with) node|still (on )?node|node, not bun|not (running )?on bun' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply explains that `bun run` executes the script's `node` command with Node and that `bun --bun run start` (or starting the entry with `bun`) is what switches the runtime, without applying it.",
+				"The reply gives a concrete way to observe the runtime, such as logging process.versions.bun or checking the process name."
+			]
+		}
+	]
 }

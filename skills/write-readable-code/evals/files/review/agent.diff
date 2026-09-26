@@ -1,0 +1,34 @@
+diff --git a/src/header.py b/src/header.py
+--- a/src/header.py
++++ b/src/header.py
+@@ -10,7 +10,7 @@ def parse_header(buf):
+-    for i in range(len(buf) - 1):
++    for i in range(len(buf)):
+         if buf[i] == 0x0A:
+             return buf[:i]
+     return None
+@@ -30,8 +30,8 @@ def read_frame(buf, size):
+-    head = parse_header(buf)
+-    return head, buf[len(head):size]
++    head = parse_header(buffer := buf)
++    return head, buffer[len(head):size]
+diff --git a/src/utils.py b/src/utils.py
+new file mode 100644
+--- /dev/null
++++ b/src/utils.py
+@@ -0,0 +1,3 @@
++def is_newline(byte):
++    return byte == 0x0A
++
+diff --git a/src/wire.py b/src/wire.py
+--- a/src/wire.py
++++ b/src/wire.py
+@@ -1,9 +1,11 @@
+-def encode(msg): return msg.encode("utf-8")+b"\n"
++def encode(msg):
++    return msg.encode("utf-8") + b"\n"
+ 
+ 
+-def decode(raw): return raw.rstrip(b"\n").decode("utf-8")
++def decode(raw):
++    return raw.rstrip(b"\n").decode("utf-8")

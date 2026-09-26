@@ -1,0 +1,107 @@
+[
+	{
+		"query": "My Sublime plugin formats JSON in a worker via set_timeout_async and then calls view.replace(edit, ...) from the callback. It throws 'Edit objects may not be used after the TextCommand's run method has returned'. how do I restructure it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "After saving my plugin.py a few times while developing, my settings on_change callback prints 4 times per change. What's the right load/unload pattern?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a key binding so ctrl+alt+d marks TODOs done in my package, but only when the caret is on a TODO line, and put the command in the command palette too.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our package's .python-version says 3.8 and a user on ST build 4192 gets AttributeError: 'str' object has no attribute 'removeprefix'. How do we make CI catch this?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want phantoms under each line with a failed test assertion in my test-runner package, updating after each run and cleared when the view closes. Build 4200+.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "write an EventListener for my ST4 package that lints the file on modify with a debounce, without lagging typing and without applying stale results",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Annotations in my Sublime package show TODO text from the file. Could a file inject clickable subl: links? Here's the note_html builder.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Create a Sublime Text package that lets me pick a snippet from a quick panel with an input handler in the command palette and insert it at every cursor.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I write tests for my Sublime Text plugin that run in CI without the editor, and separate ones that run inside ST with UnitTesting?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "my plugin command class is called HTMLPreviewCommand and on some builds the command name doesn't resolve from the keymap. why?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I change the font size and color scheme in Sublime Text? I just want my editor to look better.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Python script that renames every .txt file in a folder to .md and prints how many it renamed.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Neovim Lua plugin that highlights TODO comments and adds a :TodoList command.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-neovim-plugins"
+	},
+	{
+		"query": "My Python CLI takes 2 seconds just to start; profile the imports and make startup faster.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Set up a Sublime Merge custom command that runs our commit-lint script before committing.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Create a VS Code extension that shows TODO comments as decorations and lists them in a tree view.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Install Package Control and LSP-pyright in Sublime Text and configure it to use my project's .venv.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write a TextMate-style .tmLanguage grammar for our config language to use on GitHub linguist.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Make a Zed extension with snippets for our Python test helpers.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-zed-editor-extensions"
+	},
+	{
+		"query": "Refactor this 300-line Python function into something readable; it's in our Django app, nothing editor-related.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	}
+]

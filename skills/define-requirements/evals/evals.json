@@ -1,35 +1,136 @@
 {
-	"skill_name": "define-requirements",
-	"evals": [
-		{
-			"id": 1,
-			"prompt": "Define observable behavior, failures, state transitions, constraints, and acceptance criteria for the requested import feature.",
-			"expected_output": "A repository-aware behavioral requirement set result with observable evidence, preserved constraints, and explicit verification limits.",
-			"assertions": [
-				"The response performs the behavioral requirement set workflow instead of returning only generic advice.",
-				"For unknown threshold, Leave unresolved or measure; do not invent a number.",
-				"For current implementation, Treat it as evidence, not desired behavior.",
-				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-			]
-		},
-		{
-			"id": 2,
-			"prompt": "Choose the service architecture for complete requirements that already exist.",
-			"expected_output": "The agent does not activate define-requirements for this neighboring request and does not apply its procedures by keyword alone.",
-			"assertions": [
-				"The response does not claim that define-requirements is required.",
-				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-			]
-		},
-		{
-			"id": 3,
-			"prompt": "Define observable behavior, failures, state transitions, constraints, and acceptance criteria for the requested import feature. Stress case: User causal claim.",
-			"expected_output": "A behavioral requirement set result that handles the named stress case and supplies evidence able to detect the documented failure.",
-			"assertions": [
-				"Separate hypothesis from requested result.",
-				"The evidence can detect this failure: Requirement encodes an unverified explanation.",
-				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
-			]
-		}
-	]
+  "skill_name": "define-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Product filed seat-booking/docs/issues/118.md about holding seats during checkout. Turn it into a spec at seat-booking/docs/specs/seat-holds.md, following the conventions in seat-booking/docs/specs/README.md. QA should be able to write tests straight from it, and anything the issue leaves undecided should stay visibly undecided.",
+      "expected_output": "A spec in the house REQ/AC/DEC format with a seat lifecycle state table (available, held, sold, with hold expiry and release), at least five sourced single-response EARS requirements, Given/When/Then criteria for each including a payment still in flight when the hold expires, and open decisions for the hold length default and the in-flight payment policy instead of invented values. The bundled checker reports zero defects.",
+      "files": [
+        "evals/files/seat-booking/docs/specs/README.md",
+        "evals/files/seat-booking/docs/specs/login-lockout.md",
+        "evals/files/seat-booking/docs/issues/118.md"
+      ],
+      "assertions": [
+        {
+          "text": "seat-holds.md passes check_requirements.py with zero defects (every REQ has a source, one shall, an EARS form, and an AC).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" seat-booking/docs/specs/seat-holds.md"
+        },
+        {
+          "text": "The spec has at least 5 requirements and at least 5 acceptance criteria.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" --json seat-booking/docs/specs/seat-holds.md | python3 -c \"import json,sys; r=json.load(sys.stdin); sys.exit(0 if r['requirements']>=5 and r['acceptance_criteria']>=5 else 1)\""
+        },
+        {
+          "text": "No requirement or acceptance criterion states a concrete hold length (a number with a time unit); the issue gives none.",
+          "check": "python3 - seat-booking/docs/specs/seat-holds.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nbad = [i for i in REQ + AC if re.search(r'\\b\\d+(\\.\\d+)?\\s*(ms|s|sec|secs|seconds?|mins?|minutes?|h|hrs?|hours?)\\b', i, re.I)]\nprint('\\n'.join(bad)); sys.exit(1 if bad else 0)\nPY"
+        },
+        {
+          "text": "At least two DEC items record open decisions (the issue leaves the default hold length and the in-flight payment case undecided).",
+          "check": "python3 - seat-booking/docs/specs/seat-holds.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nprint(len(DEC)); sys.exit(0 if len(DEC) >= 2 else 1)\nPY"
+        },
+        {
+          "text": "The spec contains a Markdown table with a row about a held seat expiring.",
+          "check": "grep -Eiq '^\\|.*(hold|held).*\\|' seat-booking/docs/specs/seat-holds.md && grep -Eiq '^\\|.*expir' seat-booking/docs/specs/seat-holds.md"
+        },
+        "The payment-in-flight-at-expiry race is handled without inventing policy: either a DEC item lists the options (for example honor the payment, refund it, or extend the hold) or a requirement names the event that decides the outcome and cites a source for that choice."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "upload-api/docs/specs/upload-api.md is the whole spec we have for the upload API and QA says they can't test any of it. Rewrite that file in place so every line is testable, using the format in upload-api/docs/specs/README.md. We don't have numbers for any of the limits yet.",
+      "expected_output": "The vague spec replaced by sourced EARS requirements with acceptance criteria, including If/then requirements for error handling; no invented latency, size, or resume-window numbers; each missing number recorded as a DEC item. The checker reports zero defects on the rewritten file.",
+      "files": [
+        "evals/files/upload-api/docs/specs/README.md",
+        "evals/files/upload-api/docs/specs/login-lockout.md",
+        "evals/files/upload-api/docs/specs/upload-api.md"
+      ],
+      "assertions": [
+        {
+          "text": "The rewritten upload-api.md passes check_requirements.py with zero defects.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" upload-api/docs/specs/upload-api.md"
+        },
+        {
+          "text": "At least one requirement uses the unwanted-behavior form (If ..., then the ... shall ...).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" --json upload-api/docs/specs/upload-api.md | python3 -c \"import json,sys; r=json.load(sys.stdin); sys.exit(0 if r['patterns'].get('unwanted', 0) >= 1 else 1)\""
+        },
+        {
+          "text": "No requirement or acceptance criterion contains an invented number with a time, size, or percentage unit.",
+          "check": "python3 - upload-api/docs/specs/upload-api.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nbad = [i for i in REQ + AC if re.search(r'\\b\\d+(\\.\\d+)?\\s*(ms|s|sec|secs|seconds?|mins?|minutes?|h|hrs?|hours?|[KMGT]i?B|bytes?|%)', i)]\nprint('\\n'.join(bad)); sys.exit(1 if bad else 0)\nPY"
+        },
+        {
+          "text": "At least three DEC items record the undecided values (latency target, maximum file size, resume behavior).",
+          "check": "python3 - upload-api/docs/specs/upload-api.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nprint(len(DEC)); sys.exit(0 if len(DEC) >= 3 else 1)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Write the access rules for shared documents as a spec in doc-access/docs/specs/document-access.md (format: doc-access/docs/specs/README.md). The rules from the product owner: owners can edit a document; admins can edit anything except archived documents; anyone in the team can view; archived documents are read-only for everyone except owners who can unarchive. I want every role and action combination pinned down, including the ones that must be refused.",
+      "expected_output": "A decision table over role (owner, admin, team member), archived state, and action (view, edit, unarchive); one EARS requirement per rule; acceptance criteria for allowed and refused combinations; and an open decision for the ambiguous clause about whether owners may edit archived documents directly. Zero checker defects.",
+      "files": [
+        "evals/files/doc-access/docs/specs/README.md",
+        "evals/files/doc-access/docs/specs/login-lockout.md"
+      ],
+      "assertions": [
+        {
+          "text": "document-access.md passes check_requirements.py with zero defects.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" doc-access/docs/specs/document-access.md"
+        },
+        {
+          "text": "The spec contains a Markdown table whose header mentions the role and that has at least 6 data rows.",
+          "check": "python3 - doc-access/docs/specs/document-access.md <<'PY'\nimport re, sys\nlines = open(sys.argv[1], encoding='utf-8').read().splitlines()\nblocks, cur = [], []\nfor l in lines:\n    if l.lstrip().startswith('|'):\n        cur.append(l)\n    elif cur:\n        blocks.append(cur); cur = []\nif cur: blocks.append(cur)\nok = [b for b in blocks if 'role' in b[0].lower() and len([r for r in b[2:] if r.strip()]) >= 6]\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "At least three acceptance criteria check a refused action (denied, rejected, forbidden, refused, cannot, not allowed, or 403).",
+          "check": "python3 - doc-access/docs/specs/document-access.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nneg = [i for i in AC if re.search(r'(deni|reject|forbid|refus|cannot|can not|not allowed|not permitted|403)', i, re.I)]\nprint(len(neg)); sys.exit(0 if len(neg) >= 3 else 1)\nPY"
+        },
+        "The spec surfaces the ambiguous clause 'archived documents are read-only for everyone except owners who can unarchive' (may an owner edit an archived document without unarchiving it?) as a DEC item or explicit question instead of silently picking one reading."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our Paylane webhook handler (payments-webhook/payments/webhook.py) sometimes charges a customer twice for the same invoice when Paylane retries. The provider's delivery rules are in payments-webhook/docs/provider-webhooks.md. Before anyone touches the code, write the requirements for the fix in payments-webhook/docs/specs/webhook-idempotency.md using the format in payments-webhook/docs/specs/README.md.",
+      "expected_output": "Requirements that identify a duplicate delivery by the event's id, return the first result without charging again, cover two deliveries processed concurrently, and cite the provider guide as source; acceptance criteria that deliver the same event twice and observe one charge; open decisions for anything the guide does not settle (for example how long ids are remembered relative to the 72-hour retry window). Zero checker defects; webhook.py unchanged.",
+      "files": [
+        "evals/files/payments-webhook/docs/specs/README.md",
+        "evals/files/payments-webhook/docs/specs/login-lockout.md",
+        "evals/files/payments-webhook/docs/provider-webhooks.md",
+        "evals/files/payments-webhook/payments/webhook.py"
+      ],
+      "assertions": [
+        {
+          "text": "webhook-idempotency.md passes check_requirements.py with zero defects.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/define-requirements/scripts/check_requirements.py\" ]; do [ \"$R\" = / ] && { echo \"check_requirements.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/define-requirements/scripts/check_requirements.py\"; python3 \"$T\" payments-webhook/docs/specs/webhook-idempotency.md"
+        },
+        {
+          "text": "A requirement identifies duplicates by the event's id.",
+          "check": "python3 - payments-webhook/docs/specs/webhook-idempotency.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nhit = [i for i in REQ if re.search(r'(event[ _-]?id|`id`|event identifier|same id|id field|its id)', i, re.I)]\nsys.exit(0 if hit else 1)\nPY"
+        },
+        {
+          "text": "A requirement's source cites the provider's delivery guide.",
+          "check": "python3 - payments-webhook/docs/specs/webhook-idempotency.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nhit = [i for i in REQ if re.search(r'\\[source:[^\\]]*(provider|paylane|webhooks\\.md)', i, re.I)]\nsys.exit(0 if hit else 1)\nPY"
+        },
+        {
+          "text": "An acceptance criterion delivers the same event more than once and expects a single charge.",
+          "check": "python3 - payments-webhook/docs/specs/webhook-idempotency.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nitems, cur = [], None\nfor line in text.splitlines():\n    if re.match(r'^\\s*[-*]\\s+', line):\n        cur = re.sub(r'^\\s*[-*]\\s+', '', line); items.append(cur)\n    elif cur is not None and line.startswith('  ') and line.strip():\n        items[-1] += ' ' + line.strip()\n    else:\n        cur = None\nREQ = [i for i in items if re.match(r'REQ-[A-Z0-9-]+\\s', i)]\nAC = [i for i in items if re.match(r'AC-[A-Z0-9-]+\\s', i)]\nDEC = [i for i in items if re.match(r'DEC-[A-Z0-9-]+', i)]\nhit = [i for i in AC if re.search(r'(twice|again|second delivery|duplicate|redeliver|same event|both deliveries)', i, re.I) and re.search(r'(one charge|single charge|charged once|exactly one|only one|no second charge|not charged again|no new charge|no additional charge|once)', i, re.I)]\nsys.exit(0 if hit else 1)\nPY"
+        },
+        {
+          "text": "payments/webhook.py is unchanged (requirements only, no code edit was requested).",
+          "check": "shasum -a 256 payments-webhook/payments/webhook.py | grep -q '^7ecd763b9dd740afb9261fc7c76b05c64f50c1ff7e59f4fdc65dd0852dd1fb1b'"
+        },
+        "The spec covers two deliveries of the same event being processed at the same time (not only a retry after the first finished), for example by naming the step that claims the event id first or by an acceptance criterion with concurrent deliveries."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Pick between Postgres and DynamoDB for the new export service. Exports are about 2k jobs a day, each job row is updated a few times while it runs, and the UI lists a user's last 50 jobs.",
+      "expected_output": "A storage recommendation (or the questions that would decide it) grounded in the stated access patterns; no requirements document.",
+      "assertions": [
+        {
+          "text": "No REQ- requirement lines appear in the reply or in any created file.",
+          "check": "! grep -Eq 'REQ-[A-Z0-9]+' \"$EVAL_RESPONSE_FILE\" && ! grep -rEqs --exclude-dir=.claude 'REQ-[A-Z0-9]+' ."
+        },
+        "The reply compares Postgres and DynamoDB against the stated access patterns (per-job updates, listing a user's recent jobs) and ends with a recommendation or the specific questions that would decide it."
+      ]
+    }
+  ]
 }

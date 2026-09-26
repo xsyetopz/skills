@@ -1,0 +1,106 @@
+[
+  {
+    "query": "Run the payments refactor as a waterfall: requirements, design, implementation, verification, release, with a gate between each phase and subagents doing the implementation in parallel.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "I want this done phase-gated with multiple agents. Nobody starts coding until the design is signed off, and nothing ships until verification passes with actual evidence.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Use subagents in separate worktrees for the implementation phase of the search rewrite, but keep the requirements > design > build > verify > release gates, and don't let any worker touch files it doesn't own.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "We're in the verification phase of our gated multi-agent delivery and the e2e suite can't run without staging credentials. Can the gate close so we move on to release?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Orchestrate a team of agents for the CLI v2 migration with a strict stage-gate process: baseline the requirements, freeze the design, fan workers out per module, integrate, verify, then prepare the release.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Halfway through our waterfall-with-subagents run, a worker changed the frozen Store interface on its own and wants its branch merged. How do we handle that under the phase gates?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "set up a phase-gated waterfall for the new billing module using subagents, with an evidence-based gate record at the end of every phase",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Coordinate several agents to build the export feature one phase at a time with sign-off gates: requirements, design, implementation, verification, release.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "In our phase-gated agent run, two workers in the same wave both own src/common.py and one overwrote the other. Rework the work plan so the next wave is safe.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Do the auth overhaul as a formal waterfall with parallel subagents, and check the gate before each phase starts.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Add CSV export to the API, the CLI, and the web UI, with tests for each.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Refactor the payment module to use the new client, update the docs to match, and bump the minor version.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Plan the search rewrite for me: ordered tasks, the files each one touches, and a verify command per task.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "plan-implementation"
+  },
+  {
+    "query": "Write the requirements for billing v2 with IDs and acceptance criteria we can test against.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "define-requirements"
+  },
+  {
+    "query": "Compare Waterfall and Agile for our team wiki page.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Fix the three failing tests in tests/test_api.py, then run the full suite and tell me what else breaks.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Split this big branch into separate commits by area: api, cli, docs.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "manage-git-changes"
+  },
+  {
+    "query": "Upgrade all 12 services from Python 3.9 to 3.12, one at a time, running each service's tests after its change.",
+    "should_trigger": false,
+    "split": "validation"
+  },
+  {
+    "query": "Design the module boundaries and ownership of the billing service before we start coding.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "design-software-architecture"
+  },
+  {
+    "query": "Use a couple of agents to research these three charting libraries in parallel and tell me which fits our dashboard best.",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

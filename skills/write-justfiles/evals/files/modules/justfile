@@ -1,0 +1,10 @@
+# Monorepo tasks.
+
+default:
+    @just --list
+
+frontend-dev:
+    cd frontend && ./dev.sh
+
+backend-test:
+    cd backend && python3 -m unittest discover -s tests -t .

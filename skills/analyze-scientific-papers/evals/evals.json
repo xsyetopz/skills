@@ -1,35 +1,117 @@
 {
-	"skill_name": "analyze-scientific-papers",
-	"evals": [
-		{
-			"id": 1,
-			"prompt": "Find primary studies on whether intervention X changes outcome Y in population Z, compare methods and effect estimates, and identify corrections or replications.",
-			"expected_output": "A repository-aware paper synthesis result with observable evidence, preserved constraints, and explicit verification limits.",
-			"assertions": [
-				"The response performs the paper synthesis workflow instead of returning only generic advice.",
-				"For abstract-only source, Treat methods and unavailable results as unknown; do not infer them from metadata.",
-				"For conflicting populations, Separate applicability before synthesis.",
-				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-			]
-		},
-		{
-			"id": 2,
-			"prompt": "Reformat this supplied bibliography in APA style without researching the papers.",
-			"expected_output": "The agent does not activate analyze-scientific-papers for this neighboring request and does not apply its procedures by keyword alone.",
-			"assertions": [
-				"The response does not claim that analyze-scientific-papers is required.",
-				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-			]
-		},
-		{
-			"id": 3,
-			"prompt": "Find primary studies on whether intervention X changes outcome Y in population Z, compare methods and effect estimates, and identify corrections or replications. Stress case: Retraction or correction.",
-			"expected_output": "A paper synthesis result that handles the named stress case and supplies evidence able to detect the documented failure.",
-			"assertions": [
-				"Follow and report the later record.",
-				"The evidence can detect this failure: Stale original result presented as current evidence.",
-				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
-			]
-		}
-	]
+  "skill_name": "analyze-scientific-papers",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our team lead wants to know whether checklist-guided code review reduces defects that escape to testing for a team of professional backend developers like ours. The one study we have is review-study/paper.txt, and review-study/crossref-updates.json is the Crossref corrections/retractions lookup we ran for it today (2026-09-26). There is no internet access here; work only from the files provided. Write the evidence note to review-study/notes/checklist-review.md in the format of review-study/notes/TEMPLATE.md.",
+      "expected_output": "A note citing DOI 10.5555/jise.2025.0142, the empty Crossref updates result, Status 'full text', evidence from Table 2 (8.1 vs 10.9 escaped defects, 95% CIs, d = 0.86, 20 teams per arm) and Section 6 (students at one university, one seeded Java change set), check_stats.py output showing t(38) = 2.71, p = .010 consistent, and a conclusion scoped to student teams, unresolved for professional developers. check_evidence_note.py passes.",
+      "files": [
+        "evals/files/review-study/paper.txt",
+        "evals/files/review-study/crossref-updates.json",
+        "evals/files/review-study/notes/TEMPLATE.md"
+      ],
+      "assertions": [
+        {
+          "text": "The note passes check_evidence_note.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/analyze-scientific-papers/scripts/check_evidence_note.py\" ]; do [ \"$R\" = / ] && { echo \"check_evidence_note.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/analyze-scientific-papers/scripts/check_evidence_note.py\"; python3 \"$T\" review-study/notes/checklist-review.md"
+        },
+        {
+          "text": "Source carries the paper's DOI and Status is 'full text'.",
+          "check": "python3 - review-study/notes/checklist-review.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef field(name):\n    m = re.search(r'^' + name + r':\\s*(.*?)(?=^[A-Z][a-z]+:|\\Z)', text, re.M | re.S)\n    return ' '.join(m.group(1).split()) if m else ''\nok = '10.5555/jise.2025.0142' in field('Source') and field('Status').lower() == 'full text'\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "Evidence names Table 2 and reports the effect with its uncertainty (a 95% CI or Cohen's d).",
+          "check": "python3 - review-study/notes/checklist-review.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef field(name):\n    m = re.search(r'^' + name + r':\\s*(.*?)(?=^[A-Z][a-z]+:|\\Z)', text, re.M | re.S)\n    return ' '.join(m.group(1).split()) if m else ''\ne = field('Evidence')\nok = re.search(r'table\\s*2', e, re.I) and re.search(r'95%|CI|\\bd\\s*=\\s*0?\\.86', e)\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "The Stats field records the t(38) = 2.71 check.",
+          "check": "python3 - review-study/notes/checklist-review.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef field(name):\n    m = re.search(r'^' + name + r':\\s*(.*?)(?=^[A-Z][a-z]+:|\\Z)', text, re.M | re.S)\n    return ' '.join(m.group(1).split()) if m else ''\nsys.exit(0 if re.search(r't\\(38\\)\\s*=\\s*2\\.71', field('Stats')) else 1)\nPY"
+        },
+        "The conclusion is scoped to the study's setting (student teams, one seeded change set) and does not claim the effect holds for professional developers; for the lead's question it is unresolved or explicitly limited."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A reviewer asked us to double-check the statistics in stats-check/results.txt before we cite this manuscript. Which reported results don't hold up, and what should we do about them?",
+      "expected_output": "Recomputed p-values: t(28) = 1.20 gives p ≈ .24 (not .03) and F(2, 57) = 1.10 gives p ≈ .34 (not < .01), both inconsistent; chi2(1) = 4.10, p = .043 and r(48) = .30, p = .034 are consistent. The inconsistencies are treated as needing the authors' explanation (typo, one-tailed test, wrong df), not as misconduct.",
+      "files": [
+        "evals/files/stats-check/results.txt"
+      ],
+      "assertions": [
+        {
+          "text": "The reply flags the t(28) = 1.20 result with a recomputed p of about .24.",
+          "check": "grep -Eq '1\\.20' \"$EVAL_RESPONSE_FILE\" && grep -Eq '0?\\.2[34]' \"$EVAL_RESPONSE_FILE\""
+        },
+        {
+          "text": "The reply flags the F(2, 57) = 1.10 result with a recomputed p of about .34.",
+          "check": "grep -Eq '1\\.10' \"$EVAL_RESPONSE_FILE\" && grep -Eq '0?\\.3[34]' \"$EVAL_RESPONSE_FILE\""
+        },
+        "The reply says the chi-square and correlation results are consistent, and treats the two inconsistencies as questions for the authors (typo, one-tailed test, or wrong df) rather than as evidence of misconduct."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Summarize the findings of DOI 10.5555/jcbr.2019.0077 for my literature review and write the summary to lit-review/summary.md. There is no internet access here; work only from the files provided. The paper's results section is lit-review/paper.txt, and the Crossref records we pulled are lit-review/work.json (the work) and lit-review/updates.json (the filter=updates lookup).",
+      "expected_output": "The summary leads with the 2022 retraction (notice 10.5555/jcbr.2022.0003) and the 2020 correction, does not present the sleep-quality result as a supported finding, and advises against citing it as evidence (or only as a retracted work).",
+      "files": [
+        "evals/files/lit-review/paper.txt",
+        "evals/files/lit-review/work.json",
+        "evals/files/lit-review/updates.json"
+      ],
+      "assertions": [
+        {
+          "text": "summary.md reports the retraction and names the retraction notice's DOI or date.",
+          "check": "grep -iq 'retract' lit-review/summary.md && grep -Eq '10\\.5555/jcbr\\.2022\\.0003|2022' lit-review/summary.md"
+        },
+        {
+          "text": "summary.md mentions the retraction before any of the paper's results (PSQI or the 2.4-point difference).",
+          "check": "python3 - lit-review/summary.md <<'PY'\nimport re, sys\nt = open(sys.argv[1], encoding='utf-8').read()\nr = re.search(r'retract', t, re.I)\nf = re.search(r'PSQI|2\\.4', t)\nsys.exit(0 if r and (f is None or r.start() < f.start()) else 1)\nPY"
+        },
+        {
+          "text": "No web tool was used.",
+          "check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, sys\nused = []\nfor line in open(sys.argv[1], encoding='utf-8'):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    for block in ((event.get('message') or {}).get('content') or []):\n        if isinstance(block, dict) and block.get('type') == 'tool_use' and block.get('name') in ('WebFetch', 'WebSearch'):\n            used.append(block['name'])\nprint(used)\nsys.exit(1 if used else 0)\nPY"
+        },
+        "The summary does not present the blue-light-glasses sleep result as a valid or supported finding for the review."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "All we have is the abstract in model-claims/abstract.txt; the PDF is behind a login we don't have. Does this paper prove SparrowNet beats LargeBird on code search? There is no internet access here; work only from the files provided. Record your assessment as an evidence note in model-claims/note.md using model-claims/TEMPLATE.md.",
+      "expected_output": "A note with Status 'abstract', Source arXiv:2508.04417v1, Updates stating the lookup could not be done offline, and Conclusion 'unresolved' until the full text's tables, baselines, benchmark, and run counts are read; check_evidence_note.py passes; the reply lists what in the full text would decide it.",
+      "files": [
+        "evals/files/model-claims/abstract.txt",
+        "evals/files/model-claims/TEMPLATE.md"
+      ],
+      "assertions": [
+        {
+          "text": "The note passes check_evidence_note.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/analyze-scientific-papers/scripts/check_evidence_note.py\" ]; do [ \"$R\" = / ] && { echo \"check_evidence_note.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/analyze-scientific-papers/scripts/check_evidence_note.py\"; python3 \"$T\" model-claims/note.md"
+        },
+        {
+          "text": "Status is 'abstract', Source carries arXiv:2508.04417v1, and the Conclusion starts with 'unresolved'.",
+          "check": "python3 - model-claims/note.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef field(name):\n    m = re.search(r'^' + name + r':\\s*(.*?)(?=^[A-Z][a-z]+:|\\Z)', text, re.M | re.S)\n    return ' '.join(m.group(1).split()) if m else ''\nok = field('Status').lower() == 'abstract' and '2508.04417v1' in field('Source') and field('Conclusion').lower().startswith('unresolved')\nprint(field('Status'), '|', field('Conclusion'))\nsys.exit(0 if ok else 1)\nPY"
+        },
+        "The reply or note names what in the full text would decide the claim, such as the results table, whether LargeBird was run under the same benchmark and settings, the number of runs, and variance."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Format these references in APA 7th style, as a list I can paste:\n1. okafor r, brandt l, ishikawa s. checklist-guided code review and escaped defects: a controlled study. journal of illustrative software engineering, vol 14 no 2, pp 101-118, 2025. doi 10.5555/jise.2025.0142\n2. nair p & castillo e (2025) SparrowNet: a lightweight model that outperforms LargeBird on code search. arXiv 2508.04417\n3. Varga, M.; Holm, T. Blue-light glasses improve programmer sleep quality: a randomized trial. J Illustr Behav Res 2019;7(3):44-59. https://doi.org/10.5555/jcbr.2019.0077",
+      "expected_output": "Near miss (citation formatting): three APA 7 references with authors as 'Surname, I.', year in parentheses, sentence-case titles, italic journal and volume, and https://doi.org/ links; no literature search.",
+      "assertions": [
+        {
+          "text": "The reply contains the DOIs as https://doi.org/ links for both journal articles.",
+          "check": "grep -q 'https://doi.org/10.5555/jise.2025.0142' \"$EVAL_RESPONSE_FILE\" && grep -q 'https://doi.org/10.5555/jcbr.2019.0077' \"$EVAL_RESPONSE_FILE\""
+        },
+        {
+          "text": "The reply puts the authors in APA form (for example 'Okafor, R.') with the year in parentheses.",
+          "check": "grep -Eq 'Okafor, R\\., Brandt, L\\., (&|and) Ishikawa, S\\. \\(2025\\)' \"$EVAL_RESPONSE_FILE\""
+        },
+        {
+          "text": "No web tool was used.",
+          "check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, sys\nused = []\nfor line in open(sys.argv[1], encoding='utf-8'):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    for block in ((event.get('message') or {}).get('content') or []):\n        if isinstance(block, dict) and block.get('type') == 'tool_use' and block.get('name') in ('WebFetch', 'WebSearch'):\n            used.append(block['name'])\nprint(used)\nsys.exit(1 if used else 0)\nPY"
+        }
+      ]
+    }
+  ]
 }

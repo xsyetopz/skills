@@ -1,0 +1,8 @@
+{
+	"ignored_packages":
+	[
+		"Vintage",
+	],
+	"theme": "auto",
+	"font_size": 11,
+}

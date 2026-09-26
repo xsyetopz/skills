@@ -1,0 +1,110 @@
+{
+ "repo": {
+  "full_name": "acme/api",
+  "visibility": "private",
+  "private": true,
+  "default_branch": "main",
+  "viewer_permission": "WRITE",
+  "permissions": {
+   "admin": false,
+   "maintain": false,
+   "push": true,
+   "triage": true,
+   "pull": true
+  }
+ },
+ "viewer": "dana-dev",
+ "labels": [
+  {
+   "name": "bug",
+   "color": "d73a4a",
+   "description": "Something isn't working"
+  },
+  {
+   "name": "question",
+   "color": "d876e3",
+   "description": "Further information is requested"
+  },
+  {
+   "name": "needs-info",
+   "color": "fbca04",
+   "description": "Waiting on the reporter"
+  },
+  {
+   "name": "enhancement",
+   "color": "a2eeef",
+   "description": "New feature or request"
+  },
+  {
+   "name": "docs",
+   "color": "0075ca",
+   "description": "Documentation"
+  }
+ ],
+ "issues": [
+  {
+   "number": 42,
+   "title": "Add rate limiting to /login",
+   "state": "open",
+   "user": "sam",
+   "labels": [],
+   "body": "Adds a token bucket in front of /login.",
+   "pull_request": {},
+   "pr": {
+    "head_sha": "93777b44577f6e72199a3858cc00c8fee5a4c698",
+    "head_ref": "rate-limit-login",
+    "mergeable_state": "clean",
+    "review_decision": "APPROVED",
+    "history": [
+     "cffc0cd898de7efaf3c046db384b4ec367d78bdf",
+     "93777b44577f6e72199a3858cc00c8fee5a4c698"
+    ]
+   },
+   "comments_list": [
+    {
+     "id": 5001,
+     "user": "sam",
+     "body": "Pushed one more commit after review (93777b4): also limit /signup.",
+     "html_url": ""
+    }
+   ]
+  },
+  {
+   "number": 43,
+   "title": "Fix pagination off-by-one in /orders",
+   "state": "open",
+   "user": "lee",
+   "labels": [],
+   "body": "Page 2 repeated the last row of page 1.",
+   "pull_request": {},
+   "pr": {
+    "head_sha": "43e532ecf0ca2373cc3da7d2561a4172ce42a7e4",
+    "head_ref": "fix-orders-page",
+    "mergeable_state": "clean",
+    "review_decision": "APPROVED"
+   },
+   "comments_list": []
+  }
+ ],
+ "checks": {
+  "93777b44577f6e72199a3858cc00c8fee5a4c698": [
+   {
+    "name": "test",
+    "status": "completed",
+    "conclusion": "success"
+   }
+  ],
+  "43e532ecf0ca2373cc3da7d2561a4172ce42a7e4": [
+   {
+    "name": "test",
+    "status": "completed",
+    "conclusion": "success"
+   },
+   {
+    "name": "lint",
+    "status": "completed",
+    "conclusion": "success"
+   }
+  ]
+ }
+}

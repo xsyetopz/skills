@@ -1,0 +1,11 @@
+*notes.txt*  Daily notes for Neovim
+
+==============================================================================
+USAGE                                                          *notes-usage*
+
+:NotesToday                                                     *:NotesToday*
+    Open (or create) today's note in the notes directory.
+
+<leader>n opens today's note.
+
+ vim:tw=78:ts=8:ft=help:norl:

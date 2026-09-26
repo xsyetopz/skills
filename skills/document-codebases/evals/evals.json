@@ -3,32 +3,147 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Update repository setup and API usage documentation from current source and commands, preserving meaning outside the requested section.",
-      "expected_output": "A repository-aware codebase documentation result with observable evidence, preserved constraints, and explicit verification limits.",
+      "prompt": "csvsum/ has no README yet. Write csvsum/README.md for someone who has never seen the tool: what it does, what they need installed, and a quick start they can copy and paste that shows the output they should get.",
+      "expected_output": "A README with a one-sentence lead, the Python requirement taken from pyproject.toml (3.10 or later), a quick start run from csvsum/ against data/sales.csv whose Expected output block matches the real output (for example 852.75 for the revenue column), all documented commands passing check_doc_commands.py, and no broken links.",
+      "files": [
+        "evals/files/csvsum/pyproject.toml",
+        "evals/files/csvsum/csvsum.py",
+        "evals/files/csvsum/data/sales.csv",
+        "evals/files/csvsum/tests/__init__.py",
+        "evals/files/csvsum/tests/test_csvsum.py"
+      ],
       "assertions": [
-        "The response performs the codebase documentation workflow instead of returning only generic advice.",
-        "For formatting-only request, Do not change technical meaning.",
-        "For command example, Execute or otherwise verify it in applicable environment.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+        {
+          "text": "Every documented command in README.md runs from csvsum/ and at least one has its expected output shown and matching (check_doc_commands.py).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/check_doc_commands.py\" ]; do [ \"$R\" = / ] && { echo \"check_doc_commands.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/check_doc_commands.py\"; O=$(python3 \"$T\" csvsum/README.md --cwd csvsum --timeout 30 2>&1); s=$?; echo \"$O\"; [ $s -eq 0 ] && echo \"$O\" | grep -q \"^ok \" && echo \"$O\" | grep -q \"output matches\""
+        },
+        {
+          "text": "README.md states the Python requirement from pyproject.toml (3.10).",
+          "check": "grep -Eq '3\\.10' csvsum/README.md"
+        },
+        {
+          "text": "README.md has no broken relative links or anchors (check_links.py).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/check_links.py\" ]; do [ \"$R\" = / ] && { echo \"check_links.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/check_links.py\"; python3 \"$T\" csvsum/README.md"
+        },
+        {
+          "text": "The program was not changed.",
+          "check": "shasum -a 256 csvsum/csvsum.py | grep -q '^330b3dcbf35a57cf1a0aba77b5a0618a1bbdbe819ad264343b4044d91769bb5e '"
+        }
       ]
     },
     {
       "id": 2,
-      "prompt": "Update AGENTS.md rules for coding agents.",
-      "expected_output": "The agent does not activate document-codebases for this neighboring request and does not apply its procedures by keyword alone.",
+      "prompt": "Users following logtail/README.md get `error: unrecognized arguments: --limit`. Fix it.",
+      "expected_output": "The README uses the real flag (-n/--lines) found in the parser, its commands run against app.log with correct expected output, and logtail.py is unchanged (the docs were wrong, not the code).",
+      "files": [
+        "evals/files/logtail/README.md",
+        "evals/files/logtail/logtail.py",
+        "evals/files/logtail/app.log"
+      ],
       "assertions": [
-        "The response does not claim that document-codebases is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+        {
+          "text": "README.md no longer mentions --limit and uses -n or --lines.",
+          "check": "! grep -q -- '--limit' logtail/README.md && grep -Eq -- '(^|[^-])-n |--lines' logtail/README.md"
+        },
+        {
+          "text": "Every documented command in README.md runs from logtail/ (check_doc_commands.py).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/check_doc_commands.py\" ]; do [ \"$R\" = / ] && { echo \"check_doc_commands.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/check_doc_commands.py\"; O=$(python3 \"$T\" logtail/README.md --cwd logtail --timeout 30 2>&1); s=$?; echo \"$O\"; [ $s -eq 0 ] && echo \"$O\" | grep -q \"^ok \""
+        },
+        {
+          "text": "logtail.py is unchanged (no --limit option was added to the program).",
+          "check": "shasum -a 256 logtail/logtail.py | grep -q '^702cc164feec78931be4fb613515e1b94c2bc1aec41ce58a06e3d599553bf220 '"
+        }
       ]
     },
     {
       "id": 3,
-      "prompt": "Update repository setup and API usage documentation from current source and commands, preserving meaning outside the requested section. Stress case: Generated docs.",
-      "expected_output": "A codebase documentation result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "prompt": "Just rewrap wrap-docs/docs/guide.markdown so prose lines are at most 80 characters. Don't change anything else.",
+      "expected_output": "Prose and list items rewrapped at 80 columns; every word, the URL, and the code block unchanged (the long docker command stays on one line), proved with same_words.py.",
+      "files": [
+        "evals/files/wrap-docs/docs/guide.markdown"
+      ],
       "assertions": [
-        "Edit source/generator rather than output when established.",
-        "The evidence can detect this failure: Generated file patched directly.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+        {
+          "text": "same_words.py finds the same words, URLs, and code lines as the original file.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/same_words.py\" ]; do [ \"$R\" = / ] && { echo \"same_words.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/same_words.py\"; python3 \"$T\" \"$R/skills/document-codebases/evals/files/wrap-docs/docs/guide.markdown\" wrap-docs/docs/guide.markdown"
+        },
+        {
+          "text": "Every line outside fenced code blocks is at most 80 characters, except a line holding only an unbreakable link.",
+          "check": "python3 - wrap-docs/docs/guide.markdown <<'PY'\nimport re, sys\nfence, bad = False, []\nfor n, line in enumerate(open(sys.argv[1], encoding='utf-8').read().splitlines(), 1):\n    if line.lstrip().startswith('```'):\n        fence = not fence\n        continue\n    if not fence and len(line) > 80 and not re.fullmatch(r'\\s*(?:[-*]\\s+)?\\S*\\]\\(\\S+\\)\\S*', line):\n        bad.append((n, len(line)))\nprint(bad)\nsys.exit(1 if bad else 0)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "In moved-docs/ we moved docs/setup.md to docs/guides/setup.md (it's already moved). Update the docs so nothing points at the old place and nothing in the moved page is broken.",
+      "expected_output": "README.md and docs/index.md link to docs/guides/setup.md (anchors #install and #configure kept); links inside the moved page rewritten relative to its new directory (../../README.md, ../images/flow.svg, ../index.md); check_links.py reports 0 errors; the file stays at docs/guides/setup.md.",
+      "files": [
+        "evals/files/moved-docs/README.md",
+        "evals/files/moved-docs/docs/index.md",
+        "evals/files/moved-docs/docs/guides/setup.md",
+        "evals/files/moved-docs/docs/images/flow.svg"
+      ],
+      "assertions": [
+        {
+          "text": "check_links.py reports no errors for all Markdown files in moved-docs/.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/check_links.py\" ]; do [ \"$R\" = / ] && { echo \"check_links.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/check_links.py\"; python3 \"$T\" moved-docs"
+        },
+        {
+          "text": "The page stays at docs/guides/setup.md and no docs/setup.md was recreated.",
+          "check": "test -f moved-docs/docs/guides/setup.md && ! test -e moved-docs/docs/setup.md"
+        },
+        {
+          "text": "README.md and docs/index.md link to the new location and keep the #install and #configure anchors.",
+          "check": "grep -q 'docs/guides/setup.md#install' moved-docs/README.md && grep -q 'guides/setup.md#configure' moved-docs/docs/index.md"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Add a CONTRIBUTING.md to tinyq/ with a code of conduct, a CLA requirement, and the security contact email.",
+      "expected_output": "A CONTRIBUTING.md whose setup and check commands come from the repository (pip install -e \".[dev]\", ruff check ., python -m unittest discover -s tests -t . from ci.yml; Python 3.11 from pyproject.toml), and that does not invent a code of conduct text, CLA terms, or an email address; the reply says which policy inputs the maintainers must supply.",
+      "files": [
+        "evals/files/tinyq/README.md",
+        "evals/files/tinyq/pyproject.toml",
+        "evals/files/tinyq/.github/workflows/ci.yml",
+        "evals/files/tinyq/tinyq/__init__.py",
+        "evals/files/tinyq/tests/__init__.py",
+        "evals/files/tinyq/tests/test_queue.py"
+      ],
+      "assertions": [
+        {
+          "text": "CONTRIBUTING.md gives the CI checks: the unittest command and ruff.",
+          "check": "grep -q 'unittest discover' tinyq/CONTRIBUTING.md && grep -q 'ruff check' tinyq/CONTRIBUTING.md"
+        },
+        {
+          "text": "CONTRIBUTING.md contains no email address (none exists in the repository).",
+          "check": "test -f tinyq/CONTRIBUTING.md && ! grep -Eq '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+' tinyq/CONTRIBUTING.md"
+        },
+        {
+          "text": "CONTRIBUTING.md has no broken relative links (check_links.py).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/document-codebases/scripts/check_links.py\" ]; do [ \"$R\" = / ] && { echo \"check_links.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/document-codebases/scripts/check_links.py\"; python3 \"$T\" tinyq/CONTRIBUTING.md"
+        },
+        "The reply says the code of conduct, the CLA, and the security contact are policy decisions the maintainers must supply, instead of inventing their terms (placeholders are acceptable only if clearly marked as to-be-decided)."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Add an entry for the new --precision flag to csvsum-release/CHANGELOG.md.",
+      "expected_output": "Near miss (changelog, not general docs): an Added entry for --precision under [Unreleased], worded for users; README.md and the program unchanged.",
+      "files": [
+        "evals/files/csvsum-release/CHANGELOG.md",
+        "evals/files/csvsum-release/README.md",
+        "evals/files/csvsum-release/csvsum.py"
+      ],
+      "assertions": [
+        {
+          "text": "The [Unreleased] section (before the 0.3.0 heading) mentions --precision.",
+          "check": "python3 - csvsum-release/CHANGELOG.md <<'PY'\nimport sys\ntext = open(sys.argv[1], encoding='utf-8').read()\nstart = text.find('## [Unreleased]'); end = text.find('## [0.3.0]')\nsys.exit(0 if 0 <= start < end and '--precision' in text[start:end] else 1)\nPY"
+        },
+        {
+          "text": "README.md and csvsum.py are unchanged.",
+          "check": "shasum -a 256 csvsum-release/README.md | grep -q '^62d4aeaf081dbc7f5b80fc880563ef7ee8967a64b2831503d991660fc9e69754 ' && shasum -a 256 csvsum-release/csvsum.py | grep -q '^bfb8434ab04d93031d01c017b282d58af630d08db696c7e3093d73b90fb14c64 '"
+        }
       ]
     }
   ]

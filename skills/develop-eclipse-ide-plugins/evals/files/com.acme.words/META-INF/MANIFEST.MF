@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Word Count
+Bundle-SymbolicName: com.acme.words;singleton:=true
+Bundle-Version: 1.2.0.qualifier
+Bundle-Vendor: Acme
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ org.eclipse.jface
+Automatic-Module-Name: com.acme.words

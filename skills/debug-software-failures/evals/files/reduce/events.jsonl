@@ -1,0 +1,302 @@
+{"customer_id": "C1041", "name": "Omar Moreau", "email": "omar.moreau93@example.invalid", "kind": "order", "price": 425}
+{"customer_id": "C1068", "name": "Lin Silva", "email": "lin.silva84@example.invalid", "kind": "order", "price": 264}
+{"customer_id": "C1027", "name": "Ada Reyes", "email": "ada.reyes65@example.invalid", "kind": "order", "price": 128}
+{"customer_id": "C1011", "name": "Ines Moreau", "email": "ines.moreau17@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1015", "name": "Sofia Ivanova", "email": "sofia.ivanova17@example.invalid", "kind": "order", "price": 208}
+{"customer_id": "C1006", "name": "Sofia Novak", "email": "sofia.novak81@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1037", "name": "Luca Okafor", "email": "luca.okafor79@example.invalid", "kind": "order", "price": 162}
+{"customer_id": "C1071", "name": "Zara Okafor", "email": "zara.okafor23@example.invalid", "kind": "order", "price": 332}
+{"customer_id": "C1024", "name": "Maya Reyes", "email": "maya.reyes80@example.invalid", "kind": "subscription", "monthly": 41}
+{"customer_id": "C1007", "name": "Tomas Berg", "email": "tomas.berg73@example.invalid", "kind": "order", "price": 223}
+{"customer_id": "C1040", "name": "Noor Ivanova", "email": "noor.ivanova68@example.invalid", "kind": "order", "price": 132}
+{"customer_id": "C1023", "name": "Eli Berg", "email": "eli.berg20@example.invalid", "kind": "order", "price": 273}
+{"customer_id": "C1063", "name": "Maya Haddad", "email": "maya.haddad46@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1015", "name": "Ines Moreau", "email": "ines.moreau31@example.invalid", "kind": "subscription", "monthly": 14}
+{"customer_id": "C1062", "name": "Luca Novak", "email": "luca.novak95@example.invalid", "kind": "order", "price": 290}
+{"customer_id": "C1073", "name": "Maya Silva", "email": "maya.silva98@example.invalid", "kind": "order", "price": 259}
+{"customer_id": "C1074", "name": "Noor Reyes", "email": "noor.reyes21@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1060", "name": "Eli Reyes", "email": "eli.reyes17@example.invalid", "kind": "subscription", "monthly": 24}
+{"customer_id": "C1073", "name": "Zara Haddad", "email": "zara.haddad46@example.invalid", "kind": "subscription", "monthly": 47}
+{"customer_id": "C1044", "name": "Ada Haddad", "email": "ada.haddad55@example.invalid", "kind": "order", "price": 64}
+{"customer_id": "C1063", "name": "Ada Berg", "email": "ada.berg46@example.invalid", "kind": "order", "price": 131}
+{"customer_id": "C1050", "name": "Luca Haddad", "email": "luca.haddad20@example.invalid", "kind": "order", "price": 210}
+{"customer_id": "C1070", "name": "Kenji Okafor", "email": "kenji.okafor65@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1035", "name": "Eli Moreau", "email": "eli.moreau55@example.invalid", "kind": "order", "price": 199}
+{"customer_id": "C1029", "name": "Omar Reyes", "email": "omar.reyes32@example.invalid", "kind": "order", "price": 342}
+{"customer_id": "C1029", "name": "Ada Haddad", "email": "ada.haddad85@example.invalid", "kind": "order", "price": 149}
+{"customer_id": "C1000", "name": "Omar Moreau", "email": "omar.moreau78@example.invalid", "kind": "order", "price": 294}
+{"customer_id": "C1040", "name": "Omar Kowalski", "email": "omar.kowalski89@example.invalid", "kind": "order", "price": 383}
+{"customer_id": "C1006", "name": "Noor Kowalski", "email": "noor.kowalski60@example.invalid", "kind": "order", "price": 206}
+{"customer_id": "C1013", "name": "Noor Moreau", "email": "noor.moreau17@example.invalid", "kind": "order", "price": 111}
+{"customer_id": "C1056", "name": "Omar Reyes", "email": "omar.reyes53@example.invalid", "kind": "order", "price": 57}
+{"customer_id": "C1000", "name": "Tomas Okafor", "email": "tomas.okafor78@example.invalid", "kind": "order", "price": 191}
+{"customer_id": "C1078", "name": "Ada Reyes", "email": "ada.reyes36@example.invalid", "kind": "order", "price": 81}
+{"customer_id": "C1032", "name": "Maya Ivanova", "email": "maya.ivanova56@example.invalid", "kind": "order", "price": 64}
+{"customer_id": "C1062", "name": "Noor Haddad", "email": "noor.haddad71@example.invalid", "kind": "order", "price": 78}
+{"customer_id": "C1013", "name": "Eli Silva", "email": "eli.silva43@example.invalid", "kind": "order", "price": 359}
+{"customer_id": "C1020", "name": "Ines Novak", "email": "ines.novak36@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1067", "name": "Maya Okafor", "email": "maya.okafor98@example.invalid", "kind": "order", "price": 18}
+{"customer_id": "C1067", "name": "Kenji Reyes", "email": "kenji.reyes43@example.invalid", "kind": "order", "price": 470}
+{"customer_id": "C1021", "name": "Maya Berg", "email": "maya.berg78@example.invalid", "kind": "order", "price": 262}
+{"customer_id": "C1042", "name": "Zara Berg", "email": "zara.berg88@example.invalid", "kind": "subscription", "monthly": 17}
+{"customer_id": "C1030", "name": "Luca Berg", "email": "luca.berg35@example.invalid", "kind": "order", "price": 187}
+{"customer_id": "C1003", "name": "Ada Tanaka", "email": "ada.tanaka70@example.invalid", "kind": "order", "price": 359}
+{"customer_id": "C1077", "name": "Maya Haddad", "email": "maya.haddad54@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1046", "name": "Lin Berg", "email": "lin.berg23@example.invalid", "kind": "order", "price": 105}
+{"customer_id": "C1043", "name": "Sofia Haddad", "email": "sofia.haddad89@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1078", "name": "Ada Haddad", "email": "ada.haddad93@example.invalid", "kind": "order", "price": 334}
+{"customer_id": "C1010", "name": "Zara Reyes", "email": "zara.reyes59@example.invalid", "kind": "subscription", "monthly": 17}
+{"customer_id": "C1061", "name": "Omar Moreau", "email": "omar.moreau91@example.invalid", "kind": "order", "price": 415}
+{"customer_id": "C1050", "name": "Noor Moreau", "email": "noor.moreau20@example.invalid", "kind": "subscription", "monthly": 15}
+{"customer_id": "C1016", "name": "Ada Okafor", "email": "ada.okafor85@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1018", "name": "Tomas Ivanova", "email": "tomas.ivanova70@example.invalid", "kind": "order", "price": 184}
+{"customer_id": "C1019", "name": "Ines Kowalski", "email": "ines.kowalski26@example.invalid", "kind": "order", "price": 414}
+{"customer_id": "C1013", "name": "Ines Okafor", "email": "ines.okafor65@example.invalid", "kind": "refund"}
+{"customer_id": "C1024", "name": "Sofia Novak", "email": "sofia.novak42@example.invalid", "kind": "order", "price": 261}
+{"customer_id": "C1030", "name": "Tomas Silva", "email": "tomas.silva43@example.invalid", "kind": "order", "price": 432}
+{"customer_id": "C1016", "name": "Ada Silva", "email": "ada.silva68@example.invalid", "kind": "order", "price": 422}
+{"customer_id": "C1066", "name": "Luca Kowalski", "email": "luca.kowalski26@example.invalid", "kind": "order", "price": 273}
+{"customer_id": "C1065", "name": "Ada Haddad", "email": "ada.haddad33@example.invalid", "kind": "order", "price": 402}
+{"customer_id": "C1019", "name": "Omar Okafor", "email": "omar.okafor70@example.invalid", "kind": "order", "price": 66}
+{"customer_id": "C1071", "name": "Ada Silva", "email": "ada.silva97@example.invalid", "kind": "order", "price": 289}
+{"customer_id": "C2001", "name": "Maya Okafor", "email": "maya.okafor77@example.invalid", "kind": "subscription", "monthly": 19}
+{"customer_id": "C1061", "name": "Lin Kowalski", "email": "lin.kowalski17@example.invalid", "kind": "order", "price": 146}
+{"customer_id": "C1005", "name": "Lin Kowalski", "email": "lin.kowalski67@example.invalid", "kind": "order", "price": 394}
+{"customer_id": "C1008", "name": "Noor Silva", "email": "noor.silva88@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1077", "name": "Ines Berg", "email": "ines.berg98@example.invalid", "kind": "order", "price": 265}
+{"customer_id": "C1068", "name": "Noor Kowalski", "email": "noor.kowalski41@example.invalid", "kind": "order", "price": 453}
+{"customer_id": "C1033", "name": "Ines Berg", "email": "ines.berg67@example.invalid", "kind": "order", "price": 67}
+{"customer_id": "C1050", "name": "Noor Silva", "email": "noor.silva19@example.invalid", "kind": "order", "price": 224}
+{"customer_id": "C1009", "name": "Sofia Tanaka", "email": "sofia.tanaka25@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1019", "name": "Eli Silva", "email": "eli.silva28@example.invalid", "kind": "order", "price": 75}
+{"customer_id": "C1059", "name": "Sofia Reyes", "email": "sofia.reyes60@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1020", "name": "Zara Berg", "email": "zara.berg30@example.invalid", "kind": "subscription", "monthly": 37}
+{"customer_id": "C1051", "name": "Maya Moreau", "email": "maya.moreau35@example.invalid", "kind": "order", "price": 52}
+{"customer_id": "C1046", "name": "Ada Silva", "email": "ada.silva80@example.invalid", "kind": "order", "price": 365}
+{"customer_id": "C1002", "name": "Luca Silva", "email": "luca.silva76@example.invalid", "kind": "order", "price": 267}
+{"customer_id": "C1008", "name": "Lin Berg", "email": "lin.berg23@example.invalid", "kind": "order", "price": 144}
+{"customer_id": "C1005", "name": "Omar Tanaka", "email": "omar.tanaka26@example.invalid", "kind": "subscription", "monthly": 48}
+{"customer_id": "C1033", "name": "Luca Okafor", "email": "luca.okafor78@example.invalid", "kind": "refund"}
+{"customer_id": "C1073", "name": "Noor Silva", "email": "noor.silva21@example.invalid", "kind": "order", "price": 414}
+{"customer_id": "C1023", "name": "Luca Reyes", "email": "luca.reyes44@example.invalid", "kind": "refund"}
+{"customer_id": "C1011", "name": "Kenji Reyes", "email": "kenji.reyes87@example.invalid", "kind": "refund"}
+{"customer_id": "C1008", "name": "Kenji Reyes", "email": "kenji.reyes68@example.invalid", "kind": "order", "price": 288}
+{"customer_id": "C1053", "name": "Kenji Ivanova", "email": "kenji.ivanova26@example.invalid", "kind": "order", "price": 368}
+{"customer_id": "C1030", "name": "Lin Okafor", "email": "lin.okafor43@example.invalid", "kind": "order", "price": 108}
+{"customer_id": "C1039", "name": "Zara Tanaka", "email": "zara.tanaka77@example.invalid", "kind": "subscription", "monthly": 23}
+{"customer_id": "C1057", "name": "Ines Okafor", "email": "ines.okafor44@example.invalid", "kind": "order", "price": 14}
+{"customer_id": "C1032", "name": "Ada Novak", "email": "ada.novak12@example.invalid", "kind": "subscription", "monthly": 40}
+{"customer_id": "C1024", "name": "Ines Haddad", "email": "ines.haddad41@example.invalid", "kind": "refund"}
+{"customer_id": "C1013", "name": "Zara Moreau", "email": "zara.moreau94@example.invalid", "kind": "order", "price": 432}
+{"customer_id": "C1050", "name": "Ines Tanaka", "email": "ines.tanaka98@example.invalid", "kind": "order", "price": 122}
+{"customer_id": "C1043", "name": "Sofia Okafor", "email": "sofia.okafor61@example.invalid", "kind": "refund"}
+{"customer_id": "C1006", "name": "Omar Novak", "email": "omar.novak19@example.invalid", "kind": "order", "price": 455}
+{"customer_id": "C1032", "name": "Luca Okafor", "email": "luca.okafor17@example.invalid", "kind": "order", "price": 435}
+{"customer_id": "C1048", "name": "Ines Tanaka", "email": "ines.tanaka86@example.invalid", "kind": "order", "price": 155}
+{"customer_id": "C1005", "name": "Noor Okafor", "email": "noor.okafor30@example.invalid", "kind": "order", "price": 6}
+{"customer_id": "C1033", "name": "Maya Silva", "email": "maya.silva80@example.invalid", "kind": "order", "price": 22}
+{"customer_id": "C1039", "name": "Sofia Silva", "email": "sofia.silva33@example.invalid", "kind": "order", "price": 200}
+{"customer_id": "C1010", "name": "Noor Tanaka", "email": "noor.tanaka74@example.invalid", "kind": "order", "price": 132}
+{"customer_id": "C1064", "name": "Ada Reyes", "email": "ada.reyes43@example.invalid", "kind": "subscription", "monthly": 14}
+{"customer_id": "C1051", "name": "Tomas Novak", "email": "tomas.novak60@example.invalid", "kind": "order", "price": 160}
+{"customer_id": "C1029", "name": "Lin Ivanova", "email": "lin.ivanova77@example.invalid", "kind": "refund"}
+{"customer_id": "C1019", "name": "Zara Ivanova", "email": "zara.ivanova59@example.invalid", "kind": "subscription", "monthly": 36}
+{"customer_id": "C1019", "name": "Kenji Ivanova", "email": "kenji.ivanova92@example.invalid", "kind": "order", "price": 427}
+{"customer_id": "C1065", "name": "Zara Moreau", "email": "zara.moreau74@example.invalid", "kind": "order", "price": 273}
+{"customer_id": "C1064", "name": "Tomas Novak", "email": "tomas.novak97@example.invalid", "kind": "order", "price": 462}
+{"customer_id": "C1029", "name": "Lin Novak", "email": "lin.novak15@example.invalid", "kind": "order", "price": 189}
+{"customer_id": "C1013", "name": "Luca Haddad", "email": "luca.haddad81@example.invalid", "kind": "order", "price": 14}
+{"customer_id": "C1068", "name": "Zara Berg", "email": "zara.berg72@example.invalid", "kind": "order", "price": 238}
+{"customer_id": "C1008", "name": "Eli Kowalski", "email": "eli.kowalski78@example.invalid", "kind": "order", "price": 274}
+{"customer_id": "C1008", "name": "Eli Haddad", "email": "eli.haddad42@example.invalid", "kind": "subscription", "monthly": 21}
+{"customer_id": "C1030", "name": "Eli Berg", "email": "eli.berg39@example.invalid", "kind": "subscription", "monthly": 34}
+{"customer_id": "C1063", "name": "Luca Reyes", "email": "luca.reyes71@example.invalid", "kind": "refund"}
+{"customer_id": "C1036", "name": "Ada Ivanova", "email": "ada.ivanova90@example.invalid", "kind": "order", "price": 44}
+{"customer_id": "C1076", "name": "Omar Silva", "email": "omar.silva42@example.invalid", "kind": "order", "price": 359}
+{"customer_id": "C1038", "name": "Tomas Ivanova", "email": "tomas.ivanova27@example.invalid", "kind": "order", "price": 36}
+{"customer_id": "C1062", "name": "Kenji Reyes", "email": "kenji.reyes98@example.invalid", "kind": "order", "price": 255}
+{"customer_id": "C1037", "name": "Eli Kowalski", "email": "eli.kowalski46@example.invalid", "kind": "order", "price": 243}
+{"customer_id": "C1015", "name": "Ines Berg", "email": "ines.berg49@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1060", "name": "Ada Tanaka", "email": "ada.tanaka68@example.invalid", "kind": "order", "price": 264}
+{"customer_id": "C1057", "name": "Kenji Moreau", "email": "kenji.moreau36@example.invalid", "kind": "refund"}
+{"customer_id": "C1026", "name": "Lin Ivanova", "email": "lin.ivanova21@example.invalid", "kind": "order", "price": 273}
+{"customer_id": "C1033", "name": "Maya Okafor", "email": "maya.okafor87@example.invalid", "kind": "refund"}
+{"customer_id": "C1065", "name": "Kenji Reyes", "email": "kenji.reyes56@example.invalid", "kind": "order", "price": 464}
+{"customer_id": "C1062", "name": "Luca Novak", "email": "luca.novak30@example.invalid", "kind": "order", "price": 256}
+{"customer_id": "C1057", "name": "Luca Tanaka", "email": "luca.tanaka28@example.invalid", "kind": "order", "price": 197}
+{"customer_id": "C1040", "name": "Lin Silva", "email": "lin.silva10@example.invalid", "kind": "order", "price": 178}
+{"customer_id": "C1050", "name": "Lin Berg", "email": "lin.berg11@example.invalid", "kind": "refund"}
+{"customer_id": "C1037", "name": "Kenji Silva", "email": "kenji.silva18@example.invalid", "kind": "order", "price": 450}
+{"customer_id": "C1075", "name": "Lin Silva", "email": "lin.silva64@example.invalid", "kind": "subscription", "monthly": 8}
+{"customer_id": "C1035", "name": "Lin Novak", "email": "lin.novak94@example.invalid", "kind": "order", "price": 484}
+{"customer_id": "C1019", "name": "Sofia Tanaka", "email": "sofia.tanaka65@example.invalid", "kind": "order", "price": 102}
+{"customer_id": "C1047", "name": "Luca Novak", "email": "luca.novak90@example.invalid", "kind": "order", "price": 453}
+{"customer_id": "C1070", "name": "Ines Berg", "email": "ines.berg20@example.invalid", "kind": "order", "price": 379}
+{"customer_id": "C1052", "name": "Noor Ivanova", "email": "noor.ivanova27@example.invalid", "kind": "order", "price": 151}
+{"customer_id": "C1062", "name": "Ada Kowalski", "email": "ada.kowalski26@example.invalid", "kind": "order", "price": 217}
+{"customer_id": "C1043", "name": "Kenji Tanaka", "email": "kenji.tanaka42@example.invalid", "kind": "subscription", "monthly": 46}
+{"customer_id": "C1033", "name": "Luca Berg", "email": "luca.berg48@example.invalid", "kind": "order", "price": 347}
+{"customer_id": "C1050", "name": "Lin Okafor", "email": "lin.okafor92@example.invalid", "kind": "order", "price": 111}
+{"customer_id": "C1064", "name": "Noor Kowalski", "email": "noor.kowalski38@example.invalid", "kind": "order", "price": 175}
+{"customer_id": "C1057", "name": "Luca Okafor", "email": "luca.okafor80@example.invalid", "kind": "order", "price": 51}
+{"customer_id": "C1022", "name": "Maya Kowalski", "email": "maya.kowalski21@example.invalid", "kind": "order", "price": 193}
+{"customer_id": "C1033", "name": "Tomas Berg", "email": "tomas.berg12@example.invalid", "kind": "subscription", "monthly": 31}
+{"customer_id": "C1049", "name": "Luca Kowalski", "email": "luca.kowalski36@example.invalid", "kind": "order", "price": 178}
+{"customer_id": "C1007", "name": "Noor Tanaka", "email": "noor.tanaka83@example.invalid", "kind": "refund"}
+{"customer_id": "C1016", "name": "Zara Kowalski", "email": "zara.kowalski77@example.invalid", "kind": "order", "price": 446}
+{"customer_id": "C1027", "name": "Lin Tanaka", "email": "lin.tanaka41@example.invalid", "kind": "order", "price": 335}
+{"customer_id": "C1057", "name": "Luca Tanaka", "email": "luca.tanaka12@example.invalid", "kind": "order", "price": 222}
+{"customer_id": "C1060", "name": "Tomas Haddad", "email": "tomas.haddad10@example.invalid", "kind": "order", "price": 481}
+{"customer_id": "C1067", "name": "Noor Haddad", "email": "noor.haddad41@example.invalid", "kind": "subscription", "monthly": 19}
+{"customer_id": "C1019", "name": "Omar Kowalski", "email": "omar.kowalski97@example.invalid", "kind": "order", "price": 427}
+{"customer_id": "C1058", "name": "Lin Kowalski", "email": "lin.kowalski15@example.invalid", "kind": "order", "price": 69}
+{"customer_id": "C1029", "name": "Tomas Novak", "email": "tomas.novak92@example.invalid", "kind": "subscription", "monthly": 13}
+{"customer_id": "C1032", "name": "Ines Moreau", "email": "ines.moreau24@example.invalid", "kind": "order", "price": 158}
+{"customer_id": "C1067", "name": "Tomas Berg", "email": "tomas.berg59@example.invalid", "kind": "order", "price": 409}
+{"customer_id": "C1076", "name": "Ada Novak", "email": "ada.novak78@example.invalid", "kind": "order", "price": 240}
+{"customer_id": "C1035", "name": "Maya Berg", "email": "maya.berg70@example.invalid", "kind": "order", "price": 285}
+{"customer_id": "C1031", "name": "Ada Moreau", "email": "ada.moreau93@example.invalid", "kind": "order", "price": 16}
+{"customer_id": "C1024", "name": "Noor Moreau", "email": "noor.moreau20@example.invalid", "kind": "order", "price": 346}
+{"customer_id": "C1054", "name": "Maya Berg", "email": "maya.berg73@example.invalid", "kind": "order", "price": 178}
+{"customer_id": "C1053", "name": "Maya Moreau", "email": "maya.moreau35@example.invalid", "kind": "order", "price": 154}
+{"customer_id": "C1064", "name": "Lin Berg", "email": "lin.berg73@example.invalid", "kind": "refund"}
+{"customer_id": "C1039", "name": "Sofia Berg", "email": "sofia.berg69@example.invalid", "kind": "order", "price": 394}
+{"customer_id": "C1037", "name": "Lin Ivanova", "email": "lin.ivanova73@example.invalid", "kind": "order", "price": 463}
+{"customer_id": "C1028", "name": "Noor Moreau", "email": "noor.moreau95@example.invalid", "kind": "order", "price": 309}
+{"customer_id": "C1018", "name": "Luca Novak", "email": "luca.novak37@example.invalid", "kind": "order", "price": 310}
+{"customer_id": "C1018", "name": "Luca Novak", "email": "luca.novak17@example.invalid", "kind": "order", "price": 235}
+{"customer_id": "C1040", "name": "Eli Reyes", "email": "eli.reyes20@example.invalid", "kind": "refund"}
+{"customer_id": "C1042", "name": "Sofia Okafor", "email": "sofia.okafor93@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1059", "name": "Ada Tanaka", "email": "ada.tanaka95@example.invalid", "kind": "subscription", "monthly": 28}
+{"customer_id": "C1042", "name": "Noor Okafor", "email": "noor.okafor23@example.invalid", "kind": "order", "price": 148}
+{"customer_id": "C1010", "name": "Maya Moreau", "email": "maya.moreau25@example.invalid", "kind": "order", "price": 393}
+{"customer_id": "C1026", "name": "Luca Silva", "email": "luca.silva49@example.invalid", "kind": "refund"}
+{"customer_id": "C1055", "name": "Lin Novak", "email": "lin.novak70@example.invalid", "kind": "order", "price": 282}
+{"customer_id": "C1057", "name": "Sofia Silva", "email": "sofia.silva56@example.invalid", "kind": "subscription", "monthly": 35}
+{"customer_id": "C1003", "name": "Zara Moreau", "email": "zara.moreau41@example.invalid", "kind": "subscription", "monthly": 30}
+{"customer_id": "C1005", "name": "Luca Novak", "email": "luca.novak69@example.invalid", "kind": "order", "price": 476}
+{"customer_id": "C1007", "name": "Kenji Berg", "email": "kenji.berg18@example.invalid", "kind": "refund"}
+{"customer_id": "C1043", "name": "Maya Tanaka", "email": "maya.tanaka52@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1078", "name": "Ada Tanaka", "email": "ada.tanaka98@example.invalid", "kind": "order", "price": 146}
+{"customer_id": "C1038", "name": "Ada Ivanova", "email": "ada.ivanova91@example.invalid", "kind": "refund"}
+{"customer_id": "C1008", "name": "Ada Berg", "email": "ada.berg23@example.invalid", "kind": "order", "price": 494}
+{"customer_id": "C1059", "name": "Luca Tanaka", "email": "luca.tanaka65@example.invalid", "kind": "subscription", "monthly": 13}
+{"customer_id": "C1063", "name": "Omar Novak", "email": "omar.novak48@example.invalid", "kind": "refund"}
+{"customer_id": "C1019", "name": "Tomas Berg", "email": "tomas.berg51@example.invalid", "kind": "refund"}
+{"customer_id": "C1058", "name": "Maya Ivanova", "email": "maya.ivanova20@example.invalid", "kind": "order", "price": 205}
+{"customer_id": "C1020", "name": "Sofia Moreau", "email": "sofia.moreau18@example.invalid", "kind": "order", "price": 251}
+{"customer_id": "C1070", "name": "Ines Silva", "email": "ines.silva30@example.invalid", "kind": "refund"}
+{"customer_id": "C1013", "name": "Lin Tanaka", "email": "lin.tanaka89@example.invalid", "kind": "order", "price": 54}
+{"customer_id": "C1053", "name": "Noor Haddad", "email": "noor.haddad32@example.invalid", "kind": "order", "price": 218}
+{"customer_id": "C1058", "name": "Tomas Berg", "email": "tomas.berg78@example.invalid", "kind": "refund"}
+{"customer_id": "C1015", "name": "Kenji Tanaka", "email": "kenji.tanaka45@example.invalid", "kind": "order", "price": 195}
+{"customer_id": "C1032", "name": "Eli Tanaka", "email": "eli.tanaka35@example.invalid", "kind": "order", "price": 100}
+{"customer_id": "C1031", "name": "Sofia Okafor", "email": "sofia.okafor46@example.invalid", "kind": "refund"}
+{"customer_id": "C1074", "name": "Sofia Silva", "email": "sofia.silva18@example.invalid", "kind": "order", "price": 130}
+{"customer_id": "C1064", "name": "Ines Berg", "email": "ines.berg93@example.invalid", "kind": "subscription", "monthly": 46}
+{"customer_id": "C1059", "name": "Ada Reyes", "email": "ada.reyes10@example.invalid", "kind": "order", "price": 424}
+{"customer_id": "C1029", "name": "Noor Silva", "email": "noor.silva15@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1029", "name": "Lin Novak", "email": "lin.novak34@example.invalid", "kind": "order", "price": 428}
+{"customer_id": "C1074", "name": "Sofia Reyes", "email": "sofia.reyes57@example.invalid", "kind": "order", "price": 96}
+{"customer_id": "C1057", "name": "Tomas Tanaka", "email": "tomas.tanaka95@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1013", "name": "Zara Ivanova", "email": "zara.ivanova89@example.invalid", "kind": "order", "price": 24}
+{"customer_id": "C1047", "name": "Maya Okafor", "email": "maya.okafor15@example.invalid", "kind": "order", "price": 135}
+{"customer_id": "C1004", "name": "Tomas Berg", "email": "tomas.berg11@example.invalid", "kind": "subscription", "monthly": 31}
+{"customer_id": "C1047", "name": "Omar Ivanova", "email": "omar.ivanova49@example.invalid", "kind": "order", "price": 21}
+{"customer_id": "C1063", "name": "Ines Haddad", "email": "ines.haddad18@example.invalid", "kind": "order", "price": 412}
+{"customer_id": "C1050", "name": "Zara Kowalski", "email": "zara.kowalski29@example.invalid", "kind": "order", "price": 51}
+{"customer_id": "C1020", "name": "Luca Tanaka", "email": "luca.tanaka62@example.invalid", "kind": "refund"}
+{"customer_id": "C1039", "name": "Luca Novak", "email": "luca.novak49@example.invalid", "kind": "subscription", "monthly": 27}
+{"customer_id": "C1053", "name": "Luca Novak", "email": "luca.novak56@example.invalid", "kind": "order", "price": 205}
+{"customer_id": "C1051", "name": "Sofia Novak", "email": "sofia.novak65@example.invalid", "kind": "refund"}
+{"customer_id": "C1054", "name": "Lin Reyes", "email": "lin.reyes61@example.invalid", "kind": "order", "price": 191}
+{"customer_id": "C1058", "name": "Omar Okafor", "email": "omar.okafor11@example.invalid", "kind": "order", "price": 77}
+{"customer_id": "C1050", "name": "Lin Ivanova", "email": "lin.ivanova89@example.invalid", "kind": "refund"}
+{"customer_id": "C1064", "name": "Omar Okafor", "email": "omar.okafor54@example.invalid", "kind": "order", "price": 271}
+{"customer_id": "C1021", "name": "Lin Reyes", "email": "lin.reyes59@example.invalid", "kind": "order", "price": 417}
+{"customer_id": "C1025", "name": "Kenji Okafor", "email": "kenji.okafor15@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1061", "name": "Maya Novak", "email": "maya.novak87@example.invalid", "kind": "refund"}
+{"customer_id": "C1049", "name": "Lin Ivanova", "email": "lin.ivanova98@example.invalid", "kind": "refund"}
+{"customer_id": "C1020", "name": "Zara Berg", "email": "zara.berg89@example.invalid", "kind": "order", "price": 438}
+{"customer_id": "C1025", "name": "Noor Okafor", "email": "noor.okafor82@example.invalid", "kind": "order", "price": 209}
+{"customer_id": "C1066", "name": "Omar Moreau", "email": "omar.moreau55@example.invalid", "kind": "order", "price": 131}
+{"customer_id": "C1024", "name": "Ada Kowalski", "email": "ada.kowalski96@example.invalid", "kind": "order", "price": 434}
+{"customer_id": "C1041", "name": "Lin Moreau", "email": "lin.moreau86@example.invalid", "kind": "order", "price": 439}
+{"customer_id": "C1039", "name": "Zara Moreau", "email": "zara.moreau49@example.invalid", "kind": "order", "price": 222}
+{"customer_id": "C1049", "name": "Zara Silva", "email": "zara.silva67@example.invalid", "kind": "order", "price": 96}
+{"customer_id": "C1002", "name": "Ada Ivanova", "email": "ada.ivanova72@example.invalid", "kind": "order", "price": 233}
+{"customer_id": "C1079", "name": "Noor Okafor", "email": "noor.okafor70@example.invalid", "kind": "order", "price": 39}
+{"customer_id": "C1016", "name": "Maya Moreau", "email": "maya.moreau56@example.invalid", "kind": "order", "price": 231}
+{"customer_id": "C1064", "name": "Ines Novak", "email": "ines.novak15@example.invalid", "kind": "order", "price": 47}
+{"customer_id": "C1040", "name": "Eli Kowalski", "email": "eli.kowalski20@example.invalid", "kind": "order", "price": 263}
+{"customer_id": "C1048", "name": "Zara Okafor", "email": "zara.okafor13@example.invalid", "kind": "refund"}
+{"customer_id": "C1078", "name": "Eli Reyes", "email": "eli.reyes34@example.invalid", "kind": "order", "price": 458}
+{"customer_id": "C1062", "name": "Kenji Okafor", "email": "kenji.okafor97@example.invalid", "kind": "subscription", "monthly": 19}
+{"customer_id": "C1008", "name": "Maya Ivanova", "email": "maya.ivanova42@example.invalid", "kind": "order", "price": 464}
+{"customer_id": "C1078", "name": "Kenji Haddad", "email": "kenji.haddad28@example.invalid", "kind": "order", "price": 498}
+{"customer_id": "C1061", "name": "Sofia Ivanova", "email": "sofia.ivanova43@example.invalid", "kind": "order", "price": 126}
+{"customer_id": "C1040", "name": "Maya Novak", "email": "maya.novak35@example.invalid", "kind": "order", "price": 87}
+{"customer_id": "C1035", "name": "Zara Silva", "email": "zara.silva58@example.invalid", "kind": "order", "price": 406}
+{"customer_id": "C1033", "name": "Lin Kowalski", "email": "lin.kowalski16@example.invalid", "kind": "order", "price": 189}
+{"customer_id": "C1057", "name": "Ines Kowalski", "email": "ines.kowalski84@example.invalid", "kind": "order", "price": 463}
+{"customer_id": "C1013", "name": "Kenji Kowalski", "email": "kenji.kowalski90@example.invalid", "kind": "refund"}
+{"customer_id": "C1047", "name": "Kenji Moreau", "email": "kenji.moreau57@example.invalid", "kind": "order", "price": 189}
+{"customer_id": "C1042", "name": "Lin Haddad", "email": "lin.haddad39@example.invalid", "kind": "order", "price": 385}
+{"customer_id": "C1006", "name": "Kenji Kowalski", "email": "kenji.kowalski42@example.invalid", "kind": "order", "price": 499}
+{"customer_id": "C1074", "name": "Zara Silva", "email": "zara.silva10@example.invalid", "kind": "subscription", "monthly": 19}
+{"customer_id": "C1019", "name": "Kenji Ivanova", "email": "kenji.ivanova90@example.invalid", "kind": "order", "price": 267}
+{"customer_id": "C1046", "name": "Ada Okafor", "email": "ada.okafor72@example.invalid", "kind": "order", "price": 339}
+{"customer_id": "C2001", "name": "Maya Okafor", "email": "maya.okafor77@example.invalid", "kind": "refund"}
+{"customer_id": "C1005", "name": "Ada Novak", "email": "ada.novak10@example.invalid", "kind": "order", "price": 160}
+{"customer_id": "C1013", "name": "Ines Silva", "email": "ines.silva78@example.invalid", "kind": "order", "price": 303}
+{"customer_id": "C1038", "name": "Tomas Okafor", "email": "tomas.okafor36@example.invalid", "kind": "order", "price": 429}
+{"customer_id": "C1060", "name": "Omar Okafor", "email": "omar.okafor11@example.invalid", "kind": "refund"}
+{"customer_id": "C1031", "name": "Eli Okafor", "email": "eli.okafor67@example.invalid", "kind": "order", "price": 331}
+{"customer_id": "C1018", "name": "Zara Tanaka", "email": "zara.tanaka61@example.invalid", "kind": "subscription", "monthly": 5}
+{"customer_id": "C1007", "name": "Zara Kowalski", "email": "zara.kowalski54@example.invalid", "kind": "order", "price": 301}
+{"customer_id": "C1056", "name": "Tomas Kowalski", "email": "tomas.kowalski73@example.invalid", "kind": "order", "price": 467}
+{"customer_id": "C1000", "name": "Ada Novak", "email": "ada.novak78@example.invalid", "kind": "order", "price": 100}
+{"customer_id": "C1030", "name": "Omar Novak", "email": "omar.novak23@example.invalid", "kind": "order", "price": 287}
+{"customer_id": "C1025", "name": "Omar Moreau", "email": "omar.moreau35@example.invalid", "kind": "order", "price": 334}
+{"customer_id": "C1064", "name": "Zara Moreau", "email": "zara.moreau88@example.invalid", "kind": "order", "price": 163}
+{"customer_id": "C1008", "name": "Kenji Novak", "email": "kenji.novak71@example.invalid", "kind": "subscription", "monthly": 5}
+{"customer_id": "C1048", "name": "Luca Haddad", "email": "luca.haddad20@example.invalid", "kind": "subscription", "monthly": 33}
+{"customer_id": "C1022", "name": "Sofia Reyes", "email": "sofia.reyes43@example.invalid", "kind": "order", "price": 24}
+{"customer_id": "C1015", "name": "Maya Tanaka", "email": "maya.tanaka16@example.invalid", "kind": "order", "price": 288}
+{"customer_id": "C1055", "name": "Zara Kowalski", "email": "zara.kowalski43@example.invalid", "kind": "order", "price": 480}
+{"customer_id": "C1027", "name": "Lin Kowalski", "email": "lin.kowalski11@example.invalid", "kind": "order", "price": 468}
+{"customer_id": "C1030", "name": "Eli Berg", "email": "eli.berg30@example.invalid", "kind": "subscription", "monthly": 25}
+{"customer_id": "C1024", "name": "Luca Silva", "email": "luca.silva86@example.invalid", "kind": "order", "price": 469}
+{"customer_id": "C1068", "name": "Noor Haddad", "email": "noor.haddad77@example.invalid", "kind": "order", "price": 444}
+{"customer_id": "C1003", "name": "Luca Berg", "email": "luca.berg83@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1027", "name": "Luca Ivanova", "email": "luca.ivanova84@example.invalid", "kind": "order", "price": 471}
+{"customer_id": "C1021", "name": "Omar Novak", "email": "omar.novak13@example.invalid", "kind": "order", "price": 323}
+{"customer_id": "C1020", "name": "Maya Okafor", "email": "maya.okafor13@example.invalid", "kind": "order", "price": 75}
+{"customer_id": "C1005", "name": "Eli Reyes", "email": "eli.reyes15@example.invalid", "kind": "order", "price": 307}
+{"customer_id": "C1046", "name": "Sofia Kowalski", "email": "sofia.kowalski95@example.invalid", "kind": "order", "price": 449}
+{"customer_id": "C1049", "name": "Lin Berg", "email": "lin.berg36@example.invalid", "kind": "order", "price": 22}
+{"customer_id": "C1004", "name": "Zara Reyes", "email": "zara.reyes90@example.invalid", "kind": "order", "price": 249}
+{"customer_id": "C1012", "name": "Omar Reyes", "email": "omar.reyes92@example.invalid", "kind": "order", "price": 168}
+{"customer_id": "C1043", "name": "Luca Tanaka", "email": "luca.tanaka12@example.invalid", "kind": "order", "price": 481}
+{"customer_id": "C1036", "name": "Ada Silva", "email": "ada.silva51@example.invalid", "kind": "subscription", "monthly": 43}
+{"customer_id": "C1064", "name": "Noor Tanaka", "email": "noor.tanaka89@example.invalid", "kind": "subscription", "monthly": 31}
+{"customer_id": "C1003", "name": "Luca Kowalski", "email": "luca.kowalski22@example.invalid", "kind": "order", "price": 365}
+{"customer_id": "C1006", "name": "Ines Ivanova", "email": "ines.ivanova37@example.invalid", "kind": "subscription", "monthly": 10}
+{"customer_id": "C1073", "name": "Kenji Okafor", "email": "kenji.okafor65@example.invalid", "kind": "order", "price": 108}
+{"customer_id": "C1036", "name": "Ada Novak", "email": "ada.novak54@example.invalid", "kind": "order", "price": 256}
+{"customer_id": "C1023", "name": "Noor Ivanova", "email": "noor.ivanova54@example.invalid", "kind": "refund"}
+{"customer_id": "C1065", "name": "Kenji Ivanova", "email": "kenji.ivanova30@example.invalid", "kind": "order", "price": 114}
+{"customer_id": "C1029", "name": "Noor Okafor", "email": "noor.okafor24@example.invalid", "kind": "refund"}
+{"customer_id": "C1010", "name": "Noor Kowalski", "email": "noor.kowalski23@example.invalid", "kind": "order", "price": 187}
+{"customer_id": "C1012", "name": "Luca Moreau", "email": "luca.moreau21@example.invalid", "kind": "order", "price": 335}
+{"customer_id": "C1003", "name": "Maya Berg", "email": "maya.berg48@example.invalid", "kind": "order", "price": 466}
+{"customer_id": "C1069", "name": "Ines Okafor", "email": "ines.okafor58@example.invalid", "kind": "order", "price": 42}
+{"customer_id": "C1029", "name": "Noor Okafor", "email": "noor.okafor78@example.invalid", "kind": "order", "price": 357}
+{"customer_id": "C1077", "name": "Zara Novak", "email": "zara.novak54@example.invalid", "kind": "order", "price": 272}
+{"customer_id": "C1019", "name": "Noor Kowalski", "email": "noor.kowalski51@example.invalid", "kind": "order", "price": 229}
+{"customer_id": "C1032", "name": "Tomas Berg", "email": "tomas.berg26@example.invalid", "kind": "order", "price": 334}
+{"customer_id": "C1030", "name": "Ines Berg", "email": "ines.berg44@example.invalid", "kind": "order", "price": 365}
+{"customer_id": "C1079", "name": "Omar Okafor", "email": "omar.okafor41@example.invalid", "kind": "subscription", "monthly": 43}
+{"customer_id": "C1066", "name": "Maya Okafor", "email": "maya.okafor40@example.invalid", "kind": "order", "price": 101}
+{"customer_id": "C1033", "name": "Eli Reyes", "email": "eli.reyes31@example.invalid", "kind": "refund"}
+{"customer_id": "C1013", "name": "Sofia Moreau", "email": "sofia.moreau29@example.invalid", "kind": "refund"}

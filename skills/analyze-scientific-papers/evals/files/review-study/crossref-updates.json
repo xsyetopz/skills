@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message": {
+    "query": {"search-terms": null},
+    "filter": "updates:10.5555/jise.2025.0142",
+    "total-results": 0,
+    "items": []
+  }
+}

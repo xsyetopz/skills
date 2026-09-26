@@ -1,0 +1,109 @@
+[
+	{
+		"query": "Our C++ order book passes std::shared_ptr<Order> by value into every callback and Instruments shows ldaddal atomics near the top of the hot path. How do we cut that?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Profiling our request router (C++20, libc++) shows 25% in std::map<std::string, Handler>::find, and each probe builds std::string(sv) from a string_view. The table is built once at startup and read millions of times.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "code review question: a colleague added `return std::move(result);` to all our factory functions that return a local std::vector, says it's faster. is it? check and fix",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "xctrace shows __cxa_throw and _Unwind_RaiseException eating ~20% of our C++ config parser, because invalid lines throw std::invalid_argument and about 30% of lines are invalid",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "four worker threads each increment their own slot of `std::atomic<long> counters[4]` in a shared struct, and going from 1 to 4 threads only gives 1.3x on the M1 build machines",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our C++ exporter writes 5M rows with std::cout << row << std::endl and takes 40 s. Make it fast; output bytes must stay identical.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A std::function<bool(const Item&)> predicate gets called per element in our filter over 10M items; perf shows indirect calls dominating. What's the faster option and how do I show it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "heap profiler says our vector<Particle> push_back loop reallocates constantly (C++17, clang). fix it and measure",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Google Benchmark: BM_Tokenize is 950 ns with 14 allocations per iteration according to our counting allocator. The tokenizer returns std::vector<std::string> but callers only read the tokens.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Should we use std::execution::par for the std::sort of 50M records in our C++ ETL job? The box has 16 cores that sit idle during the sort.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Speed up this function in our pure C project (gcc -O2, no C++ anywhere): void scale(float *a, const float *b, size_t n) { for (size_t i = 0; i < n; i++) a[i] = b[i] * 2.0f; }",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-c-code"
+	},
+	{
+		"query": "Our C++ server crashes with heap-use-after-free in the connection pool under load; here's the ASan report. Find the cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Run clang-tidy's modernize-* checks over our C++ codebase and apply the fixes.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Rust image decoder spends most of its frame time in memcpy from Vec clones; criterion says 2 ms per frame. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Upgrade our CMake project from C++17 to C++23 and fix the compile errors that come up.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Per-thread AtomicLong counters in our Java gateway scale badly and JMH suggests false sharing. Fix it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "explain the rule of five in C++ with a short example",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our C# service's hot loop builds LINQ pipelines per request and dotnet-counters shows gen0 collections climbing. Make it cheaper.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-csharp-code"
+	},
+	{
+		"query": "Propose module boundaries and dependency rules between the renderer, physics, and audio subsystems of our C++ game engine.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "design-software-architecture"
+	},
+	{
+		"query": "Our plain C11 parser mallocs every node of the parse tree and frees them all at the end; malloc shows up at 30% in the profile. Would an arena help?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-c-code"
+	}
+]

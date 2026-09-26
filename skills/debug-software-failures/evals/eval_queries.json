@@ -1,0 +1,110 @@
+[
+	{
+		"query": "test_upload fails maybe 1 in 10 runs on CI and passes when I rerun it. can you figure out why",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "`pytest tests/test_invoice.py::test_rounding` passes on v2.3.0 and fails on main, 140 commits apart, and a few old commits don't even install. Find what broke it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Python worker just stops processing jobs after a few hours. CPU 0%, nothing in the logs, the process is still alive. What is it stuck on?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The CLI segfaults on one customer's 40 MB input file but not on anything else we have. It's C. I need a small repro for the maintainers without their data.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Tests pass on my laptop and fail in CI with UnicodeDecodeError when reading fixtures. Same commit. What's different?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "the report totals are off by a few cents for some customers and I have no idea where in the pipeline it goes wrong",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Java service stops answering under load; a restart fixes it for a few hours. Help me find the cause, not just restart it again.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The CLI got about 2x slower somewhere in the last 300 commits. Find where.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "I shrank the failing config and now it crashes with ImportError instead of the original TypeError. Is my reduced file still a valid repro?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Two workers sometimes both process the same job and we get double charges maybe once a week. Reproduce it reliably before anyone touches the code.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Show me the commits that touched src/billing/ last month.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "I know the bug: parse_date should use UTC instead of local time. Change it in utils/dates.py and update the call sites.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add regression tests for the invoice rounding rules so this never breaks again; the fix is already merged.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Our GitHub Actions workflow fails with 'Resource not accessible by integration' when it tries to comment on the PR. Fix the permissions block.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "The Go JSON encoder in our API is slow; pprof shows 40% in reflect. Make it faster.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-go-code"
+	},
+	{
+		"query": "What does 'Segmentation fault: 11' mean on macOS?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "I messed up a rebase and lost two commits from my feature branch. Get them back.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "Check this Flask upload handler for path traversal and other vulnerabilities.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "This 300-line function is impossible to follow; split it into readable pieces without changing behaviour.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "PCSX2 crashes to desktop when I change the renderer. How do I get a backtrace on macOS?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "build-and-debug-pcsx2"
+	}
+]

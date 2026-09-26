@@ -1,0 +1,6 @@
+{
+	"name": "@acme/log",
+	"version": "0.2.0",
+	"type": "module",
+	"main": "index.js"
+}

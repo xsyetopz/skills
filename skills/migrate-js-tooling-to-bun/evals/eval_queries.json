@@ -1,0 +1,110 @@
+[
+	{
+		"query": "we want to move our npm workspaces repo (package-lock v3, 6 packages) to bun install without any dependency versions changing. how do we do it and prove nothing moved?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "After switching installs to bun, sharp and our local ./addons/crc package fail at runtime with 'Cannot find module ../build/Release/crc.node'. npm install worked fine.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "CI runs `bun ci` but someone merged a new workspace:* dependency without updating bun.lock and CI stayed green. why, and how do we make CI catch it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Replace Jest with bun test in packages/core: we use setupFiles, jest.fn mocks, toMatchSnapshot, and a coverage gate that uploads lcov from CI.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our package.json start script is `node dist/server.js` and we switched installs to Bun last week. is prod running on Bun now?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We still have a bun.lockb from 2023 in the repo and Bun 1.4 in CI. Convert it to the text lockfile without changing any resolved versions.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Move our yarn 1 monorepo to Bun as the package manager. We pull @acme/* from a private npm registry with a token in CI.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Can bun build replace our esbuild script that bundles the CLI for Node 22? It uses a plugin to inline SQL files.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "pnpm -> bun: our Dockerfile and three GitHub workflows run pnpm install --frozen-lockfile. switch everything over and tell me how to roll back if it goes badly",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our node:test suite (120 tests) should run under bun test instead. Some tests use mock.timers. What breaks and how do we keep the same coverage?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Bun HTTP server's p99 latency doubled after last week's release; the CPU profile shows JSON.stringify of large responses. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-javascript-code"
+	},
+	{
+		"query": "tsc --noEmit takes 4 minutes on our Bun monorepo. How do we make type-checking faster?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-typescript-builds"
+	},
+	{
+		"query": "Write a justfile for our Bun project with recipes for install, test, lint, and release that CI can call.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "Our GitHub Actions workflow for the Bun app fails on 'setup-bun' with a 403 when pulling the private registry; fix the workflow permissions and token usage.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Upgrade React from 18 to 19 in our app and fix the resulting type errors; we use npm and want to keep it.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "One of our bun test files fails about once in 30 runs on CI with a timeout in the websocket reconnect test. Figure out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "What's the difference between bun install and npm install in how they lay out node_modules?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our VS Code extension is built with webpack; add a new command that formats the selected JSON and a test for it.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Now that every service is on Node 22, delete the node-fetch polyfill and the `if (!globalThis.fetch)` fallbacks.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "remove-unneeded-compatibility-code"
+	},
+	{
+		"query": "Audit our package.json dependencies and postinstall scripts for supply-chain risks and known vulnerable versions.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	}
+]

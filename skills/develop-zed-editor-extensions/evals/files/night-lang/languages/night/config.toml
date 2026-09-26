@@ -1,0 +1,5 @@
+name = "Night"
+grammar = "night"
+path_suffixes = ["night"]
+line_comments = ["# "]
+tab_size = 2

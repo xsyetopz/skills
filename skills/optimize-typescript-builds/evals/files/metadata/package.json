@@ -1,0 +1,12 @@
+{
+	"name": "orders-api",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsc -p .",
+		"start": "node dist/main.js"
+	},
+	"devDependencies": {
+		"typescript": "7.0.2"
+	}
+}

@@ -1,35 +1,152 @@
 {
-  "skill_name": "write-agents-md",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Create scoped AGENTS.md instructions from inspected repository commands, file ownership, generated boundaries, precedence, and the named agent client.",
-      "expected_output": "A repository-aware AGENTS.md instructions result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the AGENTS.md instructions workflow instead of returning only generic advice.",
-        "For scope, Place instructions at the narrowest applicable tree.",
-        "For command, Verify it exists and working directory/arguments.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Create a reusable Agent Skill package.",
-      "expected_output": "The agent does not activate write-agents-md for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that write-agents-md is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Create scoped AGENTS.md instructions from inspected repository commands, file ownership, generated boundaries, precedence, and the named agent client. Stress case: Stale current text.",
-      "expected_output": "A AGENTS.md instructions result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Update from source/config evidence.",
-        "The evidence can detect this failure: Existing AGENTS.md treated as infallible.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "write-agents-md",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Write an AGENTS.md for the inventory/ project so coding agents can build, test, and change it without asking me. Only put in what's actually true for this repo.",
+			"expected_output": "inventory/AGENTS.md lists the commands that work (make check, make test, make lint, make version), not the stale `python setup.py test` from the README; states the non-default conventions with evidence (logging instead of print, enforced by scripts/check_no_prints.py); marks src/inventory/_version.py as generated from VERSION via make version (CI fails on drift); and has no persona or generic advice. The reply lists each command it ran and its result.",
+			"files": [
+				"evals/files/inventory/.github/workflows/ci.yml",
+				"evals/files/inventory/Makefile",
+				"evals/files/inventory/README.md",
+				"evals/files/inventory/VERSION",
+				"evals/files/inventory/scripts/check_no_prints.py",
+				"evals/files/inventory/scripts/gen_version.py",
+				"evals/files/inventory/src/inventory/__init__.py",
+				"evals/files/inventory/src/inventory/_version.py",
+				"evals/files/inventory/tests/__init__.py",
+				"evals/files/inventory/tests/test_reserve.py"
+			],
+			"assertions": [
+				{
+					"text": "Every make or python command written in AGENTS.md runs successfully from inventory/ (in a disposable copy), and at least one of them runs the tests.",
+					"check": "python3 - <<'PY'\nimport os, re, shutil, subprocess, sys, tempfile\ndef commands(path, prefixes):\n    text = open(path, encoding=\"utf-8\").read()\n    found = []\n    for block in re.findall(r\"```(?:sh|bash|console|shell|zsh)?\\n(.*?)```\", text, re.S):\n        found += [l.strip().lstrip(\"$ \").strip() for l in block.splitlines()]\n    found += re.findall(r\"`([^`\\n]+)`\", re.sub(r\"```.*?```\", \"\", text, flags=re.S))\n    out = []\n    for c in found:\n        c = c.strip()\n        if c and not c.startswith(\"#\") and \"<\" not in c and re.match(prefixes, c) and c not in out:\n            out.append(c)\n    return out\ndef run_all(project, cmds):\n    tmp = tempfile.mkdtemp()\n    try:\n        work = os.path.join(tmp, \"p\")\n        shutil.copytree(project, work, ignore=shutil.ignore_patterns(\"__pycache__\"))\n        failed = []\n        for c in cmds:\n            d = subprocess.run(c, shell=True, cwd=work, capture_output=True, text=True, timeout=120)\n            if d.returncode:\n                failed.append(f\"{c}: exit {d.returncode}: {(d.stdout + d.stderr).strip()[-200:]}\")\n        return failed\n    finally:\n        shutil.rmtree(tmp)\n\ncmds = commands(\"inventory/AGENTS.md\", r\"(make\\b|python3? |PYTHONPATH=)\")\nprint(\"commands:\", cmds)\nif not any(\"test\" in c or \"check\" in c or \"unittest\" in c for c in cmds):\n    print(\"no test command\"); sys.exit(1)\nfailed = run_all(\"inventory\", cmds)\nprint(\"\\n\".join(failed) or \"all ran\")\nsys.exit(1 if failed else 0)\nPY"
+				},
+				{
+					"text": "AGENTS.md does not tell agents to run `python setup.py test`.",
+					"check": "! grep -Eq 'setup\\.py +test' inventory/AGENTS.md"
+				},
+				{
+					"text": "AGENTS.md marks src/inventory/_version.py as generated and names how to regenerate it (make version or scripts/gen_version.py).",
+					"check": "grep -q '_version.py' inventory/AGENTS.md && grep -Eq 'make version|gen_version' inventory/AGENTS.md"
+				},
+				{
+					"text": "AGENTS.md states the no-print/logging convention.",
+					"check": "grep -Eiq 'print\\(|logging|check_no_prints' inventory/AGENTS.md"
+				},
+				{
+					"text": "AGENTS.md has no persona line or generic filler (You are, best practices, clean code) and stays under 200 lines.",
+					"check": "f=inventory/AGENTS.md; ! grep -Eiq 'you are an? |best practices|clean code|step by step' $f && test $(wc -l < $f) -lt 200"
+				},
+				"The reply lists the commands it ran while writing the file, with their results."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Claude Code users on this team keep running `make test` in claudemd/, which is a dead legacy target. Add Claude Code instructions that make Claude use the right commands. Codex users rely on claudemd/AGENTS.md, so leave that file exactly as it is, and don't duplicate its content.",
+			"expected_output": "Adds claudemd/CLAUDE.md that imports @AGENTS.md (so Claude Code still reads it) and adds only the Claude-specific note to use `just test` and never the legacy make target. AGENTS.md is unchanged; `just test` was run and passes.",
+			"files": [
+				"evals/files/claudemd/AGENTS.md",
+				"evals/files/claudemd/Makefile",
+				"evals/files/claudemd/justfile",
+				"evals/files/claudemd/src/__init__.py",
+				"evals/files/claudemd/src/slug.py",
+				"evals/files/claudemd/tests/__init__.py",
+				"evals/files/claudemd/tests/test_slug.py"
+			],
+			"assertions": [
+				{
+					"text": "CLAUDE.md imports @AGENTS.md on a line outside code spans and fences.",
+					"check": "python3 - <<'PY'\nimport re, sys\ntext = open(\"claudemd/CLAUDE.md\", encoding=\"utf-8\").read()\nprose = re.sub(r\"```.*?```\", \"\", text, flags=re.S)\n\nprose = re.sub(r\"`[^`]*`\", \"\", prose)\nsys.exit(0 if re.search(r\"(^|\\s)@(\\./)?AGENTS\\.md\\b\", prose, re.M) else 1)\nPY"
+				},
+				{
+					"text": "AGENTS.md is byte-for-byte unchanged.",
+					"check": "shasum -a 256 claudemd/AGENTS.md | grep -q '^c9a0ba398ae272d8f66435c3051a4a6acc32874b169b5b67d8c1c7bdbab42449 '"
+				},
+				{
+					"text": "CLAUDE.md tells Claude to use `just test`, does not copy AGENTS.md's conventions, and is under 30 lines.",
+					"check": "f=claudemd/CLAUDE.md; grep -q 'just test' $f && ! grep -q 'Standard library only' $f && test $(wc -l < $f) -lt 30"
+				},
+				{
+					"text": "`just test` passes in claudemd/.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; cd claudemd && just test"
+				},
+				"The reply explains that a CLAUDE.md without the @AGENTS.md import would make Claude Code stop reading AGENTS.md."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Clean up generic/AGENTS.md. Agents keep running npm here and the file reads like a motivational poster. Keep anything in it that's actually true about this project.",
+			"expected_output": "Removes the persona and generic lines, replaces npm install/npm test with bun install/bun test (bun.lock and package.json scripts are the evidence), keeps the src/generated boundary with `bun run gen`, and runs bun test.",
+			"files": [
+				"evals/files/generic/AGENTS.md",
+				"evals/files/generic/bun.lock",
+				"evals/files/generic/package.json",
+				"evals/files/generic/scripts/gen-routes.ts",
+				"evals/files/generic/src/generated/routes.ts",
+				"evals/files/generic/src/index.ts",
+				"evals/files/generic/test/index.test.ts"
+			],
+			"assertions": [
+				{
+					"text": "The persona and generic lines are gone (You are, best practices, clean, step by step).",
+					"check": "! grep -Eiq 'you are an? |senior|best practices|clean,|clean code|step by step|be careful' generic/AGENTS.md"
+				},
+				{
+					"text": "No npm command remains, and the file names bun test.",
+					"check": "! grep -Eq '\\bnpm (install|test|run|ci)\\b' generic/AGENTS.md && grep -q 'bun test' generic/AGENTS.md"
+				},
+				{
+					"text": "The generated-code boundary survives: src/generated is off limits and regenerated with bun run gen.",
+					"check": "grep -q 'src/generated' generic/AGENTS.md && grep -q 'bun run gen' generic/AGENTS.md"
+				},
+				{
+					"text": "Every bun command in AGENTS.md except install runs successfully in a disposable copy.",
+					"check": "command -v bun >/dev/null || { echo 'bun is not installed'; exit 1; }; python3 - <<'PY'\nimport os, re, shutil, subprocess, sys, tempfile\ndef commands(path, prefixes):\n    text = open(path, encoding=\"utf-8\").read()\n    found = []\n    for block in re.findall(r\"```(?:sh|bash|console|shell|zsh)?\\n(.*?)```\", text, re.S):\n        found += [l.strip().lstrip(\"$ \").strip() for l in block.splitlines()]\n    found += re.findall(r\"`([^`\\n]+)`\", re.sub(r\"```.*?```\", \"\", text, flags=re.S))\n    out = []\n    for c in found:\n        c = c.strip()\n        if c and not c.startswith(\"#\") and \"<\" not in c and re.match(prefixes, c) and c not in out:\n            out.append(c)\n    return out\ndef run_all(project, cmds):\n    tmp = tempfile.mkdtemp()\n    try:\n        work = os.path.join(tmp, \"p\")\n        shutil.copytree(project, work, ignore=shutil.ignore_patterns(\"__pycache__\"))\n        failed = []\n        for c in cmds:\n            d = subprocess.run(c, shell=True, cwd=work, capture_output=True, text=True, timeout=120)\n            if d.returncode:\n                failed.append(f\"{c}: exit {d.returncode}: {(d.stdout + d.stderr).strip()[-200:]}\")\n        return failed\n    finally:\n        shutil.rmtree(tmp)\n\ncmds = [c for c in commands(\"generic/AGENTS.md\", r\"bunx? \") if not re.match(r\"bun (install|i|add)\\b\", c)]\nprint(\"commands:\", cmds)\nfailed = run_all(\"generic\", cmds)\nprint(\"\\n\".join(failed) or \"all ran\")\nsys.exit(1 if failed or not cmds else 0)\nPY"
+				}
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "In the mono/ repo, Codex ignores the rules in services/search/AGENTS.md when I start it in services/payments. The first two rules there are meant for every service; the index rule is search-only. Rearrange the instruction files so every service gets the shared rules and only search gets the search rule, and explain why it didn't work.",
+			"expected_output": "Explains that Codex loads AGENTS.md files only from the project root down to the launch directory, so a sibling's file never loads. Moves the two shared rules to mono/AGENTS.md or mono/services/AGENTS.md, keeps the index rule in services/search/AGENTS.md, and says how to confirm what loaded.",
+			"files": [
+				"evals/files/mono/README.md",
+				"evals/files/mono/services/payments/charge.py",
+				"evals/files/mono/services/search/AGENTS.md",
+				"evals/files/mono/services/search/schema.json",
+				"evals/files/mono/services/shared/log.py"
+			],
+			"assertions": [
+				{
+					"text": "Both shared rules (JSON logging via services/shared/log.py, integer cents) are in an AGENTS.md on the path from mono/ to services/payments.",
+					"check": "python3 - <<'PY'\nimport os, sys\nchain = [\"mono/AGENTS.md\", \"mono/services/AGENTS.md\", \"mono/services/payments/AGENTS.md\"]\ntext = \"\\n\".join(open(p).read() for p in chain if os.path.exists(p))\nok = \"log.py\" in text and \"cents\" in text.lower()\nprint([p for p in chain if os.path.exists(p)], ok)\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "The search-only index rule is still in services/search/AGENTS.md and not in any file Codex loads for services/payments.",
+					"check": "python3 - <<'PY'\nimport os, sys\nchain = [\"mono/AGENTS.md\", \"mono/services/AGENTS.md\", \"mono/services/payments/AGENTS.md\"]\nleak = [p for p in chain if os.path.exists(p) and \"build_index\" in open(p).read()]\nkept = os.path.exists(\"mono/services/search/AGENTS.md\") and \"build_index\" in open(\"mono/services/search/AGENTS.md\").read()\nprint(\"leaked into:\", leak, \"kept in search:\", kept)\nsys.exit(0 if kept and not leak else 1)\nPY"
+				},
+				{
+					"text": "The reply explains that Codex reads AGENTS.md files from the project root down to the directory it starts in, not sibling directories.",
+					"check": "grep -Eiq 'sibling|root (down )?to|from the (project |repository |git )?root|ancestor|parent director' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Create a skill at skills/review-sql-migrations/ that teaches coding agents how to review SQL migration files: locking, backfills, and reversibility.",
+			"expected_output": "Out-of-scope near miss: skill authoring. A SKILL.md with frontmatter (name review-sql-migrations, a description) and review guidance; no AGENTS.md or CLAUDE.md is written.",
+			"files": [],
+			"assertions": [
+				{
+					"text": "skills/review-sql-migrations/SKILL.md exists with frontmatter name review-sql-migrations and a description.",
+					"check": "f=skills/review-sql-migrations/SKILL.md; head -1 $f | grep -qx -- '---' && grep -Eq '^name: *review-sql-migrations *$' $f && grep -Eq '^description:' $f"
+				},
+				{
+					"text": "No AGENTS.md or CLAUDE.md was created.",
+					"check": "test -z \"$(find . -name AGENTS.md -o -name CLAUDE.md)\""
+				}
+			]
+		}
+	]
 }

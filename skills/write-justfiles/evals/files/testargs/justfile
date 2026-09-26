@@ -1,0 +1,8 @@
+# Project tasks.
+
+default:
+    @just --list
+
+# Check formatting and byte-compile everything.
+check:
+    python3 -m compileall -q scripts tests

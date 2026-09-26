@@ -1,0 +1,109 @@
+[
+	{
+		"query": "our required check 'build' has been sitting at 'Expected — Waiting for status to be reported' on every PR since I renamed the workflow file. merges are blocked, what do I change?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We want dependabot and fork PRs to get a 'needs-review' label automatically. I was going to switch .github/workflows/label.yml to pull_request_target and check out the PR so the labeler can read its files. Can you set that up?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "tests failed in the log (3 failed, 120 passed) but the job still shows green ✅. step is `pytest | tee out.log`. how",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up GitLab CI for this Go service: lint, test with coverage, build a container image once, and deploy that same image to staging automatically and to prod by a manual click.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "zizmor flagged template-injection and unpinned-uses in .github/workflows/release.yml. Fix what it found.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our publish job uploads to PyPI with a token secret. can we get rid of the token and make sure only tagged releases from main can publish?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Every time someone pushes twice quickly to a PR, both runs finish and the older one sometimes overwrites the preview deploy. Stop that without cancelling production deploys mid-way.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "bitbucket-pipelines.yml: step 2 can't find the dist/ folder that step 1 built. works locally.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Can you review our GitHub Actions setup before we open-source the repo? Mainly worried about secrets leaking to PRs from strangers.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The matrix has 18 jobs and branch protection lists each one by name; every time we add a Python version someone forgets to update the ruleset. Better way?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add `lint`, `test`, and `ci` recipes to our justfile so contributors can run the same checks locally before pushing.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "CI is red on my PR, can you check which checks failed with gh and paste the failing job's log here?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "manage-git-hosting"
+	},
+	{
+		"query": "Our test suite takes 14 minutes in CI and most of it is pytest itself; profile which tests are slow and speed up the slowest code paths.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Add a PreToolUse hook so Claude can't run `git push --force` in this repo.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "What's the difference between continuous delivery and continuous deployment?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "set up a pre-commit git hook that runs ruff on staged files",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "My test test_parse_dates fails only in CI with a timezone offset of one hour; it passes locally. Figure out why.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Enable required reviews and a required status check named all-green on main via the API.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-hosting"
+	},
+	{
+		"query": "Convert this Dockerfile to a multi-stage build so the final image doesn't ship gcc.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write the CHANGELOG entry for the release we're about to tag.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "update-changelogs"
+	}
+]

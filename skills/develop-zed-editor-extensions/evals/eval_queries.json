@@ -1,0 +1,107 @@
+[
+	{
+		"query": "My Zed extension's language server never starts and Zed.log is silent. extension.toml has [language-servers.ruff] with languages = [\"python\"]. Rust builds fine.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add Zed support for .prisma files: highlighting, brackets, outline, using tree-sitter-prisma. No LSP.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "cargo build --release --target wasm32-wasip2 fails with can't find crate for `core` even though rustup lists the target; which cargo is /opt/homebrew/bin/cargo",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write the Rust side of an extension that downloads taplo from GitHub releases for the right OS/arch when it's not on PATH, and starts it for TOML files. Target stable zed.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "i made a theme json for zed with some colors like \"tomato\", can you validate it and package it so I can submit it to the registry",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a debug adapter for lldb-dap to my Zed extension so users can launch Rust binaries from the debugger panel, with a JSON schema for the launch config.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Prepare my Zed extension for the extension registry: check the id/name rules, license, and what goes in extensions.toml. Don't open the PR yet.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Package an MCP server (our Postgres read-only server on npm) as something Zed users can install from the extensions panel, with settings for the connection string.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "my highlights.scm uses @keyword.control and @punctuation.bracket.round and nothing gets colored in Zed. what capture names does it actually read?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Create a file icon theme for Zed that uses my SVG icons for Makefile, .md and folders.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "In Zed, how do I make Markdown files soft-wrap at 80 columns and set tab size to 2? Just my editor settings.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "How do I install the Astro and Svelte extensions in Zed and make .astro files use them?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Configure Zed's vim mode keybindings in keymap.json so jk exits insert mode.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a VS Code extension that starts the ruff language server for Python files.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Write a Neovim Lua plugin that starts a language server for .prisma files and adds a health check.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-neovim-plugins"
+	},
+	{
+		"query": "My Rust CLI's JSON parsing is slow; Criterion shows 40% in serde deserialization. Optimize it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Write a tree-sitter grammar from scratch for our config language (grammar.js, tests in corpus/), editor-agnostic.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Set up Zed to use my project's .venv Python for pyright and ruff via settings.json lsp config.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Create a JetBrains plugin that adds Prisma syntax highlighting and an outline.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Write GitHub Actions CI for our Zed extension repo that builds the wasm and runs cargo test on every PR, with pinned actions and least-privilege token.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	}
+]

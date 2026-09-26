@@ -1,0 +1,9 @@
+[project]
+name = "csvsum"
+version = "0.3.0"
+description = "Sum a numeric column of a CSV file."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+csvsum = "csvsum:main"

@@ -1,0 +1,153 @@
+{
+  "skill_name": "design-software-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In stockroom/, inventory/domain.py imports the SQLite adapter directly, and every few months someone adds another import like that. Untangle it so the domain no longer depends on storage, and make sure CI catches it the next time someone reintroduces such an import. CI only runs `python3 -m unittest discover -s tests -t .` from stockroom/ and we can't add dependencies. Keep tests/test_domain.py as it is; it's our contract for reserve().",
+      "expected_output": "A storage port the domain (or service) depends on, implemented by the SQLite adapter; domain.py free of adapter imports; a unittest that fails when the domain (or any inner module) imports inventory.adapters, for example a test that runs a layer-rules check or scans imports; test_domain.py unchanged and passing.",
+      "files": [
+        "evals/files/stockroom/README.md",
+        "evals/files/stockroom/inventory/__init__.py",
+        "evals/files/stockroom/inventory/domain.py",
+        "evals/files/stockroom/inventory/adapters/__init__.py",
+        "evals/files/stockroom/inventory/adapters/sqlite_store.py",
+        "evals/files/stockroom/tests/__init__.py",
+        "evals/files/stockroom/tests/test_domain.py"
+      ],
+      "assertions": [
+        {
+          "text": "tests/test_domain.py is unchanged.",
+          "check": "cd stockroom && shasum -a 256 tests/test_domain.py | grep -q '^8087947b8bf588e86937e892bdd6a25837edb0e0f54113f944cb90cb3bc8e2d6 '"
+        },
+        {
+          "text": "The unittest suite passes.",
+          "check": "cd stockroom && python3 -m unittest discover -s tests -t ."
+        },
+        {
+          "text": "check_layers.py with inline rules (domain may not import inventory/adapters/) reports no violations and no import cycles in inventory/.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/design-software-architecture/scripts/check_layers.py\" ]; do [ \"$R\" = / ] && { echo \"check_layers.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/design-software-architecture/scripts/check_layers.py\"; cd stockroom && RULES=$(mktemp) && trap 'rm -f \"$RULES\"' EXIT && cat > \"$RULES\" <<'JSON'\n{\"layers\": {\"adapters\": [\"inventory/adapters/\"], \"domain\": [\"inventory/domain.py\"], \"rest\": [\"inventory/\"]},\n \"allowed\": {\"domain\": [\"rest\"], \"rest\": [\"domain\", \"adapters\"], \"adapters\": [\"domain\", \"rest\"]}}\nJSON\npython3 \"$T\" \"$RULES\" --root ."
+        },
+        {
+          "text": "Appending an import of an inventory.adapters module to inventory/domain.py makes the unittest suite fail (the rule is enforced in CI, not only documented).",
+          "check": "cd stockroom && D=$(mktemp -d) && trap 'rm -rf \"$D\"' EXIT && cp -R . \"$D/p\" && cd \"$D/p\" || exit 1\nM=$(ls inventory/adapters/*.py 2>/dev/null | grep -v '__init__' | head -1)\n[ -n \"$M\" ] || { echo \"no adapter module under inventory/adapters/\"; exit 1; }\nM=$(basename \"$M\" .py)\npython3 -m unittest discover -s tests -t . >/dev/null 2>&1 || { echo \"suite fails before planting\"; exit 1; }\nprintf '\\nimport inventory.adapters.%s  # planted violation\\n' \"$M\" >> inventory/domain.py\nif python3 -m unittest discover -s tests -t . >/dev/null 2>&1; then echo \"suite still passes after domain imports inventory.adapters.$M\"; exit 1; fi\necho \"planted import of inventory.adapters.$M fails the suite\""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The mobile app retries POST /charges when the request times out, and some customers get charged twice. The app team will start sending an Idempotency-Key header on every charge request, and our HTTP layer will pass it to payments.charges.create_charge as a new keyword argument `idempotency_key`. Change checkout-api/payments/ so a retried request can never create a second charge, including when two retries land on different app servers at the same moment (each server has its own connection to the same database). The admin console still calls create_charge without a key and must keep working.",
+      "expected_output": "The key stored with the charge and enforced by a UNIQUE constraint (or primary key) in the database, the first charge's ID returned on retry, a race between two connections resolved by the constraint rather than a check-then-insert, the existing tests passing, and new tests for a sequential and a concurrent retry.",
+      "files": [
+        "evals/files/checkout-api/payments/__init__.py",
+        "evals/files/checkout-api/payments/charges.py",
+        "evals/files/checkout-api/tests/__init__.py",
+        "evals/files/checkout-api/tests/test_charges.py"
+      ],
+      "assertions": [
+        {
+          "text": "tests/test_charges.py is unchanged and the suite passes.",
+          "check": "cd checkout-api && shasum -a 256 tests/test_charges.py | grep -q '^44c297de595048a9af27f2cff277254101d53eabea9e0bc05bcbe054903d8696 ' && python3 -m unittest discover -s tests -t ."
+        },
+        {
+          "text": "A repeated call with the same idempotency_key returns the first charge ID and stores one row; a different key creates a new charge.",
+          "check": "cd checkout-api && python3 - <<'PY'\nimport os, sqlite3, sys, tempfile\nsys.path.insert(0, '.')\nfrom payments.charges import connect, create_charge\npath = os.path.join(tempfile.mkdtemp(), 'c.db')\nconn = connect(path)\na = create_charge(conn, 'cus_1', 500, idempotency_key='key-1')\nb = create_charge(conn, 'cus_1', 500, idempotency_key='key-1')\nc2 = create_charge(conn, 'cus_1', 500, idempotency_key='key-2')\nn = conn.execute('SELECT COUNT(*) FROM charges').fetchone()[0]\nprint(a, b, c2, n)\nsys.exit(0 if a == b and a != c2 and n == 2 else 1)\nPY"
+        },
+        {
+          "text": "The database enforces uniqueness of the key: a table created by connect() has a UNIQUE index or primary key on a key column.",
+          "check": "cd checkout-api && python3 - <<'PY'\nimport os, re, sys, tempfile\nsys.path.insert(0, '.')\nfrom payments.charges import connect\nconn = connect(os.path.join(tempfile.mkdtemp(), 'c.db'))\nhits = []\nfor (table,) in conn.execute(\"SELECT name FROM sqlite_master WHERE type='table'\"):\n    for idx in conn.execute(f\"PRAGMA index_list('{table}')\"):\n        if idx[2]:\n            cols = [r[2] for r in conn.execute(f\"PRAGMA index_info('{idx[1]}')\")]\n            if any(re.search(r'idempot|key|request', c or '', re.I) for c in cols):\n                hits.append((table, idx[1], cols))\nprint(hits)\nsys.exit(0 if hits else 1)\nPY"
+        },
+        {
+          "text": "Eight connections calling create_charge with the same key at once (behind a barrier) leave exactly one charge row and all return the same ID.",
+          "check": "cd checkout-api && python3 - <<'PY'\nimport os, sys, tempfile, threading\nsys.path.insert(0, '.')\nfrom payments.charges import connect, create_charge\npath = os.path.join(tempfile.mkdtemp(), 'c.db')\nconnect(path).close()\nresults, errors, gate = [], [], threading.Barrier(8)\ndef worker():\n    conn = connect(path)\n    gate.wait()\n    try:\n        results.append(create_charge(conn, 'cus_9', 700, idempotency_key='race-1'))\n    except Exception as e:\n        errors.append(repr(e))\nthreads = [threading.Thread(target=worker) for _ in range(8)]\n[t.start() for t in threads]; [t.join() for t in threads]\nn = connect(path).execute('SELECT COUNT(*) FROM charges').fetchone()[0]\nprint('rows', n, 'distinct ids', set(results), 'errors', errors)\nsys.exit(0 if n == 1 and len(set(results)) == 1 else 1)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We need to rename the `qty` field in our public order events to `quantity`. Read order-events/README.md first. Make the change to order-events/producer/ that we can ship today, and write the full rollout, including when the old field can go away, to order-events/docs/qty-rename.md.",
+      "expected_output": "An expand step: the producer emits both qty and quantity with the same value, so the existing billing and shipping consumers keep working; a rollout doc with migrate (each consumer switches to quantity and deploys) and contract (remove qty) steps, where removal waits for evidence that every consumer reads quantity.",
+      "files": [
+        "evals/files/order-events/README.md",
+        "evals/files/order-events/producer/__init__.py",
+        "evals/files/order-events/producer/events.py",
+        "evals/files/order-events/consumers/__init__.py",
+        "evals/files/order-events/consumers/billing/__init__.py",
+        "evals/files/order-events/consumers/billing/handler.py",
+        "evals/files/order-events/consumers/shipping/__init__.py",
+        "evals/files/order-events/consumers/shipping/handler.py"
+      ],
+      "assertions": [
+        {
+          "text": "The producer's event carries both qty and quantity with the same value.",
+          "check": "cd order-events && python3 - <<'PY'\nimport sys\nsys.path.insert(0, '.')\nfrom producer.events import order_line_added\ne = order_line_added('o-1', 'SKU-1', 3)\nprint(e)\nsys.exit(0 if e.get('qty') == 3 and e.get('quantity') == 3 else 1)\nPY"
+        },
+        {
+          "text": "The unchanged billing and shipping consumers still produce the same results from the new event.",
+          "check": "cd order-events && python3 - <<'PY'\nimport sys\nsys.path.insert(0, '.')\nfrom producer.events import order_line_added\nfrom consumers.billing.handler import handle as bill\nfrom consumers.shipping.handler import handle as ship\ne = order_line_added('o-1', 'SKU-1', 3)\nprint(bill(e), ship(e))\nsys.exit(0 if bill(e) == 750 and ship(e) == '3 x SKU-1' else 1)\nPY"
+        },
+        {
+          "text": "order-events/docs/qty-rename.md exists and describes removing qty as a later step.",
+          "check": "test -f order-events/docs/qty-rename.md && grep -Eiq '(remove|drop|delete).{0,60}qty|qty.{0,60}(remove|drop|delete)' order-events/docs/qty-rename.md"
+        },
+        "The rollout doc makes removing qty conditional on evidence that every consumer has deployed code reading quantity (for example confirmation from each team, consumer versions, or observed reads), not on a date alone."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Users of our markdown language server (mdlint-ls/) say the trailing-whitespace squiggle starts too early on lines that contain emoji: one character too far left for each emoji before it. It shows up in both VS Code and Neovim. Fix it so the positions are right for any client, and add a regression test. Run the tests with `python3 -m unittest discover -s tests -t .` from mdlint-ls/.",
+      "expected_output": "Positions converted from Python str indexes (code points) to UTF-16 code units, LSP's default position encoding that every client supports (optionally negotiating another encoding through positionEncoding), and a regression test with a character outside the Basic Multilingual Plane.",
+      "files": [
+        "evals/files/mdlint-ls/server/__init__.py",
+        "evals/files/mdlint-ls/server/positions.py",
+        "evals/files/mdlint-ls/server/lifecycle.py",
+        "evals/files/mdlint-ls/server/diagnostics.py",
+        "evals/files/mdlint-ls/tests/__init__.py",
+        "evals/files/mdlint-ls/tests/test_diagnostics.py"
+      ],
+      "assertions": [
+        {
+          "text": "to_lsp_character counts UTF-16 code units by default: an emoji counts 2, a BMP accented letter 1.",
+          "check": "cd mdlint-ls && python3 - <<'PY'\nimport sys, inspect\nsys.path.insert(0, '.')\nfrom server.positions import to_lsp_character\ncases = [('a\\U0001F600b', 2, 3), ('\\U0001F600\\U0001F600x', 2, 4), ('\\u00e9x', 1, 1), ('plain', 3, 3)]\nbad = [(t, i, want, to_lsp_character(t, i)) for t, i, want in cases if to_lsp_character(t, i) != want]\nprint(bad)\nsys.exit(1 if bad else 0)\nPY"
+        },
+        {
+          "text": "The diagnostic range on a line with an emoji before trailing spaces is 5..7 in UTF-16 units, and the test suite passes.",
+          "check": "(cd mdlint-ls && python3 -m unittest discover -s tests -t .) && cd mdlint-ls && python3 - <<'PY'\nimport sys\nsys.path.insert(0, '.')\nfrom server.diagnostics import trailing_whitespace\n[d] = trailing_whitespace('ok \\U0001F600  \\n')\nprint(d['range'])\nsys.exit(0 if d['range']['start']['character'] == 5 and d['range']['end']['character'] == 7 else 1)\nPY"
+        },
+        {
+          "text": "A test file under mdlint-ls/tests/ uses a character outside the Basic Multilingual Plane (literal, or escaped as \\U0001.... or a surrogate pair).",
+          "check": "cd mdlint-ls && python3 - <<'PY'\nimport pathlib, re, sys\nhits = [p for p in pathlib.Path('tests').rglob('*.py') if any(ord(ch) > 0xFFFF for ch in p.read_text(encoding='utf-8')) or re.search(r'\\\\U000[1-9A-Fa-f]|\\\\ud8[3-9a-f]', p.read_text(encoding='utf-8'), re.I)]\nprint(hits)\nsys.exit(0 if hits else 1)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "In shop-utils/, rename the helper `calc` to `compute_total` and update its callers.",
+      "expected_output": "Near miss: a local rename; the function and its one caller are updated, tests pass, and no architecture documents are produced.",
+      "files": [
+        "evals/files/shop-utils/utils.py",
+        "evals/files/shop-utils/cart.py",
+        "evals/files/shop-utils/test_cart.py"
+      ],
+      "assertions": [
+        {
+          "text": "utils.py defines compute_total, no calc( call remains, and the test passes.",
+          "check": "cd shop-utils && grep -q 'def compute_total' utils.py && ! grep -Eq '\\bcalc\\(' utils.py cart.py && python3 -m unittest test_cart"
+        },
+        {
+          "text": "No Markdown documents (decision records, design notes) were created.",
+          "check": "[ -z \"$(find . -path ./.claude -prune -o -name '*.md' -print)\" ]"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Should we split order handling out of our Django monolith into its own microservice? One team of five owns the whole app, we deploy daily, and orders are about 3% of our traffic. A new hire says it would make the code cleaner.",
+      "expected_output": "Recommends a module boundary inside the monolith rather than a service, because there is no independent deployment, team, or scaling need; records the rejected service option with its reason; names the measurable conditions that would reopen the decision; and proposes an enforced import rule for the module boundary.",
+      "assertions": [
+        "Recommends keeping orders in the monolith behind a module boundary and gives as the reason the absence of an independent deployment, team, or scaling need (not only 'microservices are complex').",
+        "Names at least one concrete, measurable condition that would justify revisiting the split (for example a second team owning orders, a separate release cadence, or a scaling or availability target the monolith cannot meet).",
+        "Proposes enforcing the module boundary with a check that runs in CI (for example an import-rules check or a test), not only a convention."
+      ]
+    }
+  ]
+}

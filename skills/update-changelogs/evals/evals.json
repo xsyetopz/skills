@@ -3,32 +3,128 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Update the Unreleased changelog from this verified revision range, preserving project format and distinguishing release notes from publication.",
-      "expected_output": "A repository-aware changelog entry result with observable evidence, preserved constraints, and explicit verification limits.",
+      "prompt": "Our tally repository is exported as the git bundle tally/tally.bundle. Clone it with `git clone tally/tally.bundle tally-repo`. Then update tally-repo/CHANGELOG.md with everything that changed since v1.1.0. We use Conventional Commits, but don't trust the commit messages blindly. No release yet, so keep it under Unreleased, and don't commit, tag, or push.",
+      "expected_output": "Unreleased entries traced to the commits in v1.1.0..HEAD, written for users: Added --json; Fixed words separated by tabs/newlines and file names that look like options; Changed: the Python 3.10 requirement marked breaking with the migration (upgrade Python), and the default --min-length changing from 1 to 2 (found in the diff of the 'chore: tidy option defaults' commit); no entries for the docs, CI, or test commits; released sections untouched; audit_changelog.py passes; no tags.",
+      "files": [
+        "evals/files/tally/tally.bundle"
+      ],
       "assertions": [
-        "The response performs the changelog entry workflow instead of returning only generic advice.",
-        "For revision range, Use exact commits/PRs and user-visible effects.",
-        "For release status, Keep unreleased changes unreleased.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+        {
+          "text": "CHANGELOG.md passes audit_changelog.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelogs/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelogs/scripts/audit_changelog.py\"; python3 -I \"$T\" tally-repo/CHANGELOG.md"
+        },
+        {
+          "text": "The Unreleased section covers --json, the tab/newline fix, and the Python 3.10 requirement.",
+          "check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased') or ''\nok = '--json' in u and re.search(r'tab', u, re.I) and '3.10' in u\nprint(u)\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "The Unreleased section reports the changed --min-length default, which only the diff of the 'chore: tidy option defaults' commit reveals.",
+          "check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased') or ''\nsys.exit(0 if re.search(r'min-length|minimum (word )?length', u, re.I) else 1)\nPY"
+        },
+        {
+          "text": "The Unreleased section has no entries for the README, CI, or test-only commits.",
+          "check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased') or ''\nbad = re.findall(r'README|workflow|\\bCI\\b|continuous integration|cover tab|unit test', u, re.I)\nprint(bad)\nsys.exit(1 if bad else 0)\nPY"
+        },
+        {
+          "text": "The released 1.1.0 and 1.0.0 sections are unchanged and no tag was created.",
+          "check": "B=$(mktemp); trap 'rm -f \"$B\"' EXIT; git -C tally-repo show v1.1.0:CHANGELOG.md > \"$B\" || exit 1\npython3 - tally-repo/CHANGELOG.md \"$B\" <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nold = open(sys.argv[2], encoding='utf-8').read()\nsys.exit(0 if released_tail(text) == released_tail(old) else 1)\nPY\n[ $? -eq 0 ] && [ \"$(git -C tally-repo tag | tr '\\n' ' ')\" = 'v1.0.0 v1.1.0 ' ]"
+        }
       ]
     },
     {
       "id": 2,
-      "prompt": "Publish a release or choose a version without authorization.",
-      "expected_output": "The agent does not activate update-changelogs for this neighboring request and does not apply its procedures by keyword alone.",
+      "prompt": "Our tally repository is exported as the git bundle tally/tally.bundle. Clone it with `git clone tally/tally.bundle tally-repo`. Prepare tally-repo/CHANGELOG.md for the next release, covering everything since v1.1.0: pick the version number our versioning scheme requires, use 2026-10-01 as the release date, and fix up whatever else a release section needs. Don't commit, tag, or push. Tell me which version you chose and why.",
+      "expected_output": "A dated `## [2.0.0] - 2026-10-01` section (major, because Python 3.8/3.9 support was dropped) with user-facing entries including the breaking Python 3.10 requirement and the --min-length default change, a new empty Unreleased section above it, comparison links updated (Unreleased from v2.0.0, 2.0.0 from v1.1.0), audit passing, no tags.",
+      "files": [
+        "evals/files/tally/tally.bundle"
+      ],
       "assertions": [
-        "The response does not claim that update-changelogs is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+        {
+          "text": "CHANGELOG.md passes audit_changelog.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelogs/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelogs/scripts/audit_changelog.py\"; python3 -I \"$T\" tally-repo/CHANGELOG.md"
+        },
+        {
+          "text": "There is a `## [2.0.0] - 2026-10-01` section and an empty Unreleased section above it.",
+          "check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased')\nok = re.search(r'^## \\[2\\.0\\.0\\] - 2026-10-01', text, re.M) and u is not None and not re.search(r'^\\s*[-*] ', u, re.M) and text.find('## [Unreleased]') < text.find('## [2.0.0]')\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "The comparison links point Unreleased at v2.0.0...HEAD and 2.0.0 at v1.1.0...v2.0.0.",
+          "check": "grep -Eq '^\\[Unreleased\\]: .*v2\\.0\\.0\\.\\.\\.HEAD' tally-repo/CHANGELOG.md && grep -Eq '^\\[2\\.0\\.0\\]: .*v1\\.1\\.0\\.\\.\\.v2\\.0\\.0' tally-repo/CHANGELOG.md"
+        },
+        {
+          "text": "The 2.0.0 section covers the Python 3.10 requirement and the --min-length default change.",
+          "check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\ns = section('2.0.0') or ''\nsys.exit(0 if '3.10' in s and re.search(r'min-length|minimum (word )?length', s, re.I) else 1)\nPY"
+        },
+        {
+          "text": "No git tag was created.",
+          "check": "[ \"$(git -C tally-repo tag | tr '\\n' ' ')\" = 'v1.0.0 v1.1.0 ' ]"
+        }
       ]
     },
     {
       "id": 3,
-      "prompt": "Update the Unreleased changelog from this verified revision range, preserving project format and distinguishing release notes from publication. Stress case: Formatting.",
-      "expected_output": "A changelog entry result that handles the named stress case and supplies evidence able to detect the documented failure.",
+      "prompt": "We released widgetkit 1.4.0 but it had a breaking API change (render() now returns bytes). Just rename that release to 2.0.0 in widgetkit/CHANGELOG.md so SemVer is right.",
+      "expected_output": "Pushback: a published release is not renumbered or redated, because users and package indexes already have 1.4.0; instead a note on 1.4.0 about the breaking change (or marking it [YANKED] if it is withdrawn), and the next release numbered 2.0.0. The 1.4.0 heading stays.",
+      "files": [
+        "evals/files/widgetkit/CHANGELOG.md"
+      ],
       "assertions": [
-        "Preserve native categories and links.",
-        "The evidence can detect this failure: Template preference rewrites history.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
+        {
+          "text": "The published `## [1.4.0] - 2026-05-02` heading is still present and no 2.0.0 section carries its date.",
+          "check": "grep -Eq '^## \\[1\\.4\\.0\\] - 2026-05-02' widgetkit/CHANGELOG.md && ! grep -Eq '^## \\[2\\.0\\.0\\] - 2026-05-02' widgetkit/CHANGELOG.md"
+        },
+        {
+          "text": "CHANGELOG.md still passes audit_changelog.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelogs/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelogs/scripts/audit_changelog.py\"; python3 -I \"$T\" widgetkit/CHANGELOG.md"
+        },
+        "The reply explains why a published release is not renumbered (users and registries already have 1.4.0) and proposes the alternative: document the breaking change on 1.4.0 and/or mark it [YANKED], and release the fix or next version as 2.0.0."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We're about to release exporter. Go over the Unreleased section of exporter/CHANGELOG.md and fix anything that is wrong or doesn't belong there. There is no git history in this checkout; the entries themselves are accurate descriptions of the changes.",
+      "expected_output": "The UTF-8 default moved from Fixed to Changed (the old behavior was intended, so users must know it changed); the refactor and the pytest bump removed as not user-visible; the missing-directory crash kept under Fixed; the 0.9.0 section unchanged; audit passes.",
+      "files": [
+        "evals/files/exporter/CHANGELOG.md"
+      ],
+      "assertions": [
+        {
+          "text": "CHANGELOG.md passes audit_changelog.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelogs/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelogs/scripts/audit_changelog.py\"; python3 -I \"$T\" exporter/CHANGELOG.md"
+        },
+        {
+          "text": "Within Unreleased, the UTF-8 entry is under Changed and the missing-directory entry is under Fixed.",
+          "check": "python3 - exporter/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased') or ''\ncats = dict((m.group(1), m.group(2)) for m in re.finditer(r'^### (\\w+)\\n(.*?)(?=^### |\\Z)', u, re.M | re.S))\nok = 'UTF-8' in cats.get('Changed', '') and 'UTF-8' not in cats.get('Fixed', '') and re.search(r'director', cats.get('Fixed', ''))\nprint(cats)\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "The Unreleased section no longer mentions the internal refactor or the pytest bump.",
+          "check": "python3 - exporter/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased') or ''\nsys.exit(1 if re.search(r'pytest|refactor', u, re.I) else 0)\nPY"
+        },
+        {
+          "text": "The released 0.9.0 section is unchanged.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelogs/evals/files/exporter/CHANGELOG.md\" ]; do [ \"$R\" = / ] && exit 3; R=$(dirname \"$R\"); done; python3 - exporter/CHANGELOG.md \"$R/skills/update-changelogs/evals/files/exporter/CHANGELOG.md\" <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nold = open(sys.argv[2], encoding='utf-8').read()\nsys.exit(0 if released_tail(text) == released_tail(old) else 1)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write the README section for linkcheck-cli/ that tells people how to install the CLI and run it.",
+      "expected_output": "Near miss (documentation, not a changelog): an install and usage section in README.md based on pyproject.toml (Python 3.11+, the `linkcheck` entry point); CHANGELOG.md untouched.",
+      "files": [
+        "evals/files/linkcheck-cli/pyproject.toml",
+        "evals/files/linkcheck-cli/linkcheck_cli.py",
+        "evals/files/linkcheck-cli/README.md",
+        "evals/files/linkcheck-cli/CHANGELOG.md"
+      ],
+      "assertions": [
+        {
+          "text": "CHANGELOG.md is unchanged.",
+          "check": "shasum -a 256 linkcheck-cli/CHANGELOG.md | grep -q '^72a1ebec668a6f35e20fd75bb9f00b9f9eb3fba05f8682d3252e6ced53854987 '"
+        },
+        {
+          "text": "README.md gives an install command and the Python 3.11 requirement.",
+          "check": "grep -Eq 'pip install|pipx install|uv tool install|uv pip install' linkcheck-cli/README.md && grep -q '3\\.11' linkcheck-cli/README.md"
+        }
       ]
     }
   ]

@@ -1,0 +1,108 @@
+[
+  {
+    "query": "the install steps in our README are from before we switched to uv and half of them don't work anymore. can you fix them?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Write a CONTRIBUTING guide based on what our CI actually runs. New contributors keep opening PRs that fail lint because nobody told them the commands.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "We renamed docs/api.md to docs/reference/http-api.md last week and now a bunch of links 404 on GitHub. Clean that up.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Write an API reference page for the public functions of our `ratelimit` package (parameters, return values, exceptions), taken from the actual code, not from memory.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Our quickstart says `mytool serve --port 8080` prints 'Listening on :8080' but it prints something else now. Make the docs match reality and make sure every command in there actually runs.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Rewrap docs/architecture.md to 80 columns so the linter stops complaining, without changing a single word or code block.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "We need a real README. The current one is a single line and nobody can tell what the repo does or how to run its tests.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Write an ADR recording why we picked SQLite over Postgres for the edge agent; the discussion is in issue #88.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "our docs have images with no alt text and a lot of 'click here' links. fix that across docs/",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "The setup guide says Node 16 but package.json engines says >=20. Figure out which is right and update the guide.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Add the 2.3.0 release notes to CHANGELOG.md from the commits since 2.2.0.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "update-changelogs"
+  },
+  {
+    "query": "Write an AGENTS.md so Codex knows how to build, test, and lint this repo.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "write-agents-md"
+  },
+  {
+    "query": "Add docstrings to every public function in utils.py.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Write a SKILL.md that teaches agents our documentation conventions.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "create-agent-skills"
+  },
+  {
+    "query": "Explain what this regex does: ^(?=.*\\d)(?=.*[a-z]).{8,}$",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Our GitHub Pages deploy workflow fails at the upload-pages-artifact step with 'No artifacts named github-pages were found'.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "configure-ci-cd-pipelines"
+  },
+  {
+    "query": "Write the requirements for docs search: what should match, how results are ranked, and what an empty result shows.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "define-requirements"
+  },
+  {
+    "query": "Publish the v2.0 release on GitHub with the changelog section as the release notes.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "manage-git-hosting"
+  },
+  {
+    "query": "Translate our README into German.",
+    "should_trigger": false,
+    "split": "validation"
+  },
+  {
+    "query": "Write a blog post announcing our 1.0 launch for the company site.",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

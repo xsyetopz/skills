@@ -1,0 +1,24 @@
+name: pr-checks
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+permissions: write-all
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Announce
+        run: echo "Testing PR ${{ github.event.pull_request.title }} from ${{ github.head_ref }}"
+      - name: Test
+        shell: sh
+        run: ./ci/test.sh | tee test.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log

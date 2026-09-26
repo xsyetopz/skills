@@ -1,0 +1,6 @@
+2026-09-01 10:00:01 [INFO] started
+2026-09-01 10:00:02 [WARN] cache cold
+2026-09-01 10:00:03 [INFO] request /health
+2026-09-01 10:00:04 [ERROR] db timeout
+2026-09-01 10:00:05 [INFO] request /orders
+2026-09-01 10:00:06 [ERROR] db timeout

@@ -1,0 +1,23 @@
+{
+  "phase": "implementation",
+  "items": [
+    {
+      "id": "charts",
+      "phase": "implementation",
+      "owns": ["src/charts/", "src/common.py", "tests/test_charts.py"],
+      "depends_on": []
+    },
+    {
+      "id": "tables",
+      "phase": "implementation",
+      "owns": ["src/tables/", "src/common.py", "tests/test_tables.py"],
+      "depends_on": []
+    },
+    {
+      "id": "pdf",
+      "phase": "implementation",
+      "owns": ["src/pdf/", "tests/test_pdf.py"],
+      "depends_on": ["charts", "tables"]
+    }
+  ]
+}

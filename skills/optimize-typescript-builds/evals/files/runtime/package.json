@@ -1,0 +1,12 @@
+{
+	"name": "report-grid",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc -p .",
+		"demo": "node src/demo.ts"
+	},
+	"devDependencies": {
+		"typescript": "7.0.2"
+	}
+}

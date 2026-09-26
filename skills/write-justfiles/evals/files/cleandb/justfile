@@ -1,0 +1,5 @@
+# Development tasks.
+
+# Start the local database.
+db-up:
+    pg_ctl -D .pgdata -l .pgdata/log start

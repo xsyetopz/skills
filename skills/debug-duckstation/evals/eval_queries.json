@@ -1,0 +1,109 @@
+[
+	{
+		"query": "duckstation keeps crashing when i close it, exit code 134, theres a DuckStation-2026-09-21-2203.ips in DiagnosticReports. can you figure out if its the emulator or my game",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I'm writing a PS1 homebrew demo and the sprites come out as garbage in DuckStation 0.1-11826 on my M2 Mac but my friend says they look fine on his real console. BIOS is my own dump. Help me work out whose bug it is without wrecking my existing emulator config and saves.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write me a script that boots test.cue in DuckStation headless for CI, kills it after 60s, and fails if our TTY checkpoint line isn't in the log.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "my 60fps .cht for Ape Escape does nothing in duckstation, can you look at what's wrong with patches/SCUS-94423.cht",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A game started freezing on the second boss somewhere between duckstation v0.1-11609 and v0.1-11826. I have a save state from the old version right before it. How do I pin down which release broke it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "How do I attach lldb to the PS1 emulator process that's hung on my Mac? The window is frozen on the memory card screen and I want a backtrace without killing my session data.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Textures I dumped from DuckStation come out as dozens of near-duplicates and my replacement PNGs never load. Folder is textures/SLUS-00594/replacements.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Set up DuckStation's GDB server so I can step through my homebrew's main loop from gdb-multiarch with my ELF's symbols.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "save states from last month won't load after I updated duckstation and now Final Fantasy VII renders black polygons in the world map. what changed and how do i check if it's the renderer?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "need a duckstation.log at debug level from the 0.1-11826 mac build for a github issue, the game hangs on the loading screen. how do i get one without messing up my normal install",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "PCSX2 crashes with a GS assertion when I load Shadow of the Colossus, and my pnach widescreen patch isn't applying. Help me debug it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "build-and-debug-pcsx2"
+	},
+	{
+		"query": "Build PCSX2 from source at a pinned commit on Linux with clang and give me a debug binary I can run under gdb.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "build-and-debug-pcsx2"
+	},
+	{
+		"query": "Where can I download a SCPH-1001 BIOS and some PS1 ISOs to test DuckStation with?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "What's the difference between PGXP and texture filtering in PS1 emulators, and which should I turn on for nicer-looking 3D?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "My C++ PlayStation disc image parser segfaults on some .cue files with multiple tracks. Here's the backtrace from lldb; find the root cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Our PS1 emulator's CPU interpreter in Rust is 3x slower than we'd like; the flamegraph shows most time in the instruction decode match. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Add a GitHub Actions job that runs our PS1 homebrew's unit tests on macOS and Linux and uploads the built .exe as an artifact.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Recommend a good PS1 emulator for Android with controller support.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "PCSX2 v2.2 on my Mac shows black textures in Gran Turismo 4 with the Metal renderer but not with software. Figure out whether it's a PCSX2 regression.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "build-and-debug-pcsx2"
+	},
+	{
+		"query": "Review the psx-memcard Python library in lib/memcard.py for path traversal when it extracts saves from a .mcr image.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	}
+]

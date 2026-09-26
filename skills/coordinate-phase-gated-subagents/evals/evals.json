@@ -1,35 +1,145 @@
 {
-	"skill_name": "coordinate-phase-gated-subagents",
-	"evals": [
-		{
-			"id": 1,
-			"prompt": "Use subagents to deliver this cross-component change through sequential requirements, design, implementation, integration/verification, and release-preparation gates.",
-			"expected_output": "A repository-aware multi-agent phase coordination result with observable evidence, preserved constraints, and explicit verification limits.",
-			"assertions": [
-				"The response performs the multi-agent phase coordination workflow instead of returning only generic advice.",
-				"For unexecuted required check, Do not advance the phase.",
-				"For simple task, Keep work local instead of spawning agents.",
-				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-			]
-		},
-		{
-			"id": 2,
-			"prompt": "Write a comparison of development methodologies without launching subagents.",
-			"expected_output": "The agent does not activate coordinate-phase-gated-subagents for this neighboring request and does not apply its procedures by keyword alone.",
-			"assertions": [
-				"The response does not claim that coordinate-phase-gated-subagents is required.",
-				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-			]
-		},
-		{
-			"id": 3,
-			"prompt": "Use subagents to deliver this cross-component change through sequential requirements, design, implementation, integration/verification, and release-preparation gates. Stress case: Child proposes extra scope.",
-			"expected_output": "A multi-agent phase coordination result that handles the named stress case and supplies evidence able to detect the documented failure.",
-			"assertions": [
-				"Treat it as evidence/recommendation only.",
-				"The evidence can detect this failure: Child mutates the root goal.",
-				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
-			]
-		}
-	]
+  "skill_name": "coordinate-phase-gated-subagents",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're running the CSV export feature in csv-export/ as a phase-gated delivery with subagents, per csv-export/docs/process.md. The requirements and design baselines are frozen (docs/requirements.md, docs/design.md). Write the implementation-phase work plan to csv-export/plan/work-items.json so I can launch the workers wave by wave, and tell me the waves. Don't spawn any workers yet.",
+      "expected_output": "A work plan with one item per component (formatter, api, cli, web), every file from the design owned by exactly one item, api and cli depending on the formatter, web independent, a check_work_items.py pass with waves such as [formatter, web] then [api, cli], and no workers spawned.",
+      "files": [
+        "evals/files/csv-export/docs/process.md",
+        "evals/files/csv-export/docs/requirements.md",
+        "evals/files/csv-export/docs/design.md"
+      ],
+      "assertions": [
+        {
+          "text": "plan/work-items.json passes check_work_items.py (no overlapping ownership in a wave, no cycles, all items in the implementation phase).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\" ]; do [ \"$R\" = / ] && { echo \"check_work_items.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\"; python3 \"$T\" csv-export/plan/work-items.json"
+        },
+        {
+          "text": "Every file the design lists is owned by exactly one item.",
+          "check": "python3 - csv-export/plan/work-items.json <<'PY'\nimport json, sys\nplan = json.load(open(sys.argv[1], encoding='utf-8'))\nitems = {i['id']: i for i in plan['items']}\ndef owners(path):\n    return [i['id'] for i in plan['items'] if any(path == o or (o.endswith('/') and path.startswith(o)) for o in i['owns'])]\ndef ancestors(i, seen=None):\n    seen = set() if seen is None else seen\n    for d in items[i].get('depends_on', []):\n        if d not in seen:\n            seen.add(d); ancestors(d, seen)\n    return seen\npaths = ['src/export/formatter.py', 'tests/test_formatter.py', 'src/api/export_routes.py', 'src/api/routes.py', 'tests/test_api_export.py', 'src/cli/export_cmd.py', 'tests/test_cli_export.py', 'web/src/ExportButton.tsx', 'web/tests/ExportButton.test.tsx']\nbad = {p: owners(p) for p in paths if len(owners(p)) != 1}\nprint(bad)\nsys.exit(1 if bad else 0)\nPY"
+        },
+        {
+          "text": "The items that own the API and CLI files depend (directly or transitively) on the item that owns the formatter.",
+          "check": "python3 - csv-export/plan/work-items.json <<'PY'\nimport json, sys\nplan = json.load(open(sys.argv[1], encoding='utf-8'))\nitems = {i['id']: i for i in plan['items']}\ndef owners(path):\n    return [i['id'] for i in plan['items'] if any(path == o or (o.endswith('/') and path.startswith(o)) for o in i['owns'])]\ndef ancestors(i, seen=None):\n    seen = set() if seen is None else seen\n    for d in items[i].get('depends_on', []):\n        if d not in seen:\n            seen.add(d); ancestors(d, seen)\n    return seen\nf = owners('src/export/formatter.py')\nok = len(f) == 1 and all(f[0] in ancestors(o) for p in ('src/api/export_routes.py', 'src/cli/export_cmd.py') for o in owners(p))\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "The plan allows parallel work: at least one wave has two or more items.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\" ]; do [ \"$R\" = / ] && { echo \"check_work_items.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\"; python3 \"$T\" csv-export/plan/work-items.json --json | python3 -c \"import json,sys; w=json.load(sys.stdin)['waves']; print(w); sys.exit(0 if any(len(x) >= 2 for x in w) else 1)\""
+        },
+        {
+          "text": "No subagent was spawned (no Task or Agent tool call in the transcript).",
+          "check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, sys\nnames = []\nfor line in open(sys.argv[1], encoding='utf-8'):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    for block in ((event.get('message') or {}).get('content') or []):\n        if isinstance(block, dict) and block.get('type') == 'tool_use' and block.get('name') in ('Task', 'Agent'):\n            names.append(block.get('name'))\nprint(names)\nsys.exit(1 if names else 0)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Phase-gated run with subagents, implementation phase. In wave 1 two workers both edited src/common.py and the second merge wiped out the first one's function (see report-gen/notes/wave-1.md). Fix report-gen/plan/work-items.json so this can't happen when I relaunch the wave. What each item delivers must stay the same.",
+      "expected_output": "src/common.py owned by one item, or the charts and tables items ordered by a dependency; every item and every originally owned path kept; check_work_items.py passing; the new waves reported.",
+      "files": [
+        "evals/files/report-gen/docs/process.md",
+        "evals/files/report-gen/plan/work-items.json",
+        "evals/files/report-gen/notes/wave-1.md"
+      ],
+      "assertions": [
+        {
+          "text": "work-items.json passes check_work_items.py.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\" ]; do [ \"$R\" = / ] && { echo \"check_work_items.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/coordinate-phase-gated-subagents/scripts/check_work_items.py\"; python3 \"$T\" report-gen/plan/work-items.json"
+        },
+        {
+          "text": "The charts, tables, and pdf items all still exist, and every path owned before is still owned by some item.",
+          "check": "python3 - report-gen/plan/work-items.json <<'PY'\nimport json, sys\nplan = json.load(open(sys.argv[1], encoding='utf-8'))\nitems = {i['id']: i for i in plan['items']}\ndef owners(path):\n    return [i['id'] for i in plan['items'] if any(path == o or (o.endswith('/') and path.startswith(o)) for o in i['owns'])]\ndef ancestors(i, seen=None):\n    seen = set() if seen is None else seen\n    for d in items[i].get('depends_on', []):\n        if d not in seen:\n            seen.add(d); ancestors(d, seen)\n    return seen\nbefore = ['src/charts/', 'src/tables/', 'src/pdf/', 'src/common.py', 'tests/test_charts.py', 'tests/test_tables.py', 'tests/test_pdf.py']\nmissing_ids = {'charts', 'tables', 'pdf'} - set(items)\nunowned = [p for p in before if not owners(p.rstrip('/') + ('/x.py' if p.endswith('/') else ''))]\nprint(missing_ids, unowned)\nsys.exit(1 if missing_ids or unowned else 0)\nPY"
+        },
+        {
+          "text": "No subagent was spawned.",
+          "check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, sys\nnames = []\nfor line in open(sys.argv[1], encoding='utf-8'):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    for block in ((event.get('message') or {}).get('content') or []):\n        if isinstance(block, dict) and block.get('type') == 'tool_use' and block.get('name') in ('Task', 'Agent'):\n            names.append(block.get('name'))\nprint(names)\nsys.exit(1 if names else 0)\nPY"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "We're at the verification gate of our phase-gated billing-v2 delivery. Record the gate in billing-v2/gates/verification.json from the evidence in billing-v2/logs/ (format and requirement IDs in billing-v2/docs/), then tell me whether we can start the release phase.",
+      "expected_output": "A gate record with the unit tests passed (R1), the end-to-end suite unavailable because staging access is missing (R2), and the PII scan failed (R3); check_gate.py reports the gate open; the reply says release cannot start and gives the two different next steps (obtain staging access, fix the PII leak and rerun the scan).",
+      "files": [
+        "evals/files/billing-v2/docs/process.md",
+        "evals/files/billing-v2/docs/requirements.md",
+        "evals/files/billing-v2/logs/unit.txt",
+        "evals/files/billing-v2/logs/e2e.txt",
+        "evals/files/billing-v2/logs/pii-scan.txt",
+        "evals/files/billing-v2/gates/verification.json"
+      ],
+      "assertions": [
+        {
+          "text": "gates/verification.json is well formed and check_gate.py keeps the gate open (exit 1, not 0 or 2).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/coordinate-phase-gated-subagents/scripts/check_gate.py\" ]; do [ \"$R\" = / ] && { echo \"check_gate.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/coordinate-phase-gated-subagents/scripts/check_gate.py\"; python3 \"$T\" billing-v2/gates/verification.json; test $? -eq 1"
+        },
+        {
+          "text": "The e2e condition is 'unavailable' (not 'failed'), the PII scan condition is 'failed', and the unit-test condition is 'passed' with its command.",
+          "check": "python3 - billing-v2/gates/verification.json <<'PY'\nimport json, sys\ngate = json.load(open(sys.argv[1], encoding='utf-8'))\ndef status(word):\n    hits = [c for c in gate['conditions'] if word in json.dumps(c).lower()]\n    return [((c.get('evidence') or {}).get('status'), (c.get('evidence') or {}).get('command')) for c in hits]\ne2e, pii, unit = status('e2e'), status('pii'), status('unittest')\nprint(e2e, pii, unit)\nok = e2e and all(s == 'unavailable' for s, _ in e2e) and pii and all(s == 'failed' for s, _ in pii) and unit and all(s == 'passed' and cmd for s, cmd in unit)\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "R1, R2, and R3 each appear in the record's requirements with at least one verifying condition.",
+          "check": "python3 - billing-v2/gates/verification.json <<'PY'\nimport json, sys\ngate = json.load(open(sys.argv[1], encoding='utf-8'))\nreqs = {r['id']: r.get('verified_by', []) for r in gate.get('requirements', [])}\nok = all(reqs.get(r) for r in ('R1', 'R2', 'R3'))\nprint(reqs)\nsys.exit(0 if ok else 1)\nPY"
+        },
+        "The reply says the release phase cannot start yet and gives separate next steps for the two open conditions: obtain staging access (STAGING_API_TOKEN) to run the e2e suite, and fix the logged email addresses and rerun the PII scan."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "search-svc/ is in the implementation phase of a phase-gated run with subagents. The store worker just reported back (search-svc/worker-results/store.md) and wants its branch merged. Handle it according to search-svc/docs/process.md: write whatever record is needed under search-svc/change-requests/ and tell me what happens to the other work items. Don't merge anything.",
+      "expected_output": "The worker's interface change is not accepted on its own authority: a change request in change-requests/ with the problem (find cannot return all matches), the evidence (the 30 s timeout), the affected items (api and cli code against Store.find), the invalidated work, and a pending decision; the design gate reopens and api/cli wait for the decision; the frozen design and interface stay unchanged.",
+      "files": [
+        "evals/files/search-svc/docs/process.md",
+        "evals/files/search-svc/docs/design.md",
+        "evals/files/search-svc/plan/work-items.json",
+        "evals/files/search-svc/worker-results/store.md",
+        "evals/files/search-svc/src/store/interface.py"
+      ],
+      "assertions": [
+        {
+          "text": "A Markdown change request exists under change-requests/ and names the affected api and cli items.",
+          "check": "f=$(ls search-svc/change-requests/*.md 2>/dev/null | head -1); [ -n \"$f\" ] && grep -qw api \"$f\" && grep -qw cli \"$f\""
+        },
+        {
+          "text": "The change request's decision is still pending (it was not approved on the worker's say-so).",
+          "check": "grep -Eiq 'pending|awaiting|not (yet )?approved|needs approval' search-svc/change-requests/*.md"
+        },
+        {
+          "text": "The frozen design and the Store interface in the main tree are unchanged.",
+          "check": "shasum -a 256 search-svc/docs/design.md | grep -q '^b5d593d7f77b223d19d0fe62860dcb42dd9b2dcb1c7098b1cba9bf7b3504f805 ' && shasum -a 256 search-svc/src/store/interface.py | grep -q '^519e21bb7f4623db0f77f9b8089238269654a77a87305dd40a6921631cddbe0f '"
+        },
+        "The reply states that api and cli must not start (or must pause) until the change request is decided, because they code against Store.find, and that the design gate reopens if the change is approved."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "In notes-app/, rename the `usr` parameter to `user` in notes.py, update every caller (cli.py passes it by keyword), add a test that list_notes returns a copy the caller can't use to modify the stored notes, and run the tests.",
+      "expected_output": "Near miss: an ordinary multi-step edit done directly, without subagents, phases, work plans, or gate records.",
+      "files": [
+        "evals/files/notes-app/notes.py",
+        "evals/files/notes-app/cli.py",
+        "evals/files/notes-app/tests/__init__.py",
+        "evals/files/notes-app/tests/test_notes.py"
+      ],
+      "assertions": [
+        {
+          "text": "notes.py and cli.py no longer use usr, and the test suite passes.",
+          "check": "cd notes-app && ! grep -qw usr notes.py cli.py && python3 -m unittest discover -s tests -t ."
+        },
+        {
+          "text": "list_notes returns a copy, and the suite now has more than the original one test.",
+          "check": "cd notes-app && [ $(cat tests/*.py | grep -c 'def test_') -ge 2 ] && python3 -c \"import notes; notes.NOTES.clear(); notes.add_note('a', 'x'); notes.list_notes('a').append('y'); import sys; sys.exit(0 if notes.list_notes('a') == ['x'] else 1)\""
+        },
+        {
+          "text": "No subagent was spawned.",
+          "check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, sys\nnames = []\nfor line in open(sys.argv[1], encoding='utf-8'):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    for block in ((event.get('message') or {}).get('content') or []):\n        if isinstance(block, dict) and block.get('type') == 'tool_use' and block.get('name') in ('Task', 'Agent'):\n            names.append(block.get('name'))\nprint(names)\nsys.exit(1 if names else 0)\nPY"
+        },
+        {
+          "text": "No work-plan or gate JSON files were created.",
+          "check": "[ -z \"$(find . -path ./.claude -prune -o -name '*.json' -print)\" ]"
+        }
+      ]
+    }
+  ]
 }

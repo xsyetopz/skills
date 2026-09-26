@@ -1,0 +1,9 @@
+[submodule "extensions/csv"]
+	path = extensions/csv
+	url = https://github.com/huacnlee/zed-csv.git
+[submodule "extensions/git-firefly"]
+	path = extensions/git-firefly
+	url = https://github.com/d1y/git_firefly.git
+[submodule "extensions/haskell"]
+	path = extensions/haskell
+	url = https://github.com/zed-extensions/haskell.git

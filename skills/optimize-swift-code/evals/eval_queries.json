@@ -1,0 +1,111 @@
+[
+	{
+		"query": "Time Profiler says ~40% of our scene update is swift_retain/swift_release while walking a linked list of `final class Node` objects (SceneGraph.swift). How do I cut the ARC traffic and show that it actually dropped?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our swift csv importer does line.split(separator: \",\").map(String.init) for 2M lines and it's the slowest part of launch. make it faster but results must stay the same, emoji and accented names included",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "package-benchmark shows mallocCountTotal went from 0 to 3 per call for normalize(_:) after my refactor of Geometry/Vector.swift. Find what allocates and get it back to zero.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A teammate wants -Ounchecked on our Swift image-filter module because 'it's faster'. Is it, and what would we lose? I want evidence from the actual build, not opinions.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "objc_msgSend keeps showing up in profiles of our pure-Swift model layer; the classes still have @objc dynamic on properties from the old KVO days. Clean up the dispatch cost and verify it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "tokenizer does `for i in 0..<s.count { let c = s[s.index(s.startIndex, offsetBy: i)] ... }` and a 1 MB file takes forever. rewrite it so it's fast, same tokens out",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Every ingestion task does `await stats.add(x)` per value on a shared actor and that's 60% of samples. Batch it, or switch to Mutex? We target iOS 17.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our SDK framework is built with BUILD_LIBRARY_FOR_DISTRIBUTION=YES and clients say Vector3 math is slow in their hot loops. How do we make those small functions inlinable, and what does that commit us to?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I count retains and releases in one Swift function so the PR can show my change reduced ARC traffic?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Building a [String: Int] index of 5M entries at startup shows lots of Dictionary resizing in Instruments. Speed it up without changing the index contents.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We now require iOS 17. Remove all the #available(iOS 15, *) and iOS 16 fallback branches from the app.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "remove-unneeded-compatibility-code"
+	},
+	{
+		"query": "perf in our iOS app's audio engine points at std::function calls and shared_ptr copies in AudioEngine.cpp. Speed up the C++ side.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-cpp-code"
+	},
+	{
+		"query": "Our SwiftUI app crashes with EXC_BAD_ACCESS every so often on iPad when rotating during a sync. Find the cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Write swift-testing tests for Vector2.normalized(): zero vector, NaN components, and very large values.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Set up GitHub Actions to build and test our Swift package on macOS 15 and Ubuntu, with SwiftPM caching.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Our 600-line Swift view model is impossible to follow. Restructure it into smaller pieces with clear names; behavior must not change.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "What's the practical difference between a struct and a class in Swift?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our C image decoder (decode.c, called from Swift through a module map) spends most of its time in memcpy in decode_row. Optimize the C code.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-c-code"
+	},
+	{
+		"query": "Write the CHANGELOG entry for 2.4.0 of our Swift package from the commits since the 2.3.0 tag.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "Security review of our iOS app's custom URL scheme handler and how it stores tokens in the keychain.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	}
+]

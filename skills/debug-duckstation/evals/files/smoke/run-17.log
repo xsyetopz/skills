@@ -1,0 +1,9 @@
+I/Core: Version: 0.1-11826 [gfe2306b1f]
+I/System: Boot Path: /Users/ci/ci/test.cue
+I/BIOS: Searching for a 1 MB BIOS in '/Users/ci/Library/Application Support/DuckStation/bios'...
+I/System: Using BIOS: SCPH-1001.bin
+I/System: Console Region: NTSC-U/C
+I/CDROM: Read TOC: 1 tracks
+I/Bus: TTY: SMOKE CHECKPOINT OK
+I/System: Shutting down system...
+I/Host: Received power off, exiting batch mode.

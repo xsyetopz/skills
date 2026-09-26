@@ -1,35 +1,139 @@
 {
-  "skill_name": "develop-neovim-plugins",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Implement this Neovim Lua plugin command with buffer identity, changedtick checks, owned autocmd groups, job cancellation, tests, and help.",
-      "expected_output": "A repository-aware Neovim plugin result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Neovim plugin workflow instead of returning only generic advice.",
-        "For stale callback, Reject result when buffer/generation changed.",
-        "For reload, Clear only owned groups/handles and register idempotently.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Add one personal key mapping to my local config.",
-      "expected_output": "The agent does not activate develop-neovim-plugins for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that develop-neovim-plugins is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Implement this Neovim Lua plugin command with buffer identity, changedtick checks, owned autocmd groups, job cancellation, tests, and help. Stress case: Vim-only API.",
-      "expected_output": "A Neovim plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Do not claim Neovim support from adjacent docs.",
-        "The evidence can detect this failure: Product substitution.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "develop-neovim-plugins",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "fmt.nvim/ is my Neovim plugin. plugin/fmt.lua requires the main module at the top and then defines :Fmt. Users say it adds noticeable startup time even when they never run :Fmt. Fix it and show that it worked.",
+			"expected_output": "plugin/fmt.lua only defines :Fmt (keeping range = '%') and the callback requires 'fmt' itself, so the module loads on first use; proof via --startuptime or package.loaded in an isolated headless run.",
+			"files": [
+				"evals/files/fmt.nvim/plugin/fmt.lua",
+				"evals/files/fmt.nvim/lua/fmt/init.lua"
+			],
+			"assertions": [
+				{
+					"text": "plugin/fmt.lua has no top-level require of the plugin's own module.",
+					"check": "python3 -c 'import re; s = open(\"fmt.nvim/plugin/fmt.lua\").read(); assert not re.search(r\"^(local\\s+\\w+\\s*=\\s*)?require\\s*\\(?\\s*[\\x27\\x22]fmt\", s, re.M), s'"
+				},
+				{
+					"text": "In an isolated headless Neovim (needs nvim or $NVIM), :Fmt exists after startup while package.loaded.fmt is still nil, and running :Fmt loads the module.",
+					"check": "n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/fmt.nvim\" -c 'lua local okc, err = pcall(function() local before = package.loaded.fmt == nil and vim.fn.exists([[:Fmt]]) == 2; vim.api.nvim_buf_set_lines(0, 0, -1, false, {[[a = 1]], [[bb = 2]]}); vim.cmd([[Fmt]]); ok = before and package.loaded.fmt ~= nil end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				"The reply shows startup evidence from an isolated run (for example --startuptime lines mentioning fmt, or package.loaded before and after) or states exactly which command to run if Neovim was unavailable.",
+				"The :Fmt command keeps its range behavior (range = '%' or equivalent) and the implementation module is unchanged apart from what the fix needs."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "tidy.nvim/lua/tidy/init.lua pipes the buffer through `tidy -q` with vim.system. Sometimes it replaces the wrong buffer (when I switch buffers while it runs), sometimes it wipes out text I typed while tidy was running, and if I :bwipeout the buffer before tidy finishes I get an error. Also a failing tidy replaces my buffer with nothing. Fix all of it and add a headless test. The plugin supports Neovim 0.10+.",
+			"expected_output": "run() captures the buffer handle and changedtick before starting; the callback (via vim.schedule) checks nvim_buf_is_valid, the changedtick, and the exit code before replacing lines; vim.system start errors are caught with pcall and reported with vim.notify; a headless test covers the stale-edit and wiped-buffer cases.",
+			"files": [
+				"evals/files/tidy.nvim/plugin/tidy.lua",
+				"evals/files/tidy.nvim/lua/tidy/init.lua"
+			],
+			"assertions": [
+				{
+					"text": "The callback no longer writes to buffer 0, and the module checks nvim_buf_is_valid and changedtick.",
+					"check": "! grep -Eq 'nvim_buf_set_lines\\(0' tidy.nvim/lua/tidy/init.lua && grep -q 'nvim_buf_is_valid' tidy.nvim/lua/tidy/init.lua && grep -q 'changedtick' tidy.nvim/lua/tidy/init.lua"
+				},
+				{
+					"text": "The module checks the process exit code before applying output.",
+					"check": "grep -Eq '\\.code|out\\.code|result\\.code|obj\\.code' tidy.nvim/lua/tidy/init.lua"
+				},
+				{
+					"text": "A Lua test file was added under tidy.nvim/.",
+					"check": "find tidy.nvim -type f -name '*.lua' \\( -path '*test*' -o -path '*spec*' \\) | grep -q ."
+				},
+				"The code does not use APIs newer than Neovim 0.10 (for example positional vim.validate from 0.11 or the `buf` key from 0.12), or guards them; quote any version-sensitive call.",
+				"The test forces the ordering (a buffer edit or wipe while the job is pending, then waiting on a condition with vim.wait) rather than relying on timing luck, and the reply says whether it actually ran."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "After I :source mdlint.nvim/plugin/mdlint.lua a second time (or my plugin manager reloads it), every save of a Markdown file runs the linter twice. Fix it.",
+			"expected_output": "The autocmd is created in an augroup made with nvim_create_augroup('mdlint', { clear = true }) (group passed to nvim_create_autocmd), so re-sourcing replaces instead of adding; verified by counting BufWritePost autocmds after sourcing twice.",
+			"files": [
+				"evals/files/mdlint.nvim/plugin/mdlint.lua",
+				"evals/files/mdlint.nvim/lua/mdlint/init.lua"
+			],
+			"assertions": [
+				{
+					"text": "plugin/mdlint.lua creates an augroup with clear = true and passes it to the autocmd.",
+					"check": "grep -Eq 'nvim_create_augroup' mdlint.nvim/plugin/mdlint.lua && grep -Eq 'clear[[:space:]]*=[[:space:]]*true' mdlint.nvim/plugin/mdlint.lua && grep -Eq 'group[[:space:]]*=' mdlint.nvim/plugin/mdlint.lua"
+				},
+				{
+					"text": "In an isolated headless Neovim (needs nvim or $NVIM), sourcing plugin/mdlint.lua again does not add BufWritePost autocmds.",
+					"check": "n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/mdlint.nvim\" -c 'lua local okc, err = pcall(function() local a = #vim.api.nvim_get_autocmds({event = [[BufWritePost]]}); vim.cmd([[runtime! plugin/mdlint.lua]]); vim.cmd([[runtime! plugin/mdlint.lua]]); local b = #vim.api.nvim_get_autocmds({event = [[BufWritePost]]}); print(a, b); ok = a == b end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				"The reply explains that nvim_create_autocmd adds a new handler on each run and that clearing the plugin's own group (not all BufWritePost autocmds) is the fix."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "notes.nvim/plugin/notes.lua maps <leader>n directly, which clobbers other people's mappings. Give users a proper way to trigger require('notes').open_today() from a key of their choice and update the help file. The plugin targets Neovim 0.12.",
+			"expected_output": "plugin/notes.lua defines a <Plug>(...) mapping (and keeps :NotesToday) without mapping <leader>n; doc/notes.txt documents the <Plug> mapping with an example vim.keymap.set('n', '<leader>n', '<Plug>(NotesToday)').",
+			"files": [
+				"evals/files/notes.nvim/plugin/notes.lua",
+				"evals/files/notes.nvim/lua/notes/init.lua",
+				"evals/files/notes.nvim/doc/notes.txt"
+			],
+			"assertions": [
+				{
+					"text": "plugin/notes.lua no longer maps a <leader> key and defines a <Plug> mapping.",
+					"check": "! grep -q '<leader>' notes.nvim/plugin/notes.lua && grep -q '<Plug>' notes.nvim/plugin/notes.lua"
+				},
+				{
+					"text": "In an isolated headless Neovim (needs nvim or $NVIM), <leader>n is unmapped, a normal-mode <Plug> mapping exists, and :NotesToday still exists.",
+					"check": "n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/notes.nvim\" -c 'lua local okc, err = pcall(function() local plug = vim.tbl_filter(function(m) return m.lhs:find([[<Plug>]], 1, true) ~= nil end, vim.api.nvim_get_keymap([[n]])); ok = vim.fn.maparg([[<leader>n]], [[n]]) == [[]] and #plug > 0 and vim.fn.exists([[:NotesToday]]) == 2 end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				{
+					"text": "doc/notes.txt documents the <Plug> mapping.",
+					"check": "grep -q '<Plug>' notes.nvim/doc/notes.txt"
+				},
+				"The help text shows how a user maps their own key to the <Plug> mapping, and the reply does not claim :helptags or :help was run unless the transcript shows it."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "trail.nvim/ only works if users call require('trail').setup(): setup() creates the command and autocmds, so people who forget it get nothing, calling it twice duplicates the autocmds, and a typo like setup({ timout = 10 }) is silently ignored. Restructure the configuration so it works with no setup call at all, can also be configured through a global variable, and reports bad or unknown options. Keep Neovim 0.11 support.",
+			"expected_output": "A plugin/trail.lua defines :TrailStrip and the autocmds in a cleared augroup without requiring setup; setup() only stores and validates options; configuration merges defaults, vim.g.trail, and setup() options, resolved lazily; unknown keys produce a vim.notify warning naming the key; wrong types are reported.",
+			"files": [
+				"evals/files/trail.nvim/lua/trail/init.lua",
+				"evals/files/trail.nvim/README.md"
+			],
+			"assertions": [
+				{
+					"text": "A plugin/ file exists and :TrailStrip is available without calling setup() (checked in an isolated headless Neovim; needs nvim or $NVIM).",
+					"check": "test -f trail.nvim/plugin/trail.lua || { echo \"no plugin/trail.lua\"; exit 1; }; n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/trail.nvim\" -c 'lua local okc, err = pcall(function() ok = vim.fn.exists([[:TrailStrip]]) == 2 end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				{
+					"text": "Calling setup() twice does not add TextChanged autocmds, and setup({ timout = 10 }) is reported through vim.notify at WARN or above or through an error (isolated headless Neovim; needs nvim or $NVIM).",
+					"check": "n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/trail.nvim\" -c 'lua local okc, err = pcall(function() local seen = false; vim.notify = function(msg, lvl) if (lvl or 0) >= vim.log.levels.WARN then seen = true end end; local t = require([[trail]]); pcall(t.setup, {}); local a = #vim.api.nvim_get_autocmds({event = [[TextChanged]]}); pcall(t.setup, {}); local b = #vim.api.nvim_get_autocmds({event = [[TextChanged]]}); local okset = pcall(t.setup, {timout = 10}); if t.config then pcall(function() local _ = t.config.timeout end) end; ok = a == b and (seen or not okset) end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				{
+					"text": "The configuration reads a vim.g.trail table.",
+					"check": "grep -rqF -e 'vim.g.trail' -e \"vim.g['trail\" -e 'vim.g[\"trail' trail.nvim"
+				},
+				"Unknown option keys are reported by name (for example 'trail: unknown option timout'), and type errors in known options are reported too; quote the code.",
+				"The README documents configuring without setup() (vim.g.trail) and that setup() is optional."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Add a mapping to my Neovim config (nvim-config/init.lua) so <leader>w saves the file. That's all.",
+			"expected_output": "One line in init.lua such as vim.keymap.set('n', '<leader>w', '<cmd>write<cr>', { desc = 'Save file' }); no plugin structure, tests, or <Plug> mapping.",
+			"files": [
+				"evals/files/nvim-config/init.lua"
+			],
+			"assertions": [
+				{
+					"text": "init.lua maps <leader>w in normal mode to a write command.",
+					"check": "python3 -c 'import re; s = open(\"nvim-config/init.lua\").read(); assert re.search(r\"keymap\\.set\\(\\s*[\\x27\\x22]n[\\x27\\x22]\\s*,\\s*[\\x27\\x22]<leader>w[\\x27\\x22]\\s*,[^\\n]*(write|:w\\b|update)\", s, re.I), s'"
+				},
+				{
+					"text": "No plugin/ or lua/ directories, tests, or <Plug> mappings were created.",
+					"check": "test -z \"$(find . -path ./.claude -prune -o -type d \\( -name plugin -o -name lua -o -name tests \\) -print)\" && ! grep -q '<Plug>' nvim-config/init.lua"
+				}
+			]
+		}
+	]
 }

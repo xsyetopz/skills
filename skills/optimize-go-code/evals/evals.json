@@ -1,35 +1,102 @@
 {
-  "skill_name": "optimize-go-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Go workload with native benchmarks and profiles while preserving goroutine lifetime, cancellation, errors, races, and data ownership.",
-      "expected_output": "A repository-aware Go optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Go optimization workflow instead of returning only generic advice.",
-        "For goroutine parallelism, Measure representative size and verify cancellation/ownership.",
-        "For slice reuse, Check aliasing and retained capacity.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Apply Go style comments only.",
-      "expected_output": "The agent does not activate optimize-go-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-go-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Go workload with native benchmarks and profiles while preserving goroutine lifetime, cancellation, errors, races, and data ownership. Stress case: Benchmark.",
-      "expected_output": "A Go optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Use b.N/RunParallel correctly and prevent dead-code elimination.",
-        "The evidence can detect this failure: Harness measures setup or nothing.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-go-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our log shipper's encoder package is in encoder/ (the module declares go 1.22 and we are not bumping it). BenchmarkEncode in encoder/encode_test.go reports about 80 allocs/op for a 20-field record, and alloc_space profiles put Encode at the top. Make Encode cheaper without changing a single output byte, keep its signature and package, and tell me allocs/op before and after.",
+			"expected_output": "Encode rewritten with a presized []byte or strings.Builder and strconv.AppendInt, an equivalence test against the old implementation (empty, negative, MinInt64/MaxInt64, non-ASCII keys), an AllocsPerRun or -benchmem allocation comparison, a benchstat comparison over -count 10, and no b.Loop or go-directive change.",
+			"files": [
+				"evals/files/encoder/go.mod",
+				"evals/files/encoder/encode.go",
+				"evals/files/encoder/encode_test.go"
+			],
+			"assertions": [
+				{
+					"text": "Encode returns byte-identical output to the original on nil, empty, zero, negative, MinInt64/MaxInt64, non-ASCII, and 50-field inputs (check-owned oracle).",
+					"check": "command -v go >/dev/null || { echo 'FAIL: go toolchain not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 && cp -R encoder/. \"$d/\" && cd \"$d\" || exit 1\ncat > zz_evalcheck_test.go <<'EOF'\npackage encoder\n\nimport (\n\t\"fmt\"\n\t\"math\"\n\t\"testing\"\n)\n\nfunc evalBaseline(fields []Field) string {\n\tout := \"\"\n\tfor _, f := range fields {\n\t\tout += fmt.Sprintf(\"%s=%d \", f.Key, f.Val)\n\t}\n\treturn out\n}\n\nfunc TestEvalCheckEquivalent(t *testing.T) {\n\tbig := make([]Field, 50)\n\tfor i := range big {\n\t\tbig[i] = Field{fmt.Sprintf(\"k%d\", i), int64(i*i*7919 - 40000)}\n\t}\n\tcases := [][]Field{nil, {}, {{\"\", 0}}, {{\"a\", -1}}, {{\"min\", math.MinInt64}, {\"max\", math.MaxInt64}}, {{\"ключ\", 42}, {\"sp ace\", 7}}, big}\n\tfor _, c := range cases {\n\t\tif got, want := Encode(c), evalBaseline(c); got != want {\n\t\t\tt.Errorf(\"Encode(%v) = %q, want %q\", c, got, want)\n\t\t}\n\t}\n}\nEOF\nGOTOOLCHAIN=local GOPROXY=off go test -count=1 -run '^TestEvalCheckEquivalent$' ."
+				},
+				{
+					"text": "Encode allocates under a quarter of the original's allocations per call on a 20-field record with six-digit values, measured by testing.AllocsPerRun in the same process.",
+					"check": "command -v go >/dev/null || { echo 'FAIL: go toolchain not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 && cp -R encoder/. \"$d/\" && cd \"$d\" || exit 1\ncat > zz_evalcheck_test.go <<'EOF'\npackage encoder\n\nimport (\n\t\"fmt\"\n\t\"testing\"\n)\n\nfunc evalBaseline(fields []Field) string {\n\tout := \"\"\n\tfor _, f := range fields {\n\t\tout += fmt.Sprintf(\"%s=%d \", f.Key, f.Val)\n\t}\n\treturn out\n}\n\nvar evalSink string\n\nfunc TestEvalCheckAllocs(t *testing.T) {\n\tfields := make([]Field, 20)\n\tfor i := range fields {\n\t\tfields[i] = Field{Key: \"field\", Val: int64(100000 + i*7919)}\n\t}\n\tbase := testing.AllocsPerRun(200, func() { evalSink = evalBaseline(fields) })\n\tcand := testing.AllocsPerRun(200, func() { evalSink = Encode(fields) })\n\tt.Logf(\"allocs per call: baseline %.0f, candidate %.0f\", base, cand)\n\tif cand*4 > base {\n\t\tt.Fatalf(\"candidate %.0f allocs per call is not under a quarter of the baseline's %.0f\", cand, base)\n\t}\n}\nEOF\nGOTOOLCHAIN=local GOPROXY=off go test -count=1 -v -run '^TestEvalCheckAllocs$' ."
+				},
+				{
+					"text": "encoder/go.mod still declares go 1.22, and go vet (including the stdversion check that rejects b.Loop) and the package's own tests pass.",
+					"check": "command -v go >/dev/null || { echo 'FAIL: go toolchain not found on PATH'; exit 1; }\ngrep -Eq '^go 1\\.22(\\.[0-9]+)?$' encoder/go.mod || { echo 'FAIL: go directive in encoder/go.mod changed'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 && cp -R encoder/. \"$d/\" && cd \"$d\" || exit 1\nGOTOOLCHAIN=local GOPROXY=off go vet . && GOTOOLCHAIN=local GOPROXY=off go test -count=1 -run . ."
+				},
+				{
+					"text": "The reply or a written report gives allocs/op figures.",
+					"check": "grep -rqiE '[0-9] *allocs/op|allocs/op[^0-9]{0,40}[0-9]' \"$EVAL_OUTPUTS_DIR\""
+				},
+				"Baseline and candidate were compared with go test -bench -count 10 (or more) and benchstat, and the reply quotes the benchstat result rather than a single run."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "A reviewer suggests replacing `defer mu.Unlock()` with explicit `mu.Unlock()` calls in our cache's Get method \"because defer is slow\". Go 1.23. Should we?",
+			"expected_output": "Explains that since Go 1.14 most defers are open-coded with near-zero overhead, that explicit unlocks lose panic safety, and asks for or runs a benchmark with benchstat before any change; recommends keeping defer unless a measured, significant difference exists.",
+			"assertions": [
+				"Cites the Go 1.14 open-coded defer change.",
+				"States that removing defer loses unlock-on-panic safety.",
+				"Requires a benchstat comparison before changing the code.",
+				"Does not make the change without measurement."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "This loop processes 10k files and we run out of file descriptors: `for _, p := range paths { f, err := os.Open(p); if err != nil { return err }; defer f.Close(); n += count(f) }`. Fix it and keep it fast.",
+			"expected_output": "Identifies that deferred Close calls run at function return, not per iteration, and moves the loop body into a helper function with its own defer; adds a test that shows at most one file is open at a time.",
+			"assertions": [
+				"Explains that defer runs when the surrounding function returns.",
+				"Extracts the loop body into a function that opens, defers Close, and returns.",
+				"Adds or describes a check proving the peak number of open files is 1 (or bounded).",
+				"Preserves error propagation from os.Open and count."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Our service runs in a Kubernetes pod with a 2 GiB memory limit and gets OOM-killed during traffic spikes, though the live heap is about 600 MiB. go1.26. What should we change?",
+			"expected_output": "Recommends measuring with GODEBUG=gctrace=1 and heap profiles, then setting GOMEMLIMIT a little below the container limit (leaving 5-10% headroom), explains thrashing risk when the limit is below the live heap and that non-Go memory is not counted, and asks for an application-level verification.",
+			"assertions": [
+				"Recommends GOMEMLIMIT (or debug.SetMemoryLimit) below the container limit with headroom for non-Go memory.",
+				"Warns that a limit below the live heap makes the GC thrash.",
+				"Uses gctrace, runtime/metrics, or heap profiles as evidence before and after.",
+				"Does not claim a numeric improvement that was not measured."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Benchmark shows `DecodeFrame` spends time in bounds checks: `for i := range hdr { sum += hdr[i] * weights[i] }`. Remove the bounds checks. Go 1.25.",
+			"expected_output": "Uses -gcflags=-d=ssa/check_bce/debug=1 to find the remaining check, adds an explicit length guard (not a reslice to len(hdr)) before the loop, keeps panic behavior for a short weights slice, and keeps the change only if benchstat shows a significant difference.",
+			"assertions": [
+				"Runs go build with -gcflags=-d=ssa/check_bce/debug=1 before and after.",
+				"Adds a length check such as `if len(weights) < len(hdr) { panic(...) }` rather than `weights = weights[:len(hdr)]`.",
+				"Tests that a short weights slice with spare capacity still panics.",
+				"Compares with benchstat and reverts if the result is `~`."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Rename the exported functions in strutil/ to follow Go naming conventions and give each one a doc comment. Keep the tests passing.",
+			"expected_output": "Underscore-free exported names with doc comments starting with each name, tests updated, and no benchmarks, profiles, or performance changes.",
+			"files": [
+				"evals/files/strutil/go.mod",
+				"evals/files/strutil/strutil.go",
+				"evals/files/strutil/strutil_test.go"
+			],
+			"assertions": [
+				{
+					"text": "go vet and go test pass in strutil/.",
+					"check": "command -v go >/dev/null || { echo 'FAIL: go toolchain not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 && cp -R strutil/. \"$d/\" && cd \"$d\" || exit 1\nGOTOOLCHAIN=local GOPROXY=off go vet . && GOTOOLCHAIN=local GOPROXY=off go test -count=1 ."
+				},
+				{
+					"text": "No exported function name contains an underscore, and every exported function has a doc comment that starts with its name.",
+					"check": "cd strutil || exit 1\nsrc=$(ls *.go | grep -v '_test\\.go$')\nif grep -Eq '^func [A-Z][A-Za-z0-9]*_' $src; then echo 'FAIL: exported names with underscores remain'; exit 1; fi\nawk '/^func [A-Z]/ { split($2, a, \"(\"); if (prev !~ (\"^// \" a[1] \" \")) { print \"FAIL: no doc comment starting with \" a[1]; bad = 1 } } { prev = $0 } END { exit bad }' $src"
+				},
+				{
+					"text": "No benchmark, profile, sync.Pool, or other performance code or output was added to strutil/.",
+					"check": "if grep -rqE 'func Benchmark|testing\\.B\\b|runtime/pprof|sync\\.Pool' strutil; then echo 'FAIL: performance code added'; exit 1; fi\nif find strutil -name '*.pprof' -o -name '*.prof' -o -name 'bench*.txt' | grep -q .; then echo 'FAIL: profile or benchmark output left in strutil/'; exit 1; fi"
+				}
+			]
+		}
+	]
 }

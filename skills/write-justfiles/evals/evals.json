@@ -1,35 +1,160 @@
 {
-  "skill_name": "write-justfiles",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Write or repair justfile recipes that wrap existing project commands with correct parameters, dependencies, quoting, working directory, and exit propagation.",
-      "expected_output": "A repository-aware justfile recipe result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the justfile recipe workflow instead of returning only generic advice.",
-        "For underlying failure, Propagate nonzero status.",
-        "For quoting/arguments, Preserve exact argv semantics across selected shell.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Replace the project build system with just.",
-      "expected_output": "The agent does not activate write-justfiles for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that write-justfiles is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Write or repair justfile recipes that wrap existing project commands with correct parameters, dependencies, quoting, working directory, and exit propagation. Stress case: Unavailable just.",
-      "expected_output": "A justfile recipe result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Report parser/execution unverified.",
-        "The evidence can detect this failure: Text inspection presented as native validation.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "write-justfiles",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Add a `test` recipe to testargs/justfile that runs our test runner (`python3 scripts/run_tests.py`) and passes along whatever I type after it, so `just test`, `just test tests/test_report.py`, and `just test -k 'slow and not db'` all work exactly like calling the runner directly.",
+			"expected_output": "A variadic recipe (*args, so plain `just test` works) that forwards arguments intact via [positional-arguments] and \"$@\", an exported $args parameter, or quote(), never bare {{ args }}. Verified by running it with the spaced -k expression and showing two tests selected, then just --fmt --check.",
+			"files": [
+				"evals/files/testargs/justfile",
+				"evals/files/testargs/scripts/run_tests.py",
+				"evals/files/testargs/tests/__init__.py",
+				"evals/files/testargs/tests/test_cache.py",
+				"evals/files/testargs/tests/test_report.py"
+			],
+			"assertions": [
+				{
+					"text": "`just test -k 'slow and not db'` passes the expression as one argument: exactly test_slow_warmup and test_slow_render are selected.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"testargs\", \"test\", \"-k\", \"slow and not db\")\nprint(out[-600:])\nsel = sorted(l.split(\".\")[-1] for l in out.splitlines() if l.startswith(\"selected:\"))\nsys.exit(0 if rc == 0 and \"filter: slow and not db\" in out and sel == [\"test_slow_render\", \"test_slow_warmup\"] else 1)\nPY"
+				},
+				{
+					"text": "Plain `just test` runs all 5 tests, and `just test tests/test_report.py` runs only that file's 2 tests.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc1, out1 = just(\"testargs\", \"test\")\nrc2, out2 = just(\"testargs\", \"test\", \"tests/test_report.py\")\nn1 = sum(l.startswith(\"selected:\") for l in out1.splitlines()); n2 = sum(l.startswith(\"selected:\") for l in out2.splitlines())\nprint(rc1, n1, rc2, n2)\nsys.exit(0 if rc1 == 0 and n1 == 5 and rc2 == 0 and n2 == 2 else 1)\nPY"
+				},
+				{
+					"text": "Shell metacharacters reach the runner literally: `just test -k '$HOME; echo pwned'` prints that exact filter and runs no extra command.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"testargs\", \"test\", \"-k\", \"$HOME; echo pwned\")\nprint(out[-400:])\nsys.exit(0 if \"filter: $HOME; echo pwned\" in out and \"\\npwned\" not in \"\\n\" + out else 1)\nPY"
+				},
+				{
+					"text": "The justfile passes `just --fmt --check` and keeps the existing check recipe.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; cd testargs && just --fmt --check && just --summary | tr ' ' '\\n' | grep -qx check"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "`just lint` in lint/ passes in CI even when the linter or the format check finds problems. Make it fail when either one fails, without changing the lint scripts.",
+			"expected_output": "Removes the '-' prefix and '|| true', explains that they masked the failures, and shows `just lint` exiting non-zero on a deliberately bad file (then restores it) and zero on the clean tree.",
+			"files": [
+				"evals/files/lint/justfile",
+				"evals/files/lint/scripts/fmt_check.py",
+				"evals/files/lint/scripts/lint.py",
+				"evals/files/lint/src/codec.py"
+			],
+			"assertions": [
+				{
+					"text": "`just lint` exits 0 on the clean tree.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"lint\", \"lint\")\nprint(out[-300:])\nsys.exit(rc)\nPY"
+				},
+				{
+					"text": "In a copy with an unused import, `just lint` exits non-zero; in a copy with only trailing whitespace, it also exits non-zero.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nbad = {}\nfor name, source in {\"unused\": \"import os\\n\\n\\ndef f():\\n    return 1\\n\", \"whitespace\": \"def g():   \\n    return 2\\n\"}.items():\n    tmp = tempfile.mkdtemp()\n    try:\n        work = os.path.join(tmp, \"lint\")\n        shutil.copytree(\"lint\", work)\n        open(os.path.join(work, \"src\", \"extra.py\"), \"w\").write(source)\n        rc, out = just(work, \"lint\")\n        if rc == 0:\n            bad[name] = out[-200:]\n    finally:\n        shutil.rmtree(tmp)\nprint(bad or \"both failures propagate\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				{
+					"text": "The lint scripts are unchanged.",
+					"check": "shasum -a 256 lint/scripts/lint.py | grep -q '^b62b24c48be7fe865c81aad84a72960c054a3cc4d6cabe1773a35acf60cdd5cb ' && shasum -a 256 lint/scripts/fmt_check.py | grep -q '^aed0e6f3fb7686db1366d61b250c0409db53f001a16cd2c5893952054f435afe '"
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Every just command in lazy/ takes over two seconds, even `just hello`, which only prints a line. Make the trivial recipes fast. `just deploy` must keep working, and the API key must never show up in the output.",
+			"expected_output": "Identifies that backtick assignments run on every invocation; adds `set lazy` (just 1.47+, after checking just --version) or moves the secret fetch into the deploy recipe; exports the key to deploy.sh instead of interpolating it into the echoed command line. Times hello before and after.",
+			"files": [
+				"evals/files/lazy/VERSION",
+				"evals/files/lazy/justfile",
+				"evals/files/lazy/scripts/deploy.sh",
+				"evals/files/lazy/scripts/fetch-secret.sh"
+			],
+			"assertions": [
+				{
+					"text": "`just hello` finishes in under 1 second and still prints the version.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nt = time.monotonic(); rc, out = just(\"lazy\", \"hello\"); dt = time.monotonic() - t\nprint(f\"{dt:.2f}s\", out.strip())\nsys.exit(0 if rc == 0 and dt < 1.0 and \"2.7.1\" in out else 1)\nPY"
+				},
+				{
+					"text": "`just deploy` succeeds, deploys 2.7.1 with an 18-character key, and never prints the key itself.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"lazy\", \"deploy\")\nprint(out.replace(\"sk-live-5f1c9e0b7a\", \"<LEAKED>\")[-300:])\nsys.exit(0 if rc == 0 and \"deploying 2.7.1 with a key of 18 characters\" in out and \"sk-live-5f1c9e0b7a\" not in out else 1)\nPY"
+				},
+				{
+					"text": "`just --list` finishes in under 1 second.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nt = time.monotonic(); rc, out = just(\"lazy\", \"--list\"); dt = time.monotonic() - t\nprint(f\"{dt:.2f}s\")\nsys.exit(0 if rc == 0 and dt < 1.0 else 1)\nPY"
+				},
+				"The reply explains that backtick assignments are evaluated on every just invocation (unless `set lazy` or the command moves into the recipe that needs it)."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Add a `clean-db` recipe to cleandb/justfile that drops the local development database with `dropdb app_dev`. Nobody should be able to run it by accident, but CI must be able to run it non-interactively. Don't drop anything while you work on this.",
+			"expected_output": "A documented clean-db recipe with [confirm] (or [confirm(\"...\")]) that runs `dropdb app_dev`; the reply says CI uses `just --yes clean-db`. Verification uses --dry-run or a stub dropdb, never the real one.",
+			"files": [
+				"evals/files/cleandb/justfile"
+			],
+			"assertions": [
+				{
+					"text": "With a stub dropdb on PATH and no terminal input, `just clean-db` refuses and does not call dropdb.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\ntmp = tempfile.mkdtemp()\ntry:\n    log = os.path.join(tmp, \"calls\")\n    stub = os.path.join(tmp, \"dropdb\")\n    open(stub, \"w\").write(f\"#!/bin/sh\\necho \\\"$@\\\" >> {log}\\n\")\n    os.chmod(stub, 0o755)\n    rc, out = just(\"cleandb\", \"clean-db\", env={\"PATH\": tmp + os.pathsep + os.environ[\"PATH\"]})\n    called = os.path.exists(log)\n    print(rc, called, out[-200:])\n    sys.exit(0 if rc != 0 and not called else 1)\nfinally:\n    shutil.rmtree(tmp)\nPY"
+				},
+				{
+					"text": "With the stub on PATH, `just --yes clean-db` calls dropdb exactly once with app_dev.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\ntmp = tempfile.mkdtemp()\ntry:\n    log = os.path.join(tmp, \"calls\")\n    stub = os.path.join(tmp, \"dropdb\")\n    open(stub, \"w\").write(f\"#!/bin/sh\\necho \\\"$@\\\" >> {log}\\n\")\n    os.chmod(stub, 0o755)\n    rc, out = just(\"cleandb\", \"--yes\", \"clean-db\", env={\"PATH\": tmp + os.pathsep + os.environ[\"PATH\"]})\n    calls = open(log).read().splitlines() if os.path.exists(log) else []\n    print(rc, calls, out[-200:])\n    sys.exit(0 if rc == 0 and len(calls) == 1 and \"app_dev\" in calls[0].split() else 1)\nfinally:\n    shutil.rmtree(tmp)\nPY"
+				},
+				{
+					"text": "clean-db has a doc comment shown by `just --list`, and db-up is kept.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"cleandb\", \"--list\")\nline = next((l for l in out.splitlines() if l.strip().startswith(\"clean-db\")), \"\")\nprint(out)\nsys.exit(0 if \"#\" in line and any(l.strip().startswith(\"db-up\") for l in out.splitlines()) else 1)\nPY"
+				},
+				{
+					"text": "The reply tells CI to run it with --yes.",
+					"check": "grep -q -- '--yes' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Reorganize modules/justfile so the frontend and backend each own their recipes: `just frontend::dev`, `just frontend::build`, and `just backend::test` should work from the repo root and run in their own directories. Drop the old flat recipes.",
+			"expected_output": "Root justfile with `mod frontend` and `mod backend`, recipes in frontend/justfile (or mod.just) and backend/justfile, running in the module directory; flat frontend-dev/backend-test removed; verified with just --list --list-submodules (or --summary) and real runs.",
+			"files": [
+				"evals/files/modules/backend/tests/__init__.py",
+				"evals/files/modules/backend/tests/test_ping.py",
+				"evals/files/modules/frontend/build.sh",
+				"evals/files/modules/frontend/dev.sh",
+				"evals/files/modules/justfile"
+			],
+			"assertions": [
+				{
+					"text": "`just frontend::dev` and `just frontend::build` run the scripts from inside frontend/.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nr1, o1 = just(\"modules\", \"frontend::dev\"); r2, o2 = just(\"modules\", \"frontend::build\")\nprint(o1.strip(), \"|\", o2.strip())\nsys.exit(0 if r1 == 0 and \"frontend dev server in frontend\" in o1 and r2 == 0 and \"frontend build in frontend\" in o2 else 1)\nPY"
+				},
+				{
+					"text": "`just backend::test` runs the backend tests and passes.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"modules\", \"backend::test\")\nprint(out[-300:])\nsys.exit(0 if rc == 0 and \"Ran 1 test\" in out else 1)\nPY"
+				},
+				{
+					"text": "The root justfile declares `mod frontend` and `mod backend`, and the flat frontend-dev and backend-test recipes are gone.",
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; cd modules && grep -Eq '^mod\\??[[:space:]]+frontend' justfile && grep -Eq '^mod\\??[[:space:]]+backend' justfile && ! just --summary | tr ' ' '\\n' | grep -Eqx 'frontend-dev|backend-test'"
+				}
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Convert the C build in cbuild/ from make to just; we want one tool for everything. The Makefile only rebuilds the object files whose sources or headers changed.",
+			"expected_output": "Out-of-scope near miss for rewriting: just has no file-timestamp tracking, so the incremental build stays in make; at most a thin justfile whose recipes call make (for example `build: make`). The Makefile is unchanged and no recipe invokes the compiler directly.",
+			"files": [
+				"evals/files/cbuild/Makefile",
+				"evals/files/cbuild/src/main.c",
+				"evals/files/cbuild/src/util.c",
+				"evals/files/cbuild/src/util.h"
+			],
+			"assertions": [
+				{
+					"text": "The Makefile still exists and is unchanged.",
+					"check": "shasum -a 256 cbuild/Makefile | grep -q '^753d929293dc31988ae818f7145f554d0d26fd789668c88748caa998565181ce '"
+				},
+				{
+					"text": "No justfile recipe calls the compiler directly (cc, gcc, clang, or $(CC)); any justfile delegates to make.",
+					"check": "f=$(ls cbuild/justfile cbuild/Justfile cbuild/.justfile 2>/dev/null | head -1); test -z \"$f\" || ! grep -Eq '(^|[[:space:]])(cc|gcc|clang)[[:space:]]|\\$\\(CC\\)|\\{\\{ *cc' \"$f\""
+				},
+				"The reply explains that just recipes do not track file timestamps or skip up-to-date targets, so replacing make would rebuild everything every time."
+			]
+		}
+	]
 }

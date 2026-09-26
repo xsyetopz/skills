@@ -1,0 +1,4 @@
+{
+  // Lines longer than this are counted.
+  "max_line_length": 100,
+}

@@ -1,0 +1,110 @@
+[
+	{
+		"query": "sample(1) on our log compressor shows 60% of time in strlen, called from the loop condition in tokenize(); input lines are ~4KB. What's the right fix, and how do I check whether clang already hoists it at -O2?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our C JSON parser does one malloc per token and frees them all at the end of the document. Instruments puts malloc/free at about 30% of CPU. Cut that down without leaking.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "clang -Rpass-missed=loop-vectorize says 'loop not vectorized: cannot prove it is safe to reorder floating-point operations' for the sum loop in stats.c. can I get it vectorized without breaking the isnan() filter in the same loop?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "the checksum loop in crc.c got 2x faster with -march=native on our build box, but customers run a mix of old and new x86 servers. how do we ship that speedup safely?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our C daemon writes each log record with its own write(2) call and dtruss counts ~900k syscalls a minute under load. Make logging cheaper but don't lose records if the process crashes.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "hyperfine says ./imgconv takes 2.3 s ± 0.04 s on our test set. It's plain C99 built with -O2, no LTO, and the hot helpers live in a different .c file than the main loop. Squeeze it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "perf stat shows 18% branch-misses in classify() of our C packet filter on random traffic. Is going branchless worth it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "sizeof(struct entry) is 40 bytes although the fields add up to 26, and our C index keeps 50 million of them in memory. help us shrink it and measure the difference",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "our C11 tool grows its output array with realloc(buf, (n + 1) * sizeof *buf) on every push and realloc tops the time profile",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Can profile-guided optimization help the dispatch loop of our bytecode interpreter (plain C, clang on Linux)? We have a representative corpus of scripts to train with.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Reformat all our C sources with clang-format and fix the -Wshadow warnings. No behavior or performance changes.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our C++ request parser spends 40% of samples in malloc from std::string copies made by split(); make it cheaper without changing results.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-cpp-code"
+	},
+	{
+		"query": "The Rust port of our parser allocates a Vec per token and criterion reports 3 µs per line. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "our C program segfaults inside free() only on inputs over 64KB, and ASan reports a heap-buffer-overflow in build_line. what's wrong?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Audit this C network message parser for buffer overflows and integer overflows in the length fields before we expose it to the internet.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Write a justfile for our C project with build, test, and an ASan+UBSan sanitize recipe using clang.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "what's the difference between memcpy and memmove in C",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our Swift image filter spends most of its time in swift_retain/swift_release according to Instruments. Make it faster.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-swift-code"
+	},
+	{
+		"query": "Split this 600-line C function into smaller pieces so new people can follow what it does.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Our C++ renderer makes a virtual call per pixel and the disassembly shows blr in the inner loop. Devirtualize it and show it's faster.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-cpp-code"
+	}
+]

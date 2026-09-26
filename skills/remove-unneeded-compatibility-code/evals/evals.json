@@ -1,35 +1,153 @@
 {
-  "skill_name": "remove-unneeded-compatibility-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Remove this compatibility alias and fallback after verifying it was never required or is explicitly retired, preserving supported consumers and unique behavior.",
-      "expected_output": "A repository-aware compatibility removal result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the compatibility removal workflow instead of returning only generic advice.",
-        "For agent-added shim plus test, Neither creates product authority by itself.",
-        "For stable external consumer, Preserve according to declared contract even if grep is empty.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Delete old-looking code without evidence about consumers or support policy.",
-      "expected_output": "The agent does not activate remove-unneeded-compatibility-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that remove-unneeded-compatibility-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Remove this compatibility alias and fallback after verifying it was never required or is explicitly retired, preserving supported consumers and unique behavior. Stress case: Wrapper removal.",
-      "expected_output": "A compatibility removal result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Retain unique validation/error/cleanup behavior.",
-        "The evidence can detect this failure: Thin wrapper deleted with required semantics.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "remove-unneeded-compatibility-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "py312/ now requires Python 3.12 (see pyproject.toml and CHANGELOG.md). Clean out the compatibility code that no supported version needs anymore. Anything our users or their saved files still rely on has to keep working.",
+			"expected_output": "Removes the tomllib/tomli version branch and the tomli dependency, the functools.cache ImportError fallback, and the pairwise polyfill. Keeps load_settings() (deprecated in 2.0, removal promised for 4.0; this is 3.2) and the timeout_s reader (2.x files still load per the 3.0 changelog). Tests pass on 3.12+ with DeprecationWarning as an error.",
+			"files": [
+				"evals/files/py312/CHANGELOG.md",
+				"evals/files/py312/data/current.toml",
+				"evals/files/py312/data/saved-2.4.toml",
+				"evals/files/py312/pyproject.toml",
+				"evals/files/py312/src/confkit/__init__.py",
+				"evals/files/py312/tests/__init__.py",
+				"evals/files/py312/tests/test_confkit.py"
+			],
+			"assertions": [
+				{
+					"text": "src/confkit has no sys.version_info branch, no tomli import, and no ImportError fallback.",
+					"check": "! grep -rEn 'version_info|import tomli|tomli as|except ImportError' py312/src"
+				},
+				{
+					"text": "pyproject.toml no longer depends on tomli and still requires Python >=3.12.",
+					"check": "! grep -q tomli py312/pyproject.toml && grep -Eq 'requires-python *= *\">=3\\.12\"' py312/pyproject.toml"
+				},
+				{
+					"text": "The test suite passes with DeprecationWarning as an error.",
+					"check": "(cd py312 && PYTHONPATH=src python3 -W error::DeprecationWarning -m unittest discover -s tests -t . 2>&1 | tail -3); cd py312 && PYTHONPATH=src python3 -W error::DeprecationWarning -m unittest discover -s tests -t . >/dev/null 2>&1"
+				},
+				{
+					"text": "load_settings() still exists, warns with DeprecationWarning, and returns the same result as load_config().",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport warnings\\nfrom confkit import load_config, load_settings\\nwith warnings.catch_warnings(record=True) as w:\\n    warnings.simplefilter(\"always\")\\n    got = load_settings(\"data/current.toml\")\\nassert got == load_config(\"data/current.toml\") == {\"timeout\": 10, \"retries\": 3}, got\\nassert any(issubclass(x.category, DeprecationWarning) for x in w), w\\n'\nenv = {**os.environ, \"PYTHONPATH\": \"src\"}\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='py312', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "A config saved by 2.x (timeout_s) still loads as timeout 45, and a new temp file using timeout_s = 7 loads as timeout 7.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport tempfile, os\\nfrom confkit import load_config, backoff_schedule, gaps\\nassert load_config(\"data/saved-2.4.toml\") == {\"timeout\": 45, \"retries\": 5}, load_config(\"data/saved-2.4.toml\")\\nwith tempfile.NamedTemporaryFile(\"w\", suffix=\".toml\", delete=False) as f:\\n    f.write(\"timeout_s = 7\\\\n\")\\ntry:\\n    assert load_config(f.name)[\"timeout\"] == 7\\nfinally:\\n    os.unlink(f.name)\\nassert gaps(backoff_schedule(5)) == [1, 2, 4, 8]\\n'\nenv = {**os.environ, \"PYTHONPATH\": \"src\"}\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='py312', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				"The reply classifies load_settings() as still required because the changelog promises removal only in 4.0 (the package is at 3.2), and the timeout_s reader as required for files saved by 2.x."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Nothing in legacy/ writes the `legacy_mode` preference anymore; we renamed it to `compact` ages ago. Delete the code that still reads it.",
+			"expected_output": "Boundary: checks stored data before deleting. stored/u1002.json and u1004.json (a snapshot of the production volume, per README) still contain legacy_mode, so the reader stays until those files are migrated in production; the reply reports this and proposes a migration (script plus a later removal). Behavior of load() is unchanged.",
+			"files": [
+				"evals/files/legacy/README.md",
+				"evals/files/legacy/prefs/__init__.py",
+				"evals/files/legacy/stored/u1001.json",
+				"evals/files/legacy/stored/u1002.json",
+				"evals/files/legacy/stored/u1003.json",
+				"evals/files/legacy/stored/u1004.json",
+				"evals/files/legacy/tests/__init__.py",
+				"evals/files/legacy/tests/test_prefs.py"
+			],
+			"assertions": [
+				{
+					"text": "Every stored preference file still loads to the same effective preferences as before.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport json\\nfrom prefs import load\\nexpect = json.loads(\\'{\"u1001.json\": {\"theme\": \"dark\", \"compact\": true, \"page_size\": 25}, \"u1002.json\": {\"theme\": \"light\", \"compact\": true, \"page_size\": 50}, \"u1003.json\": {\"theme\": \"light\", \"compact\": false, \"page_size\": 100}, \"u1004.json\": {\"theme\": \"dark\", \"compact\": false, \"page_size\": 50}}\\')\\nbad = {name: load(\"stored/\" + name) for name, want in expect.items() if load(\"stored/\" + name) != want}\\nassert not bad, bad\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='legacy', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "A preference file on the production volume that still uses legacy_mode (not in this checkout) keeps loading as compact.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport json, os, tempfile\\nfrom prefs import load\\nwith tempfile.TemporaryDirectory() as tmp:\\n    p = os.path.join(tmp, \"u2001.json\")\\n    open(p, \"w\").write(json.dumps({\"legacy_mode\": True, \"page_size\": 10}))\\n    got = load(p)\\nassert got == {\"theme\": \"light\", \"compact\": True, \"page_size\": 10}, got\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='legacy', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "The existing test still passes.",
+					"check": "(cd legacy && python3 -m unittest -q 2>&1 | tail -2); cd legacy && python3 -m unittest -q >/dev/null 2>&1"
+				},
+				"The reply names the stored files that still contain legacy_mode (u1002.json and u1004.json, or says that stored data still uses it) and explains that the reader must stay until that data is migrated."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "We're releasing @acme/units 5.0 from npmexport/. The `@acme/units/legacy` entry point has been deprecated since 3.0 and announced for removal in 5.0. Remove it for the release, including the version bump and changelog. Other subpath imports like `@acme/units/length` must keep working.",
+			"expected_output": "Removes the ./legacy export, src/legacy.js and dist/legacy.js, and notices that the ./* wildcard would still expose ./legacy if dist/legacy.js remained; bumps version to 5.0.0; adds a 5.0.0 changelog section with a Removed entry; keeps ./length resolvable; checks the packed file list.",
+			"files": [
+				"evals/files/npmexport/CHANGELOG.md",
+				"evals/files/npmexport/dist/index.js",
+				"evals/files/npmexport/dist/legacy.js",
+				"evals/files/npmexport/dist/length.js",
+				"evals/files/npmexport/package.json",
+				"evals/files/npmexport/src/index.js",
+				"evals/files/npmexport/src/legacy.js",
+				"evals/files/npmexport/src/length.js"
+			],
+			"assertions": [
+				{
+					"text": "Resolving the package exports: `./legacy` resolves to nothing (no explicit key, and no wildcard target file exists), while `.` and `./length` resolve to existing files.",
+					"check": "python3 - <<'PY'\nimport json, os, sys\npkg = json.load(open(\"npmexport/package.json\"))\nexports = pkg.get(\"exports\") or {}\ndef resolve(sub):\n    if sub in exports:\n        t = exports[sub]\n        t = t if isinstance(t, str) else (t.get(\"import\") or t.get(\"default\"))\n        return t\n    for key, target in exports.items():\n        if \"*\" in key:\n            pre, post = key.split(\"*\", 1)\n            if sub.startswith(pre) and sub.endswith(post) and len(sub) >= len(pre) + len(post):\n                mid = sub[len(pre):len(sub) - len(post)]\n                t = target if isinstance(target, str) else (target.get(\"import\") or target.get(\"default\"))\n                return t.replace(\"*\", mid) if t else None\n    return None\ndef exists(t):\n    return t is not None and os.path.exists(os.path.join(\"npmexport\", t))\nlegacy, root, length = resolve(\"./legacy\"), resolve(\".\"), resolve(\"./length\")\nprint(\"legacy ->\", legacy, exists(legacy), \"| . ->\", root, exists(root), \"| ./length ->\", length, exists(length))\nsys.exit(0 if not exists(legacy) and exists(root) and exists(length) and not (legacy and \"legacy\" in legacy and \"./legacy\" in exports) else 1)\nPY"
+				},
+				{
+					"text": "No legacy.js source or build file remains.",
+					"check": "test -z \"$(find npmexport -name 'legacy*')\""
+				},
+				{
+					"text": "package.json version is 5.0.0.",
+					"check": "python3 -c \"import json,sys; v=json.load(open('npmexport/package.json'))['version']; print(v); sys.exit(0 if v=='5.0.0' else 1)\""
+				},
+				{
+					"text": "CHANGELOG.md has a 5.0.0 section that records removing the legacy entry point.",
+					"check": "python3 - <<'PY'\nimport re, sys\ntext = open(\"npmexport/CHANGELOG.md\").read()\nm = re.search(r\"^## \\[?5\\.0\\.0\\]?.*?(?=^## |\\Z)\", text, re.M | re.S)\nprint(m.group(0) if m else \"no 5.0.0 section\")\nsys.exit(0 if m and re.search(r\"remov\", m.group(0), re.I) and \"legacy\" in m.group(0) else 1)\nPY"
+				},
+				"The reply notes that the `./*` wildcard export would keep exposing `./legacy` if dist/legacy.js were still shipped, and says how the packed contents were checked (npm pack --dry-run, bun pm pack --dry-run, or an equivalent listing)."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "oldclient/api/__init__.py has a parse_v1_header function with a comment saying it's kept for old clients, from 2019. That's ancient. Just delete it.",
+			"expected_output": "Boundary: does not delete on age. route() still calls it for Accept: acme-v1 headers, and docs/SUPPORT.md keeps v1 supported until 2027-06-30 (the mobile app 4.x still sends it). The reply reports the evidence and what would allow removal (after that date or a policy change), leaving the code in place or asking first.",
+			"files": [
+				"evals/files/oldclient/api/__init__.py",
+				"evals/files/oldclient/docs/SUPPORT.md",
+				"evals/files/oldclient/tests/__init__.py",
+				"evals/files/oldclient/tests/test_route.py"
+			],
+			"assertions": [
+				{
+					"text": "v1 requests still route correctly: 'acme-v1/eu' gives version 1 region eu, and 'acme-v1' gives region us.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nfrom api import route\\nassert route({\"Accept\": \"acme-v1/eu\"}) == {\"version\": 1, \"region\": \"eu\"}, route({\"Accept\": \"acme-v1/eu\"})\\nassert route({\"Accept\": \"acme-v1\"}) == {\"version\": 1, \"region\": \"us\"}\\nassert route({\"Accept\": \"application/vnd.acme.v2+json; region=eu\"}) == {\"version\": 2, \"region\": \"eu\"}\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='oldclient', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "The reply cites the support policy (docs/SUPPORT.md or the 2027-06-30 date).",
+					"check": "grep -Eq 'SUPPORT\\.md|2027' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply explains that route() still calls parse_v1_header for acme-v1 requests, so deleting it would break v1 clients that the policy still supports."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "textkit/__init__.py in readable/ is hard to follow. Make it easier to read without changing what it does.",
+			"expected_output": "Out-of-scope near miss: a readability refactor. summarize() becomes a Counter or dict.get version with the same output; the pairs() version branch stays because requires-python is >=3.9, which lacks itertools.pairwise. Tests pass.",
+			"files": [
+				"evals/files/readable/pyproject.toml",
+				"evals/files/readable/tests/__init__.py",
+				"evals/files/readable/tests/test_textkit.py",
+				"evals/files/readable/textkit/__init__.py"
+			],
+			"assertions": [
+				{
+					"text": "The tests pass and summarize() matches the original output on 4 hidden inputs.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport json, unittest\\nfrom textkit import pairs, summarize\\nfor words, want in json.loads(\\'[[[\"b\", \"A\", \"a\", \" \", \"c\", \"B \"], \"a:2, b:2, c:1\"], [[], \"\"], [[\"\", \"  \", \"x\"], \"x:1\"], [[\"Zed\", \"zed\", \"alpha\", \"Beta\", \"beta\", \"ALPHA\", \"gamma\"], \"alpha:2, beta:2, zed:2, gamma:1\"]]\\'):\\n    assert summarize(words) == want, (words, summarize(words), want)\\nassert pairs([1, 2, 3]) == [(1, 2), (2, 3)] and pairs([]) == []\\nsuite = unittest.defaultTestLoader.discover(\"tests\", top_level_dir=\".\")\\nassert unittest.TextTestRunner(verbosity=0).run(suite).wasSuccessful()\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='readable', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "pairs() still works on Python 3.9: itertools.pairwise is used only behind a version check, or not at all.",
+					"check": "src=readable/textkit/__init__.py; ! grep -q pairwise $src || grep -q 'version_info' $src"
+				},
+				{
+					"text": "requires-python is still >=3.9.",
+					"check": "grep -Eq 'requires-python *= *\">=3\\.9\"' readable/pyproject.toml"
+				}
+			]
+		}
+	]
 }

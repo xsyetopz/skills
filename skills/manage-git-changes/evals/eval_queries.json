@@ -1,0 +1,110 @@
+[
+	{
+		"query": "I have a bunch of changes in my working tree. Split them into two commits: one for the retry logic in client.py and one for the logging tweaks, some of which are also in client.py.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "help, I did `git reset --hard` and my last two commits are gone. They were never pushed.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Rebase my branch onto the latest main. I expect conflicts in package.json; keep my dependency versions but main's scripts section.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Backport commit 3f2a91c from main to the release/2.4 branch and make it obvious in the message where it came from.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The pre-commit hook reformats files when I commit, and last time the commit ended up missing the formatting changes. Commit my staged changes and make sure what gets committed is what the hook produced.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I amended the last commit after it was already pushed to origin/feature-auth. Update the remote safely; a colleague might have pushed to it too.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The commit that merged feature/payments into main broke prod and main is shared. Undo it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "I need to review a hotfix on another branch while I'm in the middle of a messy refactor here. How do I check it out without stashing or committing my half-done work?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "squash the 'wip' and 'fix typo' commits on my branch into the commits they belong to before I open the PR",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "git stash pop gave me conflicts and now I'm scared I lost the stash. What state am I in and how do I finish safely?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Open a draft pull request from my current branch to main and request review from @lena.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "manage-git-hosting"
+	},
+	{
+		"query": "Some test started failing somewhere in the last 200 commits. Find which commit introduced it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Write the changelog entries for everything between v2.3.0 and HEAD.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "Set up a Claude Code hook that blocks any `git push --force` the agent tries to run.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "What does `git rebase` do compared to `git merge`, conceptually?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our GitHub Actions workflow checks out the repo with fetch-depth 1 and then `git describe` fails. Fix the workflow.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Merge PR #212 with squash once its checks pass, then delete the branch on GitHub.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-hosting"
+	},
+	{
+		"query": "Add a line to AGENTS.md telling agents to never commit without running the tests first.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "What's a good .gitignore for a Python project using uv?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Publish the v1.8.0 release on GitHub with the notes from CHANGELOG.md.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-hosting"
+	}
+]

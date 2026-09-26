@@ -1,0 +1,9 @@
+{
+	"name": "quotes-server",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "node dist/server.js",
+		"dev": "node --watch dist/server.js"
+	}
+}

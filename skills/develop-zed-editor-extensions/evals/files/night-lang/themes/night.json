@@ -1,0 +1,29 @@
+{
+	"$schema": "https://zed.dev/schema/themes/v0.2.0.json",
+	"name": "Night",
+	"author": "Dana Ortiz",
+	"themes": [
+		{
+			"name": "Night Dark",
+			"appearance": "dark",
+			"style": {
+				"background": "#101418",
+				"foreground": "#d8dee9",
+				"editor.background": "#101418",
+				"editor.foreground": "#d8dee9",
+				"border": "#1f2630",
+				"text": "#d8dee9",
+				"text.muted": "slategray",
+				"error": "tomato",
+				"warning": "#ebcb8b",
+				"syntax": {
+					"comment": { "color": "#616e88", "font_style": "italic" },
+					"string": { "color": "#a3be8c" },
+					"number": { "color": "tomato" },
+					"property": { "color": "#88c0d0" },
+					"boolean": { "color": "#b48ead", "font_weight": 700 }
+				}
+			}
+		}
+	]
+}

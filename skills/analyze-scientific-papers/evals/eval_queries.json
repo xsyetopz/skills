@@ -1,0 +1,105 @@
+[
+  {
+    "query": "What does the research actually say about whether pair programming reduces defects? I need something I can defend in front of our VP, not a blog summary.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "This preprint reports t(28) = 1.20, p = .03 for its main effect. Should we trust it enough to base our onboarding redesign on it?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Summarize the findings of DOI 10.1016/S0140-6736(97)11096-0 for my literature review.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Three papers found the caching effect significant and two didn't, so it's real, right?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "is there good evidence that 4-day work weeks keep productivity the same? find the studies and tell me how solid they are",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Our PM is citing arXiv 2305.10601 to argue we should switch to tree-of-thoughts prompting. Is that paper's claim solid, and which version is he even citing?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Based only on the abstract, does this paper prove model X beats model Y on code search?",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "I keep hearing that code review catches most bugs. Check the literature for me, including studies that found the opposite.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Nobody seems to have studied flaky-test rates in monorepos. Can you confirm there's really no published work on it?",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Does this RCT on remote onboarding apply to a 20-person startup? The trial was run at a large bank. I have the PDF.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Format these five references in APA 7th style.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Convert my BibTeX file to a numbered IEEE reference list.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Our p99 latency doubled after the last deploy. Figure out why.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "debug-software-failures"
+  },
+  {
+    "query": "Write the related-work section of my paper in a more academic tone; here's my draft.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Write a Python script that computes a t-test from two CSV columns.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Explain what a p-value is to a product manager.",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "Write acceptance criteria for our experiment dashboard: what it shows when a test is inconclusive.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "define-requirements"
+  },
+  {
+    "query": "Document how to run our benchmark suite in the README so the numbers are reproducible.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "document-codebases"
+  },
+  {
+    "query": "Translate this abstract into Japanese.",
+    "should_trigger": false,
+    "split": "validation"
+  },
+  {
+    "query": "Make a chart of our A/B test results by week.",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

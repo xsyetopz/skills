@@ -1,35 +1,91 @@
 {
-  "skill_name": "optimize-kotlin-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Kotlin workload for its declared backend while preserving coroutine cancellation, collection/lazy semantics, nullability, exceptions, and target behavior.",
-      "expected_output": "A repository-aware Kotlin optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Kotlin optimization workflow instead of returning only generic advice.",
-        "For backend, Use JVM tools only for Kotlin/JVM.",
-        "For sequence conversion, Measure allocations and preserve evaluation timing.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Optimize Java source.",
-      "expected_output": "The agent does not activate optimize-kotlin-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-kotlin-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Kotlin workload for its declared backend while preserving coroutine cancellation, collection/lazy semantics, nullability, exceptions, and target behavior. Stress case: Coroutines.",
-      "expected_output": "A Kotlin optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Preserve structured concurrency and cancellation.",
-        "The evidence can detect this failure: Detached work improves latency artificially.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-kotlin-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "The dashboard calls topIds() in toporders/TopOrders.kt on every refresh with about 200k orders and a limit of 20, and it is hot in async-profiler with ArrayList.grow and Long.valueOf under it. toporders/Replay.kt replays the workload (`kotlinc toporders/*.kt -include-runtime -d replay.jar && java -cp replay.jar toporders.ReplayKt`). Make topIds cheaper without changing its signature or any result, including what happens for unusual limits. Show bytes allocated per call before and after.",
+			"expected_output": "A lazy (asSequence) or early-exit candidate that keeps take's IllegalArgumentException for negative limits, an oracle over limits -1, 0, small, and larger than the number of matches, a check that the lambdas have no side effects the eager version relied on, and per-call allocation (ThreadMXBean or JMH gc.alloc.rate.norm) for baseline and candidate on the same JDK.",
+			"files": [
+				"evals/files/toporders/TopOrders.kt",
+				"evals/files/toporders/Replay.kt"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned oracle gets the same list or the same exception type as the original for empty, boundary-total, mixed, and extreme-value inputs with limits -1, 0, 1, 2, 20, and 10000.",
+					"check": "command -v kotlinc >/dev/null && command -v java >/dev/null || { echo 'FAIL: kotlinc or java not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nmkdir \"$d/src\" && cp -R toporders/. \"$d/src/\" || exit 1\nfind \"$d/src\" -name '*.kt' | xargs grep -lE '^import (kotlinx\\.|org\\.openjdk\\.jmh|org\\.junit|kotlin\\.test)' | xargs rm -f\nfind \"$d/src\" ! -name '*.kt' -type f -delete\ncat > \"$d/ZzEval.kt\" <<'EOF'\nimport java.lang.management.ManagementFactory\nimport toporders.Order\nimport toporders.topIds\n\nprivate fun zzBase(orders: List<Order>, limit: Int): List<Long> = orders.filter { it.total > 100 }.map { it.id }.take(limit)\n\nprivate fun outcome(f: (List<Order>, Int) -> List<Long>, orders: List<Order>, limit: Int): String =\n    try { f(orders, limit).toString() } catch (e: Exception) { e.javaClass.name }\n\nprivate var sink = 0L\n\nprivate fun bytesPerCall(f: (List<Order>, Int) -> List<Long>, orders: List<Order>): Long {\n    val mx = ManagementFactory.getThreadMXBean() as com.sun.management.ThreadMXBean\n    repeat(300) { sink += f(orders, 20).size }\n    val before = mx.currentThreadAllocatedBytes\n    repeat(200) { sink += f(orders, 20).size }\n    return (mx.currentThreadAllocatedBytes - before) / 200\n}\n\nfun main(args: Array<String>) {\n    if (args[0] == \"equiv\") {\n        val mixed = List(500) { i -> Order(i * 1000L - 7, (i * 53) % 300) }\n        val inputs = listOf(emptyList(), listOf(Order(1, 100)), listOf(Order(1, 101)), mixed,\n            listOf(Order(Long.MIN_VALUE, Int.MAX_VALUE), Order(Long.MAX_VALUE, 101), Order(5, Int.MIN_VALUE)))\n        var bad = 0\n        for (orders in inputs) for (limit in listOf(-1, 0, 1, 2, 20, 10_000)) {\n            val want = outcome(::zzBase, orders, limit)\n            val got = outcome(::topIds, orders, limit)\n            if (want != got) { bad++; println(\"MISMATCH size=${orders.size} limit=$limit: got $got, want $want\") }\n        }\n        println(\"equivalence mismatches=$bad\")\n        kotlin.system.exitProcess(if (bad == 0) 0 else 1)\n    }\n    val orders = List(200_000) { i -> Order(1_000_000L + i, (i * 37) % 250) }\n    val b = bytesPerCall(::zzBase, orders)\n    val c = bytesPerCall(::topIds, orders)\n    println(\"bytes per topIds(orders, 20) on 200000 orders: baseline $b, candidate $c\")\n    kotlin.system.exitProcess(if (c * 20 <= b) 0 else 1)\n}\nEOF\nkotlinc \"$d/src\" \"$d/ZzEval.kt\" -include-runtime -d \"$d/eval.jar\" > \"$d/kc.log\" 2>&1 || { grep -i error \"$d/kc.log\" | head -5; exit 1; }\njava -cp \"$d/eval.jar\" ZzEvalKt equiv"
+				},
+				{
+					"text": "topIds(orders, 20) on 200000 orders allocates at most 5% of the original's bytes per call after warmup (ThreadMXBean, same JVM; the original allocates about 5 MB).",
+					"check": "command -v kotlinc >/dev/null && command -v java >/dev/null || { echo 'FAIL: kotlinc or java not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nmkdir \"$d/src\" && cp -R toporders/. \"$d/src/\" || exit 1\nfind \"$d/src\" -name '*.kt' | xargs grep -lE '^import (kotlinx\\.|org\\.openjdk\\.jmh|org\\.junit|kotlin\\.test)' | xargs rm -f\nfind \"$d/src\" ! -name '*.kt' -type f -delete\ncat > \"$d/ZzEval.kt\" <<'EOF'\nimport java.lang.management.ManagementFactory\nimport toporders.Order\nimport toporders.topIds\n\nprivate fun zzBase(orders: List<Order>, limit: Int): List<Long> = orders.filter { it.total > 100 }.map { it.id }.take(limit)\n\nprivate fun outcome(f: (List<Order>, Int) -> List<Long>, orders: List<Order>, limit: Int): String =\n    try { f(orders, limit).toString() } catch (e: Exception) { e.javaClass.name }\n\nprivate var sink = 0L\n\nprivate fun bytesPerCall(f: (List<Order>, Int) -> List<Long>, orders: List<Order>): Long {\n    val mx = ManagementFactory.getThreadMXBean() as com.sun.management.ThreadMXBean\n    repeat(300) { sink += f(orders, 20).size }\n    val before = mx.currentThreadAllocatedBytes\n    repeat(200) { sink += f(orders, 20).size }\n    return (mx.currentThreadAllocatedBytes - before) / 200\n}\n\nfun main(args: Array<String>) {\n    if (args[0] == \"equiv\") {\n        val mixed = List(500) { i -> Order(i * 1000L - 7, (i * 53) % 300) }\n        val inputs = listOf(emptyList(), listOf(Order(1, 100)), listOf(Order(1, 101)), mixed,\n            listOf(Order(Long.MIN_VALUE, Int.MAX_VALUE), Order(Long.MAX_VALUE, 101), Order(5, Int.MIN_VALUE)))\n        var bad = 0\n        for (orders in inputs) for (limit in listOf(-1, 0, 1, 2, 20, 10_000)) {\n            val want = outcome(::zzBase, orders, limit)\n            val got = outcome(::topIds, orders, limit)\n            if (want != got) { bad++; println(\"MISMATCH size=${orders.size} limit=$limit: got $got, want $want\") }\n        }\n        println(\"equivalence mismatches=$bad\")\n        kotlin.system.exitProcess(if (bad == 0) 0 else 1)\n    }\n    val orders = List(200_000) { i -> Order(1_000_000L + i, (i * 37) % 250) }\n    val b = bytesPerCall(::zzBase, orders)\n    val c = bytesPerCall(::topIds, orders)\n    println(\"bytes per topIds(orders, 20) on 200000 orders: baseline $b, candidate $c\")\n    kotlin.system.exitProcess(if (c * 20 <= b) 0 else 1)\n}\nEOF\nkotlinc \"$d/src\" \"$d/ZzEval.kt\" -include-runtime -d \"$d/eval.jar\" > \"$d/kc.log\" 2>&1 || { grep -i error \"$d/kc.log\" | head -5; exit 1; }\njava -cp \"$d/eval.jar\" ZzEvalKt allocs || { echo \"FAIL: topIds still allocates more than 5% of the original bytes per call\"; exit 1; }"
+				},
+				"The reply reports bytes per call (thread allocation counter or gc.alloc.rate.norm) for baseline and candidate with the JDK version, from runs it performed.",
+				"The reply checks or states that the filter and map lambdas have no side effects that the eager version ran for every element."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Our Kotlin/JVM service spends a lot of time in this helper according to JFR: `fun <T> retrying(times: Int, block: () -> T): T { repeat(times - 1) { runCatching { return block() } }; return block() }`. It is called with small capturing lambdas on every request. Someone wants to mark it `inline`. Do it only if it helps and show evidence.",
+			"expected_output": "The agent inspects bytecode for the lambda object, measures allocation or time with JMH or the thread counter, and addresses the runCatching cancellation hazard.",
+			"assertions": [
+				"The response runs javap -c (or equivalent) on the compiled caller and reports whether an invokedynamic Function0 is created per call before and after.",
+				"The response measures bytes per operation (JMH -prof gc gc.alloc.rate.norm or ThreadMXBean deltas after warm-up) for baseline and candidate rather than asserting a benefit from bytecode alone.",
+				"The response states that C2 escape analysis may already remove the lambda allocation and reports a no-difference result honestly if measured.",
+				"The response flags that runCatching around block() swallows CancellationException if block suspends or is used from coroutines, or states why it does not apply."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "We wrap user IDs as `data class UserId(val raw: Long)` and keep `List<UserId>` with millions of entries; heap dumps are dominated by UserId. Can @JvmInline value class fix this?",
+			"expected_output": "The agent explains that value classes box as generic type arguments, proposes a LongArray-backed storage, and verifies with javap box-impl checks and allocation numbers.",
+			"assertions": [
+				"The response states that a value class used as a List element type is boxed (box-impl) and therefore does not remove the per-element objects by itself.",
+				"The response proposes storing the underlying longs in a LongArray (or a value class wrapping LongArray) for the bulk data.",
+				"The response verifies with javap for box-impl calls and with an allocation or heap measurement.",
+				"The response mentions Java interop consequences of value classes (mangled function names or @JvmName)."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "In a Ktor handler we call `runBlocking { repo.load(id) }` for each item inside a `for` loop, and the repo does JDBC calls on Dispatchers.Default. Latency spikes under load. Fix it.",
+			"expected_output": "Removes per-item runBlocking, moves blocking JDBC to Dispatchers.IO or a limitedParallelism view sized to the pool, keeps structured concurrency, and proves it with dispatcher peak or latency evidence.",
+			"assertions": [
+				"The response removes runBlocking from the suspend handler path and calls the suspend function directly.",
+				"Blocking JDBC calls run under withContext(Dispatchers.IO) or Dispatchers.IO.limitedParallelism(n) where n matches the connection pool.",
+				"Any added concurrency uses coroutineScope with async/awaitAll or launch, not GlobalScope.",
+				"The response gives evidence: thread dumps, a peak-concurrency check, or a latency measurement before and after, not only a code change."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our Flow pipeline `source.map { parse(it) }.collect { db.write(it) }` is slow; parse is CPU heavy and write is slow I/O. A colleague suggests `.conflate()` to speed it up.",
+			"expected_output": "The agent rejects conflate because every element must be written, proposes flowOn and/or buffer, and verifies with runTest virtual time and element counts.",
+			"assertions": [
+				"The response rejects or flags conflate because it drops intermediate elements that must be written.",
+				"The response proposes buffer() and/or flowOn(Dispatchers.Default) for the parse step and explains which side each moves.",
+				"The verification counts delivered elements and measures time (runTest virtual time or a real benchmark) for baseline and candidate.",
+				"The response notes that withContext inside flow { } violates the flow invariant if it considers context switching."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Tune the JVM garbage collector flags for our Java 21 gateway service in gateway/ (the flags live in gateway/jvm.options; the container has a 2 GiB memory limit and 2 CPUs). The service is written in Java; there is no Kotlin in this repository.",
+			"expected_output": "Java/JVM flag advice or edits that the JVM accepts, sized to the container, with a measurement plan (GC logs or JFR before and after), and no Kotlin, kotlinx.coroutines, or kotlinc introduced.",
+			"files": [
+				"evals/files/gateway/jvm.options",
+				"evals/files/gateway/Dockerfile",
+				"evals/files/gateway/src/main/java/gw/App.java"
+			],
+			"assertions": [
+				{
+					"text": "The local JVM accepts every flag in gateway/jvm.options (`java @gateway/jvm.options -version` succeeds).",
+					"check": "command -v java >/dev/null || { echo 'FAIL: java not found on PATH'; exit 1; }\n[ -s gateway/jvm.options ] || { echo 'FAIL: gateway/jvm.options missing or empty'; exit 1; }\njava @gateway/jvm.options -version > /dev/null 2>&1 || { echo 'FAIL: the JVM rejects gateway/jvm.options:'; java @gateway/jvm.options -version 2>&1 | head -3; exit 1; }"
+				},
+				{
+					"text": "No Kotlin sources, build scripts, or kotlin/kotlinx references were added to gateway/.",
+					"check": "if find gateway -name '*.kt' -o -name '*.kts' | grep -q .; then echo 'FAIL: Kotlin files added to gateway/'; exit 1; fi\nif grep -rqE 'org\\.jetbrains\\.kotlin|^import kotlin|kotlinx\\.|kotlin-stdlib|kotlin-maven-plugin' gateway; then echo 'FAIL: Kotlin or kotlinx referenced in gateway/'; exit 1; fi"
+				},
+				"The reply proposes measuring GC behavior before and after (for example -Xlog:gc or a JFR recording under the same load) rather than presenting the new flags as a proven improvement."
+			]
+		}
+	]
 }

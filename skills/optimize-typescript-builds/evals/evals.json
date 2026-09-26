@@ -1,0 +1,151 @@
+{
+	"skill_name": "optimize-typescript-builds",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "`npm run typecheck` in scope/ (a small pricing library) is slower than it should be and keeps growing. Find out what the compiler is actually checking and trim it, but the same `tsc -p .` must keep checking everything in src/ and the tests in test/. Show before and after numbers. Install typescript from scope/package.json if you need it.",
+			"expected_output": "tsc --listFilesOnly/--explainFiles and --extendedDiagnostics show the program pulls in fixtures/generated/payloads.ts and the stale dist/index.d.ts through include **/*; the include is scoped to src and test (or those folders are excluded), the typecheck still passes, and Files/Types/Check time are reported before and after with the same flags.",
+			"files": [
+				"evals/files/scope/README.md",
+				"evals/files/scope/dist/index.d.ts",
+				"evals/files/scope/fixtures/generated/payloads.ts",
+				"evals/files/scope/package.json",
+				"evals/files/scope/src/discount.ts",
+				"evals/files/scope/src/index.ts",
+				"evals/files/scope/src/price.ts",
+				"evals/files/scope/test/discount.test.ts",
+				"evals/files/scope/tsconfig.json"
+			],
+			"assertions": [
+				{
+					"text": "`tsc -p . --listFilesOnly` still lists every src/ file and the test file, and no longer lists fixtures/generated/ or dist/",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/scope/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in scope/ or set TSC_BIN\"; exit 1; }\ncd scope || exit 1\nfiles=$(\"$TSC\" -p . --listFilesOnly) || { echo \"$files\" | tail -5; exit 1; }\nfor f in src/price.ts src/discount.ts src/index.ts test/discount.test.ts; do\n  echo \"$files\" | grep -q \"/$f\\$\" || { echo \"missing $f\"; exit 1; }\ndone\nif echo \"$files\" | grep -Eq '/(fixtures|dist)/'; then echo \"still includes fixtures/ or dist/\"; exit 1; fi"
+				},
+				{
+					"text": "`tsc -p .` still type-checks cleanly",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/scope/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in scope/ or set TSC_BIN\"; exit 1; }\ncd scope || exit 1\n\"$TSC\" -p ."
+				},
+				{
+					"text": "The tests still pass under node --test",
+					"check": "cd scope && node --test test/"
+				},
+				"The reply reports compiler counters (Files, Types or Lines, and Check time from --extendedDiagnostics) for the same command before and after the change, and shows what attributed the extra files (--listFilesOnly or --explainFiles output)."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Our orders API in metadata/ starts slowly. Analytics is disabled in production, but the startup profile still shows the analytics SDK (src/vendor/analytics-sdk.ts) being evaluated. Our DI container resolves dependencies from @Inject tokens, not reflected types. Fix startup without breaking the ANALYTICS=1 path. Build with `tsc -p .` (typescript is in metadata/package.json) and run with `node dist/main.js`.",
+			"expected_output": "Shows __metadata(\"design:paramtypes\", [AnalyticsClient]) in the emitted order-handler.js retaining the SDK import, confirms nothing reads design:* metadata or Reflect.getMetadata, then disables emitDecoratorMetadata or turns the import into `import type`; startup no longer evaluates the SDK and ANALYTICS=1 still tracks; start-up time is measured before and after.",
+			"files": [
+				"evals/files/metadata/package.json",
+				"evals/files/metadata/src/di.ts",
+				"evals/files/metadata/src/main.ts",
+				"evals/files/metadata/src/order-handler.ts",
+				"evals/files/metadata/src/tokens.ts",
+				"evals/files/metadata/src/vendor/analytics-sdk.ts",
+				"evals/files/metadata/tsconfig.json"
+			],
+			"assertions": [
+				{
+					"text": "After `tsc -p .`, `node dist/main.js` prints only `handled order 42` (the SDK is not evaluated)",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/metadata/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in metadata/ or set TSC_BIN\"; exit 1; }\ncd metadata || exit 1\n\"$TSC\" -p . || exit 1\nout=$(node dist/main.js) || exit 1\necho \"$out\"\ntest \"$out\" = \"handled order 42\""
+				},
+				{
+					"text": "With ANALYTICS=1 the SDK loads and tracks the order exactly as before",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/metadata/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in metadata/ or set TSC_BIN\"; exit 1; }\ncd metadata || exit 1\n\"$TSC\" -p . || exit 1\nout=$(ANALYTICS=1 node dist/main.js) || exit 1\necho \"$out\"\necho \"$out\" | grep -q '^analytics-sdk evaluated' \\\n  && echo \"$out\" | grep -qx 'track order {\"orderId\":42} true' \\\n  && test \"$(echo \"$out\" | tail -1)\" = \"handled order 42\""
+				},
+				{
+					"text": "The code still uses the legacy parameter decorators (no switch to standard decorators)",
+					"check": "cd metadata && grep -q '@Inject(ANALYTICS)' src/order-handler.ts && grep -Eq '\"experimentalDecorators\" *: *true' tsconfig.json"
+				},
+				"The reply shows the emitted __metadata(\"design:paramtypes\", ...) line or the retained import in dist/order-handler.js as the cause, and states that it checked nothing reads the reflected metadata before removing it."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "I want to drop the build step in strip/ and run src/main.ts directly with Node (we're on Node 24+). What has to change? Please make the changes. `node src/main.ts` must print exactly what `node dist/main.js` prints after today's `tsc -p .` build.",
+			"expected_output": "Enables erasableSyntaxOnly (and verbatimModuleSyntax) and uses the errors as the worklist; replaces the enum with an as-const object plus type, the namespace with module exports, the parameter property with an explicit field, uses `import type` for Repo so repo.ts is not evaluated early, switches specifiers to .ts, updates start/CI, and keeps a tsc --noEmit type-check step because Node does not type-check.",
+			"files": [
+				"evals/files/strip/.github/workflows/ci.yml",
+				"evals/files/strip/package.json",
+				"evals/files/strip/src/config.ts",
+				"evals/files/strip/src/main.ts",
+				"evals/files/strip/src/repo.ts",
+				"evals/files/strip/src/roles.ts",
+				"evals/files/strip/src/service.ts",
+				"evals/files/strip/tsconfig.json"
+			],
+			"assertions": [
+				{
+					"text": "`node src/main.ts` prints the same three lines, in the same order, as the old build",
+					"check": "node -e 'const [a, b] = process.versions.node.split(\".\").map(Number); process.exit(a > 22 || (a === 22 && b >= 18) ? 0 : 1)' \\\n  || { echo \"Node 22.18+ (type stripping) required\"; exit 1; }\ncd strip && out=$(node src/main.ts) || exit 1\necho \"$out\"\ntest \"$out\" = \"$(printf 'listening on 8080 in eu-west-1\\n[metrics] repo gauge registered\\nrefund 1: true, refund 2: false, role 1 is User')\""
+				},
+				{
+					"text": "tsconfig enables erasableSyntaxOnly and `tsc -p . --noEmit` passes",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/strip/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in strip/ or set TSC_BIN\"; exit 1; }\ncd strip || exit 1\n\"$TSC\" -p . --showConfig | grep -Eq '\"erasableSyntaxOnly\": *true' || { echo \"erasableSyntaxOnly not enabled\"; exit 1; }\n\"$TSC\" -p . --noEmit"
+				},
+				{
+					"text": "A tsc --noEmit type-check script remains and CI runs it (or runs tsc --noEmit directly)",
+					"check": "cd strip && python3 - <<'PY'\nimport json, re, sys\nscripts = json.load(open(\"package.json\")).get(\"scripts\", {})\nnames = [n for n, cmd in scripts.items() if re.search(r\"\\btsc\\b\", cmd) and \"--noEmit\" in cmd]\nci = open(\".github/workflows/ci.yml\").read()\nok = bool(re.search(r\"tsc\\b[^\\n]*--noEmit\", ci)) or any(re.search(rf\"run {re.escape(n)}\\b|\\b{re.escape(n)}\\b\", ci) for n in names)\nprint(\"typecheck scripts:\", names)\nsys.exit(0 if names and ok else 1)\nPY"
+				},
+				{
+					"text": "No TypeScript enum, namespace, or constructor parameter property remains in src/",
+					"check": "! grep -rEq '^[[:space:]]*(export[[:space:]]+)?(declare[[:space:]]+)?(const[[:space:]]+)?enum[[:space:]]|^[[:space:]]*(export[[:space:]]+)?namespace[[:space:]]|constructor\\([^)]*(private|public|protected|readonly)[[:space:]]' strip/src"
+				}
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Convert all the enums in constenum/src to `const enum` for performance. Our tsconfig has isolatedModules on and we build with tsc 7.0.2 (constenum/package.json).",
+			"expected_output": "Compiles a sample before converting and shows that under isolatedModules tsc 7.0.2 keeps the enum object (preserveConstEnums) and keeps property reads at use sites, so the conversion removes nothing; declines the bulk conversion (or offers as-const objects if erasable syntax is a goal) and does not claim a runtime speedup without a measurement.",
+			"files": [
+				"evals/files/constenum/package.json",
+				"evals/files/constenum/src/filter.ts",
+				"evals/files/constenum/src/levels.ts",
+				"evals/files/constenum/src/main.ts",
+				"evals/files/constenum/tsconfig.json"
+			],
+			"assertions": [
+				{
+					"text": "No const enum was introduced in constenum/src",
+					"check": "! grep -rq 'const enum' constenum/src"
+				},
+				{
+					"text": "The project still builds and prints the same four lines",
+					"check": "command -v node >/dev/null || { echo \"node not installed\"; exit 1; }\nTSC=\"\"\nfor c in \"${TSC_BIN:-}\" \"$PWD/constenum/node_modules/.bin/tsc\" \"$PWD/node_modules/.bin/tsc\" \"$(command -v tsc 2>/dev/null)\"; do\n  if [ -n \"$c\" ] && [ -x \"$c\" ]; then TSC=\"$c\"; break; fi\ndone\n[ -n \"$TSC\" ] || { echo \"tsc not found: install typescript in constenum/ or set TSC_BIN\"; exit 1; }\ncd constenum || exit 1\n\"$TSC\" -p . || exit 1\ntest \"$(node dist/main.js)\" = \"$(printf 'Debug false console\\nInfo true console\\nWarn true file\\nError true file')\""
+				},
+				"The reply shows emitted JavaScript (or an equivalent compile of a sample) demonstrating that with isolatedModules the enum object is still emitted and uses still read Level.Warn-style properties, and uses that to decline or narrow the conversion.",
+				"The reply does not claim a runtime speedup from const enum without a measurement."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "labelRows in runtime/src/rows.ts takes over 2 seconds for 50k rows and 20k accounts (`node src/demo.ts` in runtime/ shows it). Make it fast; the output must stay identical.",
+			"expected_output": "Treats this as a JavaScript runtime algorithm problem, not a TypeScript compile or emit cost: builds an id-to-account Map once (keeping the first account for duplicate ids, as find does), keeps output identical, and measures; tsconfig and compiler options are left alone.",
+			"files": [
+				"evals/files/runtime/package.json",
+				"evals/files/runtime/src/demo.ts",
+				"evals/files/runtime/src/rows.ts",
+				"evals/files/runtime/tsconfig.json"
+			],
+			"assertions": [
+				{
+					"text": "labelRows returns identical labels, including the first match for duplicate account ids and '?' for missing ones",
+					"check": "node -e 'const [a, b] = process.versions.node.split(\".\").map(Number); process.exit(a > 22 || (a === 22 && b >= 18) ? 0 : 1)' \\\n  || { echo \"Node 22.18+ (type stripping) required\"; exit 1; }\ncd runtime && cat > eval-check.ts <<'TS'\nimport { labelRows } from \"./src/rows.ts\";\nconst accounts = [{ id: 1, name: \"a\" }, { id: 2, name: \"b\" }, { id: 1, name: \"dup\" }];\nconst rows = [{ id: 10, accountId: 1, cents: 5 }, { id: 11, accountId: 3, cents: 0 }, { id: 12, accountId: 2, cents: 7 }];\nconst got = labelRows(rows, accounts).join(\",\");\nif (got !== \"10:a:5,11:?:0,12:b:7\") throw new Error(got);\nif (labelRows([], accounts).length !== 0) throw new Error(\"empty\");\nconsole.log(\"equivalent\");\nTS\nnode eval-check.ts"
+				},
+				{
+					"text": "50,000 rows against 20,000 accounts are labelled in under 300 ms",
+					"check": "node -e 'const [a, b] = process.versions.node.split(\".\").map(Number); process.exit(a > 22 || (a === 22 && b >= 18) ? 0 : 1)' \\\n  || { echo \"Node 22.18+ (type stripping) required\"; exit 1; }\ncd runtime && cat > eval-time.ts <<'TS'\nimport { labelRows } from \"./src/rows.ts\";\nconst accounts = Array.from({ length: 20_000 }, (_, i) => ({ id: i * 3, name: `acct-${i}` }));\nconst rows = Array.from({ length: 50_000 }, (_, i) => ({ id: i, accountId: (i * 7) % 60_001, cents: i % 997 }));\nconst t = performance.now();\nconst out = labelRows(rows, accounts);\nconst ms = performance.now() - t;\nconsole.log(out.length, `${ms.toFixed(1)} ms`);\nif (ms >= 300) process.exit(1);\nTS\nnode eval-time.ts"
+				},
+				{
+					"text": "runtime/tsconfig.json is unchanged",
+					"check": "test \"$(shasum -a 256 runtime/tsconfig.json | cut -d' ' -f1)\" = 4abf83fc2d0a6998399feb594b1dfc6da854aa9b9b01abcac6e346e3fd2f2986"
+				},
+				{
+					"text": "No compiler diagnostics or trace commands were run for this runtime problem",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'--extendedDiagnostics|--generateTrace|--listFilesOnly|--explainFiles|analyze-trace', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				}
+			]
+		}
+	]
+}

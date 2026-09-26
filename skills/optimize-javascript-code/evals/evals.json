@@ -1,35 +1,90 @@
 {
-  "skill_name": "optimize-javascript-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this JavaScript workload in the named browser or server runtime while preserving coercion, ordering, async behavior, errors, and equivalent work.",
-      "expected_output": "A repository-aware JavaScript optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the JavaScript optimization workflow instead of returning only generic advice.",
-        "For runtime/version, Measure the actual target engine.",
-        "For async completion, Await equivalent work and error paths.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Migrate the runtime to Bun.",
-      "expected_output": "The agent does not activate optimize-javascript-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-javascript-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this JavaScript workload in the named browser or server runtime while preserving coercion, ordering, async behavior, errors, and equivalent work. Stress case: TypeScript-only fixture.",
-      "expected_output": "A JavaScript optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Do not claim JavaScript coverage from TS type checks.",
-        "The evidence can detect this failure: Language evidence conflated.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-javascript-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our Node API spends about 40% of CPU in buildReport() (report/report.mjs), called for every request, and --trace-gc shows scavenges all the time under load. report/replay.mjs replays the workload (`node report/replay.mjs`). Make buildReport cheaper and prove it. It must return exactly what it returns today for any input it accepts today, and throw where it throws today.",
+			"expected_output": "buildReport fused into one loop that preserves filter's truthiness and hole-skipping semantics and the reduce order, an oracle over empty, inactive-only, mixed, sparse, NaN/-0, and non-number totals, and allocation (--trace-gc counts, heapUsed deltas, or allocation profile) plus warmed-up timing numbers for baseline and candidate on node.",
+			"files": [
+				"evals/files/report/report.mjs",
+				"evals/files/report/replay.mjs"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned oracle gets the same total (including -0, NaN, and string concatenation), count, key order, or thrown error type as the original for empty, inactive-only, mixed, truthy-flag, missing-total, sparse-array, and null-row inputs.",
+					"check": "command -v node >/dev/null || { echo 'FAIL: node not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\ncat > \"$d/zz_equiv.mjs\" <<'EOF'\nimport { pathToFileURL } from 'node:url';\nconst { buildReport } = await import(pathToFileURL(process.argv[2]).href);\nfunction base(rows) {\n  const total = rows.filter((r) => r.active).map((r) => r.total).reduce((a, b) => a + b, 0);\n  return { total, count: rows.filter((r) => r.active).length };\n}\nconst outcome = (f, rows) => { try { const r = f(rows); return JSON.stringify([Object.is(r.total, -0) ? '-0' : String(r.total), typeof r.total, r.count, Object.keys(r)]); } catch (e) { return e.constructor.name; } };\nconst sparse = [{ active: true, total: 2 }, , { active: true, total: 3 }];\nconst cases = {\n  empty: [],\n  inactiveOnly: [{ active: false, total: 5 }, { active: 0, total: 7 }],\n  mixed: Array.from({ length: 50 }, (_, i) => ({ active: i % 3 !== 0, total: i * 1.5 })),\n  truthy: [{ active: 'yes', total: 1 }, { active: '', total: 2 }, { active: 1, total: 4 }, { total: 8 }],\n  negZero: [{ active: true, total: -0 }],\n  nan: [{ active: true, total: NaN }, { active: true, total: 1 }],\n  strings: [{ active: true, total: '5' }, { active: true, total: 1 }],\n  missingTotal: [{ active: true }, { active: true, total: 1 }],\n  sparse,\n  nullRow: [{ active: true, total: 1 }, null],\n};\nlet bad = 0;\nfor (const [name, rows] of Object.entries(cases)) {\n  const want = outcome(base, rows), got = outcome(buildReport, rows);\n  if (want !== got) { bad++; console.log(`MISMATCH ${name}: got ${got}, want ${want}`); }\n}\nconsole.log(`equivalence cases=${Object.keys(cases).length} mismatches=${bad}`);\nprocess.exit(bad ? 1 : 0);\nEOF\nnode \"$d/zz_equiv.mjs\" \"$PWD/report/report.mjs\""
+				},
+				{
+					"text": "Over 50000 calls on 1000 rows, buildReport triggers at most a quarter of the original's scavenges (node --trace-gc, separate processes).",
+					"check": "command -v node >/dev/null || { echo 'FAIL: node not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\ncat > \"$d/zz_gc.mjs\" <<'EOF'\nimport { pathToFileURL } from 'node:url';\nconst { buildReport } = await import(pathToFileURL(process.argv[3]).href);\nfunction base(rows) {\n  const total = rows.filter((r) => r.active).map((r) => r.total).reduce((a, b) => a + b, 0);\n  return { total, count: rows.filter((r) => r.active).length };\n}\nconst f = process.argv[2] === 'base' ? base : buildReport;\nconst rows = Array.from({ length: 1000 }, (_, i) => ({ id: i, active: i % 3 !== 0, total: (i * 37) % 1000 }));\nlet sink = 0;\nfor (let i = 0; i < 50000; i++) sink += f(rows).count;\nif (sink !== 50000 * 666) { console.log('wrong count'); process.exit(1); }\nEOF\nb=$(node --trace-gc \"$d/zz_gc.mjs\" base \"$PWD/report/report.mjs\" | grep -c Scavenge)\nc=$(node --trace-gc \"$d/zz_gc.mjs\" cand \"$PWD/report/report.mjs\" | grep -c Scavenge)\necho \"scavenges over 50000 calls: baseline $b, candidate $c\"\n[ \"$b\" -gt 0 ] && [ $((c * 4)) -le \"$b\" ] || { echo 'FAIL: candidate still triggers more than a quarter of the baseline scavenges'; exit 1; }"
+				},
+				"The reply reports allocation evidence (scavenge counts, heapUsed deltas, or an allocation profile) and warmed-up timings for baseline and candidate, with units, from runs it performed.",
+				"The reply states which runtimes were measured and that bun or browsers were not measured, unless it measured them."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "A teammate wants to replace every `str += piece` in our template renderer with `parts.push(piece); parts.join('')` because 'string concatenation is quadratic'. We run on Bun 1.4 and Node 26. Should we?",
+			"expected_output": "The agent explains V8 ConsString and JSC rope behavior with sources, does not endorse the rewrite by folklore, and proposes measuring both forms on both runtimes in separate processes before changing code.",
+			"assertions": [
+				"The response states that += builds ropes (ConsString in V8, rope in JSC) and is not quadratic in those engines",
+				"The response cites a primary source such as V8 src/objects/string.h or a local %StringIsFlat / bun:jsc isRope probe",
+				"The response requires a measurement on both node and bun before accepting the rewrite",
+				"The response does not claim a speedup number that was not measured"
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Speed up this Node service handler: `async function saveAll(items) { items.forEach(async (item) => { await db.insert(item); }); return { ok: true }; }`. Benchmarks show it returns in 0.1 ms.",
+			"expected_output": "The agent identifies that the handler does not wait for the inserts, rejects the 0.1 ms benchmark as invalid, and replaces forEach(async) with awaited work (sequential for-of, Promise.all, or a bounded pool matching the database's limits), then measures the awaited operation.",
+			"assertions": [
+				"The response states that forEach ignores the async callbacks' promises so the benchmark measures no work",
+				"The fix awaits every insert (for...of with await, Promise.all, or bounded concurrency)",
+				"The response considers the database concurrency limit before choosing unbounded Promise.all",
+				"Timing in the response covers the full awaited operation"
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "In our browser dashboard, `for (const el of cards) el.style.height = el.offsetWidth * 0.5 + 'px';` runs on every resize and Chrome DevTools shows 'Forced reflow' warnings. Fix it.",
+			"expected_output": "The agent batches all offsetWidth reads before the writes (optionally scheduling the writes in requestAnimationFrame), checks that final styles are identical, and verifies with the DevTools Performance panel that forced reflows disappeared; it states that node/bun cannot verify this.",
+			"assertions": [
+				"The fix reads every offsetWidth before writing any style",
+				"The response verifies identical final heights for all cards",
+				"Verification uses the browser (DevTools Performance or a headless browser run), not node",
+				"The response does not claim the fix was measured unless a browser run was performed"
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our Node image service computes a 400 ms perceptual hash per upload on the main thread, and health checks time out during bursts. Here is hash(buffer). Improve responsiveness.",
+			"expected_output": "The agent moves hashing to a worker_threads pool (or chunks with setImmediate if a worker is not acceptable), transfers the ArrayBuffer instead of copying when the caller no longer needs it, verifies identical hashes, and measures event-loop delay with monitorEventLoopDelay or timer ticks before and after.",
+			"assertions": [
+				"The response uses worker_threads (preferably a pool) for the CPU-bound hash",
+				"The response addresses buffer ownership: transfer only when the sender does not reuse it",
+				"An oracle compares hashes from the worker and the original function",
+				"Event-loop delay or timer responsiveness is measured before and after"
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Move our Express app in app/ from Node 20 to Bun: update package.json scripts and the Dockerfile. Don't run a Docker build.",
+			"expected_output": "The Dockerfile uses an oven/bun base image with bun install and a bun CMD, the scripts run bun, and no profiling or benchmark work is added.",
+			"files": [
+				"evals/files/app/package.json",
+				"evals/files/app/server.js",
+				"evals/files/app/Dockerfile"
+			],
+			"assertions": [
+				{
+					"text": "app/Dockerfile uses an oven/bun base image and no longer runs npm or node, and the start script runs bun.",
+					"check": "grep -Eiq '^FROM +(docker\\.io/)?oven/bun' app/Dockerfile || { echo 'FAIL: Dockerfile base image is not oven/bun'; exit 1; }\nif grep -Eq 'npm (ci|install)|CMD \\[?\"?node\"?' app/Dockerfile; then echo 'FAIL: Dockerfile still installs or runs with npm/node'; exit 1; fi\ngrep -Eq '\"start\": *\"bun ' app/package.json || { echo 'FAIL: start script does not run bun'; exit 1; }"
+				},
+				{
+					"text": "No CPU or heap profiles, benchmark files, mitata, or event-loop-delay instrumentation were added to app/.",
+					"check": "if find app -name '*.cpuprofile' -o -name '*.heapprofile' -o -name '*.heapsnapshot' -o -iname '*bench*' | grep -v node_modules | grep -q .; then echo 'FAIL: profile or benchmark files added'; exit 1; fi\nif grep -rqE --exclude-dir=node_modules -e '--cpu-prof|--heap-prof|mitata|monitorEventLoopDelay' app; then echo 'FAIL: profiling code or flags added'; exit 1; fi"
+				}
+			]
+		}
+	]
 }

@@ -1,0 +1,11 @@
+id = "night-lang"
+name = "Night Language"
+version = "0.3.0"
+schema_version = 1
+authors = ["Dana Ortiz <dana@acme.invalid>"]
+description = "Syntax highlighting and outline for the Night configuration language"
+repository = "https://github.com/acme/zed-night-lang"
+
+[grammars.night]
+repository = "https://github.com/acme/tree-sitter-night"
+rev = "3f1c9a7e5b2d4c6e8f0a1b3c5d7e9f1a2b4c6d8e"

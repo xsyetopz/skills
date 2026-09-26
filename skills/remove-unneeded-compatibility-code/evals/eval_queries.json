@@ -1,0 +1,108 @@
+[
+	{
+		"query": "We finally dropped Python 3.8 and 3.9 support. Can you clean out the old version checks and backport shims in src/?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "the `ENABLE_NEW_CHECKOUT` flag has been on for every tenant for 8 months. rip it out",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our minimum iOS target is now 16. Remove the `if #available(iOS 14, *)` branches and the fallbacks.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Remove the deprecated `Client.fetch_all` alias; it's been warning since v2 and we're cutting v4.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We don't support Node 16 anymore. Get rid of the polyfills for structuredClone and Array.prototype.at.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "There's a `try: import ujson as json except ImportError: import json` in a dozen modules. ujson isn't in our deps anymore. Clean it up.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is it safe to delete the code that reads the old `user_prefs_v1` column? Nothing writes it since the migration last year.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The netstandard2.0 target is gone from the csproj; remove the #if NETSTANDARD2_0 blocks.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Drop the `./compat` subpath export from our npm package for the next major.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "we bumped rust-version to 1.80, remove the cfg(not(has_let_chains)) fallbacks",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "This module is hard to follow; restructure it so it's easier to read.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Move our tooling from Yarn to Bun, including the lockfile and workspaces.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "Write the changelog entry for removing the legacy API in 5.0.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelogs"
+	},
+	{
+		"query": "Upgrade the project from Django 4.2 to 5.1 and fix whatever breaks.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "What does `from __future__ import annotations` do?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our hot loop in parse.py is slow on 3.12; profile it and speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Add a deprecation warning to the old `load_settings` function and point people to `load_config`.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Find dead code in this repo: functions nobody calls.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Rewrite this class so it follows PEP 20 better.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Check our dependencies for known vulnerabilities and bump the affected ones.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	}
+]

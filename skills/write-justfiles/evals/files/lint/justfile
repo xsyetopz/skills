@@ -1,0 +1,4 @@
+# Lint the sources (CI runs `just lint`).
+lint:
+    -python3 scripts/lint.py src
+    python3 scripts/fmt_check.py src || true

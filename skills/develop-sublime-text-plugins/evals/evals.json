@@ -1,35 +1,151 @@
 {
-  "skill_name": "develop-sublime-text-plugins",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Implement this Sublime Text command using the embedded Python version, Edit lifetime, view freshness, unload cleanup, host tests, and package layout.",
-      "expected_output": "A repository-aware Sublime Text plugin result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Sublime Text plugin workflow instead of returning only generic advice.",
-        "For edit token, Use it only during the command callback.",
-        "For stub test, Label it as stub-based evidence.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Format an ordinary Python script.",
-      "expected_output": "The agent does not activate develop-sublime-text-plugins for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that develop-sublime-text-plugins is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Implement this Sublime Text command using the embedded Python version, Edit lifetime, view freshness, unload cleanup, host tests, and package layout. Stress case: Reload.",
-      "expected_output": "A Sublime Text plugin result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Clean up owned timers/listeners only.",
-        "The evidence can detect this failure: Existing package/user state removed.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "develop-sublime-text-plugins",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "JsonTidy/ is my Sublime Text package. The JSON Tidy: Format Buffer command is supposed to format in a worker so typing stays smooth, but it throws or does nothing. Fix it so the formatting still happens off the main thread, and make sure it can't clobber text I typed while the worker ran. Invalid JSON should show a message instead of a traceback.",
+			"expected_output": "run() reads the text and change_count, the worker computes only, and the result is applied through view.run_command with a second TextCommand (JSON args) after set_timeout, only if the view is valid and change_count is unchanged; errors go to the status bar or an error message.",
+			"files": [
+				"evals/files/JsonTidy/.python-version",
+				"evals/files/JsonTidy/json_tidy.py",
+				"evals/files/JsonTidy/Default.sublime-commands"
+			],
+			"assertions": [
+				{
+					"text": "The package passes the bundled checker (commands resolve, resources parse).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; python3 \"$t\" JsonTidy"
+				},
+				{
+					"text": "No function other than a TextCommand run() takes an `edit` parameter, and no set_timeout_async call captures `edit`.",
+					"check": "python3 -c 'import ast, glob; bad = []; trees = [ast.parse(open(p).read()) for p in glob.glob(\"JsonTidy/*.py\")]; bad += [f.name for t in trees for f in ast.walk(t) if isinstance(f, ast.FunctionDef) and f.name != \"run\" and any(a.arg == \"edit\" for a in f.args.args)]; bad += [\"set_timeout_async(edit)\" for t in trees for c in ast.walk(t) if isinstance(c, ast.Call) and getattr(c.func, \"attr\", \"\") == \"set_timeout_async\" and any(isinstance(n, ast.Name) and n.id == \"edit\" for n in ast.walk(c))]; assert not bad, bad'"
+				},
+				{
+					"text": "The plugin applies the result through view.run_command and compares change_count.",
+					"check": "grep -q 'run_command' JsonTidy/json_tidy.py && grep -q 'change_count' JsonTidy/json_tidy.py"
+				},
+				"The result is applied from the main thread (sublime.set_timeout, not set_timeout_async) and only when the view is still valid and change_count still matches the value read with the text; quote the guard.",
+				"Invalid JSON produces a status message or error dialog instead of an uncaught exception."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "While I develop QuickLint/ I save quick_lint.py a few times, and after that every settings change prints 'QuickLint: reloaded' 4 times. What's wrong? Fix it, and add a test I can run without the editor.",
+			"expected_output": "Each plugin reload calls plugin_loaded again and adds another on_change callback under the same generic tag; the fix adds plugin_unloaded() that calls clear_on_change with a package-prefixed tag, plus an offline test with a stub for sublime that loads, unloads, and reloads and counts callbacks.",
+			"files": [
+				"evals/files/QuickLint/.python-version",
+				"evals/files/QuickLint/quick_lint.py",
+				"evals/files/QuickLint/QuickLint.sublime-settings"
+			],
+			"assertions": [
+				{
+					"text": "The package passes the bundled checker.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; python3 \"$t\" QuickLint"
+				},
+				{
+					"text": "plugin_unloaded() exists and clears every on_change tag the plugin adds, and the tags carry a quick_lint/QuickLint prefix.",
+					"check": "python3 -c 'import ast; t = ast.parse(open(\"QuickLint/quick_lint.py\").read()); consts = {n.targets[0].id: n.value.value for n in t.body if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and isinstance(n.value, ast.Constant)}; tag = lambda c: c.args[0].value if isinstance(c.args[0], ast.Constant) else consts.get(getattr(c.args[0], \"id\", None)); calls = [c for c in ast.walk(t) if isinstance(c, ast.Call) and getattr(c.func, \"attr\", \"\") in (\"add_on_change\", \"clear_on_change\") and c.args]; added = {tag(c) for c in calls if c.func.attr == \"add_on_change\"}; cleared = {tag(c) for c in calls if c.func.attr == \"clear_on_change\"}; assert any(isinstance(f, ast.FunctionDef) and f.name == \"plugin_unloaded\" for f in t.body), \"no plugin_unloaded\"; assert added and added <= cleared, (added, cleared); assert all(str(a).lower().replace(\"_\", \"\").startswith(\"quicklint\") for a in added), added'"
+				},
+				{
+					"text": "A test file was added under QuickLint/.",
+					"check": "find QuickLint -type f -name 'test*.py' | grep -q ."
+				},
+				"The reply explains that Sublime calls plugin_loaded again on every reload while the settings object (and its callbacks) survives, so callbacks accumulate.",
+				"The test replaces the sublime module with a stub or fake settings object, simulates load, unload, and reload, and asserts one callback remains; the reply says whether it ran and does not claim editor behavior was verified."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "In FixmeMarks/ add a key binding so ctrl+alt+d runs FixmeMarksResolveCommand, but only when the caret is on a line with FIXME; otherwise ctrl+alt+d must keep doing whatever it did before. Also make the command available in the Command Palette.",
+			"expected_output": "Default.sublime-keymap binds ctrl+alt+d to fixme_marks_resolve with a context key such as fixme_marks.on_fixme_line that an EventListener answers in on_query_context (returning None for other keys and honoring operator, operand, and match_all); Default.sublime-commands gets a palette entry; the checker resolves both.",
+			"files": [
+				"evals/files/FixmeMarks/.python-version",
+				"evals/files/FixmeMarks/fixme_marks.py",
+				"evals/files/FixmeMarks/Default.sublime-commands",
+				"evals/files/FixmeMarks/FixmeMarks.sublime-settings"
+			],
+			"assertions": [
+				{
+					"text": "The package passes the bundled checker (every command in the resource files resolves).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; python3 \"$t\" FixmeMarks --external edit_settings"
+				},
+				{
+					"text": "A Default keymap binds ctrl+alt+d to fixme_marks_resolve with a context key prefixed by the package.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; T=\"$t\" python3 -c 'import glob, json, os, sys; sys.path.insert(0, os.path.dirname(os.environ[\"T\"])); from check_package import strip_json_extensions; res = lambda p: json.loads(strip_json_extensions(open(p).read())); b = [x for p in glob.glob(\"FixmeMarks/Default*.sublime-keymap\") for x in res(p)]; hit = [x for x in b if x.get(\"keys\") == [\"ctrl+alt+d\"] and x.get(\"command\") == \"fixme_marks_resolve\"]; assert hit, b; assert all(any(str(c.get(\"key\", \"\")).lower().replace(\"_\", \"\").startswith(\"fixmemarks\") for c in x.get(\"context\", [])) for x in hit), hit'"
+				},
+				{
+					"text": "Default.sublime-commands has a palette entry for fixme_marks_resolve.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; T=\"$t\" python3 -c 'import glob, json, os, sys; sys.path.insert(0, os.path.dirname(os.environ[\"T\"])); from check_package import strip_json_extensions; res = lambda p: json.loads(strip_json_extensions(open(p).read())); assert any(e.get(\"command\") == \"fixme_marks_resolve\" for e in res(\"FixmeMarks/Default.sublime-commands\"))'"
+				},
+				{
+					"text": "An on_query_context handler exists and returns None for keys it does not own.",
+					"check": "python3 -c 'import ast, glob; fs = [f for p in glob.glob(\"FixmeMarks/*.py\") for f in ast.walk(ast.parse(open(p).read())) if isinstance(f, ast.FunctionDef) and f.name == \"on_query_context\"]; assert fs, \"no on_query_context\"; assert any(isinstance(r, ast.Return) and (r.value is None or (isinstance(r.value, ast.Constant) and r.value.value is None)) for f in fs for r in ast.walk(f))'"
+				},
+				"The context evaluation honors operator (equal/not_equal), operand, and match_all over all selections rather than only the first caret; quote the code."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Slugify/ declares .python-version 3.8. Our CI (Slugify/.github/workflows/ci.yml) only runs py_compile on Python 3.12, and a user on build 4192 just reported `AttributeError: 'str' object has no attribute 'removeprefix'`. Fix the bug and change CI so this class of bug fails the build next time.",
+			"expected_output": "slug() no longer uses str.removeprefix (a 3.9 API), and CI runs the package's tests (not only py_compile, which accepts removeprefix) on Python 3.8, for example with setup-python 3.8 or uv run --python 3.8; a pure test covers slug().",
+			"files": [
+				"evals/files/Slugify/.python-version",
+				"evals/files/Slugify/slugify.py",
+				"evals/files/Slugify/Default.sublime-commands",
+				"evals/files/Slugify/.github/workflows/ci.yml"
+			],
+			"assertions": [
+				{
+					"text": "slugify.py no longer calls removeprefix and slug('# Hello World') still returns 'hello-world' (loaded with a stub sublime_plugin).",
+					"check": "! grep -q 'removeprefix' Slugify/slugify.py && python3 -c 'import importlib.util, sys, types; sys.dont_write_bytecode = True; sp = types.ModuleType(\"sublime_plugin\"); [setattr(sp, n, type(n, (), {})) for n in (\"TextCommand\", \"WindowCommand\", \"ApplicationCommand\", \"EventListener\", \"ViewEventListener\", \"TextInputHandler\", \"ListInputHandler\")]; sb = types.ModuleType(\"sublime\"); sb.__getattr__ = lambda n: (lambda *a, **k: None); sys.modules.update(sublime_plugin=sp, sublime=sb); load = lambda p: (lambda s: (s.loader.exec_module(m := importlib.util.module_from_spec(s)), m)[1])(importlib.util.spec_from_file_location(\"plugin_under_test\", p)); m = load(\"Slugify/slugify.py\"); assert m.slug(\"# Hello World\") == \"hello-world\", m.slug(\"# Hello World\")'"
+				},
+				{
+					"text": "The CI workflow uses Python 3.8 and runs tests, not only py_compile.",
+					"check": "grep -Eq '3\\.8' Slugify/.github/workflows/ci.yml && grep -Eiq 'unittest|pytest|test' Slugify/.github/workflows/ci.yml"
+				},
+				{
+					"text": "A test file for slug() was added under Slugify/.",
+					"check": "find Slugify -type f -name 'test*.py' | xargs grep -l 'slug' 2>/dev/null | grep -q ."
+				},
+				"The reply explains that py_compile only checks syntax, so a missing 3.9+ method or 3.9+ annotation like list[int] passes it, and that running the tests under the 3.8 interpreter is what catches it."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "NoteLens/ shows the text of NOTE comments from the open file as annotations. A colleague says a file can inject clickable links into the annotation that run commands. Is that true? If so fix note_html (keep its name and signature).",
+			"expected_output": "Yes: annotation minihtml supports <a href> and subl: links run commands, so note text from a file must be html.escape'd before it is inserted; note_html escapes its argument and the rest of the markup stays.",
+			"files": [
+				"evals/files/NoteLens/.python-version",
+				"evals/files/NoteLens/note_lens.py"
+			],
+			"assertions": [
+				{
+					"text": "note_html escapes markup from the note (loaded with a stub sublime module).",
+					"check": "python3 -c 'import importlib.util, sys, types; sys.dont_write_bytecode = True; sp = types.ModuleType(\"sublime_plugin\"); [setattr(sp, n, type(n, (), {})) for n in (\"TextCommand\", \"WindowCommand\", \"ApplicationCommand\", \"EventListener\", \"ViewEventListener\", \"TextInputHandler\", \"ListInputHandler\")]; sb = types.ModuleType(\"sublime\"); sb.__getattr__ = lambda n: (lambda *a, **k: None); sys.modules.update(sublime_plugin=sp, sublime=sb); load = lambda p: (lambda s: (s.loader.exec_module(m := importlib.util.module_from_spec(s)), m)[1])(importlib.util.spec_from_file_location(\"plugin_under_test\", p)); m = load(\"NoteLens/note_lens.py\"); h = m.note_html(\"<a href=\\\"subl:exec {}\\\">x</a> & y\"); assert \"<a\" not in h and \"&lt;a\" in h and \"&amp;\" in h, h'"
+				},
+				{
+					"text": "The package passes the bundled checker.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; python3 \"$t\" NoteLens"
+				},
+				"The reply confirms the risk and explains that subl: links in minihtml run Sublime commands when clicked, so untrusted file text must be escaped (html.escape) before it enters annotation, phantom, or popup HTML."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Here's my Sublime Text user settings file, User/Preferences.sublime-settings. Set the font size to 14, switch the color scheme to Mariana, and show all whitespace characters. Keep everything else as it is.",
+			"expected_output": "Preferences.sublime-settings gets \"font_size\": 14, \"color_scheme\": \"Mariana.sublime-color-scheme\", and \"draw_white_space\": [\"all\"] (or \"all\"), keeping ignored_packages and theme. No package, plugin, or Python code.",
+			"files": [
+				"evals/files/User/Preferences.sublime-settings"
+			],
+			"assertions": [
+				{
+					"text": "The settings file parses (Sublime JSON) and has font_size 14, a Mariana color scheme, draw_white_space all, and still ignores Vintage.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-sublime-text-plugins/scripts/check_package.py\"; T=\"$t\" python3 -c 'import glob, json, os, sys; sys.path.insert(0, os.path.dirname(os.environ[\"T\"])); from check_package import strip_json_extensions; res = lambda p: json.loads(strip_json_extensions(open(p).read())); s = res(\"User/Preferences.sublime-settings\"); assert s.get(\"font_size\") == 14, s; assert \"Mariana\" in str(s.get(\"color_scheme\")), s; assert \"all\" in str(s.get(\"draw_white_space\")), s; assert \"Vintage\" in s.get(\"ignored_packages\", []), s'"
+				},
+				{
+					"text": "No Python files were created.",
+					"check": "test -z \"$(find . -path ./.claude -prune -o -name '*.py' -print)\""
+				}
+			]
+		}
+	]
 }

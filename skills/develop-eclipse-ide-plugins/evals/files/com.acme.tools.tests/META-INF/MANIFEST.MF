@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acme Tools Tests
+Bundle-SymbolicName: com.acme.tools.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: com.acme.tools,
+ org.eclipse.ui,
+ junit-jupiter-api

@@ -1,0 +1,110 @@
+[
+  {
+    "query": "In our Go monolith, billing and reporting both write invoices.status, and the nightly report job keeps flipping paid invoices back to 'pending'. Who should own that field, and how do we structure things so this can't happen again?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "should i put a message queue between checkout and the email sender? right now it's a direct call and marketing keeps saying we need 'scalability'",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "We mock the S3 client in about 40 tests and they break on every SDK upgrade. What's the right boundary so storage is swappable and the tests don't know about S3 at all?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Next sprint our public webhook payload renames `customer_ref` to `customer_id`. Three partner integrations consume it and deploy whenever they feel like it. How do we roll this out without breaking any of them?",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Lay out the structure for a formatter that has to run in VS Code, Neovim, and as a CLI. I don't want the formatting logic duplicated three times or tangled with any editor API.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "services/api keeps importing worker internals and the worker imports api helpers back; we shipped a circular import to prod yesterday. Set up rules for which package may depend on which, and have CI enforce them.",
+    "should_trigger": true,
+    "split": "train"
+  },
+  {
+    "query": "Is it worth pulling search out into its own service? It needs about 10x the memory of the rest of the app and gets hammered during sales while everything else is idle.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "our language server computes Content-Length with len() on the JSON string and clients choke whenever a message has non-ASCII text. what's the right way to frame messages?",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Write a decision record for moving session state off the app servers. We run 6 instances behind a load balancer and sticky sessions break during every rolling deploy.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Our mobile client retries aggressively and sometimes creates duplicate orders. How should the client and the order API agree on this? I want the contract, not just a patch in one handler.",
+    "should_trigger": true,
+    "split": "validation"
+  },
+  {
+    "query": "Write acceptance criteria for guest checkout: what has to happen when the cart is empty, when payment fails, and when the session times out.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "define-requirements"
+  },
+  {
+    "query": "Plan the migration from SQLAlchemy 1.4 to 2.0 across our 30 model files: task order, a verify step for each, and how we roll back halfway.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "plan-implementation"
+  },
+  {
+    "query": "this 300-line function is nothing but nested ifs, make it readable without changing what it does",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "write-readable-code"
+  },
+  {
+    "query": "Our worker dies with 'too many open files' after about two days of uptime. Find out why.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "debug-software-failures"
+  },
+  {
+    "query": "Add a GitHub Actions job that runs our import-layer check on every pull request and blocks the merge when it fails.",
+    "should_trigger": false,
+    "split": "train",
+    "expected_skill": "configure-ci-cd-pipelines"
+  },
+  {
+    "query": "What's the difference between hexagonal architecture and clean architecture?",
+    "should_trigger": false,
+    "split": "train"
+  },
+  {
+    "query": "p99 latency of the order service went from 40ms to 900ms after last Tuesday's release and nobody knows which change did it.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "debug-software-failures"
+  },
+  {
+    "query": "Document our services in the README: what each one does and how to run them all locally.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "document-codebases"
+  },
+  {
+    "query": "Audit our internal API for security holes: authorization on the admin endpoints and injection in the search filter.",
+    "should_trigger": false,
+    "split": "validation",
+    "expected_skill": "find-vulnerabilities"
+  },
+  {
+    "query": "Rename the OrderManager class to OrderService everywhere in the repo.",
+    "should_trigger": false,
+    "split": "validation"
+  }
+]

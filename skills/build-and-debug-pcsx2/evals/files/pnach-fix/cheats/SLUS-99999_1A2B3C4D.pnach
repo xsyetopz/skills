@@ -1,0 +1,9 @@
+gametitle=Test Disc (SLUS-99999) // codes from my notes, see https://example.invalid/notes
+patch=1,ee,0x0015F444,Word,000003E7
+
+[Infinite Ammo]
+patch=1,EE,0015F450,short,1869F
+
+[Widescreen 16:9]
+gsaspectratio=16/9
+patch=1,EE,00200000,word,3F400000

@@ -1,0 +1,7 @@
+$ cmake -B build -G Ninja -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt -DCMAKE_BUILD_TYPE=Release
+-- The C compiler identification is AppleClang 26.6.0
+-- Building for arm64.
+CMake Warning at cmake/BuildParameters.cmake:147 (message):
+  Building for arm64, which has no EE/VU/IOP recompilers.  Performance will
+  be poor.
+-- Configuring done (41.2s)

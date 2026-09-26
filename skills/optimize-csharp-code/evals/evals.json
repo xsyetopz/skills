@@ -1,35 +1,91 @@
 {
-  "skill_name": "optimize-csharp-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this C#/.NET workload with BenchmarkDotNet and runtime diagnostics while preserving target framework, async/cancellation, allocations, interop lifetime, and behavior.",
-      "expected_output": "A repository-aware C#/.NET optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the C#/.NET optimization workflow instead of returning only generic advice.",
-        "For valuetask/pooling, Prove ownership and reuse constraints.",
-        "For interop, Keep handles/delegates/native buffers alive correctly.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Upgrade an unrelated project to .NET 10.",
-      "expected_output": "The agent does not activate optimize-csharp-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-csharp-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this C#/.NET workload with BenchmarkDotNet and runtime diagnostics while preserving target framework, async/cancellation, allocations, interop lifetime, and behavior. Stress case: Effective config.",
-      "expected_output": "A C#/.NET optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Inspect evaluated MSBuild/runtime settings.",
-        "The evidence can detect this failure: Raw project XML treated as runtime fact.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-csharp-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our net10.0 log ingestion spends most of its allocations in LogLineParser.Parse (LogParse/LogLineParser.cs), and dotnet-counters shows gen0 collections climbing fast under load. LogParse/Program.cs replays a synthetic log (`dotnet run -c Release --project LogParse`). Make Parse allocate less. Keep its signature, the LogEntry and LogLevel types, its results, and the exception types it throws for bad lines. Report allocated bytes per call before and after.",
+			"expected_output": "Parse rewritten with ReadOnlySpan<char> slicing (MemoryExtensions.Split ranges or IndexOf) and span overloads of long.Parse/int.Parse, an oracle over valid, extra-field, and malformed lines including exception types, and a MemoryDiagnoser or GC.GetAllocatedBytesForCurrentThread comparison on optimized code.",
+			"files": [
+				"evals/files/LogParse/LogParse.csproj",
+				"evals/files/LogParse/LogLineParser.cs",
+				"evals/files/LogParse/Program.cs"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned oracle gets the same LogEntry or the same exception type as the original for 18 lines: valid, extra fields, missing fields, padded and signed numbers, overflow, lowercase or padded level, missing or empty code, and non-ASCII digits.",
+					"check": "command -v dotnet >/dev/null || { echo 'FAIL: dotnet SDK not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nexport DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1\nmkdir \"$d/src\" && cp -R LogParse/. \"$d/src/\" || exit 1\nrm -rf \"$d/src/Program.cs\" \"$d/src/bin\" \"$d/src/obj\"\nfind \"$d/src\" -mindepth 2 -name '*.csproj' | while read -r p; do rm -rf \"$(dirname \"$p\")\"; done\ngrep -rlE 'using (BenchmarkDotNet|Xunit|NUnit|Microsoft\\.VisualStudio\\.TestTools)|\\[(Fact|Test|Benchmark)\\]' \"$d/src\" --include='*.cs' | while read -r f; do rm -f \"$f\"; done\ncat > \"$d/ZzEval.csproj\" <<'EOF'\n<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>\n    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>\n  </PropertyGroup>\n  <ItemGroup>\n    <Compile Include=\"src/**/*.cs\" />\n    <Compile Include=\"ZzEval.cs\" />\n  </ItemGroup>\n</Project>\nEOF\ncat > \"$d/ZzEval.cs\" <<'EOF'\nusing System.Globalization;\nusing LogParse;\n\nnamespace ZzEval;\n\nstatic class Baseline\n{\n    public static LogEntry Parse(string line)\n    {\n        string[] parts = line.Split('|');\n        if (parts.Length < 4)\n            throw new FormatException(\"expected at least 4 '|'-separated fields\");\n        long timestamp = long.Parse(parts[0], CultureInfo.InvariantCulture);\n        LogLevel level = parts[1] switch\n        {\n            \"DEBUG\" => LogLevel.Debug,\n            \"INFO\" => LogLevel.Info,\n            \"WARN\" => LogLevel.Warn,\n            \"ERROR\" => LogLevel.Error,\n            _ => throw new FormatException(\"unknown level: \" + parts[1]),\n        };\n        if (!parts[3].StartsWith(\"code=E\", StringComparison.Ordinal))\n            throw new FormatException(\"missing code field\");\n        int code = int.Parse(parts[3].Substring(6), CultureInfo.InvariantCulture);\n        return new LogEntry(timestamp, level, code);\n    }\n}\n\nstatic class Program\n{\n    static string Outcome(Func<string, LogEntry> parse, string line)\n    {\n        try { return parse(line).ToString(); }\n        catch (Exception e) { return e.GetType().FullName!; }\n    }\n\n    static long BytesPerCall(Func<string, LogEntry> parse, string[] lines)\n    {\n        long sink = 0;\n        for (int r = 0; r < 100; r++) foreach (var l in lines) sink += parse(l).Code;\n        long before = GC.GetAllocatedBytesForCurrentThread();\n        for (int r = 0; r < 200; r++) foreach (var l in lines) sink += parse(l).Code;\n        long after = GC.GetAllocatedBytesForCurrentThread();\n        GC.KeepAlive(sink);\n        return (after - before) / (200L * lines.Length);\n    }\n\n    static int Main(string[] args)\n    {\n        string[] cases =\n        {\n            \"1700000000|INFO|svc=api|code=E404|done\", \"\", \"|||\", \"1|INFO|s|code=E1\", \"1|INFO|s\",\n            \" 42 |WARN|s|code=E7|x\", \"-5|DEBUG||code=E-3|\", \"x|INFO|s|code=E1|m\",\n            \"99999999999999999999|INFO|s|code=E1|m\", \"1|info|s|code=E1|m\", \"1|ERROR|s|code=X1|m\",\n            \"1|ERROR|s|code=E|m\", \"1|ERROR|s|code=E2147483648|m\", \"1|ERROR|s|code=E12|m|extra|fields\",\n            \"1|ERROR|s|code=E١٢|m\", \"1|INFO|s|code=E+5|m\", \"1|INFO|s|code=e5|m\", \"1|WARN |s|code=E5|m\",\n        };\n        if (args[0] == \"equiv\")\n        {\n            int bad = 0;\n            foreach (var c in cases)\n            {\n                string want = Outcome(Baseline.Parse, c), got = Outcome(LogLineParser.Parse, c);\n                if (want != got) { Console.WriteLine($\"MISMATCH {c}: got {got}, want {want}\"); bad++; }\n            }\n            Console.WriteLine($\"equivalence cases={cases.Length} mismatches={bad}\");\n            return bad == 0 ? 0 : 1;\n        }\n        var lines = new string[512];\n        for (int i = 0; i < lines.Length; i++)\n            lines[i] = $\"{1_700_000_000 + i}|{(i % 7 == 0 ? \"ERROR\" : \"INFO\")}|svc=api-{i % 13}|code=E{i % 600}|request finished in {i % 97} ms\";\n        long baseBytes = BytesPerCall(Baseline.Parse, lines), candBytes = BytesPerCall(LogLineParser.Parse, lines);\n        Console.WriteLine($\"allocated bytes per Parse: baseline {baseBytes}, candidate {candBytes}\");\n        return candBytes * 4 <= baseBytes ? 0 : 1;\n    }\n}\nEOF\ndotnet build \"$d/ZzEval.csproj\" -c Release -nologo -v q -o \"$d/out\" > \"$d/build.log\" 2>&1 || { tail -20 \"$d/build.log\"; exit 1; }\ndotnet \"$d/out/ZzEval.dll\" equiv"
+				},
+				{
+					"text": "Parse allocates at most a quarter of the original's bytes per call after warmup (GC.GetAllocatedBytesForCurrentThread over 102400 calls in one process).",
+					"check": "command -v dotnet >/dev/null || { echo 'FAIL: dotnet SDK not found on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nexport DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1\nmkdir \"$d/src\" && cp -R LogParse/. \"$d/src/\" || exit 1\nrm -rf \"$d/src/Program.cs\" \"$d/src/bin\" \"$d/src/obj\"\nfind \"$d/src\" -mindepth 2 -name '*.csproj' | while read -r p; do rm -rf \"$(dirname \"$p\")\"; done\ngrep -rlE 'using (BenchmarkDotNet|Xunit|NUnit|Microsoft\\.VisualStudio\\.TestTools)|\\[(Fact|Test|Benchmark)\\]' \"$d/src\" --include='*.cs' | while read -r f; do rm -f \"$f\"; done\ncat > \"$d/ZzEval.csproj\" <<'EOF'\n<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <TargetFramework>net10.0</TargetFramework>\n    <ImplicitUsings>enable</ImplicitUsings>\n    <Nullable>enable</Nullable>\n    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>\n    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>\n  </PropertyGroup>\n  <ItemGroup>\n    <Compile Include=\"src/**/*.cs\" />\n    <Compile Include=\"ZzEval.cs\" />\n  </ItemGroup>\n</Project>\nEOF\ncat > \"$d/ZzEval.cs\" <<'EOF'\nusing System.Globalization;\nusing LogParse;\n\nnamespace ZzEval;\n\nstatic class Baseline\n{\n    public static LogEntry Parse(string line)\n    {\n        string[] parts = line.Split('|');\n        if (parts.Length < 4)\n            throw new FormatException(\"expected at least 4 '|'-separated fields\");\n        long timestamp = long.Parse(parts[0], CultureInfo.InvariantCulture);\n        LogLevel level = parts[1] switch\n        {\n            \"DEBUG\" => LogLevel.Debug,\n            \"INFO\" => LogLevel.Info,\n            \"WARN\" => LogLevel.Warn,\n            \"ERROR\" => LogLevel.Error,\n            _ => throw new FormatException(\"unknown level: \" + parts[1]),\n        };\n        if (!parts[3].StartsWith(\"code=E\", StringComparison.Ordinal))\n            throw new FormatException(\"missing code field\");\n        int code = int.Parse(parts[3].Substring(6), CultureInfo.InvariantCulture);\n        return new LogEntry(timestamp, level, code);\n    }\n}\n\nstatic class Program\n{\n    static string Outcome(Func<string, LogEntry> parse, string line)\n    {\n        try { return parse(line).ToString(); }\n        catch (Exception e) { return e.GetType().FullName!; }\n    }\n\n    static long BytesPerCall(Func<string, LogEntry> parse, string[] lines)\n    {\n        long sink = 0;\n        for (int r = 0; r < 100; r++) foreach (var l in lines) sink += parse(l).Code;\n        long before = GC.GetAllocatedBytesForCurrentThread();\n        for (int r = 0; r < 200; r++) foreach (var l in lines) sink += parse(l).Code;\n        long after = GC.GetAllocatedBytesForCurrentThread();\n        GC.KeepAlive(sink);\n        return (after - before) / (200L * lines.Length);\n    }\n\n    static int Main(string[] args)\n    {\n        string[] cases =\n        {\n            \"1700000000|INFO|svc=api|code=E404|done\", \"\", \"|||\", \"1|INFO|s|code=E1\", \"1|INFO|s\",\n            \" 42 |WARN|s|code=E7|x\", \"-5|DEBUG||code=E-3|\", \"x|INFO|s|code=E1|m\",\n            \"99999999999999999999|INFO|s|code=E1|m\", \"1|info|s|code=E1|m\", \"1|ERROR|s|code=X1|m\",\n            \"1|ERROR|s|code=E|m\", \"1|ERROR|s|code=E2147483648|m\", \"1|ERROR|s|code=E12|m|extra|fields\",\n            \"1|ERROR|s|code=E١٢|m\", \"1|INFO|s|code=E+5|m\", \"1|INFO|s|code=e5|m\", \"1|WARN |s|code=E5|m\",\n        };\n        if (args[0] == \"equiv\")\n        {\n            int bad = 0;\n            foreach (var c in cases)\n            {\n                string want = Outcome(Baseline.Parse, c), got = Outcome(LogLineParser.Parse, c);\n                if (want != got) { Console.WriteLine($\"MISMATCH {c}: got {got}, want {want}\"); bad++; }\n            }\n            Console.WriteLine($\"equivalence cases={cases.Length} mismatches={bad}\");\n            return bad == 0 ? 0 : 1;\n        }\n        var lines = new string[512];\n        for (int i = 0; i < lines.Length; i++)\n            lines[i] = $\"{1_700_000_000 + i}|{(i % 7 == 0 ? \"ERROR\" : \"INFO\")}|svc=api-{i % 13}|code=E{i % 600}|request finished in {i % 97} ms\";\n        long baseBytes = BytesPerCall(Baseline.Parse, lines), candBytes = BytesPerCall(LogLineParser.Parse, lines);\n        Console.WriteLine($\"allocated bytes per Parse: baseline {baseBytes}, candidate {candBytes}\");\n        return candBytes * 4 <= baseBytes ? 0 : 1;\n    }\n}\nEOF\ndotnet build \"$d/ZzEval.csproj\" -c Release -nologo -v q -o \"$d/out\" > \"$d/build.log\" 2>&1 || { tail -20 \"$d/build.log\"; exit 1; }\ndotnet \"$d/out/ZzEval.dll\" allocs || { echo \"FAIL: Parse still allocates more than a quarter of the original bytes per call\"; exit 1; }"
+				},
+				"The reply reports allocated bytes per call (or BenchmarkDotNet Allocated) for baseline and candidate from a run it performed.",
+				{
+					"text": "LogParse still targets net10.0 and sets no LangVersion.",
+					"check": "grep -q '<TargetFramework>net10\\.0</TargetFramework>' LogParse/LogParse.csproj || { echo 'FAIL: TargetFramework changed'; exit 1; }\nif grep -rq 'LangVersion' LogParse --include='*.csproj' --include='*.props'; then echo 'FAIL: LangVersion set'; exit 1; fi"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Replace every `flags.HasFlag(Permission.ReadWrite)` in our codebase with `(flags & Permission.ReadWrite) != 0` because HasFlag boxes and is slow.",
+			"expected_output": "The agent declines the rewrite as stated, explains that the proposed expression is 'any bit' rather than 'all bits', that HasFlag is a JIT intrinsic without boxing on current .NET, and offers (flags & mask) == mask only if a measurement shows a cost.",
+			"assertions": [
+				"States that (flags & mask) != 0 is not equivalent for multi-bit masks and for a zero mask.",
+				"States that Enum.HasFlag does not box in optimized code on .NET Core 2.1+.",
+				"Does not apply the requested replacement without a measurement showing a cost."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Make our hot loop faster: `for (int i = 0; i < count; i++) sum += data[i];` where data is int[] and count <= data.Length. Use unsafe code if needed.",
+			"expected_output": "The agent inspects codegen with DOTNET_JitDisasm, prefers slicing to a span (and a Vector<T> or BCL primitive if the profile justifies it), avoids unsafe code unless measurement shows a remaining check matters, and benchmarks the result.",
+			"assertions": [
+				"Uses DOTNET_JitDisasm (or DisassemblyDiagnoser on Windows/Linux) to check for CORINFO_HELP_RNGCHKFAIL before and after.",
+				"Proposes data.AsSpan(0, count) slicing before any Unsafe.Add/MemoryMarshal approach.",
+				"If vectorizing, keeps a scalar tail loop and handles overflow as the original did.",
+				"Reports BenchmarkDotNet results with error bars and states when the difference is within noise."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Our net10.0 service uses `private readonly object _gate = new();` with lock(_gate) around a single long counter increment in a hot path. Optimize it.",
+			"expected_output": "The agent replaces the lock with Interlocked.Add/Increment (single field) and reads with Interlocked.Read, verifies with a multi-threaded test, and benchmarks; it mentions System.Threading.Lock only as a clarity option with measured, not assumed, speed.",
+			"assertions": [
+				"Confirms the lock protects only one field before using Interlocked.",
+				"Adds a multi-threaded test asserting the exact final total.",
+				"Does not claim System.Threading.Lock is faster without a benchmark."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Startup of our CLI tool (net10.0) takes 400 ms. Should we turn on ReadyToRun or NativeAOT? It uses System.Text.Json with reflection and loads plugins with Assembly.LoadFrom.",
+			"expected_output": "The agent measures startup with hyperfine and JitInfo/dotnet.jit.compiled_methods, recommends trying ReadyToRun first, explains that NativeAOT is blocked by Assembly.LoadFrom and reflection-based System.Text.Json unless a source-generated JsonSerializerContext is adopted, and requires zero IL2xxx/IL3xxx warnings before AOT.",
+			"assertions": [
+				"Measures startup with a repeatable tool (hyperfine or equivalent) before and after.",
+				"Identifies dynamic assembly loading as incompatible with NativeAOT.",
+				"Mentions trim/AOT warnings (IL2xxx/IL3xxx) as the gate for NativeAOT.",
+				"Checks the published binary, not the JIT build, when verifying."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Upgrade KeyTool/ from net8.0 to net10.0 and fix whatever breaks the build (we keep warnings as errors). The key it prints must not change.",
+			"expected_output": "The project targets net10.0, the obsolete Rfc2898DeriveBytes constructor is replaced (for example with Rfc2898DeriveBytes.Pbkdf2) instead of suppressed, the output is identical, and no benchmarks or runtime tuning are added.",
+			"files": [
+				"evals/files/KeyTool/KeyTool.csproj",
+				"evals/files/KeyTool/Program.cs"
+			],
+			"assertions": [
+				{
+					"text": "KeyTool targets net10.0, keeps TreatWarningsAsErrors without suppressing SYSLIB0060, builds, and prints the original key D9BF3E32...4C7C.",
+					"check": "command -v dotnet >/dev/null || { echo 'FAIL: dotnet SDK not found on PATH'; exit 1; }\ngrep -q '<TargetFramework>net10\\.0</TargetFramework>' KeyTool/KeyTool.csproj || { echo 'FAIL: KeyTool does not target net10.0'; exit 1; }\ngrep -q '<TreatWarningsAsErrors>true</TreatWarningsAsErrors>' KeyTool/KeyTool.csproj || { echo 'FAIL: TreatWarningsAsErrors was removed'; exit 1; }\nif grep -rqE '<NoWarn>[^<]*SYSLIB0060|#pragma +warning +disable[^/]*SYSLIB0060|SuppressMessage[^)]*SYSLIB0060|dotnet_diagnostic\\.SYSLIB0060' KeyTool; then echo 'FAIL: the obsoletion warning was suppressed instead of fixed'; exit 1; fi\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nexport DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1\ncp -R KeyTool/. \"$d/\" && rm -rf \"$d/bin\" \"$d/obj\" || exit 1\ndotnet build \"$d/KeyTool.csproj\" -c Release -nologo -v q -o \"$d/out\" > \"$d/build.log\" 2>&1 || { grep -E 'error' \"$d/build.log\" | head -5; exit 1; }\nout=$(dotnet \"$d/out/KeyTool.dll\") && [ \"$out\" = 'D9BF3E32B93C1FEC84F0AF9547FD673FDAADFD7CFA8BF695BFF35D70E4294C7C' ] || { echo \"FAIL: derived key changed: $out\"; exit 1; }"
+				},
+				{
+					"text": "No BenchmarkDotNet, benchmark files, or runtime-tuning properties (PublishAot, ReadyToRun, TieredPGO, server GC) were added to KeyTool/.",
+					"check": "if grep -rqE 'BenchmarkDotNet|PublishAot|PublishReadyToRun|TieredPGO|TieredCompilation|ServerGarbageCollect|ConcurrentGarbageCollection|InvariantGlobalization' KeyTool; then echo 'FAIL: benchmark or runtime-tuning settings added'; exit 1; fi\nif find KeyTool -iname '*bench*' | grep -q .; then echo 'FAIL: benchmark files added'; exit 1; fi"
+				}
+			]
+		}
+	]
 }

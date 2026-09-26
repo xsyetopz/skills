@@ -1,0 +1,15 @@
+<idea-plugin>
+  <id>org.acme.lint</id>
+  <name>Acme Lint</name>
+  <vendor email="dev@acme.invalid">Acme</vendor>
+  <description><![CDATA[Runs Acme lint rules on the current file.]]></description>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>org.intellij.plugins.markdown</depends>
+  <actions>
+    <action id="org.acme.lint.LintFile"
+            class="org.acme.lint.LintFileAction"
+            text="Lint Current File">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>

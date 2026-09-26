@@ -1,35 +1,133 @@
 {
-  "skill_name": "optimize-scala-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Scala workload for the declared backend while preserving collection/evaluation order, effects, exceptions, futures, and equivalent JVM settings.",
-      "expected_output": "A repository-aware Scala optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Scala optimization workflow instead of returning only generic advice.",
-        "For backend, Do not transfer Scala/JVM evidence to Scala.js/Native.",
-        "For collections, Preserve strict/lazy semantics and ordering.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Optimize Java or Kotlin source.",
-      "expected_output": "The agent does not activate optimize-scala-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-scala-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Scala workload for the declared backend while preserving collection/evaluation order, effects, exceptions, futures, and equivalent JVM settings. Stress case: Benchmark.",
-      "expected_output": "A Scala optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Use appropriate JMH/setup/forks.",
-        "The evidence can detect this failure: REPL timing presented as robust result.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-scala-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our Scala 3 billing service spends most of its CPU in billing/Billing.scala. The JSON decoder hands us a List[Order] with about 50,000 elements (billing/Main.scala is a small stand-in). Make total and countLarge fast without changing their signatures or results, and show me the numbers.",
+			"expected_output": "Identifies List.apply and List.length inside the while loop as linear per call (quadratic overall), rewrites to a single traversal (foldLeft/iterator/pattern match) or one conversion to an IndexedSeq, keeps Long overflow and results identical, checks empty and overflow inputs, and compares baseline and candidate with JMH or repeated warmed timings.",
+			"files": [
+				"evals/files/billing/Billing.scala",
+				"evals/files/billing/Main.scala"
+			],
+			"assertions": [
+				{
+					"text": "total and countLarge return the same values as the original on empty, single, overflowing, and 1,000-order lists",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/billing-eq && cat > .evalcheck/billing-eq/Check.scala <<'SCALA'\nimport billing.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  def refTotal(o: List[Order]) = o.foldLeft(0L)(_ + _.cents)\n  def refLarge(o: List[Order], t: Long) = o.count(_.cents >= t)\n  val cases = List(\n    Nil,\n    List(Order(1, 5)),\n    List(Order(1, Long.MaxValue), Order(2, 1)),\n    List.tabulate(1000)(i => Order(i, (i * 37L) % 10000 - 20))\n  )\n  for c <- cases; t <- List(Long.MinValue, 0L, 5000L) do\n    assert(Billing.total(c) == refTotal(c), s\"total differs for ${c.take(3)}\")\n    assert(Billing.countLarge(c, t) == refLarge(c, t), s\"countLarge differs for threshold $t\")\n  println(\"equivalent\")\nSCALA\nscala-cli run --server=false billing .evalcheck/billing-eq --main-class evalCheck"
+				},
+				{
+					"text": "Five rounds of total plus countLarge over 200,000 orders finish in under 2 seconds",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/billing-fast && cat > .evalcheck/billing-fast/Check.scala <<'SCALA'\nimport billing.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(30000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  val orders = List.tabulate(200000)(i => Order(i.toLong, (i * 37L) % 10000))\n  val t0 = System.nanoTime()\n  var acc = 0L\n  for _ <- 0 until 5 do acc += Billing.total(orders) + Billing.countLarge(orders, 5000)\n  val ms = (System.nanoTime() - t0) / 1000000\n  println(s\"$ms ms (acc=$acc)\")\n  assert(ms < 2000, s\"$ms ms\")\nSCALA\nscala-cli run --server=false billing .evalcheck/billing-fast --main-class evalCheck"
+				},
+				"The reply names List indexed access (orders(i)) and orders.length as linear-time operations on List, making the loop quadratic.",
+				"The reply reports baseline and candidate timings from JMH or from repeated runs after warm-up, not a single System.nanoTime reading."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "JFR allocation-by-class shows java.lang.Long dominating in our Scala 3 metrics library. Metrics.totalLatency in metrics/Metrics.scala calls the generic Stats.sum in metrics/Stats.scala, which is public API also used with Double and BigDecimal. Someone suggested adding @specialized. Get rid of the allocation and show that it's gone.",
+			"expected_output": "Explains that Scala 3 ignores @specialized and that Numeric.plus boxes (javap shows Object-typed plus), adds a Long-specific path (overload or loop over Array[Long]) used by totalLatency, keeps the generic Stats.sum working for other types and Long overflow wrapping, and proves 0 B/op with JMH -prof gc or a ThreadMXBean allocated-bytes delta.",
+			"files": [
+				"evals/files/metrics/Metrics.scala",
+				"evals/files/metrics/Stats.scala"
+			],
+			"assertions": [
+				{
+					"text": "totalLatency and the generic Stats.sum give the same results as before, including Long overflow wrap, Double, BigDecimal, and Int",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/metrics-eq && cat > .evalcheck/metrics-eq/Check.scala <<'SCALA'\nimport metrics.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  assert(Metrics.totalLatency(Array.emptyLongArray) == 0L)\n  assert(Metrics.totalLatency(Array(5L)) == 5L)\n  assert(Metrics.totalLatency(Array(Long.MaxValue, 1L)) == Long.MinValue, \"overflow must wrap\")\n  assert(Metrics.totalLatency(Array.tabulate(1000)(i => i.toLong - 300)) == (0 until 1000).map(_.toLong - 300).sum)\n  assert(Stats.sum(Array(1.5, 2.5)) == 4.0)\n  assert(Stats.sum(Array(BigDecimal(1), BigDecimal(\"2.25\"))) == BigDecimal(\"3.25\"))\n  assert(Stats.sum(Array(1, 2, 3)) == 6)\n  println(\"equivalent\")\nSCALA\nscala-cli run --server=false metrics .evalcheck/metrics-eq --main-class evalCheck"
+				},
+				{
+					"text": "A warmed-up totalLatency call over 10,000 longs allocates under 1 KB (the original allocates about 240 KB)",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/metrics-alloc && cat > .evalcheck/metrics-alloc/Check.scala <<'SCALA'\nimport metrics.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  val xs = Array.tabulate(10000)(_.toLong)\n  var acc = 0L\n  for _ <- 0 until 2000 do acc += Metrics.totalLatency(xs)\n  val mx = java.lang.management.ManagementFactory.getThreadMXBean.asInstanceOf[com.sun.management.ThreadMXBean]\n  val tid = Thread.currentThread().threadId()\n  val b0 = mx.getThreadAllocatedBytes(tid)\n  for _ <- 0 until 200 do acc += Metrics.totalLatency(xs)\n  val perCall = (mx.getThreadAllocatedBytes(tid) - b0) / 200\n  println(s\"$perCall bytes per call (acc=$acc)\")\n  assert(perCall < 1024, s\"$perCall bytes per call\")\nSCALA\nscala-cli run --server=false metrics .evalcheck/metrics-alloc --main-class evalCheck"
+				},
+				{
+					"text": "No @specialized annotation was added",
+					"check": "! grep -rq '@specialized' metrics/"
+				},
+				"The reply states that Scala 3 does not honor @specialized and reports allocated bytes per call (JMH gc.alloc.rate.norm or a ThreadMXBean delta) for baseline and candidate."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Under load our users service (users/, see users/README.md) stalls: request latency spikes and even the cheap CPU work in UserService.score waits. The DAO calls are blocking JDBC (users/Dao.scala simulates one). Fix it; results and error behavior of loadAll must not change.",
+			"expected_output": "Explains that ExecutionContext.global has parallelism equal to the core count and blocking DAO calls starve it, moves the DAO calls to a dedicated ExecutionContext over a pool bounded at the 16 database connections, keeps CPU work on global (not parasitic), keeps result order and failure propagation, and proposes a latency or concurrency check.",
+			"files": [
+				"evals/files/users/Dao.scala",
+				"evals/files/users/README.md",
+				"evals/files/users/UserService.scala"
+			],
+			"assertions": [
+				{
+					"text": "loadAll keeps result order, still fails with the DAO's IllegalArgumentException, and score returns the same value",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/users-behavior && cat > .evalcheck/users-behavior/Check.scala <<'SCALA'\nimport users.*\nimport scala.concurrent.Await\nimport scala.concurrent.duration.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  try\n    val ids = (1L to 64L).toVector\n    val got = Await.result(UserService.loadAll(ids), 30.seconds)\n    assert(got.map(_.id) == ids, \"order changed\")\n    assert(got.forall(u => u.name == s\"user-${u.id}\"))\n    val failed = Await.ready(UserService.loadAll(Seq(1L, -5L, 3L)), 30.seconds).value.get\n    assert(failed.isFailure && failed.failed.get.isInstanceOf[IllegalArgumentException], s\"got $failed\")\n    assert(Await.result(UserService.score(got), 30.seconds) == got.map(_.name.hashCode & 0xff).sum)\n    println(\"ok\")\n    Runtime.getRuntime.halt(0)\n  catch case e: Throwable =>\n    e.printStackTrace()\n    Runtime.getRuntime.halt(1)\nSCALA\nscala-cli run --server=false users .evalcheck/users-behavior --main-class evalCheck"
+				},
+				{
+					"text": "DAO calls no longer run on ExecutionContext.global threads and never exceed 16 at once (at least 2 run concurrently)",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/users-pool && cat > .evalcheck/users-pool/Check.scala <<'SCALA'\nimport users.*\nimport scala.concurrent.Await\nimport scala.concurrent.duration.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  try\n    Await.result(UserService.loadAll((1L to 96L).toVector), 30.seconds)\n    val max = Dao.maxInFlight.get\n    val names = Dao.threadNames.toArray.map(_.toString).toSet\n    println(s\"max in flight $max, threads e.g. ${names.take(3).mkString(\", \")}\")\n    assert(max >= 2 && max <= 16, s\"max in flight $max\")\n    assert(!names.exists(_.contains(\"scala-execution-context-global\")), \"DAO ran on ExecutionContext.global\")\n    Runtime.getRuntime.halt(0)\n  catch case e: Throwable =>\n    e.printStackTrace()\n    Runtime.getRuntime.halt(1)\nSCALA\nscala-cli run --server=false users .evalcheck/users-pool --main-class evalCheck"
+				},
+				"The reply explains that ExecutionContext.global's parallelism defaults to the number of available processors, so blocking calls on it starve other work.",
+				"The reply does not move the blocking DAO calls to ExecutionContext.parasitic."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Profiling our Scala 3 event loop shows lots of String building and allocation from the log.debug line in eventloop/EventLoop.scala, even though debug logging is off in production. Fix it so a disabled logger costs nothing, without changing what gets logged when it is on.",
+			"expected_output": "Makes the message lazy: `inline def debug(inline msg: String)` (or a by-name parameter, noting it still allocates a Function0 per call), verifies with javap or a counter that render runs only when enabled, and reports allocation before and after.",
+			"files": [
+				"evals/files/eventloop/EventLoop.scala",
+				"evals/files/eventloop/Logger.scala"
+			],
+			"assertions": [
+				{
+					"text": "With logging on, the exact same messages are logged and the final state is unchanged; with logging off the sink is never called",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/eventloop-eq && cat > .evalcheck/eventloop-eq/Check.scala <<'SCALA'\nimport eventloop.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  val events = Array.tabulate(3000)(i => i * 7 % 11)\n  val expected = scala.collection.mutable.ArrayBuffer[String]()\n  var st = State(0, Vector.empty)\n  for e <- events do\n    expected += s\"state=tick=${st.tick} depth=${st.queue.size} head=${st.queue.headOption.getOrElse(-1)} event=$e\"\n    st = State(st.tick + 1, if e % 3 == 0 then st.queue.drop(1) else st.queue :+ e)\n  val out = scala.collection.mutable.ArrayBuffer[String]()\n  val on = Logger(true, out += _)\n  val s1 = EventLoop.run(events, on)\n  assert(out == expected, \"enabled log output changed\")\n  assert(s1 == st, \"final state changed\")\n  val off = Logger(false, _ => throw AssertionError(\"sink called while disabled\"))\n  assert(EventLoop.run(events, off) == st)\n  println(\"equivalent\")\nSCALA\nscala-cli run --server=false eventloop .evalcheck/eventloop-eq --main-class evalCheck"
+				},
+				{
+					"text": "render runs zero times while debug is disabled and exactly once per event while enabled",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/eventloop-lazy && cat > .evalcheck/eventloop-lazy/Check.scala <<'SCALA'\nimport eventloop.*\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  val events = Array.tabulate(3000)(i => i * 7 % 11)\n  val off = Logger(false, _ => ())\n  EventLoop.renders = 0\n  EventLoop.run(events, off)\n  println(s\"render calls while disabled: ${EventLoop.renders}\")\n  assert(EventLoop.renders == 0)\n  val on = Logger(true, _ => ())\n  EventLoop.run(events, on)\n  println(s\"render calls while enabled: ${EventLoop.renders}\")\n  assert(EventLoop.renders == events.length)\nSCALA\nscala-cli run --server=false eventloop .evalcheck/eventloop-lazy --main-class evalCheck"
+				},
+				"The reply reports allocation or time for the disabled path before and after (JMH -prof gc, a ThreadMXBean delta, or javap showing the string concatenation inside the enabled branch)."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "A reviewer wants to replace `final case class UserId(value: Long) extends AnyVal` (ids/UserId.scala) with an opaque type because 'value classes allocate'. We keep tens of millions of ids in Directory (ids/Directory.scala). Don't change the code yet: tell me whether it's worth it and give me evidence I can put in the PR.",
+			"expected_output": "Explains that a value class is boxed when stored in an array, used as a type argument, or pattern-matched, while an opaque type erases to Long; shows javap -s descriptors (an object array of UserId versus long[]) and measures allocated bytes or heap per id for both representations in a scratch copy; notes method parameters already erase to long; leaves the sources unchanged.",
+			"files": [
+				"evals/files/ids/Directory.scala",
+				"evals/files/ids/UserId.scala"
+			],
+			"assertions": [
+				{
+					"text": "ids/UserId.scala and ids/Directory.scala are unchanged",
+					"check": "test \"$(shasum -a 256 ids/UserId.scala | cut -d' ' -f1)\" = ba14365fcfb69dabe4f46e4babb2f8212e5d2b40a09c2dc164e7d8772e24e532 \\\n  && test \"$(shasum -a 256 ids/Directory.scala | cut -d' ' -f1)\" = a01d3b6e08ab262ccaf578fe45adace3b32ded7d7cfc23315792519650c62efe"
+				},
+				"The reply states that Array[UserId] of the value class is an array of UserId objects (each boxed) while an opaque type over Long is stored as long[], backed by javap output or a bytecode descriptor it produced.",
+				"The reply reports a measured allocation or memory number for building or holding the ids in both representations (JMH -prof gc, ThreadMXBean, or heap measurement).",
+				"The reply notes that methods taking a UserId parameter (such as lookup) already erase to a long, so the gain is limited to boxed uses like arrays and generics."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "converters/Registry.scala still imports scala.collection.JavaConverters and the compiler warns it's deprecated. Move it to the supported API so it compiles cleanly with -deprecation, with no behavior change.",
+			"expected_output": "Switches to scala.jdk.CollectionConverters with no behavior change, compiles without deprecation warnings, and does no benchmarking or profiling.",
+			"files": [
+				"evals/files/converters/Main.scala",
+				"evals/files/converters/Registry.scala"
+			],
+			"assertions": [
+				{
+					"text": "The sources compile with -deprecation -Werror",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nscala-cli compile --server=false converters -deprecation -Werror"
+				},
+				{
+					"text": "Registry behaves exactly as before",
+					"check": "command -v scala-cli >/dev/null || { echo \"scala-cli not installed\"; exit 1; }\nmkdir -p .evalcheck/converters-run && cat > .evalcheck/converters-run/Check.scala <<'SCALA'\n@main def evalCheck(): Unit =\n  val watchdog = Thread(() => { Thread.sleep(60000); System.err.println(\"timed out\"); Runtime.getRuntime.halt(2) })\n  watchdog.setDaemon(true)\n  watchdog.start()\n  val m = new java.util.HashMap[String, Integer]()\n  m.put(\"b\", 2); m.put(\"a\", 1)\n  assert(converters.Registry.names(m) == List(\"a\", \"b\"))\n  assert(converters.Registry.totals(java.util.List.of(1, 2, 3)) == 6)\n  assert(converters.Registry.toJava(Seq(\"x\", \"y\")) == java.util.List.of(\"x\", \"y\"))\n  println(\"ok\")\nSCALA\nscala-cli run --server=false converters .evalcheck/converters-run --main-class evalCheck"
+				},
+				{
+					"text": "No benchmark or profiler commands were run",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'--jmh|Jmh/run|jmh:run|StartFlightRecording|\\\\bjfr\\\\b|javap|-prof gc', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				}
+			]
+		}
+	]
 }

@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/.codex/hooks/stop.sh\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@acme/units",
+  "version": "4.3.1",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./legacy": "./dist/legacy.js",
+    "./*": "./dist/*.js"
+  },
+  "files": ["dist"]
+}

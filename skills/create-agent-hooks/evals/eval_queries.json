@@ -1,0 +1,108 @@
+[
+	{
+		"query": "I want Claude Code to refuse any `terraform apply` unless the plan file exists in the repo. Can you wire that up for this project?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "my PreToolUse hook prints {\"decision\":\"deny\"} but claude runs the command anyway. script is .claude/hooks/guard.sh",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Make Codex keep working until `cargo test` passes before it's allowed to end its turn.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "At the start of every Gemini CLI session I want it to be told the current branch and the Jira ticket from the branch name.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Port our .claude/settings.json guard to .cursor/hooks.json so Cursor's agent is blocked from reading .env files too.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Audit the hooks in ~/.codex/hooks.json: I'm not sure half of them ever fire, and one of them logs full payloads to /tmp.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Copilot coding agent keeps running `npm publish` in our repo. Stop it via .github/hooks, and it must also work in VS Code agent mode.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Every time the agent edits a .ts file I want prettier to run on that file automatically.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Need an OpenCode plugin that denies bash commands touching /etc.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The Stop hook I added makes Claude loop forever saying tests failed. What's wrong with it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a Git pre-push hook that runs the test suite and aborts the push when it fails.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a CLAUDE.md for this repo that tells agents to run `make check` before finishing.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Create a skill that teaches Claude how to write our release notes.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-skills"
+	},
+	{
+		"query": "Our GitHub Actions workflow should block merges when lint fails. Set up the required check.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "What's a React useEffect cleanup function for?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Set up a GitHub webhook that posts to our Slack when a release is published.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add a `just check` recipe that runs lint and tests so the agent and humans use the same command.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-justfiles"
+	},
+	{
+		"query": "Use husky and lint-staged to run eslint on staged files before each commit.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write the AGENTS.md section describing which directories agents may not modify.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Our VS Code extension should register a command that runs the formatter on save.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-vscode-extensions"
+	}
+]

@@ -1,0 +1,109 @@
+[
+	{
+		"query": "JFR allocation-by-class for our JDK 21 service has byte[] and String on top, and the stack traces point at OrderIndex.find doing `index.get(tenant + \":\" + id)`. Make it cheaper without changing results.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our JMH run says the new parser is 40x faster than the old one, but it was run with -f 0 -wi 1 -i 1 and both @Benchmark methods return void. can we trust that number?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "p99 latency on our JDK 25 gateway climbs under load. Thread dumps show all 64 pool threads blocked in socket reads calling a downstream REST API via HttpClient.send, with a long executor queue. What should we change and how do we prove it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our fat-jar CLI on JDK 25 gets launched hundreds of times per CI job and takes about 400 ms to start. Can the JVM start it faster without touching the code?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "-Xlog:gc shows 150 ms G1 young pauses on our 8 GB-heap Java service and the latency SLO is 50 ms. What are the options and how do we compare them fairly?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "A blog says marking every class final and replacing + concatenation with StringBuilder makes Java faster. Should we do that across com.acme.pricing? We're on JDK 25.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "jfr view hot-methods shows ~30% in Pattern.compile, called inside validateEmail() on every request of our Java API",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "GC.class_histogram on our Java 21 batch job is dominated by tens of millions of tiny objects. Would compact object headers help, and how would we measure it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Replace our scalar float dot product with the Java Vector API; the existing unit test uses assertEquals(expected, actual, 0.0f).",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "LongAdder or AtomicLong for a per-request counter? A JFR recording of our 32-thread Java load test shows contention on the AtomicLong.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Convert this Kotlin data class to a @JvmInline value class and switch the repository to Flow for better performance.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-kotlin-code"
+	},
+	{
+		"query": "Our Scala 3 job builds intermediate List and Map collections per record and JFR shows the allocations dominating. Make it cheaper.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-scala-code"
+	},
+	{
+		"query": "Migrate our Maven build from Java 17 to Java 21 and fix whatever compile errors come up.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Java OrderService throws NullPointerException intermittently under load in process(). Find the root cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Write an IntelliJ plugin inspection that flags string concatenation inside loops in Java files.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Run google-java-format over the codebase and fix the Checkstyle warnings it leaves.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "what's the difference between an interface and an abstract class in Java",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our Kotlin Flow pipeline uses flowOn and buffer and is still slow; JFR shows Dispatchers.Default saturated.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-kotlin-code"
+	},
+	{
+		"query": "Our Spring Boot security config permits /actuator/** to everyone. Is that exploitable, and what should it be?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Our C# hot loop allocates on every string.Split and dotnet-counters shows gen0 GCs climbing. Make it cheaper.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-csharp-code"
+	}
+]

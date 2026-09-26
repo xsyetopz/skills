@@ -1,0 +1,106 @@
+[
+	{
+		"query": "my neovim plugin's plugin/ file does `local core = require('mything.core')` at the top and people complain it slows startup by 30ms. how should it be laid out?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This Lua code sometimes replaces the wrong buffer after the formatter finishes:\n\nvim.system({'stylua', '-'}, { stdin = text }, function(out)\n  vim.schedule(function() vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(out.stdout, '\\n')) end)\nend)\n\nFix it and add a test that runs headless.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "After re-sourcing my plugin my BufWritePost handler runs twice per save. It's nvim_create_autocmd with pattern *.md in plugin/mdlint.lua.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a :checkhealth section to my Lua plugin that reports whether the `rg` executable is found and whether the user's config is valid.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "How should my plugin let users trigger actions from their own keys without me mapping <leader>x by default? It's a Lua plugin for nvim 0.11.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want to write tests for my nvim plugin that run in CI without anyone's config — headless, isolated XDG dirs, and they should fail if the async job result is applied to a changed buffer.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Users of my Lua plugin who forget require('x').setup() get nothing, and typos in options are ignored silently. Restructure config so it works with vim.g and no setup call.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "E5560: nvim_buf_set_extmark must not be called in a fast event context — thrown from my plugin's vim.uv timer callback. What's the right fix?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "publish my neovim plugin as a luarocks package: need the rockspec with the right directory layout, but don't upload anything yet",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "My plugin's :Align command should complete the delimiter argument and accept a range; also add a vimdoc help file for it with proper tags.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add `vim.keymap.set('n', '<leader>w', '<cmd>write<cr>')` to my init.lua.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a classic Vim plugin in Vim9 script (autoload/ and plugin/ .vim files) that toggles a comment on the current line; it must run in Vim 9.1, not Neovim.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "How do I switch my Neovim colorscheme to catppuccin with lazy.nvim and enable relative line numbers?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Build a Zed extension that adds highlighting for .fnl Fennel files with a Tree-sitter grammar.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-zed-editor-extensions"
+	},
+	{
+		"query": "Our Lua game server (LuaJIT) spends most of its time in string concatenation inside a hot loop; profile it and make it faster.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Sublime Text plugin that aligns '=' signs in the selection, with a key binding.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-sublime-text-plugins"
+	},
+	{
+		"query": "My Neovim LSP config for pyright doesn't attach to Python files; here's the vim.lsp.config block from my init.lua.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Convert my .vimrc to init.lua: options, a few mappings, and the autocmd that strips trailing whitespace.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Create a VS Code extension with a command that aligns '=' signs in the selection.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that runs our Neovim plugin's headless test suite on nvim stable and nightly with pinned action SHAs.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	}
+]

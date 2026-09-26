@@ -1,35 +1,96 @@
 {
-  "skill_name": "optimize-cpp-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this C++ path while preserving the selected standard, lifetime, iterator/reference validity, exceptions, ABI, concurrency, and workload.",
-      "expected_output": "A repository-aware C++ optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the C++ optimization workflow instead of returning only generic advice.",
-        "For container optimization, Verify invalidation and ownership.",
-        "For build profile, Match flags, LTO, features, and allocator.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Optimize C-only source.",
-      "expected_output": "The agent does not activate optimize-cpp-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-cpp-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this C++ path while preserving the selected standard, lifetime, iterator/reference validity, exceptions, ABI, concurrency, and workload. Stress case: Benchmark framework.",
-      "expected_output": "A C++ optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Separate setup from measured operation.",
-        "The evidence can detect this failure: Initialization dominates result.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-cpp-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our log matcher in matcher/ is slow: a profile of `./matcher lines.txt WORD` (build: `c++ -O2 -std=c++20 -o matcher matcher/*.cpp`, input: `sh matcher/gen.sh > lines.txt`) shows about 40% of samples in malloc and free under count_matches(). Make count_matches cheaper. Its signature in matcher/match.hpp and its results must not change, including empty text, empty fields, and fields with embedded NUL bytes. The build compiles every .cpp file in matcher/, so leave only shipped sources there. Show allocation counts and timings before and after. macOS, Apple clang, libc++.",
+			"expected_output": "count_matches scans the text with std::string_view (or an equivalent non-allocating comparison) instead of materializing split()'s vector of strings, an oracle compares old and new on edge cases, and a replaced operator new count plus repeated timings from the -O2 build are reported for both.",
+			"files": [
+				"evals/files/matcher/match.hpp",
+				"evals/files/matcher/match.cpp",
+				"evals/files/matcher/main.cpp",
+				"evals/files/matcher/gen.sh"
+			],
+			"assertions": [
+				{
+					"text": "A check-owned oracle finds count_matches equal to the original on empty text and word, empty fields, trailing and leading commas, a word containing a comma, embedded NUL bytes, and non-ASCII fields.",
+					"check": "command -v c++ >/dev/null || { echo 'FAIL: no C++ compiler (c++) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(){return 0;}\\n' > \"$d/probe.cpp\"\nif ! c++ \"$d/probe.cpp\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk c++ \"$d/probe.cpp\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\ncat > \"$d/zz_eval.cpp\" <<'EOF'\n#include \"match.hpp\"\n#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <string>\n#include <vector>\nstatic long g_news;\nvoid* operator new(std::size_t n) { ++g_news; if (void* p = std::malloc(n ? n : 1)) return p; throw std::bad_alloc(); }\nvoid operator delete(void* p) noexcept { std::free(p); }\nvoid operator delete(void* p, std::size_t) noexcept { std::free(p); }\nstatic std::size_t zz_base(const std::string& s, const std::string& w) {\n    std::size_t n = 0, start = 0;\n    while (true) {\n        auto end = s.find(',', start);\n        if (s.substr(start, end - start) == w) ++n;\n        if (end == std::string::npos) return n;\n        start = end + 1;\n    }\n}\nint main() {\n    using S = std::string;\n    const S nul1(\"a\\0b\", 3), nul2(\"a\\0c\", 3);\n    const std::vector<std::pair<S, S>> cases = {\n        {\"\", \"\"}, {\"\", \"a\"}, {\",\", \"\"}, {\",,\", \"\"}, {\"a\", \"a\"}, {\"a,\", \"a\"}, {\",a\", \"\"}, {\"a,b\", \"a,b\"},\n        {\"a,ab,a,ba,a\", \"a\"}, {nul1 + \",\" + nul2 + \",\" + nul1, nul1}, {nul1, \"a\"},\n        {\"żółw,żółw,zolw\", \"żółw\"}, {\"x,X,x \", \"x\"}};\n    int bad = 0;\n    for (const auto& [text, word] : cases) {\n        std::size_t got = count_matches(text, word), want = zz_base(text, word);\n        if (got != want) { std::printf(\"MISMATCH text=%zu bytes word=%zu bytes got=%zu want=%zu\\n\", text.size(), word.size(), got, want); bad = 1; }\n    }\n    S text, word(32, 'k');\n    for (int i = 0; i < 1000; i++) { text += (i ? \",\" : \"\"); text += (i % 3 ? S(32, char('a' + i % 26)) : word); }\n    std::size_t sink = 0;\n    long before = g_news; sink += zz_base(text, word); long base = g_news - before;\n    // the check-owned baseline above allocates one string per field; the fixture's original also copies into a growing vector\n    before = g_news; sink += count_matches(text, word); long cand = g_news - before;\n    std::printf(\"equivalence=%s operator_new_calls candidate=%ld baseline_substr_only=%ld sink=%zu\\n\", bad ? \"FAIL\" : \"ok\", cand, base, sink);\n    std::FILE* f = std::fopen(ZZ_OUT, \"w\"); if (f) { std::fprintf(f, \"%d %ld %ld\\n\", bad, cand, base); std::fclose(f); }\n    return 0;\n}\nEOF\nsrcs=\nfor f in matcher/*.cpp; do\n  case $f in */main.cpp) continue ;; esac\n  if grep -Eq '^[^ /].*operator +(new|delete) *\\(' \"$f\"; then echo \"note: skipping $f (replaces global operator new/delete)\"; continue; fi\n  srcs=\"$srcs $f\"\ndone\n# shellcheck disable=SC2086\nc++ -O2 -std=c++20 -Imatcher -DZZ_OUT=\"\\\"$d/res.txt\\\"\" $srcs \"$d/zz_eval.cpp\" -o \"$d/zz_eval\" || exit 1\n\"$d/zz_eval\" || exit 1\nread -r bad cand base < \"$d/res.txt\" || exit 1\n[ \"$bad\" -eq 0 ] || { echo \"FAIL: count_matches differs from the original\"; exit 1; }"
+				},
+				{
+					"text": "count_matches makes at most 10 operator new calls on a 1000-field text of 32-byte fields, down from about 2000 in the original (counted by a replaced global operator new).",
+					"check": "command -v c++ >/dev/null || { echo 'FAIL: no C++ compiler (c++) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(){return 0;}\\n' > \"$d/probe.cpp\"\nif ! c++ \"$d/probe.cpp\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk c++ \"$d/probe.cpp\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\ncat > \"$d/zz_eval.cpp\" <<'EOF'\n#include \"match.hpp\"\n#include <cstdio>\n#include <cstdlib>\n#include <new>\n#include <string>\n#include <vector>\nstatic long g_news;\nvoid* operator new(std::size_t n) { ++g_news; if (void* p = std::malloc(n ? n : 1)) return p; throw std::bad_alloc(); }\nvoid operator delete(void* p) noexcept { std::free(p); }\nvoid operator delete(void* p, std::size_t) noexcept { std::free(p); }\nstatic std::size_t zz_base(const std::string& s, const std::string& w) {\n    std::size_t n = 0, start = 0;\n    while (true) {\n        auto end = s.find(',', start);\n        if (s.substr(start, end - start) == w) ++n;\n        if (end == std::string::npos) return n;\n        start = end + 1;\n    }\n}\nint main() {\n    using S = std::string;\n    const S nul1(\"a\\0b\", 3), nul2(\"a\\0c\", 3);\n    const std::vector<std::pair<S, S>> cases = {\n        {\"\", \"\"}, {\"\", \"a\"}, {\",\", \"\"}, {\",,\", \"\"}, {\"a\", \"a\"}, {\"a,\", \"a\"}, {\",a\", \"\"}, {\"a,b\", \"a,b\"},\n        {\"a,ab,a,ba,a\", \"a\"}, {nul1 + \",\" + nul2 + \",\" + nul1, nul1}, {nul1, \"a\"},\n        {\"żółw,żółw,zolw\", \"żółw\"}, {\"x,X,x \", \"x\"}};\n    int bad = 0;\n    for (const auto& [text, word] : cases) {\n        std::size_t got = count_matches(text, word), want = zz_base(text, word);\n        if (got != want) { std::printf(\"MISMATCH text=%zu bytes word=%zu bytes got=%zu want=%zu\\n\", text.size(), word.size(), got, want); bad = 1; }\n    }\n    S text, word(32, 'k');\n    for (int i = 0; i < 1000; i++) { text += (i ? \",\" : \"\"); text += (i % 3 ? S(32, char('a' + i % 26)) : word); }\n    std::size_t sink = 0;\n    long before = g_news; sink += zz_base(text, word); long base = g_news - before;\n    // the check-owned baseline above allocates one string per field; the fixture's original also copies into a growing vector\n    before = g_news; sink += count_matches(text, word); long cand = g_news - before;\n    std::printf(\"equivalence=%s operator_new_calls candidate=%ld baseline_substr_only=%ld sink=%zu\\n\", bad ? \"FAIL\" : \"ok\", cand, base, sink);\n    std::FILE* f = std::fopen(ZZ_OUT, \"w\"); if (f) { std::fprintf(f, \"%d %ld %ld\\n\", bad, cand, base); std::fclose(f); }\n    return 0;\n}\nEOF\nsrcs=\nfor f in matcher/*.cpp; do\n  case $f in */main.cpp) continue ;; esac\n  if grep -Eq '^[^ /].*operator +(new|delete) *\\(' \"$f\"; then echo \"note: skipping $f (replaces global operator new/delete)\"; continue; fi\n  srcs=\"$srcs $f\"\ndone\n# shellcheck disable=SC2086\nc++ -O2 -std=c++20 -Imatcher -DZZ_OUT=\"\\\"$d/res.txt\\\"\" $srcs \"$d/zz_eval.cpp\" -o \"$d/zz_eval\" || exit 1\n\"$d/zz_eval\" || exit 1\nread -r bad cand base < \"$d/res.txt\" || exit 1\n[ \"$cand\" -le 10 ] || { echo \"FAIL: count_matches made $cand operator new calls for 1000 32-byte fields; the original makes about 2000, the target is at most 10\"; exit 1; }"
+				},
+				"The reply reports allocation counts for baseline and candidate from a counting operator new or an equivalent tool that was actually run.",
+				"The reply reports baseline and candidate timings from the same -O2 build with repeated runs, with the compiler or libc++ version recorded.",
+				"If the candidate holds std::string_view into the text, the reply or a // PERF: comment states why the viewed string outlives the view."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "A colleague added `return std::move(result);` to every factory function returning a local std::vector and `v.push_back(std::move(item))` where `const Item item = make();`. They say it makes things faster. Review and fix.",
+			"expected_output": "The pessimizing return moves are removed, the const local is made non-const, and the claims are checked with diagnostics and a copy/move count.",
+			"assertions": [
+				"The response states that return std::move(local) disables NRVO and cites -Wpessimizing-move or runs clang with it.",
+				"The response states that std::move on a const local selects the copy constructor and removes the const (or the move).",
+				"The response verifies with a copy/move counting type or equivalent that the candidate performs fewer copies or moves, instead of asserting it.",
+				"The response does not add std::move to returns of by-value parameters, or explains that they are already implicitly moved."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Four worker threads each increment `counters[thread_id]` where `std::atomic<long> counters[4];` in a shared struct, plus a global `std::atomic<long> total` incremented per item with ++total. Scaling is bad on our M1 Max build machines. Fix it.",
+			"expected_output": "False sharing and a contended shared atomic are removed with padding sized for the measured line and per-thread accumulation, verified by totals and timing.",
+			"assertions": [
+				"The response pads or aligns each per-thread counter to separate cache lines and checks the line size on the target (hw.cachelinesize reports 128 on an M1 Max) rather than assuming 64.",
+				"The response replaces the per-item ++total with per-thread local accumulation combined once, or explains why the running value must stay visible.",
+				"The response uses memory_order_relaxed only for pure counters and keeps acquire/release or seq_cst where the counter publishes other data.",
+				"An oracle checks the final totals equal threads times items before timing is reported.",
+				"The response reports that timing on a shared machine is noisy and reruns or states the spread."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Please add [[likely]]/[[unlikely]] to the branches in our hot validation loop and switch our `std::vector<std::unique_ptr<Shape>>` to `std::vector<std::variant<Circle, Rect>>` with std::visit to get rid of virtual calls. We build with Apple clang and libc++.",
+			"expected_output": "Both suggestions are measured instead of assumed; the response reports that std::visit on libc++ still uses an indirect call and that branch hints can slow code down.",
+			"assertions": [
+				"The response inspects assembly (-S) for blr or other indirect calls in the std::visit version before claiming devirtualization.",
+				"The response offers get_if/index-based dispatch, templates, or final as alternatives when std::visit still dispatches indirectly.",
+				"The response measures the [[likely]]/[[unlikely]] change and keeps it only if the candidate is faster in repeated runs.",
+				"The response keeps results identical, verified by an oracle over mixed shapes."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our CSV exporter writes 5 million rows with `std::cout << a << ',' << b << std::endl;` and parses input with `std::stoi`. Make it fast; output bytes must stay identical and invalid numbers must still be rejected.",
+			"expected_output": "Flushes removed, output buffered or formatted with to_chars/format_to, parsing moved to from_chars with the same error behavior, verified byte-for-byte and timed with hyperfine.",
+			"assertions": [
+				"The response replaces std::endl with '\\n' (or buffers output) and states when a flush is still required.",
+				"Output equality is verified by comparing bytes (cmp, cksum, or diff) between baseline and candidate.",
+				"The from_chars rewrite checks both ec and that ptr reached the end, and handles leading whitespace and '+' the way std::stoi did or states the behavior change.",
+				"Whole-process timing uses hyperfine or equivalent repeated runs with output redirected to a file or pipe.",
+				"The response does not claim sync_with_stdio(false) helps without measuring it on the target library."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Speed up scale() in scale/scale.c. This is a pure C project built with `cc -O2 -std=c17`; scale/main.c is the benchmark driver.",
+			"expected_output": "The code stays C (no C++ files or constructs), still builds as C17 with the same output, and any claimed speedup is measured or explicitly stated as not measured (clang may already vectorize the loop).",
+			"files": [
+				"evals/files/scale/scale.h",
+				"evals/files/scale/scale.c",
+				"evals/files/scale/main.c"
+			],
+			"assertions": [
+				{
+					"text": "scale/ still compiles as C17 with -Wall -Werror and the driver prints the original `46150.00 287.50`.",
+					"check": "command -v cc >/dev/null || { echo 'FAIL: no C compiler (cc) on PATH'; exit 1; }\nd=$(mktemp -d) && trap 'rm -rf \"$d\"' 0 || exit 1\nprintf 'int main(void){return 0;}\\n' > \"$d/probe.c\"\nif ! cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null; then\n  for sdk in /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk; do\n    SDKROOT=$sdk cc \"$d/probe.c\" -o \"$d/probe\" 2>/dev/null && { SDKROOT=$sdk; export SDKROOT; break; }\n  done\nfi\ncc -O2 -std=c17 -Wall -Werror -x c -o \"$d/scale\" scale/*.c || exit 1\nout=$(\"$d/scale\") && [ \"$out\" = '46150.00 287.50' ] || { echo \"FAIL: output changed: $out\"; exit 1; }"
+				},
+				{
+					"text": "No C++ source files or C++ constructs (std::, templates, <vector>, <execution>) were added to scale/.",
+					"check": "if find scale -name '*.cpp' -o -name '*.cc' -o -name '*.cxx' -o -name '*.hpp' | grep -q .; then echo 'FAIL: C++ sources added to scale/'; exit 1; fi\nif grep -Eq 'std::|template *<|#include *<(vector|algorithm|span|execution)>' scale/*; then echo 'FAIL: C++ constructs in scale/'; exit 1; fi"
+				},
+				"The reply either reports a measured before/after time for the driver or states that no speedup was measured, and does not claim an unmeasured improvement."
+			]
+		}
+	]
 }

@@ -1,0 +1,10 @@
+{
+	"name": "acme-services",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"test": "bun test"
+	}
+}

@@ -1,0 +1,107 @@
+[
+	{
+		"query": "My Eclipse plugin's Count Words handler reads every file in execute() and the IDE hangs with a spinning cursor. How should this be structured so it runs in the background with a cancellable progress bar?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "org.eclipse.swt.SWTException: Invalid thread access at org.eclipse.swt.widgets.Widget.error ... at com.acme.scan.ScanJob.run(ScanJob.java:48). I'm updating a Label from my Job. fix?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "After building with Tycho, our bundle JAR has only META-INF in it, no classes and no plugin.xml, though everything works when launched from the PDE runtime workspace. build.properties attached: bin.includes = META-INF/,\n  .,\n  plugin.xml",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want problems from our DSL checker to show up in the Problems view with a custom type so users can filter them, and get cleared and recreated whenever a .acme file is saved. We have a bundle com.acme.dsl already.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up a p2 update site for our two-bundle plug-in so customers can Help > Install New Software from our URL. Build is Maven; target Eclipse 4.41. Show the feature, category.xml and poms.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "the context menu entry for our plugin shows on every selection, even folders and non-Java files. should only appear for a single IProject. plugin.xml uses menuContribution popup:org.eclipse.ui.popup.any",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Tycho says 'No tests found' for com.acme.core.tests even though there are three test classes (ParserIT, ModelIT, UiIT). useUIHarness is true. What's wrong?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a workbench view to our Eclipse bundle that lists the open TODO markers in the workspace and refreshes when markers change. Use injection if that's the modern way.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Two of our Jobs both write markers and sometimes we get 'Attempted to beginRule: P/foo, does not match outer scope rule: P/bar'. How should the scheduling rules be set up?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Eclipse plug-in needs a Preferences page with a 'max file size' int that also can be overridden per project, with defaults. Currently the value is a constant in ScanJob.java.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I change the editor font and turn on line numbers in Eclipse? Just using the IDE, not developing anything.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a small Java 21 CLI with picocli that counts words in all .txt files in a folder and prints a table. Build with Maven.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Port our Eclipse word-count command to an IntelliJ plugin: plugin.xml action, Kotlin AnAction, and a background task with progress for IDEA 2026.2.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-intellij-platform-plugins"
+	},
+	{
+		"query": "Our Java service's p99 latency doubled after adding a HashMap-heavy cache; JFR shows lots of allocation in CacheKey.hashCode. Help me profile and fix it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Configure Eclipse IDE to use JDK 25 for launching and set -Xmx4g in eclipse.ini on macOS; the IDE itself is slow.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a VS Code extension that does what our Eclipse plug-in does: a 'Count Words' command in the explorer context menu.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Create an Eclipse Theia extension (TypeScript, InversifyJS) that adds a Count Words command to the browser IDE.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our GitHub Actions workflow for the Tycho build takes 25 minutes; cache the ~/.m2 repository and run the UI tests under xvfb. Permissions should be minimal.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Add Java code formatting rules to our Eclipse workspace: import the team's formatter XML and make Save Actions organize imports.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Build a Sublime Text plugin with a command that counts words in the current file and shows it in the status bar.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-sublime-text-plugins"
+	}
+]

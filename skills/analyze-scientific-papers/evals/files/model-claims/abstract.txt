@@ -1,0 +1,8 @@
+Title: SparrowNet: A Lightweight Model That Outperforms LargeBird on Code Search
+Authors: P. Nair, E. Castillo
+arXiv:2508.04417v1 (submitted 2025-08-06)
+
+Abstract. We introduce SparrowNet, a 90M-parameter code search model. On
+our benchmark suite SparrowNet outperforms the 1.3B-parameter LargeBird,
+achieving state-of-the-art MRR while being 14x smaller. These results
+demonstrate that model size is not necessary for strong code search.

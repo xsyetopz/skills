@@ -1,0 +1,8 @@
+id = "go-table-snippets"
+name = "Go Table Tests Extension"
+version = "0.1.0"
+schema_version = 1
+authors = ["Dana Ortiz <dana@acme.invalid>"]
+description = "Snippets"
+repository = "https://github.com/dortiz/zed-go-table-snippets"
+snippets = ["./snippets/go.json"]

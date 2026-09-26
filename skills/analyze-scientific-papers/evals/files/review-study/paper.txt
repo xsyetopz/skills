@@ -1,0 +1,34 @@
+Checklist-Guided Code Review and Escaped Defects: A Controlled Study
+R. Okafor, L. Brandt, S. Ishikawa
+Journal of Illustrative Software Engineering 14(2), 2025. DOI: 10.5555/jise.2025.0142
+Version of record published 2025-04-11.
+
+Abstract
+We compared checklist-guided review with unguided review in 40 student
+teams. Checklist teams let fewer defects escape to the test phase.
+
+1 Introduction
+[...]
+
+4 Method
+4.1 Participants. 40 teams of three final-year undergraduate students at a
+single university, randomly assigned to checklist (n = 20) or unguided
+(n = 20) review. No professional developers took part.
+4.2 Task. Each team reviewed the same 1,200-line Java change set seeded
+with 30 known defects. Escaped defects are seeded defects not flagged in
+review.
+
+5 Results
+Table 2. Escaped defects per team (mean, SD, 95% CI)
+  Condition     n    Mean   SD    95% CI
+  Checklist     20   8.1    2.9   [6.7, 9.5]
+  Unguided      20   10.9   3.6   [9.2, 12.6]
+
+Checklist teams let 2.8 fewer defects escape on average (Cohen's
+d = 0.86). The difference was significant, t(38) = 2.71, p = .010.
+Review time did not differ, t(38) = 0.84, p = .41.
+
+6 Threats to validity
+All participants were students at one institution, the change set was a
+single seeded Java file, and defects were seeded rather than naturally
+occurring. We do not claim the effect transfers to professional teams.

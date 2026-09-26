@@ -1,0 +1,108 @@
+[
+	{
+		"query": "Security-review app/search.py before release: it builds the SQL with an f-string from request.args['q'].",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our webhook tester does requests.get(body['url']) server side and returns the status. we're on AWS. anything wrong with that?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We're open-sourcing this repo next week. Check it for committed credentials first and don't print them.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "bun audit flags minimist 1.2.0 (critical prototype pollution) in our CLI. Is our tool actually exploitable? Write it up with severity.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Can a logged-in user read someone else's invoice through GET /invoices/<id>? Check the handler and prove it either way.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "downloads.py joins the uploads dir with a filename from the URL. is that safe",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Audit our password storage in auth/hash.py; it uses sha256 with a static salt.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Jinja templates render user bios with |safe because some users wanted bold text. Review that before the launch.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The backup script runs subprocess with shell=True and a filename from the admin form. Is that exploitable?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Review this vendor draft of our pentest report for incomplete findings before it goes out: F1 IDOR, CWE-200, status likely, no trace.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Scan 203.0.113.0/24 for open ports and try default credentials on what you find.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our GitHub Actions workflow uses pull_request_target and checks out the PR head. Fix the workflow permissions and pin the actions.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Refactor utils/strings.py to use f-strings instead of % formatting and keep the tests green.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "The login endpoint returns 500 when the password contains a unicode emoji. Find out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Write a regression test suite for our session expiry rules; the implementation is done.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "What is the difference between CVSS 3.1 and CVSS 4.0?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our bcrypt password hashing is slow under load; profile it and speed up the login path.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-python-code"
+	},
+	{
+		"query": "Write the security section of our requirements: what auth and audit logging the new API must have, as testable statements.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "define-requirements"
+	},
+	{
+		"query": "Squash my last three commits that accidentally included a .env file and push the result.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "manage-git-changes"
+	},
+	{
+		"query": "Add a Dependabot config for npm and GitHub Actions.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

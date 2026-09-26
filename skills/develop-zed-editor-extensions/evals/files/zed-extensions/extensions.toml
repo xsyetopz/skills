@@ -1,0 +1,11 @@
+[csv]
+submodule = "extensions/csv"
+version = "0.2.1"
+
+[git-firefly]
+submodule = "extensions/git-firefly"
+version = "0.0.9"
+
+[haskell]
+submodule = "extensions/haskell"
+version = "0.2.3"

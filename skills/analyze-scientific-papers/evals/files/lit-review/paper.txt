@@ -1,0 +1,8 @@
+Blue-Light Glasses Improve Programmer Sleep Quality: A Randomized Trial
+M. Varga, T. Holm. J. Illustr. Behav. Res. 2019. DOI: 10.5555/jcbr.2019.0077
+
+Results. Programmers randomized to blue-light glasses (n = 62) reported
+better sleep quality than controls (n = 60): PSQI difference 2.4 points,
+95% CI [1.1, 3.7], t(120) = 3.60, p < .001 (Table 2).
+Conclusion. Blue-light glasses are an effective sleep intervention for
+programmers.

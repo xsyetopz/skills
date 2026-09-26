@@ -1,0 +1,108 @@
+[
+	{
+		"query": "add a `just test` that forwards extra args to pytest, like `just test -k 'slow and not db'`",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our `just lint` recipe passes even when ruff finds errors. Here's the recipe, what's wrong?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Every just command takes 3 seconds in this repo, even `just --list`. The justfile starts with a few backtick variables.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want `just deploy staging` and `just deploy prod` where prod asks for confirmation first.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Split our 400-line justfile into per-service files so `just api::test` and `just web::dev` work.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "just says `error: Recipe `build` failed on line 4 with exit code 127` but the command works in my terminal. The line does `cd web` and then `npm run build` on the next line.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Load the variables from .env for our run recipes, but CI doesn't have a .env file.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Make `just release` run the tests first and tag only if they pass.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "the justfile uses env_var_or_default everywhere and just warns it's deprecated. Update it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Windows contributors can't run `just setup` because it uses bash. Make it work on both.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Replace our Makefile-based C build with just; make is annoying.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our GitHub Actions workflow should call `just ci` instead of the three inline steps. Update the workflow.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Write AGENTS.md telling coding agents to use `just test` and `just lint`.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Move our package scripts from npm to bun and make `bun test` the test runner.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "What is the difference between make and ninja?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add a Claude Code hook that runs `just fmt` after every edit.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "create-agent-hooks"
+	},
+	{
+		"query": "The cargo build takes 4 minutes after every small change; speed up incremental compiles.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-rust-code"
+	},
+	{
+		"query": "Write a bash script that backs up the Postgres database nightly with pg_dump and rotates old dumps.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Set up pre-commit with ruff and mypy hooks.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "tsc takes 90 seconds on every run; make the type-check faster.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-typescript-builds"
+	}
+]

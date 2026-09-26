@@ -1,0 +1,49 @@
+{
+	"name": "acme-format",
+	"displayName": "Acme Format",
+	"description": "Formats Acme configuration files.",
+	"version": "1.4.2",
+	"publisher": "acme",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.70.0"
+	},
+	"categories": [
+		"Formatters"
+	],
+	"main": "./out/extension.js",
+	"activationEvents": [],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		}
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "acme.format",
+				"title": "Acme: Format File"
+			},
+			{
+				"command": "acme.formatSelection",
+				"title": "Acme: Format Selection"
+			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"command": "acme.formatSelection",
+					"when": "editorHasSelection"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"compile": "tsc -p ."
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.92.0",
+		"typescript": "^5.6.0"
+	}
+}

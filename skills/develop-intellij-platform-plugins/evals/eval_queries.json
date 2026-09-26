@@ -1,0 +1,107 @@
+[
+	{
+		"query": "Our JetBrains plugin action freezes IDEA when the project is big: update() calls FilenameIndex.getAllFilesByExt and actionPerformed walks PSI on the EDT. How should it be restructured?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "verifyPlugin says: \"Plugin descriptor 'plugin.xml' ... The plugin ID 'com.example.foo' has a prefix 'com.example' that is not allowed\". also we're still on gradle-intellij-plugin 1.17. help me migrate",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I need a settings page in PyCharm for my plugin with an API endpoint URL and a timeout, stored per application, and a Reset button. Kotlin, platform 2026.2.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "java.lang.Throwable: Read access is allowed from inside read-action only (see Application.runReadAction()) at com.intellij.psi.impl.PsiManagerImpl.findFile ... at org.acme.stats.CountTask.run(CountTask.kt:31)",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Let third-party plugins contribute 'formatters' to my WebStorm plugin via an extension point, and make sure mine still unloads without an IDE restart.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a BasePlatformTestCase test for our intention action that converts string concatenation to a template, including undo, for our Kotlin plugin",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our plugin should work in IntelliJ IDEA and Android Studio but the Markdown-specific inspection only when the Markdown plugin is enabled. Right now it fails to load without Markdown.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "insertString from a pooled thread throws 'Write access is allowed inside write-action only' and undo doesn't work for our header inserter. Target 2026.2.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "migrate our plugin's coroutines off GlobalScope; the service launches work on project open and it leaks after the project closes",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a tool window to our Rider plugin that lists failing tests from the last run, updating live, and make the whole thing work with the IntelliJ Platform Gradle Plugin 2.x build",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write a Kotlin command-line tool that counts TODO comments across a directory of .kt files for CI. No IDE involved.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "How do I make IntelliJ IDEA use 2-space indentation for Kotlin and turn on 'optimize imports on the fly'? Just my IDE settings.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Kotlin/JVM service spends 40% CPU in data class copy() calls according to JFR; how do I profile and optimize it?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-kotlin-code"
+	},
+	{
+		"query": "Write a VS Code extension that shows TODO counts in the status bar and updates on save.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-vscode-extensions"
+	},
+	{
+		"query": "Build an Eclipse plug-in command that counts TODOs in the selected project with a progress dialog.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-eclipse-ide-plugins"
+	},
+	{
+		"query": "Create a Spring Boot REST service in Kotlin with Gradle that exposes /todos and stores them in Postgres.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Gradle convention plugin in Kotlin that applies ktlint and detekt to every subproject of our multi-module build.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Export my IntelliJ keymap and code style so the rest of the team can import them.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our JMH benchmark for a Java parser shows high allocation rates in the tokenizer; walk me through fixing it with JFR evidence.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Create a Zed extension that adds Kotlin syntax highlighting with tree-sitter-kotlin.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "develop-zed-editor-extensions"
+	}
+]

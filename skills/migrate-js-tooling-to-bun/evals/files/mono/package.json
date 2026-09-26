@@ -1,0 +1,14 @@
+{
+	"name": "acme-mono",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"test": "node --test packages/",
+		"start": "node packages/app/index.js"
+	},
+	"devDependencies": {
+		"codegen": "file:./tools/codegen"
+	}
+}

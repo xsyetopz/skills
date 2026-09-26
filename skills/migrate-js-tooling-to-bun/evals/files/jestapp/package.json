@@ -1,0 +1,12 @@
+{
+	"name": "invoice-core",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "jest",
+		"test:ci": "jest --coverage --coverageReporters=lcov"
+	},
+	"devDependencies": {
+		"jest": "30.1.3"
+	}
+}

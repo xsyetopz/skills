@@ -1,0 +1,109 @@
+[
+	{
+		"query": "Users say parse_csv_line('a,,b') returns ['a','b']. Add a regression test and fix it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our PaymentService tests mock everything and assert repo.find was called before repo.save — every refactor breaks them. clean them up",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Are the tests in tests/test_pricing.py actually good enough? I suspect they'd pass even if the discount logic were wrong.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write tests for our 4-bit saturating counter RTL module with synchronous reset. We don't have the FPGA board here.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "test_cache_expiry sleeps 2s and then checks the entry is gone. It's flaky on CI. Make it deterministic.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I just added a retry-with-backoff helper in net/retry.py. What tests should it have, and can you write them?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Half our snapshot tests get regenerated whenever someone touches the formatter, so they never catch anything. What should we do with them?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add property-based tests for our base64url encoder/decoder in codec.py; the current tests only round-trip a couple of strings.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our wheel installs fine but greetings.json is missing at runtime in production. Write a test that would have caught that before release.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Two requests updating the same account balance sometimes lose an update. Write a test that reproduces the lost update every time.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "test_upload fails about 1 in 10 runs and started failing more often last week. Find the commit that made it worse.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Add a docstring to calculate_tax explaining the parameters.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Make our GitHub Actions workflow run the test suite on Python 3.12 and 3.13 and cache pip.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Write Given/When/Then acceptance criteria for the password reset feature before we start building it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "define-requirements"
+	},
+	{
+		"query": "Move our test runner from Jest to bun test and update the package scripts.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "What's the difference between a mock and a stub?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "This test helper file is 600 lines of nested ifs and nobody can follow it. Make it readable without changing what it does.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-readable-code"
+	},
+	{
+		"query": "Benchmark says our JSON parser allocates too much in Go; speed it up.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-go-code"
+	},
+	{
+		"query": "Check whether our file upload handler is vulnerable to path traversal and prove it with a test.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "Rename the pytest fixture db_session to database_session across the repo.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

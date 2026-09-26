@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "message-type": "work",
+  "message": {
+    "DOI": "10.5555/jcbr.2019.0077",
+    "type": "journal-article",
+    "title": ["Blue-Light Glasses Improve Programmer Sleep Quality: A Randomized Trial"],
+    "author": [{"given": "M.", "family": "Varga"}, {"given": "T.", "family": "Holm"}],
+    "container-title": ["Journal of Illustrative Behavioral Research"],
+    "published": {"date-parts": [[2019, 6, 3]]},
+    "is-referenced-by-count": 214
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "skill_name": "plan-implementation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We want to replace the hand-rolled settings parser in config-tool/app/settings.py with the standard library's configparser, and nothing that reads config-tool/service.ini may notice. Write the plan to config-tool/PLAN.md following config-tool/docs/PLANS.md. Plan only; don't change any code yet.",
+      "expected_output": "A plan whose first task adds characterization tests that pass on the current parser and pin its quirks visible in service.ini (inline # comments, key case preserved, duplicate keys with last one winning, a literal % that configparser would try to interpolate), then the switch to configparser configured to match (or the quirks recorded as decisions), with every task in the house format, zero check_plan.py defects, and Verify commands that exist.",
+      "files": [
+        "evals/files/config-tool/README.md",
+        "evals/files/config-tool/service.ini",
+        "evals/files/config-tool/docs/PLANS.md",
+        "evals/files/config-tool/app/__init__.py",
+        "evals/files/config-tool/app/settings.py",
+        "evals/files/config-tool/app/cli.py",
+        "evals/files/config-tool/tests/__init__.py",
+        "evals/files/config-tool/tests/test_settings.py"
+      ],
+      "assertions": [
+        {
+          "text": "PLAN.md passes check_plan.py with zero defects.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/plan-implementation/scripts/check_plan.py\" ]; do [ \"$R\" = / ] && { echo \"check_plan.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/plan-implementation/scripts/check_plan.py\"; python3 \"$T\" config-tool/PLAN.md"
+        },
+        {
+          "text": "Every command in the plan resolves in the repository (audit_plan_claims.py reports no missing command, except a test module that a task creates).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/plan-implementation/scripts/audit_plan_claims.py\" ]; do [ \"$R\" = / ] && { echo \"audit_plan_claims.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/plan-implementation/scripts/audit_plan_claims.py\"; J=$(mktemp); trap 'rm -f \"$J\"' EXIT; python3 \"$T\" config-tool/PLAN.md config-tool --json > \"$J\"; python3 - \"$J\" config-tool/PLAN.md <<'PY'\nimport json, re, sys\nclaims = json.load(open(sys.argv[1]))\nplanned = set(re.findall(r'[\\w./-]+\\.py', ' '.join(re.findall(r'\\[files:([^\\]]+)\\]', open(sys.argv[2]).read()))))\ndef excused(c):\n    m = re.fullmatch(r'test module (\\S+)', c['detail'])\n    return bool(m) and (m.group(1) == '.' or m.group(1).replace('.', '/') + '.py' in planned)\ncmds = [c for c in claims if c['kind'] == 'command']\nbad = [c for c in cmds if c['status'] != 'ok' and not excused(c)]\nprint(len(cmds), 'commands;', bad)\nsys.exit(0 if cmds and not bad else 1)\nPY"
+        },
+        {
+          "text": "The first task only touches test files, and a later task changes app/settings.py.",
+          "check": "python3 - config-tool/PLAN.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ntasks = []\nfor line in text.splitlines():\n    m = re.match(r'^\\s*[-*]\\s+(T\\d+)\\b(.*)$', line)\n    if m:\n        tasks.append(m.group(2))\n    elif tasks and line.startswith('  ') and line.strip():\n        tasks[-1] += ' ' + line.strip()\ndef files(t):\n    m = re.search(r'\\[files:\\s*([^\\]]+)\\]', t)\n    return [f.strip() for f in m.group(1).split(',')] if m else []\nfirst = files(tasks[0]) if tasks else []\nlater = any('app/settings.py' in files(t) for t in tasks[1:])\nprint(first, later)\nsys.exit(0 if first and all(f.startswith('tests/') for f in first) and later else 1)\nPY"
+        },
+        {
+          "text": "No code was changed: app/settings.py, app/cli.py, and tests/test_settings.py are unchanged.",
+          "check": "shasum -a 256 config-tool/app/settings.py | grep -q '^0842b9d48a541b3b2ac8c89076f38368d433d76506d27e85d3d266181feefc35 ' && shasum -a 256 config-tool/app/cli.py | grep -q '^a8959487abfe5f393d147c4d8ea3b8816f1a9a3d332cccf22eaf471872bcb553 ' && shasum -a 256 config-tool/tests/test_settings.py | grep -q '^77269fe4b963e419f9bc05aceac23a0c6074fa3e5af36bbe905af1968a456b18 '"
+        },
+        "The plan names at least two concrete ways configparser's defaults differ from the current parser on the service.ini content (for example key case folding of `Host`, inline `#` comments, the duplicate `ttl` key, `%` interpolation in the redis URL) and pins each with a test before the switch."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Before anyone starts on it, review cart-service/PLAN.md against the repository in cart-service/ and write your findings to cart-service/REVIEW.md. Don't change the plan or the code.",
+      "expected_output": "A review ordered by severity: a lost update between read_cart and write_cart when two devices add items at once (with the interleaving), a non-idempotent retry of the whole handler that can add the item twice, and claims that do not match the repository (`just test-cart` recipe and `src/cart/api.py` do not exist); each finding with step, constraint, counterexample, a minimal correction, and how to verify it.",
+      "files": [
+        "evals/files/cart-service/PLAN.md",
+        "evals/files/cart-service/justfile",
+        "evals/files/cart-service/cart/__init__.py",
+        "evals/files/cart-service/cart/store.py",
+        "evals/files/cart-service/tests/__init__.py",
+        "evals/files/cart-service/tests/test_store.py"
+      ],
+      "assertions": [
+        {
+          "text": "REVIEW.md exists and flags both repository mismatches: the `test-cart` recipe and the `src/cart/api.py` path.",
+          "check": "test -f cart-service/REVIEW.md && grep -q 'test-cart' cart-service/REVIEW.md && grep -q 'src/cart/api.py' cart-service/REVIEW.md"
+        },
+        {
+          "text": "PLAN.md and cart/store.py are unchanged.",
+          "check": "shasum -a 256 cart-service/PLAN.md | grep -q '^0a16a7a150a0506f2dc403194a3bbffdf7b14d62afe42f3224ae26d74aa6e59a ' && shasum -a 256 cart-service/cart/store.py | grep -q '^44f20ba8f926ff2fd1c8c4bb78f177e9f5fb861bee7ce8f5be401a6e1b7a0d9f '"
+        },
+        "REVIEW.md reports the lost update with a concrete interleaving of two devices (both read the same cart, both write, one added item disappears) and proposes an atomic or versioned write (for example WATCH/MULTI, a Lua script, a compare-and-set, or a Redis list/set append) instead of redesigning the service.",
+        "REVIEW.md reports that retrying the whole handler on any Redis error can add the item twice when the failed attempt's write actually succeeded, and proposes a bounded correction (retry only before the write, or make the add idempotent)."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "auth-lib/PLAN.md is what I have for docs/issue-12.md and it's useless: 'T1 Refactor the auth module. T2 Improve tests. T3 Clean up as needed.' Rewrite auth-lib/PLAN.md in place so someone else could execute it without asking me anything. Our plan format is in auth-lib/docs/PLANS.md. Don't implement it.",
+      "expected_output": "A rewritten plan in the house format with zero check_plan.py defects: tests pinning mk_tok/check_tok behavior first, then create_token/verify_token with the old names kept as aliases that emit DeprecationWarning (tested), and a later removal task tied to the downstream services' upgrade; commands that exist in the repository; no code changed.",
+      "files": [
+        "evals/files/auth-lib/README.md",
+        "evals/files/auth-lib/PLAN.md",
+        "evals/files/auth-lib/docs/PLANS.md",
+        "evals/files/auth-lib/docs/issue-12.md",
+        "evals/files/auth-lib/auth/__init__.py",
+        "evals/files/auth-lib/auth/tokens.py",
+        "evals/files/auth-lib/tests/__init__.py",
+        "evals/files/auth-lib/tests/test_tokens.py"
+      ],
+      "assertions": [
+        {
+          "text": "PLAN.md passes check_plan.py with zero defects (no vague verbs, every task has files, Verify, and Done when).",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/plan-implementation/scripts/check_plan.py\" ]; do [ \"$R\" = / ] && { echo \"check_plan.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/plan-implementation/scripts/check_plan.py\"; python3 \"$T\" auth-lib/PLAN.md"
+        },
+        {
+          "text": "Every command in the plan resolves in the repository.",
+          "check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/plan-implementation/scripts/audit_plan_claims.py\" ]; do [ \"$R\" = / ] && { echo \"audit_plan_claims.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/plan-implementation/scripts/audit_plan_claims.py\"; J=$(mktemp); trap 'rm -f \"$J\"' EXIT; python3 \"$T\" auth-lib/PLAN.md auth-lib --json > \"$J\"; python3 - \"$J\" auth-lib/PLAN.md <<'PY'\nimport json, re, sys\nclaims = json.load(open(sys.argv[1]))\nplanned = set(re.findall(r'[\\w./-]+\\.py', ' '.join(re.findall(r'\\[files:([^\\]]+)\\]', open(sys.argv[2]).read()))))\ndef excused(c):\n    m = re.fullmatch(r'test module (\\S+)', c['detail'])\n    return bool(m) and (m.group(1) == '.' or m.group(1).replace('.', '/') + '.py' in planned)\ncmds = [c for c in claims if c['kind'] == 'command']\nbad = [c for c in cmds if c['status'] != 'ok' and not excused(c)]\nprint(len(cmds), 'commands;', bad)\nsys.exit(0 if cmds and not bad else 1)\nPY"
+        },
+        {
+          "text": "The plan names create_token, verify_token, and DeprecationWarning.",
+          "check": "grep -q create_token auth-lib/PLAN.md && grep -q verify_token auth-lib/PLAN.md && grep -q DeprecationWarning auth-lib/PLAN.md"
+        },
+        {
+          "text": "A task that touches tests comes before the first task that changes auth/tokens.py.",
+          "check": "python3 - auth-lib/PLAN.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ntasks = []\nfor line in text.splitlines():\n    m = re.match(r'^\\s*[-*]\\s+(T\\d+)\\b(.*)$', line)\n    if m:\n        tasks.append(m.group(2))\n    elif tasks and line.startswith('  ') and line.strip():\n        tasks[-1] += ' ' + line.strip()\ndef files(t):\n    m = re.search(r'\\[files:\\s*([^\\]]+)\\]', t)\n    return [f.strip() for f in m.group(1).split(',')] if m else []\nidx = next((i for i, t in enumerate(tasks) if 'auth/tokens.py' in files(t)), None)\nok = idx is not None and any(any(f.startswith('tests/') for f in files(t)) for t in tasks[:idx])\nprint(idx, [files(t) for t in tasks])\nsys.exit(0 if ok else 1)\nPY"
+        },
+        {
+          "text": "auth/tokens.py is unchanged (plan only).",
+          "check": "shasum -a 256 auth-lib/auth/tokens.py | grep -q '^b0a3ae58f45dc87df1e37431ef7cd9839567a2710858af07f86995458c6b2c9e '"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our migration plan is: 'Rename column email to email_address in the users table, update the api, worker, and admin services in the same PR, deploy.' The three services deploy separately, usually a few hours apart. Anything wrong with it?",
+      "expected_output": "A lockstep-change finding: during rollout, services still on the old version query a column that no longer exists (or new versions query one that does not exist yet); correction by expand (add email_address, dual-write), migrate (backfill, switch reads per service), contract (drop email after every service is on the new version), with a rollback note for the drop.",
+      "assertions": [
+        "Describes the concrete rollout window in which a service on the old version queries `email` after the rename (or a new version queries `email_address` before it exists) and fails.",
+        "Proposes expand, migrate, contract (add the new column, dual-write or backfill, switch each service, drop the old column last) and notes that the final drop is irreversible and needs a backup or a waiting period."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Management wants a date for adding SSO with Keystone ID, an identity provider we've never used. They haven't given us sandbox access yet and nobody knows when they will. Last year the Google SSO integration took us 6 working days once we had credentials. What do I tell them?",
+      "expected_output": "An answer that does not invent a single date: a spike or contract-fixture task that runs as soon as sandbox access arrives, with a decision rule; ranges tied to named scenarios based on the 6-day Google analogy; and the sandbox wait as an if-then risk with a trigger, so the estimate is given relative to access rather than as a calendar date.",
+      "assertions": [
+        "Does not commit to a single calendar date; the estimate is expressed relative to when sandbox access arrives (for example N-M working days after access).",
+        "Uses the 6-day Google SSO integration as the stated basis and gives a range rather than a point estimate.",
+        "Includes a time-boxed spike or contract-fixture task with a decision rule for what its result changes."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "text-stats/PLAN.md is approved. Go ahead and implement it.",
+      "expected_output": "Near miss (execution, not planning): word_count implemented with the planned tests, and the suite passing; no new plan written.",
+      "files": [
+        "evals/files/text-stats/PLAN.md",
+        "evals/files/text-stats/text_stats.py",
+        "evals/files/text-stats/tests/__init__.py",
+        "evals/files/text-stats/tests/test_text_stats.py"
+      ],
+      "assertions": [
+        {
+          "text": "word_count counts runs of non-whitespace characters, including the plan's example.",
+          "check": "cd text-stats && python3 -c \"from text_stats import word_count as w; import sys; sys.exit(0 if (w(''), w('  a\\tb\\nc '), w('one'), w('a  b')) == (0, 3, 1, 2) else 1)\""
+        },
+        {
+          "text": "The test suite passes and tests word_count.",
+          "check": "cd text-stats && python3 -m unittest discover -s tests -t . && grep -rq word_count tests/"
+        },
+        {
+          "text": "PLAN.md is unchanged.",
+          "check": "shasum -a 256 text-stats/PLAN.md | grep -q '^32bee636d05a9703b2bf207883c750f8bdf407a75ee7f9dfca7ac1002203fa91 '"
+        }
+      ]
+    }
+  ]
+}

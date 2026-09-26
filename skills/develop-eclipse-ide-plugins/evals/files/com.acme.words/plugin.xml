@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension point="org.eclipse.ui.commands">
+    <command id="com.acme.words.count" name="Count Words"/>
+  </extension>
+  <extension point="org.eclipse.ui.handlers">
+    <handler commandId="com.acme.words.count"
+        class="com.acme.words.CountWordsHandler"/>
+  </extension>
+  <extension point="org.eclipse.ui.menus">
+    <menuContribution
+        locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+      <command commandId="com.acme.words.count" style="push"/>
+    </menuContribution>
+  </extension>
+</plugin>

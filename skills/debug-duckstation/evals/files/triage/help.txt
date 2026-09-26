@@ -1,0 +1,29 @@
+DuckStation Version 0.1-11826-gfe2306b1f (dev)
+https://github.com/stenzek/duckstation
+
+Usage: DuckStation [parameters] [--] [boot filename]
+
+  -help: Displays this information and exits.
+  -version: Displays version information and exits.
+  -batch: Enables batch mode (exits after powering off).
+  -fastboot: Force fast boot for provided filename.
+  -slowboot: Force slow boot for provided filename.
+  -bios: Boot into the BIOS shell.
+  -resume: Load resume save state. If a boot filename is provided,
+    that game's resume state will be loaded, otherwise the most
+    recent resume save state will be loaded.
+  -state <index>: Loads specified save state by index. If a boot
+    filename is provided, a per-game state will be loaded, otherwise
+    a global state will be loaded.
+  -statefile <filename>: Loads state from the specified filename.
+    No boot filename is required with this option.
+  -exe <filename>: Boot the specified exe instead of loading from disc.
+  -fullscreen: Enters fullscreen mode immediately after starting.
+  -nofullscreen: Prevents fullscreen mode from triggering if enabled.
+  -nogui: Disables main window from being shown, exits on shutdown.
+  -bigpicture: Automatically starts big picture UI.
+  -earlyconsole: Creates console as early as possible, for logging.
+  --: Signals that no more arguments will follow and the remaining
+    parameters make up the filename. Use when the filename contains
+    spaces or starts with a dash.
+

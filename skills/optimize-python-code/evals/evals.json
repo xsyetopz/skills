@@ -1,35 +1,150 @@
 {
-  "skill_name": "optimize-python-code",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Profile and optimize this Python workload with pyperf/cProfile while preserving supported versions, iterator consumption, errors, identity, side effects, and equivalent inputs.",
-      "expected_output": "A repository-aware Python optimization result with observable evidence, preserved constraints, and explicit verification limits.",
-      "assertions": [
-        "The response performs the Python optimization workflow instead of returning only generic advice.",
-        "For iterator optimization, Preserve single-use/eager/lazy behavior.",
-        "For pyperf, Use stable environment and repeated runs.",
-        "The response identifies the checks it actually ran and does not report unexecuted checks as passing."
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Apply PEP 20 readability principles without a performance goal.",
-      "expected_output": "The agent does not activate optimize-python-code for this neighboring request and does not apply its procedures by keyword alone.",
-      "assertions": [
-        "The response does not claim that optimize-python-code is required.",
-        "The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Profile and optimize this Python workload with pyperf/cProfile while preserving supported versions, iterator consumption, errors, identity, side effects, and equivalent inputs. Stress case: Validation removal.",
-      "expected_output": "A Python optimization result that handles the named stress case and supplies evidence able to detect the documented failure.",
-      "assertions": [
-        "Keep required checks and error behavior.",
-        "The evidence can detect this failure: Candidate is faster by doing less.",
-        "The response states any unavailable environment, host, or integration check instead of inventing a pass."
-      ]
-    }
-  ]
+	"skill_name": "optimize-python-code",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our nightly reconciliation job got slow as volumes grew. cProfile puts about 80% of cumtime in dedupe_events() in dedupe/events.py (dedupe/nightly.py is a small stand-in for the job). In production `events` is a generator over a DB cursor and `blocked` is a list of ~50k ids. Make it fast without changing what it returns or the Event class's behavior; the job runs on the interpreter in this workspace. Tell me what you measured.",
+			"expected_output": "dedupe_events builds a set of blocked ids once and tracks seen events by a hashable field key (Event is an unhashable dataclass), keeps first-occurrence order, consumes the generator once, leaves Event unchanged, and reports before/after timings from repeated runs on the same interpreter and input.",
+			"files": [
+				"evals/files/dedupe/events.py",
+				"evals/files/dedupe/nightly.py"
+			],
+			"assertions": [
+				{
+					"text": "dedupe_events returns the same list (same objects, first occurrence kept, input order) as the original on empty, single, duplicate, and random generator inputs",
+					"check": "cd dedupe && python3 - <<'PY'\nimport random\nfrom events import Event, dedupe_events\ndef ref(evs, blocked):\n    b = set(blocked); seen = set(); out = []\n    for e in evs:\n        k = (e.id, e.kind, e.ts)\n        if e.id not in b and k not in seen:\n            seen.add(k); out.append(e)\n    return out\nrng = random.Random(3)\ncases = [[], [Event(1, \"a\", 1)],\n         [Event(1, \"a\", 1), Event(1, \"a\", 1), Event(4, \"a\", 1), Event(1, \"b\", 1), Event(2, \"a\", 2)]]\nfor n in (40, 400):\n    cases.append([Event(rng.randrange(n // 3 + 1), rng.choice(\"ab\"), rng.randrange(3)) for _ in range(n)])\nblocked = list(range(0, 200, 4))\nfor evs in cases:\n    got = dedupe_events((e for e in evs), list(blocked))\n    exp = ref(evs, blocked)\n    assert isinstance(got, list), type(got)\n    assert len(got) == len(exp) and all(g is x for g, x in zip(got, exp)), (len(got), len(exp))\nprint(\"equivalent\")\nPY"
+				},
+				{
+					"text": "Event keeps its contract: still mutable, still compares by value, still unhashable",
+					"check": "cd dedupe && python3 -c \"\nfrom events import Event\ne = Event(1, 'a', 2); e.ts = 3\nassert Event(1, 'a', 3) == e\nassert Event.__hash__ is None\nprint('ok')\""
+				},
+				{
+					"text": "60,000 streamed events against 20,000 blocked ids finish in under 3 seconds (the original needs about a minute)",
+					"check": "cd dedupe && python3 - <<'PY'\nimport random, signal, time\nfrom events import Event, dedupe_events\nsignal.alarm(20)\nrng = random.Random(9)\nn = 60_000\ngen = (Event(rng.randrange(n // 2), rng.choice([\"open\", \"close\"]), rng.randrange(50)) for _ in range(n))\nt = time.perf_counter()\nout = dedupe_events(gen, list(range(0, n, 3)))\ndt = time.perf_counter() - t\nprint(f\"{dt:.2f}s, {len(out)} kept\")\nassert dt < 3.0\nPY"
+				},
+				"The reply reports baseline and candidate timings for the same input on the same interpreter from repeated runs (pyperf, timeit repeats, or several timed runs), with the numbers stated, not a single stopwatch reading."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Loading a trading day (~5 million ticks) with ticks/loader.py uses too much RAM and the box starts swapping. Cut the memory per Tick in ticks/model.py. We still support Python 3.11 (see ticks/pyproject.toml), the vendored ticks/replay_plugin.py must keep working unmodified, and the JSON lines from ticks/export.py must not change. Show the before/after memory numbers.",
+			"expected_output": "Tick uses __slots__ (or dataclass(slots=True)) including a `source` slot for the replay plugin, export no longer depends on vars()/__dict__ but emits identical JSON (source only when set), and tracemalloc peak per tick is reported before and after.",
+			"files": [
+				"evals/files/ticks/export.py",
+				"evals/files/ticks/loader.py",
+				"evals/files/ticks/model.py",
+				"evals/files/ticks/pyproject.toml",
+				"evals/files/ticks/replay_plugin.py"
+			],
+			"assertions": [
+				{
+					"text": "The replay plugin still tags ticks and export output is byte-identical to the original for tagged and untagged ticks",
+					"check": "cd ticks && python3 - <<'PY'\nfrom loader import load_csv\nfrom replay_plugin import tag_replay\nfrom export import to_jsonl\nplain = to_jsonl(load_csv(\"1,2.5,3\\n2,2.75,4\"))\nassert plain == '{\"px\": 2.5, \"qty\": 3, \"ts\": 1}\\n{\"px\": 2.75, \"qty\": 4, \"ts\": 2}', plain\ntagged = to_jsonl(tag_replay(load_csv(\"1,2.5,3\")))\nassert tagged == '{\"px\": 2.5, \"qty\": 3, \"source\": \"replay\", \"ts\": 1}', tagged\nprint(\"ok\")\nPY"
+				},
+				{
+					"text": "Traced memory per loaded Tick is at most 80% of a plain __dict__ class with the same fields",
+					"check": "cd ticks && python3 - <<'PY'\nimport tracemalloc\nfrom loader import load\nclass Plain:\n    def __init__(self, ts, px, qty):\n        self.ts = ts; self.px = px; self.qty = qty\nrows = [(\"1\", \"2.5\", \"3\")] * 200_000\ndef peak(make):\n    tracemalloc.start()\n    xs = make()\n    p = tracemalloc.get_traced_memory()[1]\n    tracemalloc.stop()\n    return p / len(xs)\nref = peak(lambda: [Plain(int(a), float(b), int(c)) for a, b, c in rows])\ngot = peak(lambda: load(rows))\nprint(f\"plain {ref:.1f} B/tick, candidate {got:.1f} B/tick\")\nassert got <= 0.8 * ref\nPY"
+				},
+				{
+					"text": "ticks/replay_plugin.py is unchanged",
+					"check": "cd ticks && python3 -c \"\nimport hashlib, sys\nh = hashlib.sha256(open('replay_plugin.py', 'rb').read()).hexdigest()\nsys.exit(h != 'ae114fd08882469dbe7d1e1ab25cd125c2b2fc972e73d7757a27c647418276f5')\""
+				},
+				"The reply reports memory before and after measured with tracemalloc (peak or snapshot diff) or RSS on the same input, and names the attribute-assignment constraint (`tick.source`) that the slots layout had to allow."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "`python -m app version` takes ~300 ms before printing anything, and --help is just as slow. Only the `report` subcommand needs app/report_engine.py. Make the other commands start fast without changing any command's output. The package is in cli/ (run it from there).",
+			"expected_output": "Import-time attribution (-X importtime) shows app.report_engine dominating; the import moves into the report path (with a TYPE_CHECKING import or string annotation for hints); `version` and `--help` no longer import it; report output is unchanged; cumulative import time is reported before and after.",
+			"files": [
+				"evals/files/cli/app/__init__.py",
+				"evals/files/cli/app/__main__.py",
+				"evals/files/cli/app/main.py",
+				"evals/files/cli/app/report_engine.py"
+			],
+			"assertions": [
+				{
+					"text": "Running the `version` command no longer imports app.report_engine",
+					"check": "cd cli && python3 -c \"\nimport sys\nfrom app.main import main\nassert main(['version']) == 0\nassert 'app.report_engine' not in sys.modules, 'report_engine imported'\n\""
+				},
+				{
+					"text": "`report` and `version` print exactly what they printed before",
+					"check": "cd cli && test \"$(python3 -m app report --count 50 --scale 2)\" = \"report: 50 ids, weighted total 1558.329\" \\\n  && test \"$(python3 -m app version)\" = \"app 2.3.1\" \\\n  && python3 -m app --help | grep -q report"
+				},
+				"The reply quotes import-time evidence (python -X importtime cumulative column, or repeated wall-clock runs) for the startup before and after the change."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "fetch/health.py polls ~200 internal health endpoints one after another and takes over 10 seconds (fetch/client.py stands in for our HTTP client; each call blocks about 50 ms). A teammate wants to wrap it in multiprocessing.Pool. Make poll_all fast, but the services behind it can't handle more than 10 concurrent requests from us, results must stay in URL order, and a failing endpoint must still raise like it does now.",
+			"expected_output": "Classifies the work as blocking I/O, uses a ThreadPoolExecutor (or equivalent) capped at 10 workers instead of processes, preserves order with executor.map, propagates the first failure in URL order, and measures wall time before and after.",
+			"files": [
+				"evals/files/fetch/client.py",
+				"evals/files/fetch/health.py"
+			],
+			"assertions": [
+				{
+					"text": "poll_all returns one result per URL in input order and calls the client once per URL",
+					"check": "cd fetch && python3 -c \"\nimport client, health\nurls = health.endpoints(60)\nout = health.poll_all(urls)\nassert [r['url'] for r in out] == urls\nassert client.calls == 60, client.calls\n\""
+				},
+				{
+					"text": "200 endpoints finish in under 2.5 s with between 2 and 10 requests in flight at once",
+					"check": "cd fetch && python3 -c \"\nimport time, client, health\nt = time.perf_counter(); health.poll_all(health.endpoints(200)); dt = time.perf_counter() - t\nprint(f'{dt:.2f}s max_in_flight={client.max_in_flight}')\nassert dt < 2.5 and 2 <= client.max_in_flight <= 10\n\""
+				},
+				{
+					"text": "The first failing URL in input order raises its ValueError",
+					"check": "cd fetch && python3 -c \"\nimport health\nurls = health.endpoints(40)\nurls[7] = 'http://svc-7.internal/broken'\nurls[30] = 'http://svc-30.internal/broken'\ntry:\n    health.poll_all(urls)\nexcept ValueError as e:\n    assert 'svc-7.' in str(e), e\nelse:\n    raise SystemExit('no error raised')\n\""
+				},
+				"The reply explains why processes are the wrong tool for this blocking I/O and reports measured wall time before and after."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Our pricing API (jit/api/, deployed with jit/Dockerfile) is CPU-bound in pure Python. Please turn on the new JIT for production and move the image to the free-threaded python3.14t build since it has no GIL. Just make the Dockerfile changes.",
+			"expected_output": "Does not flip the experimental JIT on in the production image; instead proposes or runs a PYTHON_JIT=0 vs 1 comparison (pyperf with --inherit-environ PYTHON_JIT) on the pricing workload, checks sys._jit availability, notes free-threading only helps multi-threaded CPU work, and that C extensions such as orjson can re-enable the GIL (check sys._is_gil_enabled() after imports).",
+			"files": [
+				"evals/files/jit/Dockerfile",
+				"evals/files/jit/api/__init__.py",
+				"evals/files/jit/api/pricing.py",
+				"evals/files/jit/api/server.py",
+				"evals/files/jit/requirements.txt"
+			],
+			"assertions": [
+				{
+					"text": "The production Dockerfile does not enable the JIT (no PYTHON_JIT=1 / -X jit)",
+					"check": "! grep -Eq 'PYTHON_JIT[= ]+\"?1|-X *jit' jit/Dockerfile"
+				},
+				"The reply states that the CPython JIT is experimental and proposes measuring the pricing workload with and without it (for example pyperf with --inherit-environ PYTHON_JIT) before any production change.",
+				"The reply notes that the free-threaded build only speeds up code that runs CPU work on several threads (the API code shown is single-threaded) and that extension modules can re-enable the GIL, checked with sys._is_gil_enabled() after imports.",
+				"The reply does not state a specific JIT or free-threading speedup or overhead percentage as fact without a measurement or a cited source."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "readability/orders.py has one long summarize() function nobody wants to touch. Split it into well-named helpers so it reads top to bottom; behavior must stay exactly the same (readability/test_orders.py passes today). This is a readability change only.",
+			"expected_output": "A readability refactor into named helpers with the tests still passing, without profiling, benchmarking, or performance constructs.",
+			"files": [
+				"evals/files/readability/orders.py",
+				"evals/files/readability/test_orders.py"
+			],
+			"assertions": [
+				{
+					"text": "The existing tests still pass",
+					"check": "cd readability && python3 -m unittest -q test_orders"
+				},
+				{
+					"text": "summarize is split into at least two additional top-level helper functions",
+					"check": "cd readability && python3 -c \"\nimport ast\ntree = ast.parse(open('orders.py').read())\nn = sum(isinstance(x, ast.FunctionDef) for x in tree.body)\nprint(n); assert n >= 3\""
+				},
+				{
+					"text": "No profiling or benchmarking commands were run",
+					"check": "python3 - \"$EVAL_TRANSCRIPT_FILE\" <<'PY'\nimport json, re, sys\ncmds = []\nfor line in open(sys.argv[1], encoding=\"utf-8\"):\n    try:\n        ev = json.loads(line)\n    except ValueError:\n        continue\n    if ev.get(\"type\") != \"assistant\":\n        continue\n    for c in (ev.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(c, dict) and c.get(\"type\") == \"tool_use\" and c.get(\"name\") == \"Bash\":\n            cmds.append(str((c.get(\"input\") or {}).get(\"command\", \"\")))\nhits = [c for c in cmds if re.search(r'cProfile|pyperf|tracemalloc|importtime|timeit', c)]\nprint(\"\\n\".join(hits[:5]))\nsys.exit(1 if hits else 0)\nPY"
+				},
+				{
+					"text": "No performance constructs were introduced (__slots__, caches, local-binding defaults)",
+					"check": "! grep -Eq '__slots__|lru_cache|functools\\.cache|@cache|_len *= *len' readability/orders.py"
+				}
+			]
+		}
+	]
 }

@@ -1,0 +1,15 @@
+<idea-plugin>
+  <id>com.example.gitstats</id>
+  <name>Git Stats</name>
+  <vendor email="team@quillsoft.invalid">Quillsoft</vendor>
+  <description><![CDATA[Shows commit statistics for the current repository.]]></description>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>Git4Idea</depends>
+  <actions>
+    <action id="com.example.gitstats.ShowStats"
+            class="com.example.gitstats.ShowStatsAction"
+            text="Show Git Stats">
+      <add-to-group group-id="VcsGroups" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>

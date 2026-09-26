@@ -1,0 +1,109 @@
+[
+	{
+		"query": "dotnet-counters shows gen0 collections climbing and an allocation rate around 900 MB/s in our net10.0 ingestion API. The trace points at LogLineParser.Parse, which does Split and Substring. Make it cheaper; results and exceptions must stay the same.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "BenchmarkDotNet says our content-type sniffer takes 2.1 μs and allocates 480 B per call. It does `new Regex(...)` inside the method. can we get that down?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Thread pool starvation in our ASP.NET Core service: dotnet-counters shows the thread pool queue length growing, and the data layer is full of .Result calls. Fix throughput and show that it helped.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our net10.0 CLI takes ~400ms to start. it uses System.Text.Json with reflection and loads plugins via Assembly.LoadFrom. ReadyToRun or NativeAOT?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "DOTNET_JitDisasm shows CORINFO_HELP_RNGCHKFAIL inside our checksum loop over a byte[]. Can we get rid of the bounds checks without going unsafe?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Parallel.For over 10M items doing Interlocked.Add on one shared total runs slower than the plain single-threaded loop. Why, and how do we fix it? I need numbers.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our hot path updates a Dictionary<string,int> with TryGetValue followed by the indexer setter, so the profile shows two hash lookups per item (.NET 10). Is there a cheaper way?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our .NET game server keeps a HashSet<GridPoint> where GridPoint is a struct without IEquatable, and the allocation profile shows boxing on every lookup.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "80 ms GC pauses in our containerized .NET 10 service with a 2-CPU limit. Workstation or server GC, or DATAS? I want to decide from data.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "dotnet-trace says the P/Invoke into libzstd costs more than the compression itself for small buffers. We use [DllImport] with string marshalling.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Upgrade our solution from net8.0 to net10.0 and fix the build errors.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Run dotnet format on the solution and clean up the IDE0005 unnecessary-using warnings.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our Java 21 service does line.split(\"\\\\|\") for every log line and JFR allocation-by-class shows String at the top. Make parsing cheaper.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-java-code"
+	},
+	{
+		"query": "Our Ktor service calls runBlocking inside request handlers and latency spikes under load; the code is Kotlin with coroutines.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-kotlin-code"
+	},
+	{
+		"query": "An integration test in our .NET solution fails intermittently with ObjectDisposedException on the DbContext. Find the cause.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Set up a GitHub Actions workflow that restores, builds, and tests our .NET 10 solution on every push.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "what's the difference between IEnumerable and IQueryable in EF Core",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "tsc --build takes 4 minutes on our TypeScript monorepo. Can you profile it and make it faster?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-typescript-builds"
+	},
+	{
+		"query": "Check our ASP.NET controller for SQL injection; it builds queries with string interpolation from query parameters.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "pprof shows runtime.mallocgc at the top in our Go service's JSON encoder; allocs/op is 40 per request. Cut it down.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-go-code"
+	}
+]

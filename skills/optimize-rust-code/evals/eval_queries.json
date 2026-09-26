@@ -1,0 +1,109 @@
+[
+	{
+		"query": "samply on our rust ingest service puts alloc::raw_vec::finish_grow and memcpy at the top of the flamegraph. the parser builds a Vec<String> for every line. can you cut the allocations and show the output is still identical?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "criterion says decode_frame regressed 18% after I rewrote the index loop with iterators (benches/frame.rs). figure out what happened and get the speed back",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is get_unchecked worth it here? `for i in 0..n { out[i] = data[i] ^ key[i % 32]; }` is the hot loop of our at-rest encryption path. I'd want asm evidence either way, not vibes.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "our rust CLI that dumps 5M rows is way slower than the old Go tool when stdout is redirected to a file. why, and can you fix it without changing the bytes it writes?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Thinking of turning on fat LTO, codegen-units = 1 and PGO for the release build of our axum server. Before we commit I want real numbers: build time and requests/sec with and without.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Instruments shows most of the frame time in indirect calls from our Vec<Box<dyn Shape>> render loop. There are exactly five shape types and no plugins. Make it faster.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "HashMap<u32, NodeInfo> lookups dominate the perf profile of our Rust compiler pass. Keys are interned ids we generate ourselves. Speed it up.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "we resize 40k independent images in a plain for loop in rust and only one core is busy. would rayon help and how would I show it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How can I count heap allocations made by one Rust function so the PR can show before/after numbers for my change to it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "dhat says our rust config parser allocates 2 GB in total for a 100 MB file, mostly from .clone() of Strings into the AST nodes. bring that down",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "cargo build fails with E0597 'borrowed value does not live long enough' in src/cache.rs after I added the LRU. how do I fix it?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "pprof on our Go service shows 40% of CPU in runtime.mallocgc, mostly from fmt.Sprintf building keys in a loop. Make it cheaper.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-go-code"
+	},
+	{
+		"query": "The Rust test concurrent_insert deadlocks about 1 in 50 runs on CI. Find out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Audit the unsafe blocks and the FFI boundary in our Rust image-decoding crate for memory-safety bugs an attacker could trigger with a crafted file.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "perf shows std::vector<std::string> copies and operator new all over our C++ matching engine's hot path. Cut them.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-cpp-code"
+	},
+	{
+		"query": "Write a Zed extension in Rust that starts our DSL's language server and adds Tree-sitter highlighting.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "develop-zed-editor-extensions"
+	},
+	{
+		"query": "Rename the Config struct to Settings across our Rust workspace and update the docs and examples.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Add proptest round-trip tests for our Rust varint encoder, including the 10-byte max and overlong encodings.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Our GitHub Actions Rust workflow takes 25 minutes; set up caching for ~/.cargo and target so PR builds are faster.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "When should I use Rc versus Arc in Rust?",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

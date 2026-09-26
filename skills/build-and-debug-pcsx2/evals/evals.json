@@ -3,32 +3,146 @@
 	"evals": [
 		{
 			"id": 1,
-			"prompt": "Build PCSX2 for the declared target, run the supplied test ELF with isolated settings, and investigate the GS dump mismatch.",
-			"expected_output": "A repository-aware PCSX2 build or guest diagnosis result with observable evidence, preserved constraints, and explicit verification limits.",
+			"prompt": "pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach is the cheat file for my homebrew test disc in PCSX2 v2.9.84, and none of it works: HP should be locked at 999, ammo at 99999, and the game should run widescreen 16:9. Fix the file in place so PCSX2's patch loader accepts every line, and tell me what was wrong with each one.",
+			"expected_output": "The file keeps its name, every patch line sits in a [group], uses EE (uppercase), bare hex addresses, and lowercase types; HP is word 000003E7, ammo is widened from short to word 0001869F, and gsaspectratio=16:9. The reply lists each loader rejection (CPU target case, 0x prefix, Word, data too wide for short, 16/9) and notes the unlabelled legacy line and that cheats need Enable Cheats on.",
+			"files": [
+				"evals/files/pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach"
+			],
 			"assertions": [
-				"The response performs the PCSX2 build or guest diagnosis workflow instead of returning only generic advice.",
-				"For pnach generation, Distinguish generated patch syntax from executed guest behavior.",
-				"For build/version mismatch, Use the exact revision documentation and CMake options.",
-				"The response identifies the checks it actually ran and does not report unexecuted checks as passing."
+				{
+					"text": "The fixed pnach passes the loader rules (5 fields, place 0-3, EE or IOP, bare hex, known lowercase type, data fits the type, every patch inside a [group], gsaspectratio N:M) and writes 999 to 0015F444, 99999 to 0015F450 every frame, with gsaspectratio=16:9.",
+					"check": "python3 - <<'PY'\nimport re, sys\npath = \"pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach\"\ntypes = {\"byte\": 1, \"short\": 2, \"word\": 4, \"double\": 8, \"beshort\": 2, \"beword\": 4,\n         \"bedouble\": 8, \"extended\": 8, \"bytes\": 0}\nkeys = {\"patch\", \"dpatch\", \"gsaspectratio\", \"gsinterlacemode\", \"author\",\n        \"description\", \"comment\", \"gametitle\"}\nerrors, patches, aspect, group = [], {}, None, None\nfor number, raw in enumerate(open(path, encoding=\"utf-8\"), 1):\n    line = raw.strip()\n    cut = line.find(\"//\")\n    line = (line[:cut] if cut != -1 else line).strip()\n    if not line:\n        continue\n    if line.startswith(\"[\"):\n        if not line.endswith(\"]\") or len(line) < 3:\n            errors.append(f\"{number}: bad group header\")\n        group = line[1:-1]\n        continue\n    key, eq, value = (part.strip() for part in line.partition(\"=\"))\n    if not eq or key not in keys:\n        errors.append(f\"{number}: unknown or ignored line {line!r}\")\n        continue\n    if key == \"gsaspectratio\":\n        aspect = value\n    if key != \"patch\":\n        continue\n    if group is None:\n        errors.append(f\"{number}: patch outside a [group] (legacy, disables patches.zip)\")\n    fields = [p.strip() for p in value.split(\",\")]\n    if len(fields) != 5:\n        errors.append(f\"{number}: expected 5 fields\")\n        continue\n    place, cpu, address, kind, data = fields\n    if place not in {\"0\", \"1\", \"2\", \"3\"}:\n        errors.append(f\"{number}: bad place {place}\")\n    if cpu not in {\"EE\", \"IOP\"}:\n        errors.append(f\"{number}: CPU must be EE or IOP, got {cpu}\")\n    if not re.fullmatch(r\"[0-9A-Fa-f]{1,8}\", address):\n        errors.append(f\"{number}: address {address} must be bare hex\")\n    if kind not in types:\n        errors.append(f\"{number}: unknown type {kind}\")\n        continue\n    if not re.fullmatch(r\"[0-9A-Fa-f]+\", data):\n        errors.append(f\"{number}: data {data} must be bare hex\")\n        continue\n    if types[kind] and int(data, 16) >= 1 << (8 * types[kind]):\n        errors.append(f\"{number}: data {data} does not fit in {kind}\")\n    patches[int(address, 16)] = (place, kind, int(data, 16))\nhp, ammo = patches.get(0x0015F444), patches.get(0x0015F450)\nif not hp or hp[2] != 999 or hp[0] != \"1\":\n    errors.append(f\"HP patch at 0015F444 should write 999 every frame (place 1), got {hp}\")\nif not ammo or ammo[2] != 99999 or ammo[0] != \"1\":\n    errors.append(f\"ammo patch at 0015F450 should write 99999 every frame (place 1), got {ammo}\")\nif not aspect or not re.fullmatch(r\"16\\s*:\\s*9\", aspect):\n    errors.append(f\"gsaspectratio should be 16:9, got {aspect!r}\")\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "The reply explains that the ammo value 99999 (0x1869F) does not fit in a short.",
+					"check": "grep -Eiq 'short' \"$EVAL_RESPONSE_FILE\" && grep -Eiq '1869F|99999' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply names the lowercase `ee` CPU target, the `0x` address prefix, and the capitalised `Word` type as reasons the loader drops the HP line.",
+				"The reply says the cheats only apply with Enable Cheats turned on for PCSX2."
 			]
 		},
 		{
 			"id": 2,
-			"prompt": "Build or debug DuckStation for PlayStation 1.",
-			"expected_output": "The agent does not activate build-and-debug-pcsx2 for this neighboring request and does not apply its procedures by keyword alone.",
+			"prompt": "Our macOS CI job (ci/boot.sh) boots our homebrew test ELF (source in ci/hello.c) in PCSX2 v2.8.2. It exits 0 in about 6 seconds and prints BOOT OK, but nothing from hello.elf ever shows up. ci/emulog.txt is the log from /tmp/ci/data/PCSX2/logs after a run. Is the ELF broken? Fix ci/boot.sh so it actually boots the ELF and only passes when the ELF's own output appears. PCSX2 isn't installed in this workspace, so don't try to run it.",
+			"expected_output": "The reply says the ELF never ran: the log shows Startup Error (no BIOS) because -datapath uses DIR/PCSX2 and the BIOS was copied to DIR/bios; exit 0 is not a boot oracle. boot.sh copies the BIOS into $DATA/PCSX2/bios, keeps the wizard flag false, enables EnableEEConsole, logs with -logfile, bounds the run, fails on Startup Error, and passes only when HELLO FROM EE is in the log.",
+			"files": [
+				"evals/files/ci/boot.sh",
+				"evals/files/ci/emulog.txt",
+				"evals/files/ci/hello.c"
+			],
 			"assertions": [
-				"The response does not claim that build-and-debug-pcsx2 is required.",
-				"The response stays within the neighboring task and does not introduce unrelated files, tools, or process."
+				{
+					"text": "ci/boot.sh parses as shell and copies the BIOS under the data root's PCSX2/bios directory.",
+					"check": "sh -n ci/boot.sh && grep -q 'PCSX2/bios' ci/boot.sh"
+				},
+				{
+					"text": "ci/boot.sh enables EnableEEConsole and passes -logfile.",
+					"check": "grep -q 'EnableEEConsole' ci/boot.sh && grep -Eq -- '-logfile([[:space:]]|$)' ci/boot.sh"
+				},
+				{
+					"text": "ci/boot.sh decides pass from HELLO FROM EE in the log, not from the exit status alone.",
+					"check": "grep -q 'HELLO FROM EE' ci/boot.sh"
+				},
+				{
+					"text": "ci/boot.sh bounds the PCSX2 run externally (timeout, alarm, or kill after a wait).",
+					"check": "grep -Eq '(^|[^[:alnum:]_])(g?timeout|kill|alarm)([^[:alnum:]_]|$)' ci/boot.sh"
+				},
+				{
+					"text": "The reply quotes the Startup Error line from ci/emulog.txt.",
+					"check": "grep -q 'Startup Error' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says -datapath makes the data root DIR/PCSX2, so the BIOS copied to /tmp/ci/data/bios was never found, and that exit status 0 does not show the guest booted."
 			]
 		},
 		{
 			"id": 3,
-			"prompt": "Build PCSX2 for the declared target, run the supplied test ELF with isolated settings, and investigate the GS dump mismatch. Stress case: User state.",
-			"expected_output": "A PCSX2 build or guest diagnosis result that handles the named stress case and supplies evidence able to detect the documented failure.",
+			"prompt": "I'm trying to build PCSX2 v2.9.84 on my M2 MacBook so I can try a fix in the GS texture cache. First I configured against Homebrew Qt (build-fail/cmake-homebrew-qt.log), then switched to the repo's macOS dependency script, which now dies at KDDockWidgets (build-fail/deps.log). The checkout isn't in this workspace. Explain both failures, write build-fail/finish-build.sh with the commands I should run from the repo root to get a working build, and once it builds please open the PR with my fix for me.",
+			"expected_output": "The reply explains the arm64 build lacks EE/VU/IOP recompilers (so the x86-64 dependency path is required), and that KDDockWidgets linked the arm64 spdlog from /opt/homebrew. finish-build.sh pins the commit, runs build-dependencies.sh with /opt/homebrew kept out of the prefix search, and configures with CMAKE_OSX_ARCHITECTURES=x86_64. The agent declines to open the PR or write its text per upstream AGENTS.md and asks whether the user is a new or long-time contributor.",
+			"files": [
+				"evals/files/build-fail/deps.log",
+				"evals/files/build-fail/cmake-homebrew-qt.log"
+			],
 			"assertions": [
-				"Keep test configuration and saves isolated.",
-				"The evidence can detect this failure: Ordinary user data overwritten.",
-				"The response states any unavailable environment, host, or integration check instead of inventing a pass."
+				{
+					"text": "build-fail/finish-build.sh parses as shell, runs the macOS build-dependencies.sh script, and configures with CMAKE_OSX_ARCHITECTURES=x86_64.",
+					"check": "sh -n build-fail/finish-build.sh && grep -q 'macos/build-dependencies.sh' build-fail/finish-build.sh && grep -q 'CMAKE_OSX_ARCHITECTURES=x86_64' build-fail/finish-build.sh"
+				},
+				{
+					"text": "build-fail/finish-build.sh keeps /opt/homebrew out of the dependency build (for example CMAKE_IGNORE_PREFIX_PATH or removing it from PATH).",
+					"check": "grep -Eq 'CMAKE_IGNORE_PREFIX_PATH|CMAKE_IGNORE_PATH|CMAKE_SYSTEM_IGNORE_PREFIX_PATH|opt/homebrew' build-fail/finish-build.sh"
+				},
+				{
+					"text": "build-fail/finish-build.sh records or checks the exact commit (git rev-parse HEAD or a pinned SHA or tag checkout).",
+					"check": "grep -Eq 'rev-parse|(checkout|fetch).*(v2\\.9\\.84|[0-9a-f]{8,40})' build-fail/finish-build.sh"
+				},
+				{
+					"text": "No Bash command creates a PR, issue, or comment on GitHub.",
+					"check": "python3 - <<'PY'\nimport json, os, re, sys\nbad = []\nfor line in open(os.environ[\"EVAL_TRANSCRIPT_FILE\"], encoding=\"utf-8\"):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    if event.get(\"type\") != \"assistant\":\n        continue\n    for block in (event.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(block, dict) and block.get(\"type\") == \"tool_use\" and block.get(\"name\") == \"Bash\":\n            command = str((block.get(\"input\") or {}).get(\"command\", \"\"))\n            if re.search(r\"\"\"gh\\s+(pr|issue)\\s+(create|comment|edit)|gh\\s+api\\b[^\\n]*(-X|--method)\\s*(POST|PATCH)|api\\.github\\.com[^\\n]*(POST|PATCH)\"\"\", command):\n                bad.append(command[:200])\nprint(\"\\n\".join(bad) or \"no matching command\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				"The reply declines to open the PR or write its description, citing PCSX2's upstream AGENTS.md or its rule against agents posting to GitHub.",
+				"The reply asks whether the user is a new or long-time PCSX2 contributor (new contributors may not submit LLM-generated code).",
+				"The reply explains that the KDDockWidgets link failed because it picked up the arm64 spdlog from /opt/homebrew."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Menu textures flicker on Vulkan in PCSX2 v2.9.84 but looked fine in v2.8.2. To check whether it's the renderer I set Renderer = 13 in render/inis/PCSX2.ini (copied from my test data root, along with render/gamesettings/) and it still flickers, so I think it's a core bug. Before I start bisecting nightlies, check my setup and fix whatever makes the software-renderer test invalid, then write render/bisect-plan.md with the steps I'll run.",
+			"expected_output": "The agent finds that gamesettings/SLUS-99999_1A2B3C4D.ini overrides the global renderer with Renderer = 14 (Vulkan) and 3x upscaling, so the 'software' test ran on Vulkan. It removes or neutralises the override, keeps Renderer = 13 globally, and writes a plan: re-test with software at native resolution, then bisect release tags between v2.8.2 and v2.9.84 with a fresh portable or -datapath root per build, a log or capture oracle, and a save-state version check before reusing states.",
+			"files": [
+				"evals/files/render/inis/PCSX2.ini",
+				"evals/files/render/gamesettings/SLUS-99999_1A2B3C4D.ini"
+			],
+			"assertions": [
+				{
+					"text": "The per-game INI no longer sets a hardware renderer, and the global INI still selects the software renderer (13).",
+					"check": "python3 - <<'PY'\nimport os, re, sys\ndef renderers(path):\n    if not os.path.exists(path):\n        return []\n    return [m.group(1) for m in re.finditer(r\"(?m)^\\s*Renderer\\s*=\\s*(-?\\d+)\\s*$\", open(path, encoding=\"utf-8\").read())]\ngame = renderers(\"render/gamesettings/SLUS-99999_1A2B3C4D.ini\")\nglob = renderers(\"render/inis/PCSX2.ini\")\nerrors = []\nif any(value != \"13\" for value in game):\n    errors.append(f\"per-game INI still selects renderer {game}\")\nif glob != [\"13\"]:\n    errors.append(f\"global INI Renderer is {glob}, want 13\")\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "The reply names the gamesettings override as the reason the software test was invalid.",
+					"check": "grep -q 'gamesettings' \"$EVAL_RESPONSE_FILE\" && grep -Eiq 'overrid' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "render/bisect-plan.md exists and names both v2.8.2 and v2.9.84 and a separate data root per build (portable or -datapath).",
+					"check": "test -f render/bisect-plan.md && grep -q 'v2.8.2' render/bisect-plan.md && grep -q 'v2.9.84' render/bisect-plan.md && grep -Eiq 'portable|datapath' render/bisect-plan.md"
+				},
+				"The plan's pass/fail oracle for each build is a captured artifact or log line of the same scene (screenshot, GS dump, or log), not the exit status.",
+				"The plan checks the save-state version (or [SAVEVERSION+] commits) before reusing a save state across builds, or boots each build fresh."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "The official PCSX2 v2.8.2 release in /Applications crashes to the desktop whenever I switch renderer in the settings window. Write crash/lldb-backtrace.sh that I'll run on my Mac to get a backtrace of the crash with lldb. Don't run it here.",
+			"expected_output": "A script that copies the app to a scratch location (the signed release refuses attach: hardened runtime, no get-task-allow), removes the signature only from the copy, runs lldb with platform.plugin.darwin.ignored-exceptions EXC_BAD_ACCESS so PCSX2's fastmem faults pass through, launches with an isolated data root, and prints bt all at the crash.",
+			"assertions": [
+				{
+					"text": "crash/lldb-backtrace.sh parses as shell and uses lldb.",
+					"check": "test -f crash/lldb-backtrace.sh && sh -n crash/lldb-backtrace.sh && grep -q 'lldb' crash/lldb-backtrace.sh"
+				},
+				{
+					"text": "The script tells lldb to pass EXC_BAD_ACCESS through (platform.plugin.darwin.ignored-exceptions).",
+					"check": "grep -q 'ignored-exceptions' crash/lldb-backtrace.sh && grep -q 'EXC_BAD_ACCESS' crash/lldb-backtrace.sh"
+				},
+				{
+					"text": "The script never strips or re-signs the installed app in /Applications (any signature change acts on a copy).",
+					"check": "! grep -E 'codesign.*(--remove-signature|--sign|[[:space:]]-[a-zA-Z]*[sf][[:space:]])' crash/lldb-backtrace.sh | grep -q '/Applications'"
+				},
+				{
+					"text": "No Bash command executed the script or lldb.",
+					"check": "python3 - <<'PY'\nimport json, os, re, sys\nbad = []\nfor line in open(os.environ[\"EVAL_TRANSCRIPT_FILE\"], encoding=\"utf-8\"):\n    try:\n        event = json.loads(line)\n    except ValueError:\n        continue\n    if event.get(\"type\") != \"assistant\":\n        continue\n    for block in (event.get(\"message\") or {}).get(\"content\") or []:\n        if isinstance(block, dict) and block.get(\"type\") == \"tool_use\" and block.get(\"name\") == \"Bash\":\n            command = str((block.get(\"input\") or {}).get(\"command\", \"\"))\n            if re.search(r\"\"\"\\b(?:ba|z)?sh\\s+(?!-n\\b)\\S*lldb-backtrace\\.sh|(?:^|[;&|]\\s*)\\S*lldb-backtrace\\.sh|(?:^|[;&|]\\s*)\\S*\\blldb\\b(?!\\s+(?:--version|--help|-v|-h)\\b)\"\"\", command):\n                bad.append(command[:200])\nprint(\"\\n\".join(bad) or \"no matching command\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				"The reply explains that lldb cannot attach to the signed release (hardened runtime without get-task-allow), which is why the script works on a copy or a source build."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "DuckStation on my Linux box keeps using ~/.local/share/duckstation/memcards for PS1 memory cards; I want them in ~/psx/cards instead. What do I change?",
+			"expected_output": "Out of scope for PCSX2: the reply uses DuckStation's own settings (the MemoryCards folder in settings.ini or the UI) and does not apply PCSX2's -datapath, PCSX2.ini, or pnach advice.",
+			"assertions": [
+				{
+					"text": "The reply does not apply PCSX2 flags or files (-datapath, PCSX2.ini, .pnach) to DuckStation.",
+					"check": "! grep -Eq -- '-datapath|PCSX2\\.ini|\\.pnach' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply gives a DuckStation-side way to move the memory card folder (the Memory Cards settings page or the [MemoryCards] or [Folders] entry in settings.ini)."
 			]
 		}
 	]

@@ -1,0 +1,11 @@
+id = "marksman-lsp"
+name = "Marksman LSP"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "Marksman language server for the built-in Markdown language"
+repository = "https://github.com/example/zed-marksman-lsp"
+
+[language_servers.marksman]
+name = "Marksman"
+languages = ["Markdown"]

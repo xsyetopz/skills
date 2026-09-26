@@ -1,0 +1,12 @@
+# Ship only the bundles, manifest, README, and LICENSE.
+.vscode-test/**
+.vscode-test.mjs
+src/**
+test/**
+out/**
+node_modules/**
+esbuild.mjs
+tsconfig*.json
+bun.lock
+**/*.map
+*.vsix

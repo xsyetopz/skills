@@ -1,0 +1,9 @@
+{
+  // Marker words: ASCII letters only, matched as whole words.
+  "words": ["TODO", "FIXME"],
+  // "annotations", "phantoms", or "none" (status bar only).
+  "display": "annotations",
+  // Delay in milliseconds before a modified view is rescanned.
+  "debounce_ms": 300,
+  "enabled": true
+}

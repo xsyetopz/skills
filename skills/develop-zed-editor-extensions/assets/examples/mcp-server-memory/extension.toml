@@ -1,0 +1,9 @@
+id = "mcp-server-memory"
+name = "Memory MCP Server"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "Knowledge-graph memory for the Agent Panel through MCP"
+repository = "https://github.com/example/zed-mcp-server-memory"
+
+[context_servers.mcp-server-memory]

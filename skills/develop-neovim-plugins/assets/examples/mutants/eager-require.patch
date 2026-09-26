@@ -1,0 +1,13 @@
+Why: plugin/ requires the implementation at startup (lua-plugin-defer-require).
+Expect: FAIL lazy startup: commands and maps exist, lineup not loaded
+
+--- a/plugin/lineup.lua
++++ b/plugin/lineup.lua
+@@ -5,6 +5,7 @@
+   return
+ end
+ vim.g.loaded_lineup = true
++local lineup = require("lineup")
+ 
+ vim.api.nvim_create_user_command("LineupJson", function(cmd)
+   require("lineup").json_lines(0, cmd.line1, cmd.line2)

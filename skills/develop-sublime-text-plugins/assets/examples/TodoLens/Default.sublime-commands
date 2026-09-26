@@ -1,0 +1,14 @@
+[
+  { "caption": "TodoLens: Mark Done in Selection", "command": "todo_lens_mark_done" },
+  { "caption": "TodoLens: Insert Marker", "command": "todo_lens_insert" },
+  { "caption": "TodoLens: List Markers", "command": "todo_lens_list" },
+  { "caption": "TodoLens: Toggle", "command": "todo_lens_toggle" },
+  {
+    "caption": "Preferences: TodoLens Settings",
+    "command": "edit_settings",
+    "args": {
+      "base_file": "${packages}/TodoLens/TodoLens.sublime-settings",
+      "default": "{\n\t$0\n}\n"
+    }
+  }
+]

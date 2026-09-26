@@ -1,0 +1,19 @@
+name = "Makefile"
+grammar = "make"
+path_suffixes = ["mk", "mak", "Makefile", "makefile", "GNUmakefile"]
+first_line_pattern = '^#!.*\bmake\b'
+line_comments = ["# "]
+hard_tabs = true
+tab_size = 8
+autoclose_before = ")}"
+brackets = [
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "{", end = "}", close = true, newline = false },
+  { start = "\"", end = "\"", close = true, newline = false, not_in = [
+    "comment",
+    "string",
+  ] },
+]
+
+[overrides.comment]
+completion_query_characters = ["-"]

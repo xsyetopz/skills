@@ -1,0 +1,14 @@
+Why: vim.o sets the global value too, so new windows inherit nowrap.
+Expect: FAIL ftplugin: local options and map, undone on filetype change
+
+--- a/ftplugin/lineuplog.lua
++++ b/ftplugin/lineuplog.lua
+@@ -5,7 +5,7 @@
+ end
+ vim.b.did_ftplugin = 1
+ 
+-vim.opt_local.wrap = false
++vim.o.wrap = false
+ vim.opt_local.number = false
+ vim.keymap.set("n", "q", "<Cmd>close<CR>", {
+   buf = 0,

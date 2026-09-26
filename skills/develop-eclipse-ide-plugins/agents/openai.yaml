@@ -1,4 +1,4 @@
 interface:
   display_name: "Develop Eclipse IDE Plugins"
-  short_description: "Develop and package Eclipse IDE plugins"
-  default_prompt: "Use $develop-eclipse-ide-plugins to implement and verify the requested Eclipse plugin against its target platform, lifecycle, threading, and packaging contracts."
+  short_description: "Build, test, and package Eclipse IDE plug-ins"
+  default_prompt: "Use $develop-eclipse-ide-plugins to implement this Eclipse plug-in change, check MANIFEST.MF, plugin.xml, and build.properties, run the Tycho plug-in tests, inspect the bundle and p2 repository, and report which claims were executed."

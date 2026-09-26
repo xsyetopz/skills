@@ -1,0 +1,8 @@
+[
+  { "caption": "TodoLens: Mark Done", "command": "todo_lens_mark_done" },
+  {
+    "caption": "TodoLens: Enabled",
+    "command": "todo_lens_toggle",
+    "checkbox": true
+  }
+]

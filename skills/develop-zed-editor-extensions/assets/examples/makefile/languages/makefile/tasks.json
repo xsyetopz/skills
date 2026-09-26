@@ -1,0 +1,8 @@
+[
+	{
+		"label": "make $ZED_CUSTOM_make_target",
+		"command": "make",
+		"args": ["$ZED_CUSTOM_make_target"],
+		"tags": ["make-target"]
+	}
+]

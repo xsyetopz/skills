@@ -1,0 +1,14 @@
+Why: table.unpack is nil under LuaJIT; passes under PUC Lua 5.4+.
+Expect: FAIL user command nargs and completion
+
+--- a/lua/lineup/util.lua
++++ b/lua/lineup/util.lua
+@@ -43,7 +43,7 @@
+ function M.prefix_matches(candidates, prefix)
+   local out = {}
+   for _, name in ipairs(candidates) do
+-    if name:sub(1, #prefix) == prefix then
++    if table.unpack({ name:sub(1, #prefix) }) == prefix then
+       out[#out + 1] = name
+     end
+   end

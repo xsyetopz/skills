@@ -1,0 +1,53 @@
+*lineup.txt*	Encode or filter buffer lines
+
+==============================================================================
+INTRODUCTION                                                        *lineup*
+
+Requires Nvim 0.12 or newer. No setup call is required: commands and
+<Plug> mappings exist after startup and load the implementation on first
+use. lineup creates no default key mappings.
+
+==============================================================================
+COMMANDS                                                   *lineup-commands*
+
+                                                               *:LineupJson*
+:[range]LineupJson
+	Replace the lines in [range] (default: current line) with one JSON
+	array of strings. One |undo| reverses the whole command. Fails on a
+	'nomodifiable' buffer; 'readonly' does not prevent the edit.
+
+                                                             *:LineupFilter*
+:LineupFilter {program} [args]
+	Send the buffer to {program} on stdin without a shell. When it exits
+	with code 0 and the buffer is unchanged, replace the buffer with its
+	stdout. Otherwise report the failure with |vim.notify()| and leave the
+	buffer alone. A newer request or wiping the buffer cancels the older
+	one. <Tab> completes names from `filters`.
+
+                                                                *:LineupLog*
+:LineupLog
+	Open the run log in a split. Press `q` to close it.
+
+==============================================================================
+MAPPINGS                                                   *lineup-mappings*
+
+                                                         *<Plug>(LineupJson)*
+<Plug>(LineupJson)
+	Normal mode: |:LineupJson| on the current line. Visual mode: on the
+	selected lines. Map it yourself: >lua
+	    vim.keymap.set({ 'n', 'x' }, '<Leader>j', '<Plug>(LineupJson)')
+<
+==============================================================================
+CONFIGURATION                                                *lineup-config*
+
+Set |g:lineup| before or after startup, or call `require('lineup').setup()`;
+values passed to setup() win. Both are read when a command runs.
+
+                                                                  *g:lineup*
+	filters     (string[], default `{ 'sort', 'uniq' }`) completion list.
+	timeout_ms  (integer, default 5000) kill the program after this many
+	            milliseconds; it then exits with code 124.
+
+Run |:checkhealth| `lineup` to validate the configuration.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:

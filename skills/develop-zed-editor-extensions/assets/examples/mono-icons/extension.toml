@@ -1,0 +1,7 @@
+id = "mono-icons"
+name = "Mono Icons"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "Single-colour file and folder icons for the project panel"
+repository = "https://github.com/example/zed-mono-icons"

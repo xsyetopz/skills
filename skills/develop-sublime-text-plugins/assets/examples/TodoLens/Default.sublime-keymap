@@ -1,0 +1,15 @@
+[
+  {
+    "keys": ["ctrl+alt+shift+d"],
+    "command": "todo_lens_mark_done",
+    "context": [
+      { "key": "selection_empty", "operator": "equal", "operand": false },
+      {
+        "key": "todo_lens.selection_has_marker",
+        "operator": "equal",
+        "operand": true,
+        "match_all": false
+      }
+    ]
+  }
+]

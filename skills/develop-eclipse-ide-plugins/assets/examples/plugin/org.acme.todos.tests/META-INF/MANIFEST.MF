@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TODO Markers Tests
+Bundle-SymbolicName: org.acme.todos.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Acme
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Require-Bundle: org.acme.todos,
+ org.junit,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.core.filesystem,
+ org.eclipse.core.expressions,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text
+Automatic-Module-Name: org.acme.todos.tests

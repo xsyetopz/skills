@@ -1,0 +1,17 @@
+id = "lldb-dap-debugger"
+name = "LLDB DAP"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "Debug native programs with the lldb-dap adapter from LLVM"
+repository = "https://github.com/example/zed-lldb-dap"
+
+[debug_adapters.lldb-dap]
+schema_path = "debug_adapter_schemas/lldb-dap.json"
+
+[debug_locators.clang-build]
+
+[[capabilities]]
+kind = "process:exec"
+command = "xcrun"
+args = ["-f", "lldb-dap"]

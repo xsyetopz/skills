@@ -1,0 +1,14 @@
+Why: Any pending request for the buffer is treated as current.
+Expect: FAIL a newer request cancels the older one
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -102,7 +102,7 @@
+     text = true,
+     timeout = cfg.timeout_ms,
+   }, vim.schedule_wrap(function(out)
+-    if pending[buf] ~= req then
++    if pending[buf] == nil then
+       return finish("cancelled")
+     end
+     pending[buf] = nil

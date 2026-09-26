@@ -1,0 +1,15 @@
+Why: A default map can override the user's <Leader>j.
+Expect: FAIL no default mappings outside <Plug>
+
+--- a/plugin/lineup.lua
++++ b/plugin/lineup.lua
+@@ -31,6 +31,9 @@
+   require("lineup").open_log()
+ end, { nargs = 0, desc = "Show lineup filter runs" })
+ 
++vim.keymap.set("n", "<Leader>j", "<Cmd>LineupJson<CR>", {
++  desc = "lineup: default map",
++})
+ vim.keymap.set("n", "<Plug>(LineupJson)", "<Cmd>LineupJson<CR>", {
+   desc = "lineup: JSON-encode the current line",
+ })

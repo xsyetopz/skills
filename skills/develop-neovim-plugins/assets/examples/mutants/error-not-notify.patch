@@ -1,0 +1,17 @@
+Why: error() in a scheduled callback prints a traceback, not a message.
+Expect: FAIL nonzero exit notifies and keeps the buffer
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -107,9 +107,8 @@
+     end
+     pending[buf] = nil
+     if out.code ~= 0 then
+-      notify(("%s exited %d: %s"):format(argv[1], out.code, out.stderr),
+-        vim.log.levels.ERROR)
+-      return finish("failed")
++      finish("failed")
++      error(("%s exited %d: %s"):format(argv[1], out.code, out.stderr))
+     end
+     if not vim.api.nvim_buf_is_valid(buf)
+       or vim.api.nvim_buf_get_changedtick(buf) ~= tick then

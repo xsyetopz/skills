@@ -1,0 +1,14 @@
+Why: Buffer 0 is resolved when the callback runs, not when work starts.
+Expect: FAIL filter edits the initiating buffer, not the current one
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -119,7 +119,7 @@
+       notify("buffer is not modifiable", vim.log.levels.WARN)
+       return finish("nomodifiable")
+     end
+-    vim.api.nvim_buf_set_lines(buf, 0, -1, true, util.split_lines(out.stdout))
++    vim.api.nvim_buf_set_lines(0, 0, -1, true, util.split_lines(out.stdout))
+     finish("applied")
+   end))
+   if not ok then

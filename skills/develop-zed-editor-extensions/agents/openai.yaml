@@ -1,4 +1,4 @@
 interface:
   display_name: "Develop Zed Editor Extensions"
-  short_description: "Develop extensions for the Zed editor"
-  default_prompt: "Use $develop-zed-editor-extensions to implement and verify the requested Zed extension using capabilities supported by the selected Zed version."
+  short_description: "Build, check, and publish Zed extensions"
+  default_prompt: "Use $develop-zed-editor-extensions to build the requested Zed extension from its construct cards, compile it for wasm32-wasip2, run the bundled checkers, and report which in-editor steps were not executed."

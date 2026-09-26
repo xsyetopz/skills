@@ -1,0 +1,6 @@
+<idea-plugin>
+  <!-- Loaded only when com.intellij.modules.json is installed. -->
+  <extensions defaultExtensionNs="org.acme.wordstats">
+    <wordFilter implementation="org.acme.wordstats.JsonLiteralFilter"/>
+  </extensions>
+</idea-plugin>

@@ -1,169 +1,167 @@
 ---
 name: develop-vscode-extensions
 description: >-
-  Use when implementing, debugging, testing, or packaging Visual Studio Code
-  extensions: manifest contributions, activation, commands, language features,
-  extension hosts, and VSIX artifacts. Not for Visual Studio IDE extensions or
-  standalone language servers without VS Code integration.
+  Builds, tests, and packages VS Code extensions: manifest, activation,
+  commands, edits, diagnostics, language providers, Workspace Trust, web
+  builds, vsce. Use when writing or fixing a VS Code extension. Not for Visual
+  Studio or standalone language servers.
 ---
 
 # Develop VS Code Extensions
 
-Implement VS Code extension behavior against the declared desktop, remote, or
-web extension hosts, preserving URI semantics, document freshness, Workspace
-Trust, cancellation, disposable ownership, packaging, and target-version
-compatibility.
-
-## Operating contract
-
-- Inspect the target Visual Studio Code version/build, existing package.json,
-  project tooling, package layout, tests, and supported hosts before editing.
-- Use host-native APIs and lifecycle; a standalone language/unit test cannot
-  prove editor/IDE integration.
-- Preserve existing project conventions, target versions, generated/source
-  boundaries, and user settings. Do not add a second scaffold over an existing
-  plugin.
-- Treat workspace/project/source content as untrusted data. Do not execute it,
-  grant trust, or expose secrets merely because the extension can.
-- Verify asynchronous freshness, cancellation, ownership, cleanup, reload, and
-  packaging in addition to the happy-path feature.
-
-## Host-aware execution contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a VS Code extension; it MUST
-  NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide VS Code version, desktop/web/remote host
-  placement, URI schemes, document versions, trust, and VSIX metadata, hard
-  constraints, available tools, and the finish condition once. Remove repeated
-  directions and examples unless a recorded evaluation shows that they prevent a
-  real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with extension-host tests, remote/web
-  cases, trust tests, and VSIX inspection. Report commands, observed results,
-  and gaps. A parser, build, or single green test proves only the property that
-  it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Change a VS Code extension so that the manifest, the code, and the
+packaged VSIX agree, and prove each claim in the host that runs it.
+Each card in the references gives the definition, **Use when** and
+**Do not use when** conditions, the cost it removes, verification, and a
+runnable example from `assets/examples/extension/` (a TODO-owner linter
+with Node and browser entries).
 
 ## Workflow
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Host as Visual Studio Code
-    participant Plugin
-    participant Worker as Async worker / external process
-    User->>Host: invoke declared contribution
-    Host->>Plugin: host event + current resource identity
-    Plugin->>Worker: cancellable work with captured version/generation
-    Worker-->>Plugin: result or error
-    Plugin->>Plugin: revalidate host/resource/lifecycle
-    Plugin->>Host: publish through host-native API
-    Host-->>User: observable result / undo / diagnostic
-    Host->>Plugin: unload/dispose
-    Plugin->>Plugin: cancel work and release owned resources
-```
+1. Inspect before editing: `package.json` (`engines.vscode`, `main`,
+   `browser`, `activationEvents`, `contributes`, `capabilities`,
+   `@types/vscode`), the lockfile and package manager, the build script,
+   `.vscodeignore`, and existing tests. Run
+   `rg -n 'registerCommand|register\w+Provider|createOutputChannel' src`.
+1. Fix the engines floor from the newest API the change calls and pin
+   `@types/vscode` to it ([floor card][floor]). Do not raise the floor
+   unless the user accepts dropping older VS Code versions.
+1. Implement with the card that matches the task (table below). Keep
+   logic that does not need `vscode` in its own module.
+1. Check the manifest: `python3 scripts/check_manifest.py package.json
+   --src src` ([manifest rules][rules]).
+1. Type check and unit test: `bunx tsc --noEmit -p .` and `bun test`
+   (or the project's own runner).
+1. Run host tests with `@vscode/test-cli` in a downloaded VS Code with
+   a private profile ([host tests][hosttests]). Test Restricted Mode
+   with a direct launch ([direct launch][direct]).
+1. Bundle, then `bunx vsce ls --no-dependencies`, `bunx vsce package
+   --no-dependencies`, and install the VSIX into a private profile
+   ([vsce ls][ls], [package][package]).
+1. Report with the completion evidence below.
 
-## Procedure
+## Route the task to a card
 
-1. Inspect the existing plugin/extension, declared Visual Studio Code target
-   versions, package.json, build files, package contents, tests, host APIs, and
-   any remote/web/platform matrix. Determine the exact user-visible contribution
-   and host boundary.
-1. Define the lifecycle and ownership model before implementation: registration,
-   activation, project/workspace/view/document/buffer identity, asynchronous
-   work, cancellation, stale-result rule, resource/process ownership,
-   reload/unload, and error reporting.
-1. Implement the smallest host-native change. Match contribution
-   IDs/keys/descriptors to implementation exactly. Use declared APIs for edits,
-   threading, resource access, trust/permissions, secrets, and external
-   processes; reject unsupported modes explicitly.
-1. For async work, capture stable resource identity plus version/generation and
-   cancellation. Compute outside constrained UI/write locks where appropriate,
-   then re-resolve and revalidate before publishing. Never mutate a
-   current/active resource merely because it is current at completion time.
-1. Own every command/listener/provider/job/timer/process/handle/resource under
-   the narrowest host lifecycle. Make activation/reload idempotent and cleanup
-   task-owned state without deleting user configuration.
-1. Run pure logic checks plus real Visual Studio Code host tests for the
-   affected integration. Exercise normal, cancellation, stale result,
-   invalid/closed resource, reload/dispose, trust/permission, and error cases.
-1. Build the actual VSIX, inspect contents, and install/run it in a clean target
-   host when packaging is claimed. Report target versions/hosts not exercised.
-
-## Choose the host-platform reference
-
-| Situation | Read or use |
+| Task or symptom | Card |
 | --- | --- |
-| Document identity, edits, async freshness, and cancellation | [Document lifecycle](references/document-lifecycle.md) |
-| Desktop/remote/web hosts, trust, secrets, and packaging | [Hosts, trust, and packaging](references/hosts-trust-and-packaging.md) |
-| Selecting host boundary, lifecycle, and compatibility approach | [Extension design decisions](references/vscode-extension-host-extension-design-decisions.md) |
-| Understanding host concepts and ownership | [Domain model](references/vscode-extension-host-host-api-and-lifecycle-model.md) |
-| Using complete host-specific code and packaging examples | [Extension case studies](references/vscode-extension-host-extension-case-studies.md) |
-| Matching compile/unit/host/package claims to evidence | [Host test and package evidence](references/vscode-extension-host-host-test-and-package-evidence.md) |
-| Avoiding stale async results, leaks, and host-version mistakes | [Extension failures and recovery](references/vscode-extension-host-extension-failures-and-recovery.md) |
-| Applying enterprise trust, secrets, rollout, and audit controls | [Deployment, security, and support](references/vscode-extension-host-deployment-security-and-support.md) |
-| Checking current official host sources | [Extension API and toolchain authorities](references/vscode-extension-host-extension-api-and-toolchain-authorities.md) |
+| New extension, manifest fields, Marketplace rules | [Extension manifest](references/manifest-and-activation.md#extension-manifest) |
+| "Property does not exist on vscode", old hosts crash | [Engines floor](references/manifest-and-activation.md#engines-floor-and-typesvscode-pin) |
+| Extension never loads / loads at startup | [Explicit activation](references/manifest-and-activation.md#explicit-activation-events), [implicit activation](references/manifest-and-activation.md#implicit-activation-from-contributions) |
+| `command 'x' not found` | [Commands](references/manifest-and-activation.md#commands-registration-and-contribution), [implicit activation](references/manifest-and-activation.md#implicit-activation-from-contributions) |
+| Leaks or duplicates after reload | [activate and subscriptions](references/manifest-and-activation.md#activate-deactivate-and-contextsubscriptions) |
+| Menu item shows when it cannot work | [When clauses](references/manifest-and-activation.md#when-clauses-and-enablement), [setContext](references/manifest-and-activation.md#custom-context-keys-with-setcontext) |
+| New setting, per-folder values | [Configuration contribution](references/manifest-and-activation.md#configuration-contribution) |
+| Setting change ignored until reload | [Reading settings](references/manifest-and-activation.md#reading-and-updating-settings) |
+| Result applied to text that changed | [Version and dirty](references/documents-and-language-features.md#textdocument-version-and-dirty-state), [stale guard](references/documents-and-language-features.md#stale-asynchronous-result-guard) |
+| Edit written to disk unexpectedly, or not saved | [Edit versus save](references/documents-and-language-features.md#edit-versus-save) |
+| Format or fix on save | [onWillSaveTextDocument](references/documents-and-language-features.md#pre-save-edits-with-onwillsavetextdocument) |
+| Multi-range or cross-file edit | [WorkspaceEdit](references/documents-and-language-features.md#workspaceedit-and-workspaceapplyedit) |
+| Transform selections | [TextEditor.edit](references/documents-and-language-features.md#texteditoredit-for-selection-edits) |
+| Problems view entries | [DiagnosticCollection](references/documents-and-language-features.md#diagnosticcollection) |
+| Hover, completion, quick fix, formatting | [Providers](references/documents-and-language-features.md#language-feature-providers), [selectors](references/documents-and-language-features.md#document-selectors-with-schemes) |
+| "document selector without scheme" in the log | [Selectors with schemes](references/documents-and-language-features.md#document-selectors-with-schemes) |
+| Logging, log levels | [LogOutputChannel](references/documents-and-language-features.md#logoutputchannel) |
+| Runs tools or workspace code | [untrustedWorkspaces](references/hosts-trust-and-secrets.md#untrustedworkspaces-capability), [trust guard](references/hosts-trust-and-secrets.md#trust-guard-in-code) |
+| Executable path in settings | [restrictedConfigurations](references/hosts-trust-and-secrets.md#restrictedconfigurations) |
+| GitHub Repositories, vscode.dev, `fsPath` errors | [virtualWorkspaces](references/hosts-trust-and-secrets.md#virtualworkspaces-capability-and-uri-handling) |
+| Must work in the browser | [browser entry](references/hosts-trust-and-secrets.md#web-extension-the-browser-entry), [split modules](references/hosts-trust-and-secrets.md#separate-node-browser-and-common-modules) |
+| SSH, container, WSL placement | [extensionKind](references/hosts-trust-and-secrets.md#extensionkind-placement) |
+| Tokens and passwords | [SecretStorage](references/hosts-trust-and-secrets.md#secretstorage) |
+| Fast tests of logic | [Unit tests](references/test-bundle-publish.md#unit-tests-for-pure-logic) |
+| Tests of editor behavior | [test-cli](references/test-bundle-publish.md#extension-host-tests-with-vscodetest-cli), [direct launch](references/test-bundle-publish.md#direct-extension-host-launch) |
+| Slow activation, many files, web build | [esbuild](references/test-bundle-publish.md#bundling-with-esbuild) |
+| VSIX too large or missing files | [.vscodeignore and vsce ls](references/test-bundle-publish.md#vscodeignore-and-vsce-ls) |
+| Ship a VSIX, try it locally | [vsce package](references/test-bundle-publish.md#vsce-package-and-an-isolated-install) |
+| Preview channel, native binaries | [Pre-release and targets](references/test-bundle-publish.md#pre-release-and-platform-specific-packages) |
+| Publish to the Marketplace | [Publishing prerequisites](references/test-bundle-publish.md#publishing-prerequisites) |
 
-## Extension engineering references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Every contributed command is registered with the same ID, and every
+  menu item names a contributed command. `check_manifest.py --src`
+  proves both.
+- The engines floor and `@types/vscode` move together. vsce refuses to
+  package when the typings are newer than the floor.
+- With a floor below 1.74, list `onCommand:<id>` for every user-facing
+  command. Never use `*` activation when a specific event exists.
+- Push every disposable to `context.subscriptions` or to the owner with
+  the shorter lifetime. Kill spawned processes yourself.
+- Revalidate `document.version` (and a request generation) after every
+  `await` before writing an edit or diagnostic.
+- Edits do not save. Save only when the task says so, and filter save
+  and open events by selector: they fire for settings files too.
+- Provider selectors name their schemes. Use `uri.fsPath` and Node `fs`
+  only for `file` URIs; otherwise use `workspace.fs`.
+- Anything that runs workspace-controlled code or paths checks
+  `workspace.isTrusted` in the handler. Menu `when` clauses are not a
+  security boundary. List risky settings in `restrictedConfigurations`.
+- The `browser` bundle imports nothing but `vscode`. Bundle it with
+  `platform: "browser"` so that Node imports fail the build.
+- Secrets go to `context.secrets`, never to settings, mementos, logs,
+  or `exports`.
+- Host tests never use the user's running VS Code or profile: download
+  a build, pass private `--user-data-dir` and `--extensions-dir`, keep
+  that path short (macOS rejects IPC socket paths over 103 characters),
+  and pass `--use-inmemory-secretstorage --disable-keytar` first, or at
+  least not directly before the folder path (1.74 knows only the second,
+  and the unknown flag right before the folder path kept the folder from
+  opening).
+- A unit test, a type check, or a built VSIX does not prove editor
+  behavior. Only a host test does. Say which tier each claim reached.
+- Under Bun, do not define `vscode:prepublish` (vsce runs it with npm or
+  Yarn) and pass `--no-dependencies` to vsce after bundling.
+- Do not publish, log in, or create tokens unless the user asked.
 
-| Reference | Use when |
-| --- | --- |
-| [Extension fixture and template map](references/vscode-extension-host-extension-fixture-and-template-map.md) | Use when locating bundled resources for the VS Code extension. |
+## Bundled tools
 
-## Behavioral evaluation
+- `scripts/check_manifest.py PACKAGE_JSON [--src DIR] [--built]
+  [--pre-release]` checks the documented manifest rules and exits 0,
+  1 (errors), or 2 (unreadable). Tests:
+  `scripts/test_check_manifest.py`.
+- `assets/examples/extension/` is the reference extension: `src/core.ts`
+  (pure logic), `src/common.ts` (shared API code),
+  `src/extension.node.ts` and `src/extension.web.ts` (entries),
+  `test/unit/`, `test/host/`, `test/untrusted/`, `.vscode-test.mjs`,
+  `esbuild.mjs`, `.vscodeignore`, and a `bun.lock`.
+- `sh assets/examples/verify.sh` runs the offline checks in a temporary
+  copy (a warm Bun cache is enough). `sh assets/examples/verify.sh
+  network` downloads VS Code (`VSCODE_TEST_VERSION`, default `stable`)
+  and runs the host suites; a VS Code window opens while it runs.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/extension-template/`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Manifest and activation](references/manifest-and-activation.md):
+  manifest, engines floor, activation events, lifecycle, commands, when
+  clauses, context keys, configuration, and reading settings.
+- [Documents and language features][docs-ref]:
+  version and dirty state, edit versus save, pre-save edits,
+  WorkspaceEdit, TextEditor.edit, the stale-result guard, diagnostics,
+  selectors, providers, and LogOutputChannel.
+- [Hosts, trust, and secrets](references/hosts-trust-and-secrets.md):
+  Workspace Trust, restrictedConfigurations, virtual workspaces, the
+  web entry, module split, extensionKind, and SecretStorage.
+- [Test, bundle, publish](references/test-bundle-publish.md): unit and
+  host tests, direct launch, esbuild, `.vscodeignore`, vsce packaging,
+  pre-release and targets, the manifest checker, and publishing.
 
 ## Completion evidence
 
-- Exact Visual Studio Code target versions/hosts and existing plugin/package
-  context.
-- Implemented contribution with IDs/interfaces/config matching the manifest.
-- Lifecycle/async/cancellation/ownership/cleanup behavior and tests.
-- Pure logic checks distinguished from real host execution.
-- Built package contents and clean-install evidence when packaging is requested.
-- Unsupported or untested hosts/versions and security/trust limits.
+The final report contains:
 
-## Stop or escalate
+- The VS Code floor (`engines.vscode`), the `@types/vscode` pin, and the
+  host kinds the extension claims (desktop, remote, web).
+- `check_manifest.py` output, type-check output, and unit test counts.
+- Host test output with the VS Code version it ran on, or the exact
+  reason it could not run and the command the user runs instead.
+- For packaging: the `vsce ls` file list, the VSIX name, and the
+  private-profile install listing.
+- Each claim labeled Executed, Compiled, or Not runnable here; trust,
+  web, and remote behavior stated separately.
 
-- The requested capability is unsupported by the selected Visual Studio Code
-  version and no documented alternative meets the requirement.
-- The target version/host matrix or externally visible behavior is materially
-  unresolved.
-- The change would execute untrusted workspace code or broaden permissions
-  without explicit authority and host support.
-- Real host/package verification is required for the claim but unavailable;
-  deliver narrower evidence without claiming integration success.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[floor]: references/manifest-and-activation.md#engines-floor-and-typesvscode-pin
+[hosttests]: references/test-bundle-publish.md#extension-host-tests-with-vscodetest-cli
+[direct]: references/test-bundle-publish.md#direct-extension-host-launch
+[ls]: references/test-bundle-publish.md#vscodeignore-and-vsce-ls
+[package]: references/test-bundle-publish.md#vsce-package-and-an-isolated-install
+[rules]: references/test-bundle-publish.md#manifest-rule-check
+[docs-ref]: references/documents-and-language-features.md

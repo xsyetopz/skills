@@ -1,0 +1,60 @@
+<idea-plugin>
+  <id>org.acme.wordstats</id>
+  <name>Word Stats Example</name>
+  <vendor email="dev@example.com" url="https://example.com">Example</vendor>
+  <description><![CDATA[
+    Counts words in comments and plain text, encodes selections as form
+    values, and shows the result in a notification.
+  ]]></description>
+
+  <!-- Required: the plugin does not load without it. -->
+  <depends>com.intellij.modules.platform</depends>
+  <!-- Optional: JSON-specific classes live only in the config file. -->
+  <depends optional="true"
+           config-file="org.acme.wordstats-withJson.xml">
+    com.intellij.modules.json
+  </depends>
+
+  <extensionPoints>
+    <extensionPoint name="wordFilter"
+                    interface="org.acme.wordstats.WordFilter"
+                    dynamic="true"/>
+  </extensionPoints>
+
+  <extensions defaultExtensionNs="org.acme.wordstats">
+    <wordFilter implementation="org.acme.wordstats.MinLengthFilter"/>
+  </extensions>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <projectService
+        serviceInterface="org.acme.wordstats.WordStatsReporter"
+        serviceImplementation="org.acme.wordstats.NotificationReporter"
+        testServiceImplementation="org.acme.wordstats.RecordingReporter"/>
+    <applicationConfigurable
+        parentId="tools"
+        instance="org.acme.wordstats.WordStatsConfigurable"
+        id="org.acme.wordstats.WordStatsConfigurable"
+        displayName="Word Stats"/>
+    <notificationGroup id="Word Stats" displayType="BALLOON"/>
+    <notificationGroup id="Word Stats Suggestions"
+                       displayType="STICKY_BALLOON"/>
+  </extensions>
+
+  <actions>
+    <group id="org.acme.wordstats.Menu" text="Word Stats"
+           popup="true">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+      <action id="org.acme.wordstats.CountWords"
+              class="org.acme.wordstats.CountWordsAction"
+              text="Count Words in File"
+              description="Count words in comments and plain text"/>
+      <action id="org.acme.wordstats.CountSelection"
+              class="org.acme.wordstats.CountSelectionAction"
+              text="Count Words in Selection"/>
+      <action id="org.acme.wordstats.EncodeFormValue"
+              class="org.acme.wordstats.EncodeFormValueAction"
+              text="Encode Selections as Form Values"
+              description="Encode selected text as UTF-8 form values"/>
+    </group>
+  </actions>
+</idea-plugin>

@@ -1,4 +1,4 @@
 interface:
   display_name: "Develop Neovim Plugins"
-  short_description: "Develop reliable Lua plugins for Neovim"
-  default_prompt: "Use $develop-neovim-plugins to implement and verify the requested Neovim plugin with correct buffer identity, asynchronous callbacks, ownership, and cleanup."
+  short_description: "Build and headless-test Neovim Lua plugins"
+  default_prompt: "Use $develop-neovim-plugins to implement the requested Neovim plugin change with lazy loading, owned augroups, buffer-safe async edits, and a headless test that fails on the defect."

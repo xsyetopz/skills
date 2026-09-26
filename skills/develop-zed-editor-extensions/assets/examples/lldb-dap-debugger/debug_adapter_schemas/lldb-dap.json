@@ -1,0 +1,37 @@
+{
+	"type": "object",
+	"required": ["request"],
+	"properties": {
+		"request": {
+			"type": "string",
+			"enum": ["launch", "attach"],
+			"description": "Launch a new process or attach to a running one."
+		},
+		"program": {
+			"type": "string",
+			"description": "Path to the executable to launch."
+		},
+		"args": {
+			"type": "array",
+			"items": { "type": "string" },
+			"description": "Command-line arguments for the program."
+		},
+		"cwd": {
+			"type": "string",
+			"description": "Working directory of the program."
+		},
+		"env": {
+			"type": "object",
+			"additionalProperties": { "type": "string" },
+			"description": "Environment variables for the program."
+		},
+		"stopOnEntry": {
+			"type": "boolean",
+			"description": "Stop right after launching or attaching."
+		},
+		"pid": {
+			"type": "number",
+			"description": "Process id to attach to."
+		}
+	}
+}

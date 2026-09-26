@@ -1,0 +1,16 @@
+Why: The process keeps running after its buffer is gone.
+Expect: FAIL wiping the buffer kills the process
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -39,9 +39,7 @@
+ function M.forget(buf)
+   local req = pending[buf]
+   pending[buf] = nil
+-  if req and req.proc and not req.proc:is_closing() then
+-    req.proc:kill("sigterm")
+-  end
++  local _ = req
+ end
+ 
+ -- Recreated on every filter run; clear = true keeps exactly one handler.

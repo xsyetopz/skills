@@ -1,0 +1,7 @@
+id = "ember-theme"
+name = "Ember Theme"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "Warm dark and light themes with high-contrast diagnostics"
+repository = "https://github.com/example/zed-ember-theme"

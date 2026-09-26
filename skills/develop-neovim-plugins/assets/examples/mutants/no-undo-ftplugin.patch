@@ -1,0 +1,12 @@
+Why: Switching filetype leaves q mapped and wrap off.
+Expect: FAIL ftplugin: local options and map, undone on filetype change
+
+--- a/ftplugin/lineuplog.lua
++++ b/ftplugin/lineuplog.lua
+@@ -12,5 +12,4 @@
+   desc = "lineup: close the log window",
+ })
+ 
+-vim.b.undo_ftplugin = "setlocal wrap< number<"
+-  .. " | silent! nunmap <buffer> q"
++

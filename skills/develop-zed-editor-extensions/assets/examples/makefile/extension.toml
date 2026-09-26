@@ -1,0 +1,12 @@
+id = "makefile"
+name = "Makefile"
+version = "0.1.0"
+schema_version = 1
+authors = ["Example Maintainer <maintainer@example.com>"]
+description = "GNU Make syntax highlighting, outline, and recipe injection"
+repository = "https://github.com/example/zed-makefile"
+snippets = ["./snippets/makefile.json"]
+
+[grammars.make]
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-make"
+rev = "5e9e8f8ff3387b0edcaa90f46ddf3629f4cfeb1d"

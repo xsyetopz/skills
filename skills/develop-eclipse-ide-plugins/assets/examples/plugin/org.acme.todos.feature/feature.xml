@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.acme.todos.feature" label="TODO Markers"
+    version="1.0.0.qualifier" provider-name="Acme">
+  <description>Marks TAG: comments in *.txt files as tasks.</description>
+  <copyright>Copyright (c) Acme.</copyright>
+  <license url="https://www.eclipse.org/legal/epl-2.0/">
+    Eclipse Public License 2.0
+  </license>
+  <plugin id="org.acme.todos" version="0.0.0"/>
+</feature>

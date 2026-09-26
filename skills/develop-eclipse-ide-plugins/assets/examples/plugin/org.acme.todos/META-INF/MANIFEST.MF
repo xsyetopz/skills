@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: TODO Markers
+Bundle-SymbolicName: org.acme.todos;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Acme
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-Activator: org.acme.todos.Activator
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text,
+ org.eclipse.e4.ui.di
+Import-Package: jakarta.inject;version="[2.0.0,3.0.0)"
+Export-Package: org.acme.todos
+Automatic-Module-Name: org.acme.todos

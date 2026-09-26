@@ -1,0 +1,158 @@
+{
+	"name": "todo-owner",
+	"displayName": "TODO Owner",
+	"description": "Flags TODO comments without an owner and fixes them.",
+	"version": "0.2.0",
+	"publisher": "skills-example",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://example.invalid/todo-owner.git"
+	},
+	"engines": {
+		"vscode": "^1.74.0"
+	},
+	"categories": [
+		"Linters"
+	],
+	"keywords": [
+		"todo",
+		"lint"
+	],
+	"main": "./dist/node/extension.js",
+	"browser": "./dist/web/extension.js",
+	"activationEvents": [],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": "limited",
+			"description": "Reading the owner from git runs an executable.",
+			"restrictedConfigurations": [
+				"todoOwner.gitPath"
+			]
+		},
+		"virtualWorkspaces": {
+			"supported": "limited",
+			"description": "Reading the owner from git needs a local folder."
+		}
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "todoOwner.encodeJsonStrings",
+				"title": "Encode Selections as JSON Strings",
+				"category": "TODO Owner",
+				"enablement": "editorHasSelection && !editorReadonly"
+			},
+			{
+				"command": "todoOwner.addOwner",
+				"title": "Add Owner to TODO",
+				"category": "TODO Owner"
+			},
+			{
+				"command": "todoOwner.addOwnerToAll",
+				"title": "Add Owner to All TODOs",
+				"category": "TODO Owner",
+				"icon": "$(person-add)"
+			},
+			{
+				"command": "todoOwner.ownerFromGit",
+				"title": "Use Git User Name as Default Owner",
+				"category": "TODO Owner"
+			},
+			{
+				"command": "todoOwner.setApiToken",
+				"title": "Set API Token",
+				"category": "TODO Owner"
+			},
+			{
+				"command": "todoOwner.clearApiToken",
+				"title": "Clear API Token",
+				"category": "TODO Owner"
+			},
+			{
+				"command": "todoOwner.showLog",
+				"title": "Show Log",
+				"category": "TODO Owner"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "todoOwner.addOwner",
+					"when": "false"
+				},
+				{
+					"command": "todoOwner.ownerFromGit",
+					"when": "isWorkspaceTrusted && !virtualWorkspace && !isWeb"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "todoOwner.addOwnerToAll",
+					"when": "todoOwner.hasFindings",
+					"group": "navigation"
+				}
+			]
+		},
+		"configuration": {
+			"title": "TODO Owner",
+			"properties": {
+				"todoOwner.enable": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "Report TODO comments that have no owner."
+				},
+				"todoOwner.severity": {
+					"type": "string",
+					"enum": [
+						"error",
+						"warning",
+						"information",
+						"hint"
+					],
+					"default": "warning",
+					"scope": "resource",
+					"description": "Severity of the TODO diagnostic."
+				},
+				"todoOwner.defaultOwner": {
+					"type": "string",
+					"default": "",
+					"scope": "resource",
+					"description": "Owner inserted by the quick fix, e.g. ann."
+				},
+				"todoOwner.trimTrailingWhitespaceOnSave": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "Trim trailing whitespace on TODO lines on save."
+				},
+				"todoOwner.gitPath": {
+					"type": "string",
+					"default": "git",
+					"scope": "machine-overridable",
+					"description": "Git executable used by the git owner command."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"check-types": "tsc --noEmit -p .",
+		"build": "bun run check-types && bun esbuild.mjs",
+		"bundle": "bun esbuild.mjs --production",
+		"vsix": "bun run bundle && vsce package --no-dependencies",
+		"test:unit": "bun test test/unit",
+		"test:host": "tsc -p tsconfig.test.json && vscode-test"
+	},
+	"devDependencies": {
+		"@types/bun": "1.4.2",
+		"@types/mocha": "10.0.10",
+		"@types/node": "16.18.126",
+		"@types/vscode": "1.74.0",
+		"@vscode/test-cli": "0.0.15",
+		"@vscode/test-electron": "3.1.0",
+		"@vscode/vsce": "4.0.0",
+		"esbuild": "0.28.2",
+		"typescript": "7.0.2"
+	}
+}

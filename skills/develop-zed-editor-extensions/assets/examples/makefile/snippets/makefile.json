@@ -1,0 +1,7 @@
+{
+	"Phony target": {
+		"prefix": "phony",
+		"body": [".PHONY: ${1:target}", "${1:target}:", "\t${2:command}$0"],
+		"description": "Declare a phony target with one recipe line"
+	}
+}

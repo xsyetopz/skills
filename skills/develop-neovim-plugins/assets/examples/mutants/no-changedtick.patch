@@ -1,0 +1,15 @@
+Why: A result computed from old text overwrites the user edit.
+Expect: FAIL filter discards a stale result
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -111,8 +111,7 @@
+         vim.log.levels.ERROR)
+       return finish("failed")
+     end
+-    if not vim.api.nvim_buf_is_valid(buf)
+-      or vim.api.nvim_buf_get_changedtick(buf) ~= tick then
++    if not vim.api.nvim_buf_is_valid(buf) then
+       return finish("stale")
+     end
+     if not vim.bo[buf].modifiable then

@@ -1,0 +1,16 @@
+Why: A string timeout reaches vim.system instead of a clear message.
+Expect: FAIL config: vim.g read at use, setup wins, bad values notify
+
+--- a/lua/lineup/config.lua
++++ b/lua/lineup/config.lua
+@@ -38,9 +38,7 @@
+ ---@return lineup.Config
+ function M.validate(config)
+   vim.validate("lineup.filters", config.filters, is_string_list)
+-  vim.validate("lineup.timeout_ms", config.timeout_ms, function(v)
+-    return type(v) == "number" and v > 0 and v % 1 == 0
+-  end, "positive integer")
++
+   return config
+ end
+ 

@@ -1,0 +1,14 @@
+Why: on_exit runs in a fast event; editor API calls raise E5560.
+Expect: FAIL filter applies output to an unchanged buffer
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -101,7 +101,7 @@
+     stdin = input,
+     text = true,
+     timeout = cfg.timeout_ms,
+-  }, vim.schedule_wrap(function(out)
++  }, (function(out)
+     if pending[buf] ~= req then
+       return finish("cancelled")
+     end

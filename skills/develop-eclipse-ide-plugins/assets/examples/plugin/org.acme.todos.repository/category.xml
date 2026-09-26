@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+  <feature id="org.acme.todos.feature" version="0.0.0">
+    <category name="org.acme.todos.category"/>
+  </feature>
+  <category-def name="org.acme.todos.category" label="TODO Markers"/>
+</site>

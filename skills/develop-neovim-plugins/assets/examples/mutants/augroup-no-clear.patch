@@ -1,0 +1,14 @@
+Why: Each run adds another BufWipeout handler.
+Expect: FAIL autocmd group holds one handler after repeated runs
+
+--- a/lua/lineup/init.lua
++++ b/lua/lineup/init.lua
+@@ -46,7 +46,7 @@
+ 
+ -- Recreated on every filter run; clear = true keeps exactly one handler.
+ local function ensure_autocmds()
+-  local group = vim.api.nvim_create_augroup("lineup", { clear = true })
++  local group = vim.api.nvim_create_augroup("lineup", { clear = false })
+   vim.api.nvim_create_autocmd("BufWipeout", {
+     group = group,
+     desc = "lineup: drop per-buffer filter state",

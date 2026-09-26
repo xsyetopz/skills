@@ -1,0 +1,18 @@
+rules:
+  - id: request-arg-reaches-sql-text
+    mode: taint
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Request data reaches the SQL text of execute() (CWE-89). Pass it as
+      a bound parameter instead.
+    metadata:
+      cwe: "CWE-89"
+    pattern-sources:
+      - pattern: $REQ.args.get(...)
+    pattern-sinks:
+      - patterns:
+          - pattern: $CUR.execute($QUERY, ...)
+          - focus-metavariable: $QUERY
+    pattern-sanitizers:
+      - pattern: int(...)

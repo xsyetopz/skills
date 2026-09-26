@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Readable Code"
+  short_description: "Restructure code for low-ambiguity reading and Zen of Python review"
+  default_prompt: "Use $write-readable-code to restructure this code for readability or review it against the Zen of Python (PEP 20) in its own language idioms, keep behavior identical with a before/after test, apply the language's file layout and narrowest visibility, and report metric and scanner deltas."

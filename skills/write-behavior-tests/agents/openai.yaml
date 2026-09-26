@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Behavior Tests"
+  short_description: "Tests that fail on faults and pass valid code"
+  default_prompt: "Use $write-behavior-tests to write or review tests against the stated contract, show each test failing on a fault and passing valid alternatives, and report the layer each claim was checked at."

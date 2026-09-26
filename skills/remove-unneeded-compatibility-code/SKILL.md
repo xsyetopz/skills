@@ -1,167 +1,89 @@
 ---
 name: remove-unneeded-compatibility-code
 description: >-
-  Use when removing compatibility aliases, shims, fallbacks, or version branches
-  shown to be unnecessary: support invented without a requirement, or support
-  explicitly retired. Trace callers, persisted data, and declared public
-  contracts first. Age, a failing test, or an empty search alone does not
-  authorize deletion.
+  Removes compatibility code proven unneeded: dead version branches, import
+  fallbacks, deprecated aliases, polyfills, rolled-out flags. Checks support
+  policy, callers, and stored data first. Use after dropping old versions. Not
+  for code that only looks old.
 ---
 
 # Remove Unneeded Compatibility Code
 
-Remove compatibility behavior only after classifying its authority and
-consumers. Distinguish never-required agent-invented support from legitimate
-support that has been formally retired, and preserve real public,
-persisted-data, deployment, and external-consumer obligations.
-
-## Operating contract
-
-- Do not equate “legacy,” old, unused locally, ugly, failing, or covered by a
-  test with unneeded. Establish the support authority.
-- Classify each behavior as required, never required, explicitly retired, or
-  unresolved. Existing code/tests do not decide the category by themselves.
-- Trace internal callers, public consumers, serialized data, configuration,
-  CLI/API names, plugin/provider contracts, package exports, docs, migrations,
-  and operational tooling.
-- Remove the full obsolete path—registration, dispatch, tests, docs, packaging,
-  feature flags, telemetry, and migration state—without deleting unique required
-  validation, cleanup, or error behavior.
-- Do not reintroduce the same behavior under a synonym, catch-all fallback, or
-  “temporary” alias.
-
-## Compatibility-retirement contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a compatibility removal; it
-  MUST NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide declared support policy, external consumers,
-  persisted data, aliases, fallbacks, version branches, and unique wrapper
-  behavior, hard constraints, available tools, and the finish condition once.
-  Remove repeated directions and examples unless a recorded evaluation shows
-  that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with consumer searches, contract tests,
-  migration checks, and before/after behavior. Report commands, observed
-  results, and gaps. A parser, build, or single green test proves only the
-  property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Delete compatibility paths that no supported version, consumer, or stored
+data needs, and prove it.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    C[Compatibility behavior] --> A[Identify authority and support policy]
-    A --> U[Trace callers, consumers, persisted data, and deployment]
-    U --> K{Classification}
-    K -->|Required| P[Preserve]
-    K -->|Unresolved| Q[Surface decision / gather evidence]
-    K -->|Never required| R[Remove within authorized scope]
-    K -->|Explicitly retired| R
-    R --> V[Verify supported paths and absence of fallback]
-    V --> D[Update docs/package/config/migrations as needed]
-```
+1. Read the support policy: minimum runtime and platform versions,
+   deprecation policy, release plan
+   ([support policy](references/evidence-and-removal.md#support-policy)).
+1. Find candidates: `python3 scripts/find_compat_python.py SRC
+   --min-python X.Y` and `ruff check --select UP036` for Python; the
+   searches in [candidates](references/candidates.md) for other
+   ecosystems.
+1. Trace consumers of each candidate: code, strings, config, generated
+   registries, tests, packaging, persisted data, external users
+   ([tracing](references/evidence-and-removal.md#consumer-tracing)).
+1. Classify each as never required, retired, required, or unresolved;
+   stop for a decision on unresolved public surfaces.
+1. Remove each removable candidate completely (manifests, dependencies,
+   exports, tests, docs) in its own change.
+1. Verify on the minimum supported version with deprecation warnings as
+   errors, and inspect the packaged artifact when exports changed.
+1. Record the version impact.
 
-## Procedure
+## Route the candidate to a card
 
-1. Name the exact alias, shim, fallback, version/platform branch, deprecated
-   API, package export, config key, or data compatibility behavior. Record its
-   current implementation and claimed purpose.
-1. Find authority: current request, declared stable public contract,
-   version/deprecation policy, release history, migration decision, supported
-   platform/version matrix, and owner decisions. Do not let an agent-added test
-   create its own support mandate.
-1. Trace consumers using source search, history, generated/source relationships,
-   package/export metadata, telemetry where approved, docs, downstream
-   repositories where available, persisted/serialized data, deployment config,
-   and runtime registration. Treat absent local references as unknown for
-   external public surfaces.
-1. Classify required, never required, retired, or unresolved. If unresolved and
-   externally meaningful, stop for a decision. Do not invent a deprecation
-   period or migration for support that never existed.
-1. Remove the obsolete path and only its dependent artifacts. Preserve
-   validation, errors, cleanup, and shared implementation used by supported
-   paths. Remove registrations and packaging that would silently keep the
-   behavior alive.
-1. Update or remove tests according to the actual contract. Add negative checks
-   for removed public aliases only when rejection behavior is part of the
-   contract. Ensure supported inputs still work and unknown inputs fail
-   explicitly.
-1. Run package/API/serialization/migration/integration checks appropriate to the
-   surface. Inspect artifact exports and runtime registration. Report
-   consumers/evidence, classification, changes, and remaining uncertainty.
-
-## Choose the consumer-evidence reference
-
-| Situation | Read or use |
+| Candidate | Card |
 | --- | --- |
-| Tracing authority, consumers, data, and complete removal | [Removal evidence](references/removal-evidence.md) |
-| Classifying required, never-required, retired, and unresolved support | [Operational decisions](references/compatibility-retirement-operational-decisions.md) |
-| Using API, CLI, config, data, and platform examples | [Worked scenarios](references/compatibility-retirement-worked-scenarios.md) |
-| Verifying removal and supported behavior | [Verification and claim evidence](references/compatibility-retirement-verification-and-claim-evidence.md) |
-| Avoiding empty-search, test-as-spec, and alias-reintroduction errors | [Failure patterns and recovery](references/compatibility-retirement-failure-patterns-and-recovery.md) |
-| Applying enterprise version/support governance | [Organizational controls and scale](references/compatibility-retirement-organizational-controls-and-scale.md) |
-| Checking SemVer/package export sources | [Standards, APIs, and authorities](references/compatibility-retirement-standards-apis-and-authorities.md) |
+| `sys.version_info`, `#if NET...`, `cfg`, `@available` | [Version-gated branch](references/candidates.md#version-gated-branch) |
+| `try: import X except ImportError` | [Import fallback](references/candidates.md#import-fallback) |
+| Old name that warns and forwards | [Deprecated alias](references/candidates.md#deprecated-alias) |
+| Old config keys, enum values, columns | [Persisted alias](references/candidates.md#persisted-or-serialized-alias) |
+| Old import path in `exports` or a re-export module | [Package export alias](references/candidates.md#package-export-alias) |
+| `hasattr`/`typeof` checks, polyfills | [Feature probe](references/candidates.md#feature-probe-and-polyfill) |
+| Flag on everywhere | [Rolled-out flag](references/candidates.md#fully-rolled-out-feature-flag) |
+| Old methods in generated clients | [Generated surface](references/candidates.md#generated-compatibility-surface) |
+| Is it still supported? | [Support policy](references/evidence-and-removal.md#support-policy), [classification](references/evidence-and-removal.md#classification) |
+| Who uses it? | [Consumer tracing](references/evidence-and-removal.md#consumer-tracing) |
+| Removing it | [Complete removal](references/evidence-and-removal.md#complete-removal), [version impact](references/evidence-and-removal.md#version-impact) |
+| Proving it | [Proof after removal](references/evidence-and-removal.md#proof-after-removal) |
 
-## Compatibility decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Age, a failing test, or an empty local search does not authorize
+  deleting a published surface; the support policy and consumer evidence
+  do.
+- Stored data outlives code: keep readers of old formats until a
+  migration or policy retires them.
+- Remove completely: no forwarding wrapper, hidden flag, or fallback left
+  to keep a test green.
+- Removing a supported public API is an incompatible change; ship it in a
+  major release with a changelog entry.
 
-| Reference | Use when |
-| --- | --- |
-| [Concepts, contracts, and invariants](references/compatibility-retirement-concepts-contracts-and-invariants.md) | Use when distinguishing the requested compatibility removal from observed repository state. |
+## Bundled tools
 
-## Behavioral evaluation
+- `scripts/find_compat_python.py PATH... [--min-python X.Y] [--json]`:
+  lists version branches (marking dead ones), import fallbacks,
+  deprecated aliases, and feature probes.
+- `assets/examples/`: a `before/` package with three removable candidates
+  and one required alias, the cleaned `after/` package, and `verify.sh`,
+  which finds the candidates, checks callers, runs both test suites, and
+  shows that removing the persisted-key alias breaks saved files.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- No output template is mandatory. Preserve the repository's established format.
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Compatibility candidates](references/candidates.md): version branches,
+  import fallbacks, deprecated aliases, persisted aliases, package
+  exports, feature probes, rolled-out flags, generated surfaces.
+- [Evidence and removal](references/evidence-and-removal.md): support
+  policy, consumer tracing, classification, complete removal, version
+  impact, proof after removal.
 
 ## Completion evidence
 
-- Exact compatibility behavior and all implementation/registration/package
-  surfaces.
-- Authority and consumer evidence with one of four classifications.
-- Scoped removal or explicit preservation/unresolved decision.
-- Updated tests/docs/package/config/migration artifacts required by the actual
-  contract.
-- Executed supported-path and absence/rejection verification.
-- Remaining external-consumer or persisted-data uncertainty.
-
-## Stop or escalate
-
-- A declared stable/public or persisted-data consumer may exist and available
-  evidence cannot resolve it.
-- The support decision belongs to the user/product owner and has not been made.
-- Removal would affect another package/repository/system outside authorized
-  scope.
-- The behavior contains unique required validation, cleanup, or error handling
-  not yet relocated safely.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+The report lists every candidate with its class and the evidence behind
+it (policy line, search results, data check), the removals made with the
+tests run on the minimum version, packaging inspection when exports
+changed, the version impact, and unresolved candidates with what is
+missing.

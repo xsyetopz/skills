@@ -1,0 +1,4 @@
+[project]
+name = "configlib"
+version = "1.4.0"
+requires-python = ">=3.11"

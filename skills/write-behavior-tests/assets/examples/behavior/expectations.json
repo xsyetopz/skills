@@ -1,0 +1,444 @@
+{
+	"cases": [
+		{
+			"variant": "",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakConnection",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakPercentage",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakPermissions",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakTransitions",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakBase64",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakSnapshot",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakRenderName",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakBasket",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakPrice",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakNotify",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakUsers",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakSplit",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakWriteConfig",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakAccount",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakFeeMirror",
+			"failing": []
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakRegistry",
+			"failing": ["test_b_first_registration_again"]
+		},
+		{
+			"variant": "",
+			"target": "weak_examples.WeakRegistry.test_b_first_registration_again",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_cart",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_cart",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_cart",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_cart",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_basket",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_basket",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_basket",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_basket",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_counting_basket",
+			"target": "weak_examples.WeakBasket",
+			"failing": ["test_items_list"]
+		},
+		{
+			"variant": "alt_invoice_addition",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_invoice_addition",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_invoice_addition",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_invoice_addition",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_price_direct",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_price_direct",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_price_direct",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_price_direct",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_price_direct",
+			"target": "weak_examples.WeakPrice",
+			"failing": ["test_lookup_calls"]
+		},
+		{
+			"variant": "alt_render_inline",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_render_inline",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_render_inline",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_render_inline",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_render_inline",
+			"target": "weak_examples.WeakRenderName",
+			"failing": ["test_uses_trim_helper"]
+		},
+		{
+			"variant": "alt_notify_guard",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_notify_guard",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_notify_guard",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_notify_guard",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_fees_tuple",
+			"target": "test_structure",
+			"failing": []
+		},
+		{
+			"variant": "alt_fees_tuple",
+			"target": "test_oracles",
+			"failing": []
+		},
+		{
+			"variant": "alt_fees_tuple",
+			"target": "test_doubles",
+			"failing": []
+		},
+		{
+			"variant": "alt_fees_tuple",
+			"target": "test_regressions",
+			"failing": []
+		},
+		{
+			"variant": "alt_fees_tuple",
+			"target": "weak_examples.WeakFeeMirror",
+			"failing": ["test_fee_storage_and_value"]
+		},
+		{
+			"variant": "bug_shipping_zero",
+			"target": "test_structure",
+			"failing": ["test_zero_weight_has_no_shipping_charge"]
+		},
+		{
+			"variant": "bug_cart_remove_noop",
+			"target": "test_structure",
+			"failing": ["test_removing_a_book_clears_total"]
+		},
+		{
+			"variant": "bug_connection_no_reopen",
+			"target": "test_structure",
+			"failing": ["test_closed_connection_can_reopen"]
+		},
+		{
+			"variant": "bug_connection_no_reopen",
+			"target": "weak_examples.WeakConnection",
+			"failing": []
+		},
+		{
+			"variant": "bug_invoice_no_discount",
+			"target": "test_oracles",
+			"failing": ["test_total_matches_reviewed_value"]
+		},
+		{
+			"variant": "bug_percentage_off_by_one",
+			"target": "test_oracles",
+			"failing": ["test_boundaries_and_neighbors"]
+		},
+		{
+			"variant": "bug_percentage_off_by_one",
+			"target": "weak_examples.WeakPercentage",
+			"failing": []
+		},
+		{
+			"variant": "bug_can_edit_suspended",
+			"target": "test_oracles",
+			"failing": ["test_every_role_and_account_combination"]
+		},
+		{
+			"variant": "bug_can_edit_suspended",
+			"target": "weak_examples.WeakPermissions",
+			"failing": []
+		},
+		{
+			"variant": "bug_state_skip_review",
+			"target": "test_oracles",
+			"failing": ["test_every_other_pair_is_rejected"]
+		},
+		{
+			"variant": "bug_state_skip_review",
+			"target": "weak_examples.WeakTransitions",
+			"failing": []
+		},
+		{
+			"variant": "bug_b64_urlsafe",
+			"target": "test_oracles",
+			"failing": ["test_standard_vectors"]
+		},
+		{
+			"variant": "bug_b64_urlsafe",
+			"target": "weak_examples.WeakBase64",
+			"failing": []
+		},
+		{
+			"variant": "bug_report_unsorted",
+			"target": "test_oracles",
+			"failing": ["test_report_matches_reviewed_golden_text"]
+		},
+		{
+			"variant": "bug_report_unsorted",
+			"target": "weak_examples.WeakSnapshot",
+			"failing": []
+		},
+		{
+			"variant": "bug_render_ignores_trim",
+			"target": "test_doubles",
+			"failing": ["test_surrounding_whitespace_is_removed"]
+		},
+		{
+			"variant": "bug_render_ignores_trim",
+			"target": "weak_examples.WeakRenderName",
+			"failing": []
+		},
+		{
+			"variant": "bug_basket_counts_once",
+			"target": "test_doubles",
+			"failing": ["test_count_reports_each_addition"]
+		},
+		{
+			"variant": "bug_basket_counts_once",
+			"target": "weak_examples.WeakBasket",
+			"failing": []
+		},
+		{
+			"variant": "bug_price_zero",
+			"target": "test_doubles",
+			"failing": ["test_listed_price_is_returned"]
+		},
+		{
+			"variant": "bug_price_zero",
+			"target": "weak_examples.WeakPrice",
+			"failing": []
+		},
+		{
+			"variant": "bug_notify_when_denied",
+			"target": "test_doubles",
+			"failing": ["test_denied_address_gets_no_message"]
+		},
+		{
+			"variant": "bug_notify_when_denied",
+			"target": "weak_examples.WeakNotify",
+			"failing": []
+		},
+		{
+			"variant": "bug_notify_never",
+			"target": "test_doubles",
+			"failing": ["test_allowed_address_gets_exactly_one_ready_message"]
+		},
+		{
+			"variant": "bug_notify_never",
+			"target": "weak_examples.WeakNotify",
+			"failing": []
+		},
+		{
+			"variant": "bug_users_case_sensitive",
+			"target": "test_doubles",
+			"failing": ["test_email_differing_only_in_case_is_rejected"]
+		},
+		{
+			"variant": "bug_users_case_sensitive",
+			"target": "weak_examples.WeakUsers",
+			"failing": []
+		},
+		{
+			"variant": "bug_split_drops_empty",
+			"target": "test_regressions",
+			"failing": ["test_empty_fields_are_kept"]
+		},
+		{
+			"variant": "bug_split_drops_empty",
+			"target": "weak_examples.WeakSplit",
+			"failing": []
+		},
+		{
+			"variant": "bug_config_truncates",
+			"target": "test_regressions",
+			"failing": ["test_invalid_text_leaves_existing_file_unchanged"]
+		},
+		{
+			"variant": "bug_config_truncates",
+			"target": "weak_examples.WeakWriteConfig",
+			"failing": []
+		},
+		{
+			"variant": "bug_account_no_lock",
+			"target": "test_regressions",
+			"failing": ["test_concurrent_deposits_are_not_lost"]
+		},
+		{
+			"variant": "bug_account_no_lock",
+			"target": "weak_examples.WeakAccount",
+			"failing": []
+		},
+		{
+			"variant": "bug_session_wall_clock",
+			"target": "test_regressions",
+			"failing": ["test_session_expires_exactly_at_ttl"]
+		},
+		{
+			"variant": "bug_fee_six",
+			"target": "test_regressions",
+			"failing": ["test_flat_fee_for_any_distance"]
+		}
+	]
+}

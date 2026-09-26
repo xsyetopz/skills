@@ -1,4 +1,4 @@
 interface:
-  display_name: "Remove Unneeded Compatibility Code"
-  short_description: "Remove unsupported aliases, shims, and fallbacks"
-  default_prompt: "Use $remove-unneeded-compatibility-code to remove compatibility behavior proven never required or explicitly retired while preserving actual public and persisted-data contracts."
+  display_name: "Remove Compatibility Code"
+  short_description: "Delete compatibility paths proven unneeded"
+  default_prompt: "Use $remove-unneeded-compatibility-code to find compatibility code this project no longer needs, check support policy and consumers, remove it completely, and verify on the minimum version."

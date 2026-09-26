@@ -1,0 +1,23 @@
+{
+	"phase": "implementation",
+	"items": [
+		{
+			"id": "parser",
+			"phase": "implementation",
+			"owns": ["src/parser/", "tests/test_parser.py"],
+			"depends_on": []
+		},
+		{
+			"id": "store",
+			"phase": "implementation",
+			"owns": ["src/store/", "tests/test_store.py"],
+			"depends_on": []
+		},
+		{
+			"id": "cli",
+			"phase": "implementation",
+			"owns": ["src/cli.py", "tests/test_cli.py"],
+			"depends_on": ["parser", "store"]
+		}
+	]
+}

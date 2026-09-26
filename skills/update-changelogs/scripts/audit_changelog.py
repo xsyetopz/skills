@@ -18,6 +18,23 @@ from changelog_markdown import Section, release_header, sections
 
 KEEP_A_CHANGELOG_SPEC = "https://keepachangelog.com/en/2.0.0/"
 VALID_CATEGORIES = {"Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"}
+EPILOG = """\
+Exit status:
+  0  no errors (warnings alone do not fail)
+  1  at least one error; an unreadable file is reported as a "file-read"
+     error finding
+
+Output: "PASS: PATH" with the version count and latest version, or one
+"SEVERITY: rule (line N)" line plus an indented message per finding and
+an "N error(s), N warning(s)" summary. --json prints {path, findings:
+[{severity, rule, location, message}], versions}.
+
+Examples:
+  python3 scripts/audit_changelog.py
+  python3 scripts/audit_changelog.py docs/CHANGELOG.md
+  python3 scripts/audit_changelog.py CHANGELOG.md --json \\
+    | jq '.findings[] | select(.severity == "error")'
+"""
 
 
 class Finding(TypedDict):
@@ -203,7 +220,9 @@ def audit(path: Path) -> AuditResult:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Audit the Keep a Changelog 2.0.0 + SemVer profile."
+        description="Audit the Keep a Changelog 2.0.0 + SemVer profile.",
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "path",

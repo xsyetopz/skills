@@ -1,11 +1,12 @@
 # Evidence note: [question]
 
-Claim being evaluated: one precise claim, with scope and date sensitivity.
-Search: provider/query/date/filters; coverage limits; identifiers retained.
-Source: title, authors, publication/version date, DOI/arXiv ID, original link.
-Status: metadata only / abstract read / full text read / code or data inspected.
-Evidence: exact section/table/figure and what it establishes; distinguish author
-claims from the observations shown. Record limitations and contradictory
-results. Conclusion: supported / contradicted / unresolved, with scope. Do not
-convert an abstract, citation count or search ranking into replicated empirical
-evidence.
+Claim: one precise claim, with its scope and date sensitivity.
+Search: provider, exact query, date run, filters, and known coverage gaps.
+Source: title; authors; version date; DOI or arXiv ID with version (vN).
+Updates: result of the corrections/retractions lookup, with its date.
+Status: metadata | abstract | full text | code or data
+Evidence: section, table, figure, or page, and what it shows; keep the
+authors' claims apart from the observations. Include limitations and
+contrary results.
+Stats: output of scripts/check_stats.py on the quoted results, or "none".
+Conclusion: supported | contradicted | unresolved, with scope.

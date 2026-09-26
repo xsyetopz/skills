@@ -1,0 +1,23 @@
+{
+	"phase": "implementation",
+	"items": [
+		{
+			"id": "parser",
+			"phase": "implementation",
+			"owns": ["src/parser/", "src/common.py"],
+			"depends_on": []
+		},
+		{
+			"id": "store",
+			"phase": "implementation",
+			"owns": ["src/store/", "src/common.py"],
+			"depends_on": []
+		},
+		{
+			"id": "release-notes",
+			"phase": "release",
+			"owns": ["CHANGELOG.md"],
+			"depends_on": []
+		}
+	]
+}

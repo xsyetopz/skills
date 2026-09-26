@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Implementation"
+  short_description: "Write and review executable implementation plans"
+  default_prompt: "Use $plan-implementation to write an executable plan for this agreed change, or to review this plan against its constraints and the repository, proving each flaw with a counterexample and proposing minimal corrections."

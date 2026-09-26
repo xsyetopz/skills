@@ -1,4 +1,0 @@
-interface:
-  display_name: "Design System Architecture"
-  short_description: "Design system boundaries, interfaces, and ownership"
-  default_prompt: "Use $design-system-architecture to design or review system boundaries, interfaces, dependency direction, state ownership, and deployment constraints."

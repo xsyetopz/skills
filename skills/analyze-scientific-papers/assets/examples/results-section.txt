@@ -1,0 +1,5 @@
+Participants in the intervention group scored higher, t(28) = 2.20, p = .036.
+The three-group comparison was significant, F(2, 57) = 3.40, p < .05.
+Completion rates differed, chi2(1) = 4.10, p = .043.
+The secondary outcome also differed, t(28) = 1.20, p = .03.
+Accuracy correlated with training time, r(48) = .30, p = .034.

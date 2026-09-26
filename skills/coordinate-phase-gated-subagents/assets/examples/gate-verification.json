@@ -1,0 +1,28 @@
+{
+	"phase": "integration-verification",
+	"conditions": [
+		{
+			"id": "C1",
+			"required": true,
+			"evidence": {
+				"status": "passed",
+				"command": "python3 -m unittest discover -s tests",
+				"result": "Ran 20 tests OK"
+			}
+		},
+		{
+			"id": "C2",
+			"required": true,
+			"evidence": {
+				"status": "unavailable",
+				"command": "make e2e",
+				"result": "staging credentials not provided"
+			}
+		},
+		{ "id": "C3", "required": true, "evidence": { "status": "not_run" } }
+	],
+	"requirements": [
+		{ "id": "R1", "verified_by": ["C1"] },
+		{ "id": "R3", "verified_by": ["C2"] }
+	]
+}

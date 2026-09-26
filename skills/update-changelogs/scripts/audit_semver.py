@@ -24,6 +24,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from changelog_markdown import release_header, sections
 
 SEMVER_SPEC = "https://semver.org/"
+EPILOG = """\
+Exit status:
+  0  every version is valid SemVer 2.0.0
+  1  a version is invalid, no version was given (help is printed), git
+     tags cannot be read, or the changelog cannot be read
+
+Output: "PASS  VERSION  ->  MAJOR.MINOR.PATCH" or "FAIL  VERSION  -  why"
+per version, then "N/M valid". --json prints a list of results with
+version, valid, and either major/minor/patch/prerelease/buildmetadata or
+error.
+
+Examples:
+  python3 scripts/audit_semver.py 1.2.3 2.0.0-rc.1 1.02.0
+  python3 scripts/audit_semver.py --from-tags
+  python3 scripts/audit_semver.py --from-changelog CHANGELOG.md --json
+"""
 
 # Full semver regex from semver.org (numbered capture groups)
 # cg1=major, cg2=minor, cg3=patch, cg4=prerelease, cg5=buildmetadata
@@ -149,7 +165,9 @@ def from_changelog(path: Path) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate version strings against Semantic Versioning 2.0.0."
+        description="Validate version strings against Semantic Versioning 2.0.0.",
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "versions",

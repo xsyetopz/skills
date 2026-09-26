@@ -1,4 +1,4 @@
 interface:
   display_name: "Define Requirements"
-  short_description: "Specify observable behavior and acceptance criteria"
-  default_prompt: "Use $define-requirements to define the requested behavior, constraints, failures, and observable acceptance criteria without choosing an implementation."
+  short_description: "Write EARS requirements with testable acceptance"
+  default_prompt: "Use $define-requirements to turn this request into EARS requirements with sources, acceptance criteria, and open decisions, and run the bundled checker."

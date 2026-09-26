@@ -1,4 +1,4 @@
 interface:
   display_name: "Update Changelogs"
-  short_description: "Write accurate changelog and release-note entries"
-  default_prompt: "Use $update-changelogs to derive changelog or release-note entries from a verified revision range without inventing versions, dates, or release status."
+  short_description: "Write verified changelog entries and pick versions"
+  default_prompt: "Use $update-changelogs to add changelog entries for the changes since the last release, verify each against its commit, choose the version, and run the audits."

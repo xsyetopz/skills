@@ -25,6 +25,23 @@ from pathlib import Path
 ATOM = "{http://www.w3.org/2005/Atom}"
 RETRYABLE = {429, 500, 502, 503, 504}
 LIMIT_BYTES = 16 * 1024 * 1024
+EPILOG = """\
+Exit status:
+  0  valid provider response written (possibly zero results)
+  1  request or output failure: HTTP error, transport failure, malformed
+     envelope, response over 16 MiB, or --output already exists
+  2  invalid invocation (bad flags, identifier, or --param)
+
+Output: the provider's raw response (Atom XML for arXiv, JSON otherwise)
+on stdout, or in the new file --output; diagnostics go to stderr.
+
+Examples:
+  python3 scripts/fetch_metadata.py --provider arxiv --query 'all:"tail sampling"' \\
+    --limit 3
+  python3 scripts/fetch_metadata.py --provider crossref --id 10.1145/3342195.3387524
+  python3 scripts/fetch_metadata.py --provider openalex --query 'tail sampling' \\
+    --output openalex.json
+"""
 
 
 class FetchError(RuntimeError):
@@ -203,7 +220,11 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument(
         "--provider", required=True, choices=["arxiv", "crossref", "openalex"]
     )
@@ -216,7 +237,9 @@ def main(argv=None) -> int:
         dest="identifier",
         help="bare arXiv ID (including vN), DOI, or OpenAlex work ID",
     )
-    parser.add_argument("--limit", type=int, default=10)
+    parser.add_argument(
+        "--limit", type=int, default=10, help="results per request, 1-100 (default 10)"
+    )
     parser.add_argument(
         "--param",
         action="append",
@@ -226,9 +249,18 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--mailto", help="optional Crossref contact; never inferred from local identity"
     )
-    parser.add_argument("--timeout", type=float, default=20)
-    parser.add_argument("--attempts", type=int, default=3)
-    parser.add_argument("--max-wait", type=float, default=30)
+    parser.add_argument(
+        "--timeout", type=float, default=20, help="seconds per request (default 20)"
+    )
+    parser.add_argument(
+        "--attempts", type=int, default=3, help="tries for retryable HTTP errors, 1-5"
+    )
+    parser.add_argument(
+        "--max-wait",
+        type=float,
+        default=30,
+        help="longest server-requested retry delay to honor, in seconds",
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -259,6 +291,13 @@ def main(argv=None) -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
+    if args.output and args.output.exists():
+        print(
+            f"metadata fetch failed: --output {args.output} already exists; "
+            "choose a new path (the script never overwrites)",
+            file=sys.stderr,
+        )
+        return 1
     try:
         body = fetch(
             request,

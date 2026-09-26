@@ -1,6 +1,8 @@
 """Offline protocol fixtures, not live-provider or scientific-result tests."""
 
+import contextlib
 import io
+import tempfile
 import unittest
 import urllib.error
 import urllib.parse
@@ -9,6 +11,7 @@ from email.message import Message
 from fetch_metadata import (
     FetchError,
     fetch,
+    main,
     request_for,
     retry_delay,
     validate_response,
@@ -137,6 +140,25 @@ class ResponseTests(unittest.TestCase):
 
         with self.assertRaisesRegex(FetchError, "transport failure"):
             fetch(request_for("crossref", "x", None, 10, []), "crossref", opener=opener)
+
+
+class CommandLineTests(unittest.TestCase):
+    def test_existing_output_fails_before_any_request(self):
+        with tempfile.NamedTemporaryFile() as existing:
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                status = main(
+                    [
+                        "--provider",
+                        "crossref",
+                        "--query",
+                        "x",
+                        "--output",
+                        existing.name,
+                    ]
+                )
+        self.assertEqual(status, 1)
+        self.assertIn("already exists", err.getvalue())
 
 
 if __name__ == "__main__":

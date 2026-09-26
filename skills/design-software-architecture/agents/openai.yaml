@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Software Architecture"
+  short_description: "Measured, enforced system boundaries"
+  default_prompt: "Use $design-software-architecture to decide boundaries from measurable quality scenarios and the existing system, record the decision with alternatives, and enforce it with layer checks and adapter contract tests."

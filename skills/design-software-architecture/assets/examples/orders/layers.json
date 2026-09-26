@@ -1,0 +1,16 @@
+{
+	"layers": {
+		"domain": ["orders/domain.py"],
+		"ports": ["orders/ports.py"],
+		"service": ["orders/service.py"],
+		"adapters": ["orders/adapters/"],
+		"package": ["orders/__init__.py"]
+	},
+	"allowed": {
+		"domain": [],
+		"ports": ["domain"],
+		"service": ["domain", "ports"],
+		"adapters": ["domain", "ports", "service"],
+		"package": []
+	}
+}

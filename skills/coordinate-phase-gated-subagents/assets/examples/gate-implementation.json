@@ -1,0 +1,27 @@
+{
+	"phase": "implementation",
+	"conditions": [
+		{
+			"id": "C1",
+			"required": true,
+			"evidence": {
+				"status": "passed",
+				"command": "python3 -m unittest discover -s tests",
+				"result": "Ran 14 tests OK"
+			}
+		},
+		{
+			"id": "C2",
+			"required": true,
+			"evidence": {
+				"status": "passed",
+				"command": "ruff check src tests",
+				"result": "All checks passed!"
+			}
+		}
+	],
+	"requirements": [
+		{ "id": "R1", "verified_by": ["C1"] },
+		{ "id": "R2", "verified_by": ["C1"] }
+	]
+}

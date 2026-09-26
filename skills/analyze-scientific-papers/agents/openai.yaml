@@ -1,4 +1,4 @@
 interface:
   display_name: "Analyze Scientific Papers"
-  short_description: "Find, evaluate, and synthesize research evidence"
-  default_prompt: "Use $analyze-scientific-papers to answer this research question from primary studies, with methods, limitations, and exact citations."
+  short_description: "Evidence-checked answers from papers"
+  default_prompt: "Use $analyze-scientific-papers to answer this research question from exact paper versions: native searches including a disconfirming one, retraction checks, full-text evidence notes with table locations, recomputed statistics, and scoped conclusions."

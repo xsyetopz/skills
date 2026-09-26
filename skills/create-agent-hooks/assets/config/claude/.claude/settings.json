@@ -1,0 +1,50 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "startup|resume",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3",
+						"args": ["${CLAUDE_PROJECT_DIR}/.agent-hooks/session_context.py"],
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3",
+						"args": [
+							"${CLAUDE_PROJECT_DIR}/.agent-hooks/guard_shell.py",
+							"--host",
+							"claude"
+						],
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3",
+						"args": [
+							"${CLAUDE_PROJECT_DIR}/.agent-hooks/stop_gate.py",
+							"--check",
+							"python3 -m unittest -q"
+						],
+						"timeout": 180
+					}
+				]
+			}
+		]
+	}
+}

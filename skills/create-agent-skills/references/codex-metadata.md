@@ -1,73 +1,99 @@
-# Codex 0.154.0 skill metadata
+# Codex metadata
 
-Read this when creating or updating `agents/openai.yaml` for Codex 0.154.0. The
-portable entrypoint remains `SKILL.md`. This native host file supplies interface
-metadata, invocation policy, and concrete MCP dependencies; it is not a
-replacement instruction file or a custom skill schema.
+`agents/openai.yaml` holds Codex interface metadata, invocation policy,
+and MCP dependencies. `SKILL.md` stays the portable entry point; this
+file is not a second instruction body. Field facts come from OpenAI's
+[build-skills guide][guide] and the Codex `rust-v0.154.0` sources:
+[field reference][fields], [interface resolver][interface],
+[metadata loader][loader], [skill model][model]. Re-check them for the
+installed Codex version.
 
-Version basis: OpenAI's [build-skills guide][guide] and the [`rust-v0.154.0`
-bundled field reference][fields], [interface resolver][interface], [metadata
-loader][loader], and [skill model][model]. Use the installed client's version
-when targeting another release. Do not infer support from an unversioned example
-or a permissive YAML parser.
+## Contents
 
-## Interface
+- Interface fields
+- Invocation policy
+- MCP dependencies
+- Loader behavior on bad metadata
+
+## Interface fields
+
+**Definition.** `interface.display_name` (label; the resolver accepts at
+most 64 characters after whitespace normalization),
+`interface.short_description` (UI blurb; the bundled guidance recommends
+25-64 characters), `interface.default_prompt` (an example invocation that
+must contain `$skill-name`; resolver limit 1,024 characters), and optional
+`icon_small`, `icon_large`, `brand_color` (`#RRGGBB`).
+
+**Use when.** Every skill intended for Codex. This repository's
+validator requires the three string fields and `$<name>` in
+`default_prompt`.
+
+**Do not use when.** Icons or colors without a product requirement.
+Appearance fields do not affect selection, which depends on the
+`SKILL.md` description.
+
+**Example.**
 
 ```yaml
 interface:
-  display_name: "Optimize Python Code"
-  short_description: "Profile and optimize Python without changing behavior"
-  default_prompt:
-    "Use $optimize-python-code to profile this workload before changing it."
-
+  display_name: "Optimize C# Code"
+  short_description: "Profile and optimize C# and .NET workloads"
+  default_prompt: >-
+    Use $optimize-csharp-code to profile this workload, apply a measured
+    optimization, and report matched evidence.
 ```
 
-Use the actual directory-matching skill name in `default_prompt`. Keep the
-prompt to a short starting request; it does not grant permission to mutate
-resources, change project scope, or override higher-priority instructions. Quote
-string values; keep booleans typed and keys unquoted.
+**Cost removed.** A skill that loads without a usable UI entry or
+example prompt.
 
-- `display_name`: concise human label; the resolver accepts at most 64
-  characters after whitespace normalization.
-- `short_description`: the bundled authoring guidance recommends 25-64
-  characters. The runtime accepts up to 1024; that broader acceptance is not a
-  reason to use the UI field as another instruction body.
-- `default_prompt`: a helpful invocation example containing `$skill-name`; the
-  resolver's limit is 1024 normalized characters.
-- `icon_small`, `icon_large`, and `brand_color` are optional presentation
-  fields. Add them only when the user or product package explicitly requires
-  visual branding. Do not generate icons, logos, or colors merely to populate
-  optional metadata. When requested, keep icon paths under `assets/`, reject
-  absolute or parent-traversal paths, verify that files exist, and use exactly
-  `#RRGGBB` for the color.
+**Verify.**
 
-Appearance fields do not improve the model's instructions, force skill
-selection, or establish affiliation. Implicit matching depends on the `SKILL.md`
-description, not an icon or UI blurb.
+1. `python3 -c "import yaml,sys; d=yaml.safe_load(open(sys.argv[1]));
+   print(d['interface'])" agents/openai.yaml` parses and shows the fields.
+1. In Codex, `/skills` lists the skill with the display name.
 
 ## Invocation policy
 
-`allow_implicit_invocation` defaults to `true`. Preserve that behavior unless
-explicit-only selection is requested or an intentional catalog decision is made.
-`false` removes the skill from default model context while leaving explicit
-`$skill-name` invocation available. It is not an execution permission, approval
-mechanism, or security boundary. Keep consequential-operation limits in the
-actual procedure.
+**Definition.** `policy.allow_implicit_invocation` defaults to `true`;
+`false` removes the skill from automatic selection while keeping explicit
+`$skill-name` invocation ([guide][guide]).
 
-The 0.154.0 parser also accepts `policy.products`; the skill model contains a
-TODO about enforcing product gating in selection/injection. Do not use that
-field as an enforced product restriction or security control. Omit it when there
-is no verified need. Parsing a field is not evidence of enforcement.
+**Use when.** A skill should run only on explicit request (multi-agent
+coordination, destructive workflows).
+
+**Do not use when.** Never treat it as a permission or security
+boundary; it controls selection only, so keep operation limits in the
+procedure. The 0.154.0 parser also accepts `policy.products`, but the
+skill model marks its enforcement as a TODO; do not rely on it.
+
+**Example.**
+
+```yaml
+policy:
+  allow_implicit_invocation: false
+```
+
+**Cost removed.** Automatic activation of workflows the user must start.
+
+**Verify.**
+
+1. The value is a YAML boolean (`false`), not the string `"false"`.
+1. A matching prompt without `$skill-name` does not load the skill in
+   Codex.
 
 ## MCP dependencies
 
-Declare a dependency only when this skill genuinely requires that specific MCP
-server. Do not install a provider merely to populate optional metadata. Python,
-Bun, Git, compilers, CLIs, and operating-system prerequisites are not MCP
-dependencies; state them in instructions or standard `compatibility` metadata.
-Do not label them as invented dependency types.
+**Definition.** `dependencies.tools` declares MCP servers the skill
+requires: `type: "mcp"`, `value`, `description`, `transport`, `url` (the
+0.154.0 loader also reads `command` and an OAuth callback port).
 
-For a workflow that actually requires the OpenAI documentation server:
+**Use when.** The skill cannot work without that specific server.
+
+**Do not use when.** The dependency is a CLI, compiler, or runtime
+(state those in instructions or `compatibility`), or several providers
+are alternatives; the metadata has no conditional form.
+
+**Example.**
 
 ```yaml
 dependencies:
@@ -79,39 +105,34 @@ dependencies:
       url: "https://developers.openai.com/mcp"
 ```
 
-This is a conditional authoring example, not a dependency to copy into every
-skill. A workflow supporting several providers must not require all of them.
-When the task can use existing native APIs or CLI access, do not invent a fixed
-MCP dependency. The metadata has no documented per-workflow conditional
-expression to use as an escape hatch.
+**Cost removed.** A skill failing mid-task on a missing server.
 
-The tagged loader additionally reads `command` and `oauth.callbackPort`
-(`callback_port` is accepted as an alias). Use them only for a verified MCP
-transport and OAuth callback requirement. A callback port is an unsigned 16-bit
-integer; never invent a port, command, endpoint, credential, or account.
-Metadata declaration does not establish installation, authentication, or
-successful tool registration. Verify the connection in the actual host before
-claiming it works.
+**Verify.**
 
-## Update and verification
+1. In Codex, the server shows as connected with its tools listed before
+   the skill is used; declaration alone does not prove registration.
 
-1. Read the existing descriptor. Update intended fields in place and preserve
-   unrelated policy or dependencies. Do not add icons, branding, license text,
-   or comments unless the user or packaging contract requires them.
-1. Parse YAML with duplicate-key rejection, check the target version's field
-   names and scalar types, and resolve every local asset path.
-1. Check the display/prompt limits, `$skill-name`, color format, complete
-   dependency identity, and absence of embedded secrets. Do not use a generator
-   that overwrites the file as a validator.
-1. Use the repository's existing validation commands. In an actual Codex 0.154.0
-   installation, inspect `/skills`, explicit invocation, implicit selection, and
-   any required MCP tools. Keep static and host results separate.
+## Loader behavior on bad metadata
 
-The 0.154.0 loader fails open on missing or malformed optional metadata: it can
-load `SKILL.md` while ignoring the descriptor. A visible skill therefore does
-not prove that its policy, dependencies, or interface settings were accepted.
-Invalid optional strings can also be discarded by the resolver. Report
-unsupported or rejected requested settings instead of silently dropping them.
+**Definition.** The 0.154.0 loader fails open: it ignores missing or
+malformed optional metadata and still loads `SKILL.md`, and the resolver
+can discard invalid optional strings.
+
+**Use when.** A policy or dependency seems to have no effect.
+
+**Do not use when.** Taking a visible skill as proof that its metadata
+was accepted.
+
+**Example.** A typo `allow_implict_invocation: false` leaves implicit
+invocation enabled with no error.
+
+**Cost removed.** Silent misconfiguration.
+
+**Verify.**
+
+1. Parse with duplicate-key rejection and compare keys against the field
+   reference for the installed version.
+1. Observe the behavior in Codex (implicit selection, UI fields).
 
 [guide]: https://learn.chatgpt.com/docs/build-skills
 [fields]: https://github.com/openai/codex/blob/rust-v0.154.0/codex-rs/skills/src/assets/samples/skill-creator/references/openai_yaml.md

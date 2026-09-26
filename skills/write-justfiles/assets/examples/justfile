@@ -1,0 +1,170 @@
+# Construct catalog for the write-justfiles skill. Every recipe is exercised
+# by verify.sh; argument probes print one bracketed line per argv element.
+
+set shell := ["sh", "-cu"]
+set minimum-version := "1.55.0"
+set dotenv-load := false
+
+mod tools
+
+cache_dir := env("CACHE_DIR", "/tmp/example-cache")
+mode := if env("CI", "") != "" { "ci" } else { "local" }
+
+# List recipes (the default recipe)
+[default]
+[private]
+help:
+    @just --justfile '{{ justfile() }}' --list
+
+# Anti-pattern: interpolation splits arguments on whitespace
+[group('arguments')]
+split-interpolation arg:
+    @printf '[%s]\n' {{ arg }}
+
+# quote() shell-escapes one value
+[group('arguments')]
+quoted arg:
+    @printf '[%s]\n' {{ quote(arg) }}
+
+# "$@" preserves every argument exactly
+[group('arguments')]
+[positional-arguments]
+positional *args:
+    @printf '[%s]\n' "$@"
+
+# A $-prefixed parameter is exported as an environment variable
+[group('arguments')]
+exported $arg:
+    @printf '[%s]\n' "$arg"
+
+# Default parameter value
+[group('arguments')]
+greet name="world":
+    @echo "hello {{ name }}"
+
+# Variadic with at least one argument
+[group('arguments')]
+[positional-arguments]
+at-least-one +files:
+    @printf '[%s]\n' "$@"
+
+# Option-style argument (1.46+)
+[arg("level", long="level", pattern="debug|info|warn")]
+[group('arguments')]
+log level="info":
+    @echo "level={{ level }}"
+
+# Prior dependencies run first, each once
+[group('dependencies')]
+build: _prepare
+    @echo build
+
+# Subsequent dependencies run after the recipe body
+[group('dependencies')]
+release: build && _announce
+    @echo release
+
+[private]
+_prepare:
+    @echo prepare
+
+[private]
+_announce:
+    @echo announce
+
+# Dependencies with arguments
+[group('dependencies')]
+deploy-all: (deploy "staging") (deploy "production")
+
+[private]
+deploy target:
+    @echo "deploy {{ target }}"
+
+# Each dependency waits for the other; only parallel execution finishes
+[group('dependencies')]
+[parallel]
+parallel-pair: (_rendezvous "a" "b") (_rendezvous "b" "a")
+
+[private]
+[script]
+_rendezvous self other:
+    dir='{{ justfile_directory() }}'
+    touch "$dir/.{{ self }}.started"
+    tries=0
+    while [ ! -e "$dir/.{{ other }}.started" ]; do
+        tries=$((tries + 1))
+        [ "$tries" -gt 50 ] && exit 1
+        sleep 0.1
+    done
+    echo "{{ self }} saw {{ other }}"
+
+# Each line runs in a new shell: cd does not persist
+[group('execution')]
+line-shells:
+    @cd /
+    @pwd
+
+# One script: state persists across lines
+[group('execution')]
+[script]
+one-script:
+    cd /
+    pwd
+
+# The first failing line stops the recipe with its exit status
+[group('execution')]
+fail-fast:
+    @exit 3
+    @echo unreachable
+
+# Anti-pattern: a leading '-' hides the failure
+[group('execution')]
+masked-failure:
+    -@exit 3
+    @echo "still reported success"
+
+# Destructive recipes ask first; --yes answers for automation
+[confirm("Delete the example cache?")]
+[group('execution')]
+clean:
+    @rm -rf '{{ cache_dir }}'
+    @echo "removed {{ cache_dir }}"
+
+# Same recipe name, one body per platform
+[group('platform')]
+[unix]
+platform:
+    @echo unix
+
+[group('platform')]
+[windows]
+platform:
+    @echo windows
+
+# Run from a subdirectory of the justfile
+[group('paths')]
+[working-directory('sub')]
+in-sub:
+    @basename "$PWD"
+
+# Run from the directory just was invoked from
+[group('paths')]
+[no-cd]
+from-caller:
+    @pwd
+
+# Environment variable for one recipe (1.47+)
+[env("GREETING", "hi")]
+[group('paths')]
+with-env:
+    @echo "$GREETING"
+
+# Show a variable with an env() default
+[group('paths')]
+show-cache:
+    @echo "{{ cache_dir }}"
+
+# Conditional expression on an environment variable
+[group('paths')]
+show-mode:
+    @echo "mode={{ mode }} os={{ os() }}"

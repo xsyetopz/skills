@@ -1,0 +1,14 @@
+{
+	"session_id": "s-1",
+	"transcript_path": null,
+	"cwd": "/home/user/repo",
+	"hook_event_name": "PreToolUse",
+	"model": "gpt-6-astra",
+	"permission_mode": "default",
+	"turn_id": "t-1",
+	"tool_name": "Bash",
+	"tool_use_id": "call_1",
+	"tool_input": {
+		"command": "git push --force origin main"
+	}
+}

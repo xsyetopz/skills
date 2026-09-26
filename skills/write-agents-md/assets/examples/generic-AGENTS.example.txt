@@ -1,0 +1,5 @@
+# Instructions
+
+You are an expert engineer. Follow best practices and write clean code.
+Be careful with changes and use common sense. See the
+[contributing guide](CONTRIBUTING.md) for details.

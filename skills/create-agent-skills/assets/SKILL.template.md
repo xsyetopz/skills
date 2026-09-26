@@ -1,29 +1,48 @@
 ---
-name: {verb-specific-object}
+name: {action-object, equal to the directory name}
 description: >-
-  {State the exact technical operation, input, when to use it, and the nearest
-  excluded task.}
+  {Third person. What it does with concrete verbs and objects, the trigger
+  terms users type, and one "Not for ..." clause naming the nearest
+  neighboring task. About 300 characters.}
 ---
 
-# {Action and specific object}
+# {Title}
 
-## Meaning and scope
+{One paragraph: the outcome, the objects handled, and the rule that every
+change is a construct card applied to observed evidence and verified.}
 
-{Define only ambiguous terms that affect this task. Distinguish the operation
-from a neighboring task. State the input, requested output, and edit boundary.}
+## Workflow
 
-## Procedure
+1. {Inspect: exact files and commands that establish the target's version
+   and configuration.}
+1. {Measure or reproduce: exact command and the metric or symptom.}
+1. {Choose a card from the routing table below.}
+1. {Pin behavior with a test or oracle before changing anything.}
+1. {Apply one card; run its Verify steps.}
+1. {Report with the evidence listed under Completion evidence.}
 
-{Specify actions, inputs, decision conditions, permitted changes, and failure
-handling. Preserve native API names, options, files, and existing validation.}
+## Route evidence to a card
 
-{Link conditional resources at the step where they are needed. Include runnable
-helpers or reusable templates when they prevent repeated reconstruction. Remove
-this paragraph when no supporting resource is needed.}
+| Evidence | Card |
+| --- | --- |
+| {observable symptom} | [{card}](references/{file}.md#{anchor}) |
 
-## Verification and result
+## Rules
 
-{State actual completion checks, output files or observations, and how to report
-failed, skipped, unavailable, or unexecuted checks. Do not claim model
-reliability from static validation. Delete placeholders and irrelevant sections
-before use.}
+- {Rule that prevents a known failure in this domain; add the reason only
+  when it is not obvious.}
+
+## Bundled tools
+
+- `scripts/{name}.py ARGS`: {what it checks}; exit 0/1/2 meaning.
+- `assets/examples/verify.sh {modes}`: {what each mode proves}.
+
+## References
+
+- [{Domain}](references/{file}.md): {which cards it holds}.
+
+## Completion evidence
+
+The report contains: {version and configuration}, {evidence of the
+problem}, {cards applied}, {verification commands and results}, and
+{anything not run, stated as not verified}.

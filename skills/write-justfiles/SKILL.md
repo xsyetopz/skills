@@ -1,157 +1,113 @@
 ---
 name: write-justfiles
 description: >-
-  Use when writing, debugging, or simplifying justfiles for the just command
-  runner: recipes, parameters, prerequisites, shell execution, quoting, and
-  discovery. Reuse existing project commands. Not for replacing a working build
-  system or inventing a task format.
+  Writes, debugs, and reviews justfiles for the just command runner: recipes,
+  parameters and quoting, dependencies, attributes, settings, dotenv, modules.
+  Use when adding or fixing just recipes. Not for replacing a build system.
 ---
 
 # Write Justfiles
 
-Expose existing project operations through valid, predictable `just` recipes
-without duplicating build logic, masking exit codes, changing shell semantics,
-or making platform/tool assumptions that the project does not support.
-
-## Operating contract
-
-- Inspect the installed `just` version, existing justfiles/imports/modules,
-  shell configuration, project commands, and invocation working directory.
-- A justfile is orchestration, not a second build system. Call canonical
-  scripts/tools instead of copying their implementation into recipes.
-- Preserve command exit status and meaningful stderr. Do not append successful
-  commands after failures, use `|| true`, or hide unsupported checks.
-- Quote parameters according to `just` interpolation and the selected shell; do
-  not concatenate untrusted values into evaluated shell code.
-- Avoid implicit platform assumptions. Use project-supported shell/OS mechanisms
-  and explicit recipe attributes only for the installed version.
-
-## Recipe-authoring contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a justfile recipe; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide just version, selected shell, existing project
-  commands, working directories, arguments, dependencies, and exit behavior,
-  hard constraints, available tools, and the finish condition once. Remove
-  repeated directions and examples unless a recorded evaluation shows that they
-  prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with just parsing, recipe execution,
-  argv probes, and failure-propagation tests. Report commands, observed results,
-  and gaps. A parser, build, or single green test proves only the property that
-  it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Expose a project's existing commands as `just` recipes that pass arguments
+exactly, fail when the wrapped command fails, and document themselves in
+`just --list`. Every construct below is a recipe in
+`assets/examples/justfile` that `assets/examples/verify.sh` runs with
+exact expected output.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    U[Recipe invocation] --> J[Parse variables, parameters, and dependencies]
-    J --> S[Selected shell / script body]
-    S --> C[Canonical project command]
-    C --> R{Exit status}
-    R -->|0| O[Expected artifact/output]
-    R -->|nonzero| F[Recipe fails with original evidence]
-    O --> V[Optional explicit follow-up recipe]
-```
+1. Record `just --version` and read the existing justfile, imports,
+   modules, and settings. Use only features the project's minimum version
+   supports; the cards give the version for each attribute and setting.
+1. Find the canonical command for each operation (package scripts, `cargo`,
+   `uv run`, a script under `scripts/`); the recipe calls it, it does not
+   re-implement it ([wrapping][wrapping]).
+1. Decide how arguments reach the command
+   ([arguments](references/arguments.md)). Anything user-supplied goes
+   through `[positional-arguments]` with `"$@"`, an exported
+   (dollar-prefixed) parameter, or `quote()`; never bare `{{ arg }}`.
+1. Add dependencies, attributes (`[group]`, `[private]`, `[confirm]`,
+   platform attributes), and settings only where the cards' **Use when**
+   applies.
+1. Run `just --fmt` then `just --fmt --check`, `just --list`, and
+   `just --dry-run RECIPE`.
+1. Run each new recipe for real: normal arguments, an argument with a
+   space and a `$`, a failing underlying command (check just's exit
+   status), and the confirm path for destructive recipes.
+1. Report the commands run and their output.
 
-## Procedure
+## Route the task to a card
 
-1. Inspect current justfiles, imports/modules, default recipe, variables,
-   settings, aliases, parameter syntax, shell selection, and project
-   scripts/build tools. Check the installed `just --version`.
-1. Define the requested recipe contract: name, parameters, defaults,
-   prerequisites, working directory, environment, output/artifact, side effects,
-   and exit behavior. Avoid names that collide or hide different commands.
-1. Reuse canonical commands. Use dependencies only for true prerequisite
-   ordering; avoid phony dependency webs that rerun expensive or stateful
-   actions unexpectedly.
-1. Implement with native just syntax supported by the installed version. Prefer
-   script recipes or argument arrays where quoting is fragile. Use
-   `set dotenv-load`, positional args, variadics, OS selectors, and functions
-   only when the project requires them.
-1. Validate parsing and listing. Exercise normal, boundary, invalid,
-   quoted-space, missing-tool, and underlying-command failure cases. Verify the
-   recipe returns the underlying failure and runs from the intended directory.
-1. Inspect `just --dump`/`--list` or equivalent and final diff. Ensure no
-   secrets, local absolute paths, temporary artifacts, duplicate build logic, or
-   unsupported shell assumptions were added.
-1. Document only non-obvious parameters/side effects in the existing project
-   docs or comments. Do not create a new task framework around one recipe.
-
-## Choose the command-semantics reference
-
-| Situation | Read or use |
+| Task or symptom | Card |
 | --- | --- |
-| Checking current syntax, settings, functions, and recipe behavior | [Current just API](references/current-just-api.md) |
-| Choosing recipes, dependencies, shell, and parameters | [Operational decisions](references/just-command-runner-operational-decisions.md) |
-| Using complete quoting, OS, dependency, and failure examples | [Worked scenarios](references/just-command-runner-worked-scenarios.md) |
-| Verifying parse, invocation, outputs, and exit propagation | [Verification and claim evidence](references/just-command-runner-verification-and-claim-evidence.md) |
-| Avoiding duplicated build logic and masked failures | [Failure patterns and recovery](references/just-command-runner-failure-patterns-and-recovery.md) |
-| Using the example justfile | [Example justfile](assets/example.just) |
-| Running the local checker | [Justfile checker](scripts/check_justfiles.py) |
-| Checking current official manual | [Standards, APIs, and authorities](references/just-command-runner-standards-apis-and-authorities.md) |
+| New recipe for an existing command | [Wrapping](references/recipes.md#wrapping-a-canonical-command) |
+| Arguments with spaces split or break | [Interpolation splits](references/arguments.md#interpolation-splits-arguments), [quote()](references/arguments.md#quote), [positional](references/arguments.md#positional-arguments), [exported](references/arguments.md#exported-parameters) |
+| Optional parameter | [Defaults](references/arguments.md#default-parameter-values) |
+| Forward a list of files or test filters | [Variadic](references/arguments.md#variadic-parameters) |
+| `--flag value` style options, value validation | [arg attribute](references/arguments.md#option-style-arguments-with-the-arg-attribute) |
+| Step A must run before B | [Prior dependencies](references/recipes.md#prior-dependencies) |
+| Step must run only after success | [Subsequent dependencies](references/recipes.md#subsequent-dependencies) |
+| Same recipe for several targets | [Dependency arguments](references/recipes.md#dependencies-with-arguments) |
+| Independent slow steps | [Parallel](references/recipes.md#parallel-dependencies) |
+| `cd` or variables lost between lines | [Line shells](references/recipes.md#line-recipes-run-one-shell-per-line), [Script recipes](references/recipes.md#script-recipes) |
+| Recipe reports success after a failure | [Failure stops](references/recipes.md#failure-stops-the-recipe), [ignore-error prefix](references/recipes.md#the-ignore-error-prefix) |
+| Deletes, deploys, publishes | [Confirm](references/recipes.md#confirmation-for-destructive-recipes) |
+| Different commands per OS | [Platform attributes](references/recipes.md#platform-attributes) |
+| Recipe runs in the wrong directory | [Working directory](references/recipes.md#working-directory) |
+| `just --list` is unclear | [Default, private, groups, docs](references/recipes.md#default-private-grouped-and-documented-recipes) |
+| Subproject recipes | [Modules](references/recipes.md#modules) |
+| Shared values, paths | [Variables](references/variables-settings.md#variables-and-strings), [env()](references/variables-settings.md#env-with-a-default), [overrides](references/variables-settings.md#command-line-variable-overrides) |
+| Value depends on CI or OS | [Conditionals](references/variables-settings.md#conditional-expressions) |
+| Every recipe is slow or fails on a missing tool | [Backticks and lazy](references/variables-settings.md#backticks-and-set-lazy), [require()](references/variables-settings.md#require-and-which) |
+| Tool reads environment variables | [Exporting](references/variables-settings.md#exporting-to-recipes), [Dotenv](references/variables-settings.md#dotenv-loading) |
+| Pipelines hide failures, Windows shell | [Shell setting](references/variables-settings.md#shell-setting) |
+| Contributors on old just | [minimum-version](references/variables-settings.md#minimum-version) |
+| Proving the justfile works | [Verification](references/verification.md) |
 
-## Justfile decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- A recipe calls the project's canonical command; it does not duplicate
+  build logic, and it does not replace a working build system.
+- User-supplied values never reach a shell through bare `{{ arg }}`.
+- A recipe's exit status is the wrapped command's: no `-` prefix,
+  `|| true`, or unchecked pipeline to make a failing check pass.
+- Destructive recipes carry `[confirm]`; CI passes `--yes` explicitly.
+- Use features only if the project's just version has them; state the
+  minimum (`set minimum-version`, 1.55.0+) when adding newer attributes.
+- Do not use the deprecated `env_var`, `env_var_or_default`,
+  `set windows-shell`, or `set windows-powershell` in new code.
+- `just --fmt --check` and `--dry-run` prove syntax and command text, not
+  behavior; run the recipe.
 
-| Reference | Use when |
-| --- | --- |
-| [Concepts, contracts, and invariants](references/just-command-runner-concepts-contracts-and-invariants.md) | Use when distinguishing the requested justfile recipe from observed repository state. |
-| [Enterprise operation and governance](references/just-command-runner-organizational-controls-and-scale.md) | Use when the justfile recipe crosses ownership, data-handling, release, or audit boundaries. |
-| [Bundled resource map](references/just-command-runner-bundled-resource-map.md) | Use when locating bundled resources for the justfile recipe. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh`: runs every example recipe in a temporary
+  copy and compares output and exit status; prints `SKIP` if just is
+  missing.
+- `scripts/check_justfiles.py PATH...`: runs `just --fmt --check` on every
+  justfile under the paths; exit 0 pass, 1 format failure, 2 bad input.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- `scripts/check_justfiles.py --help`
-- `scripts/test_check_justfiles.py`
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/example.just`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Arguments](references/arguments.md): interpolation, `quote()`,
+  positional and exported arguments, defaults, variadics, `[arg]`.
+- [Recipes](references/recipes.md): wrapping, dependencies (prior,
+  subsequent, with arguments, parallel), line versus script recipes,
+  failure handling, confirm, platforms, working directory, listing,
+  modules.
+- [Variables and settings](references/variables-settings.md): strings,
+  `env()`, overrides, conditionals, backticks and `set lazy`, exports,
+  dotenv, shell, `require()`, `minimum-version`.
+- [Verification](references/verification.md): `--fmt --check`, listing,
+  `--dry-run`, `--evaluate`, JSON dump, argument probes, exit status,
+  batch checks.
 
 ## Completion evidence
 
-- Recipe contract and installed just/shell context.
-- Minimal justfile changes that call canonical project commands.
-- Parse/list output and representative successful/failing invocations.
-- Correct parameters, quoting, dependencies, working directory, and exit
-  behavior.
-- No unrelated build-tool or repository-config replacement.
+The report includes `just --version`, the `just --fmt --check` result, the
+`just --list` output for new recipes, each new recipe's real run with an
+argument containing a space (output shown), a failing-command run with
+its exit status, and anything not run (for example a Windows-only
+recipe), stated as not verified.
 
-## Stop or escalate
-
-- The requested operation does not have a canonical underlying command or its
-  behavior is unresolved.
-- The installed `just` version cannot support the requested syntax and upgrading
-  is not authorized.
-- A recipe would expose secrets or require unsafe evaluation of untrusted input.
-- The request is to change the build system rather than add orchestration.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[wrapping]: references/recipes.md#wrapping-a-canonical-command

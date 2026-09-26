@@ -1,7 +1,0 @@
-{
-	"timestamp": "2026-09-12T00:00:00Z",
-	"cwd": "/tmp/project",
-	"session_id": "test",
-	"hook_event_name": "SessionStart",
-	"source": "startup"
-}

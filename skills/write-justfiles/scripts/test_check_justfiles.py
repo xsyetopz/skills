@@ -2,6 +2,7 @@
 
 import contextlib
 import io
+import json
 import shutil
 import subprocess
 import tempfile
@@ -68,6 +69,31 @@ class DiscoveryTests(unittest.TestCase):
                 contextlib.redirect_stderr(io.StringIO()),
             ):
                 self.assertEqual(check.main([str(p)]), 1)
+
+    def test_json_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "justfile"
+            p.touch()
+            out = io.StringIO()
+            with (
+                patch.object(
+                    check,
+                    "validate",
+                    return_value=subprocess.CompletedProcess([], 1, "diff", ""),
+                ),
+                contextlib.redirect_stdout(out),
+            ):
+                self.assertEqual(check.main([str(p), "--json"]), 1)
+        self.assertEqual(
+            json.loads(out.getvalue()),
+            {
+                "files": [
+                    {"path": str(p.absolute()), "ok": False, "returncode": 1,
+                     "output": "diff"}
+                ],
+                "failed": 1,
+            },
+        )  # fmt: skip
 
     def test_no_files_is_invalid_not_pass(self):
         with (

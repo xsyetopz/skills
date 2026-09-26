@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Agent Hooks"
-  short_description: "Create native coding-agent lifecycle hooks"
-  default_prompt: "Use $create-agent-hooks to implement and verify the requested coding-agent hook using the named client's actual events, payloads, permissions, and failure semantics."
+  short_description: "Per-host agent hooks with tested handlers"
+  default_prompt: "Use $create-agent-hooks to write or fix a hook for the named agent host using its exact events and decision shape, test the handler on the host's documented payloads, and merge it without losing existing settings."

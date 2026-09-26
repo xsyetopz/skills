@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "command": "python3 .cursor/hooks/guard_shell.py --host cursor",
+        "matcher": "Shell",
+        "timeout": 10,
+        "failClosed": true
+      }
+    ]
+  }
+}

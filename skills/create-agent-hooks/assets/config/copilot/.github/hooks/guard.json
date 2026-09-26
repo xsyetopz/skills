@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 .agent-hooks/guard_shell.py --host copilot",
+        "matcher": "bash",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

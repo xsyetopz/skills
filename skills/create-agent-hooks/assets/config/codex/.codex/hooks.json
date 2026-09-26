@@ -1,0 +1,41 @@
+{
+  "description": "Guard, context, and stop gate from create-agent-hooks.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.agent-hooks/session_context.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.agent-hooks/guard_shell.py\" --host codex",
+            "timeout": 10,
+            "statusMessage": "Checking command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.agent-hooks/stop_gate.py\" --check \"python3 -m unittest -q\"",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}

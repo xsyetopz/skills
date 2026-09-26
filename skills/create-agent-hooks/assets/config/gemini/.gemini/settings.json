@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "name": "guard-shell",
+            "type": "command",
+            "command": "python3 \"$GEMINI_PROJECT_DIR/.agent-hooks/guard_shell.py\" --host gemini",
+            "timeout": 10000,
+            "description": "Deny force pushes and recursive deletes of / or ~"
+          }
+        ]
+      }
+    ]
+  }
+}

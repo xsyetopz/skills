@@ -1,41 +1,26 @@
-# Repository agent instructions
+# Repository instructions
 
-## Scope
-
-State which directory tree this file governs and which nested instruction files
-may override it. Name the target agent clients only when their discovery or
-precedence behavior differs.
-
-## Source of truth
-
-- Name handwritten source locations and generated outputs.
-- Name the command that regenerates derived files.
-- Do not hand-edit generated files unless the repository explicitly requires it.
+{One or two sentences: what this repository is and its main language and
+runtime versions. Delete anything a reader learns from the tree.}
 
 ## Commands
 
-| Purpose | Working directory | Command | Evidence produced |
-| --- | --- | --- | --- |
-| Install/bootstrap | `<path>` | `<existing command>` | `<expected result>` |
-| Focused test | `<path>` | `<existing command>` | `<expected result>` |
-| Full validation | `<path>` | `<existing command>` | `<expected result>` |
+Run from {directory}:
 
-## Change boundaries
+```sh
+{exact install command copied from the manifest or CI}
+{exact test command}
+{exact lint/format check command}
+```
 
-- Preserve unrelated staged, unstaged, untracked, generated, and configuration
-  state.
-- Do not commit, publish, deploy, reset, or broaden compatibility unless the
-  current request authorizes it.
-- Follow repository ownership, security, and release controls.
+{Which of these must pass before a change is reported as done.}
 
-## Required verification
+## Conventions
 
-Map each change category to the narrowest sufficient repository command. State
-which host, service, device, or external environment is required for claims that
-cannot be established locally.
+- {Rule that differs from the ecosystem default, with the file or config
+  that shows it.}
 
-## Delivery
+## Boundaries
 
-Report files changed, commands actually run, observed results, skipped or
-unavailable checks, and remaining evidence boundaries. Do not claim completion
-from a narrower check than the requested result.
+- {Thing not to do, and the alternative: "Do not edit X; regenerate it
+  with `cmd`."}

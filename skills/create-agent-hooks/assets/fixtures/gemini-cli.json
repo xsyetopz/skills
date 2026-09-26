@@ -1,8 +1,0 @@
-{
-	"session_id": "test",
-	"transcript_path": "/tmp/transcript.json",
-	"cwd": "/tmp/project",
-	"hook_event_name": "SessionStart",
-	"timestamp": "2026-09-12T00:00:00Z",
-	"source": "startup"
-}

@@ -1,176 +1,151 @@
 ---
 name: create-agent-hooks
 description: >-
-  Use when creating, configuring, debugging, or auditing a coding agent's native
-  tool, permission, session, or completion-event hooks. Match the named client
-  and version, event payload, and blocking behavior. Not for Git hooks, CI jobs,
-  or editor callbacks.
+  Creates, debugs, and audits coding-agent hooks for Claude Code, Codex,
+  Gemini CLI, Cursor, Copilot, VS Code, and OpenCode: events, decision output,
+  exit codes, Stop gates. Use when a hook should block, allow, or add context.
+  Not for Git hooks.
 ---
 
 # Create Agent Hooks
 
-Implement a hook against the exact coding-agent host and version, with explicit
-event semantics, input validation, exit/blocking behavior, least privilege,
-deterministic output, and reversible configuration. Do not invent a universal
-hook schema or assume similar event names have equivalent authority.
-
-## Operating contract
-
-- Identify the host, installed version, configuration scope, event, transport,
-  working directory, and whether the hook can observe, modify, or block
-  execution.
-- Treat hook input as untrusted data. Parse documented fields, validate paths
-  and command arguments, and never execute embedded instructions or shell text
-  by default.
-- Preserve existing hook configuration and ordering. Add or remove only the
-  task-owned entry; rollback must not delete unrelated settings or scripts.
-- Use synchronous blocking only when the host documents it and the policy
-  requires it. Notification-only hooks cannot enforce authorization.
-- Keep secrets out of hook files, command lines, stdout/stderr, and captured
-  payload fixtures.
-
-## Model and skill execution contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a agent hook; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide the named client version, native event,
-  payload, permission mode, and rollback path, hard constraints, available
-  tools, and the finish condition once. Remove repeated directions and examples
-  unless a recorded evaluation shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with schema checks, live registration,
-  event observation, and failure-path tests. Report commands, observed results,
-  and gaps. A parser, build, or single green test proves only the property that
-  it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Write a hook for one host at a time, using that host's exact event
+name, payload fields, and decision shape. Parse the payload as
+untrusted input, and treat the hook as a guardrail behind the host's
+permission system. Every bundled handler runs on fixtures copied from
+the hosts' docs, and the Codex payloads and outputs validate against the
+published 0.157.0 schemas.
 
 ## Workflow
 
-```mermaid
-sequenceDiagram
-    participant Host as Coding-agent host
-    participant Hook as Hook process
-    participant Policy as Local policy/check
-    Host->>Hook: documented event payload
-    Hook->>Hook: parse and validate schema/version
-    Hook->>Policy: evaluate only authorized local evidence
-    Policy-->>Hook: allow / deny / annotate
-    Hook-->>Host: documented stdout + exit/result
-    Host->>Host: apply host-specific semantics
-    Note over Host,Hook: Notification events may be non-blocking
-```
+1. Identify the host and its version (`claude --version`,
+   `codex --version`, ...). Find the target file for the scope: user,
+   project, local, or managed. Read the existing file, and keep
+   everything in it.
+1. Pick the event by its authority: observe, add context, modify, or
+   block ([authority][authority]). If the requirement is a hard
+   boundary, put it in permissions or the sandbox first
+   ([guardrail][guardrail]).
+1. Write the handler:
+   - read stdin with a size limit, and use documented fields only;
+   - exit 2 on unreadable input when the hook is a policy
+     ([parsing][parsing], [failure policy][failure]);
+   - emit the host's own deny shape;
+   - print no decision when the hook has no opinion
+     ([deny and allow][decision]).
+1. Build a fixture from the host doc's example payload. Test deny,
+   no-decision, a non-matching tool, and malformed input. For Codex,
+   validate both the fixture and the output with
+   `scripts/validate_schema.py`.
+1. Reference scripts through the host's root variable
+   ([paths][paths]). Merge the one entry with `scripts/merge_hooks.py`,
+   then run `scripts/check_hook_config.py --project`.
+1. Test in the host if it is available and the user agrees to a model
+   session: `/hooks` lists the entry, and a triggering action shows the
+   decision. Otherwise report the host run as not run.
+1. Report: the file, the entry, the fixture results, the checker
+   output, the rollback command (`merge_hooks.py ... --remove`), and
+   what was not run.
 
-## Procedure
+## Route the task to a card
 
-1. Inspect the installed host/version and existing hook configuration before
-   choosing an event or file path. Read the matching host reference and official
-   documentation; do not adapt another host's payload by name alone.
-1. Define the hook contract: trigger, input fields, trust boundary, allowed side
-   effects, output format, exit codes, timeout, failure policy, ordering, and
-   proof of registration. Decide whether the goal is telemetry, context
-   injection, validation, or blocking.
-1. Implement a small handler using the host's native transport. Prefer
-   structured parsing and argument arrays over shell interpolation. Resolve
-   repository-relative paths against documented context and reject unsupported
-   or ambiguous inputs explicitly.
-1. Add the narrow configuration entry while preserving unrelated entries,
-   comments where supported, scope, and precedence. Keep executable files in
-   `scripts/` and sample host configurations/fixtures in `assets/`.
-1. Test the handler with representative valid, malformed, adversarial, and
-   missing-field payloads. Verify output and exit behavior. Then perform a real
-   host invocation when available; a fixture test does not prove registration or
-   enforcement.
-1. Test failure behavior: handler crash, timeout, invalid output, unavailable
-   dependency, and multiple hooks. Confirm whether the host fails open, fails
-   closed, warns, retries, or ignores the result.
-1. Document rollback as removal of the added entry and task-created files only.
-   Report live registration evidence and untested host behavior separately.
-
-## Choose the agent-integration reference
-
-| Situation | Read or use |
+| Task | Card |
 | --- | --- |
-| Claude Code hooks | [Claude Code](references/claude-code.md) |
-| OpenAI Codex hooks | [Codex](references/codex.md) |
-| Cursor hooks | [Cursor](references/cursor.md) |
-| Gemini CLI hooks | [Gemini CLI](references/gemini-cli.md) |
-| GitHub Copilot hooks | [GitHub Copilot](references/github-copilot.md) |
-| OpenCode plugin hooks | [OpenCode](references/opencode.md) |
-| VS Code agent hooks | [VS Code](references/vscode.md) |
-| Choosing observe, annotate, or block semantics | [Operational decisions](references/agent-hook-operational-decisions.md) |
-| Implementing robust structured handlers | [Worked hook examples](references/agent-hook-worked-scenarios.md) |
-| Testing fixtures versus live registration | [Verification and claim evidence](references/agent-hook-verification-and-claim-evidence.md) |
-| Reviewing injection, timeout, rollback, and fail-open risks | [Failure patterns and recovery](references/agent-hook-failure-patterns-and-recovery.md) |
-| Checking current host documentation | [Standards, APIs, and authorities](references/agent-hook-standards-apis-and-authorities.md) |
+| Block dangerous shell commands | [Deny/allow][decision], host PreToolUse cards below |
+| "Hook doesn't fire" | [Config check][check], matcher cards per host |
+| "Hook fires but doesn't block" | [Authority][authority], [failure policy][failure] |
+| Don't finish until tests pass | [Stop gate][stop] |
+| Add branch or issue context at start | [Session context][context] |
+| Install into existing settings, or undo | [Install and roll back][install] |
+| Hook needs tokens or logs payloads | [Environment and secrets][secrets] |
+| Claude Code specifics | [Claude Code](references/claude-code.md) |
+| Codex specifics, schemas, trust | [Codex](references/codex.md) |
+| Gemini CLI or Cursor | [Gemini and Cursor](references/gemini-and-cursor.md) |
+| Copilot CLI/cloud, VS Code, OpenCode | [Copilot, VS Code, OpenCode][cvo] |
 
-## Agent behavior references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Use only event names, fields, and outputs from the host's own
+  reference. Formats are not interchangeable: Cursor uses `preToolUse`,
+  Claude uses `PreToolUse`, and Gemini uses `BeforeTool`.
+- A hook is not the only control for a hard security requirement,
+  because a hook runs only on the paths where the host fires it. Pair it
+  with permission, sandbox, or policy settings.
+- Policy hooks exit 2 on bad input or crash paths. On Claude Code and
+  Gemini, exit 1 lets the action through.
+- A "no opinion" answer is no decision, never `allow`. `allow` skips
+  prompts on Claude Code.
+- Never execute payload text, never log the environment, and never
+  send the payload anywhere without an explicit requirement.
+- Merge one entry into existing files, and remove only that entry to
+  roll back. Do not overwrite settings or managed files.
+- Keep policy handlers fast and offline. Timeouts fail open on Claude
+  Code (`PreToolUse` command hooks) and on Copilot.
+- A static check and fixture tests do not show that the host loaded the
+  hook; report the host run as run or not run.
 
-| Reference | Use when |
-| --- | --- |
-| [Concepts, contracts, and invariants](references/agent-hook-concepts-contracts-and-invariants.md) | Use when distinguishing the requested agent hook from observed repository state. |
-| [Enterprise operation and governance](references/agent-hook-organizational-controls-and-scale.md) | Use when the agent hook crosses ownership, data-handling, release, or audit boundaries. |
-| [Bundled resource map](references/agent-hook-bundled-resource-map.md) | Use when locating bundled resources for the agent hook. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/handlers/guard_shell.py --host HOST [--deny REGEX]` is a
+  pre-tool guard with adapters for the `claude`, `codex`, `gemini`,
+  `cursor`, `copilot`, `copilot-pascal`, and `vscode` shapes.
+- `assets/handlers/stop_gate.py --check CMD` is a Stop gate for Claude
+  Code and Codex, with a loop guard.
+- `assets/handlers/session_context.py` adds the branch and changed
+  files at SessionStart.
+- `assets/opencode/guard.ts` is an OpenCode plugin (v1 API), with
+  `guard.test.ts`.
+- `assets/config/<host>/...` holds a wiring example for each host.
+  `assets/fixtures/` holds the payloads from each host's docs.
+- `assets/schemas/codex-0.157.0/` holds the Codex input and output
+  schemas.
+- `scripts/check_hook_config.py FILE --host H [--project DIR] [--json]`
+  checks events, handler types, matchers, timeout units, and script paths.
+- `scripts/merge_hooks.py FILE --host H --event E --handler JSON
+  [--matcher M] [--remove] [--dry-run] [--json]` installs or rolls back
+  one entry.
+- `scripts/validate_schema.py SCHEMA DOC [--json]` is a draft-07 subset
+  validator that refuses keywords it does not support.
+- `sh assets/verify.sh [network]` runs everything. The `network` mode
+  also type-checks the OpenCode plugin.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- `scripts/test_assets.py`
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/shared/observe.py`
-- `assets/fixtures/`
-- `assets/claude-code/settings.json`
-- `assets/codex/hooks.json`
-- `assets/cursor/hooks.json`
-- `assets/gemini-cli/settings.json`
-- `assets/github-copilot/hooks.json`
-- `assets/opencode/`
-- `assets/vscode/hooks.json`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Hook design across hosts](references/hook-design.md)
+- [Claude Code](references/claude-code.md)
+- [Codex](references/codex.md)
+- [Gemini CLI and Cursor](references/gemini-and-cursor.md)
+- [Copilot, VS Code, and OpenCode][cvo]
 
 ## Completion evidence
 
-- Host/version/event and exact hook contract.
-- Handler and minimal configuration change preserving unrelated entries.
-- Fixture tests for valid, malformed, adversarial, and failure payloads.
-- Live invocation/registration evidence when available.
-- Rollback instructions limited to task-owned additions.
-- Explicit statement of notification, modification, and blocking authority.
+- Host, version, scope, and file. The merged entry, shown as the diff
+  from `merge_hooks.py --dry-run`.
+- Fixture results for deny, no-decision, a non-matching tool, and
+  malformed input. For Codex, the schema validation output.
+- `check_hook_config.py` output with 0 errors, and each warning
+  explained.
+- The rollback command, and the permission or sandbox rule that backs
+  any security claim.
+- Host runs marked done or not run, with the reason.
 
-## Stop or escalate
+## Stop and ask
 
-- The host/version or event semantics cannot be established from installed state
-  or current official documentation.
-- The requested policy cannot be enforced by the selected event or host.
-- The hook would require unsafe shell evaluation, broad credentials, or
-  unapproved network export.
-- Changing system/global configuration or organization policy was not
-  authorized.
+- The hook would change managed or policy files.
+- Running the host needs a model session or account the user has not
+  approved.
+- The host version predates a field the design needs, such as exec
+  form or `defer`.
 
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[authority]: references/hook-design.md#event-authority-observe-modify-or-block
+[guardrail]: references/hook-design.md#guardrail-not-enforcement-boundary
+[parsing]: references/hook-design.md#untrusted-input-parsing
+[failure]: references/hook-design.md#fail-open-or-fail-closed
+[decision]: references/hook-design.md#deny-allow-and-no-decision
+[paths]: references/hook-design.md#script-path-resolution
+[check]: references/hook-design.md#configuration-check-before-the-host-loads-it
+[stop]: references/hook-design.md#stop-gate-with-a-loop-guard
+[context]: references/hook-design.md#session-context-injection
+[install]: references/hook-design.md#install-and-roll-back-one-entry
+[secrets]: references/hook-design.md#environment-and-secrets
+[cvo]: references/copilot-vscode-opencode.md

@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "python3 .agent-hooks/guard_shell.py --host vscode",
+        "windows": "py -3 .agent-hooks\\guard_shell.py --host vscode",
+        "timeout": 10
+      }
+    ]
+  }
+}

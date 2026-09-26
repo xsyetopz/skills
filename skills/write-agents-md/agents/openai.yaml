@@ -1,4 +1,4 @@
 interface:
   display_name: "Write AGENTS.md"
-  short_description: "Write scoped repository instructions for coding agents"
-  default_prompt: "Use $write-agents-md to write or audit repository-scoped coding-agent instructions from verified commands, file scopes, and client discovery rules."
+  short_description: "Write verified repository instructions for agents"
+  default_prompt: "Use $write-agents-md to write or audit this repository's AGENTS.md with commands that run, evidence-backed rules, correct placement for Codex and Claude Code, and the bundled checker."

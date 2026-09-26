@@ -1,0 +1,11 @@
+{
+	"session_id": "s-1",
+	"transcript_path": null,
+	"cwd": ".",
+	"hook_event_name": "Stop",
+	"model": "gpt-6-astra",
+	"permission_mode": "default",
+	"turn_id": "t-2",
+	"stop_hook_active": false,
+	"last_assistant_message": "Done."
+}

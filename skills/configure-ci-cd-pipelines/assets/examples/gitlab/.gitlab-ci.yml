@@ -1,0 +1,56 @@
+# One pipeline per change: MR pipelines for merge requests, branch
+# pipelines otherwise, never both for the same push.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: >-
+        $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS &&
+        $CI_PIPELINE_SOURCE == "push"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+stages: [build, test, deploy]
+
+default:
+  image: python:3.14-slim
+  interruptible: true
+  timeout: 20 minutes
+
+build:
+  stage: build
+  script:
+    - python -m pip wheel --no-deps -w dist .
+  artifacts:
+    paths: [dist/]
+    expire_in: 1 week
+
+test:
+  stage: test
+  needs:
+    - job: build
+      artifacts: true
+  script:
+    - python -m pip install dist/*.whl
+    - python -m unittest discover -s tests
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+
+deploy:
+  stage: deploy
+  needs: [build, test]
+  id_tokens:
+    CLOUD_ID_TOKEN:
+      aud: https://cloud.example.test
+  environment:
+    name: production
+  resource_group: production
+  interruptible: false
+  script:
+    - ./ci/deploy.sh dist/*.whl
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: false

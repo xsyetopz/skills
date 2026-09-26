@@ -1,0 +1,11 @@
+# Deliberately invalid for the schema: max-time must be an integer.
+# The `scripts` typo (instead of `script`) is NOT caught by the schema;
+# verify.sh shows that it passes, so a typo check needs another tool.
+options:
+  max-time: thirty
+pipelines:
+  default:
+    - step:
+        name: Build
+        scripts:
+          - ./ci/build.sh

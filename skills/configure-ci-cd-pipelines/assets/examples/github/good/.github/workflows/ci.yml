@@ -1,0 +1,76 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.14"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test
+        shell: bash
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+        run: ./ci/test.sh "$PYTHON_VERSION" | tee "test-$PYTHON_VERSION.log"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ always() }}
+        with:
+          name: test-log-${{ matrix.python }}
+          path: test-${{ matrix.python }}.log
+          if-no-files-found: error
+  pr-title:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          case "$TITLE" in
+            feat:*|fix:*|docs:*|chore:*) echo "ok: $TITLE" ;;
+            *) echo "title must start with feat:, fix:, docs:, or chore:"; exit 1 ;;
+          esac
+  all-green:
+    if: ${{ always() }}
+    needs: [test, pr-title]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require success or an intended skip
+        env:
+          TEST: ${{ needs.test.result }}
+          TITLE: ${{ needs.pr-title.result }}
+          EVENT: ${{ github.event_name }}
+        run: ./ci/all-green.sh "$EVENT" "$TEST" "$TITLE"
+  deploy:
+    needs: [all-green]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: ./ci/deploy.sh

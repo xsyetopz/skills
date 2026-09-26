@@ -1,4 +1,4 @@
 interface:
   display_name: "Manage Git Hosting"
-  short_description: "Manage GitHub, GitLab, and Bitbucket resources"
-  default_prompt: "Use $manage-git-hosting to perform the requested issue, pull request, release, repository-setting, or access-control operation on the exact hosted resource."
+  short_description: "Safe GitHub/GitLab/Bitbucket operations"
+  default_prompt: "Use $manage-git-hosting to perform the requested hosted operation on the exact repository and resource, reading before writing, guarding merges with the reviewed head SHA, and reading back the result."

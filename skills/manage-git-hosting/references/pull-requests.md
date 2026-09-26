@@ -1,94 +1,190 @@
-# Review and update hosted pull or merge requests
+# Pull and merge requests
 
-## GitHub
+Creating, reviewing, and merging GitHub pull requests and GitLab merge
+requests. The facts come from the [GitHub pulls][pulls],
+[reviews][reviews], and [GitLab merge requests][gl-mr] APIs and from the
+`gh`/`glab` help text. The merge commands were not measured because they
+write to a hosted repository; the PR read ran against `cli/cli`.
 
-Create via `POST .../pulls` with:
+## Contents
 
-```json
-{
-  "title": "Handle empty input",
-  "head": "fix-empty",
-  "base": "main",
-  "body": "Preserves the documented empty-input result.",
-  "draft": true
-}
+- Create a pull request
+- Review bound to a commit
+- Merge only the reviewed head
+- Mergeability and required checks
+- Auto-merge
+- GitLab approvals
+
+## Create a pull request
+
+**Definition.** A pull request asks to merge a head branch that already
+exists on the host into a base branch. Creating it does not push commits.
+`--draft` marks it not ready for review.
+
+**Use when.** The branch is pushed and the user asked for a PR.
+
+**Do not use when.** The branch is not pushed yet. Push it first with
+`git push -u origin HEAD`, a separate step that needs its own approval.
+
+**Example.**
+
+```sh
+gh pr create -R owner/repo --base main --head fix-empty --draft \
+  --title "Handle empty input" --body-file /tmp/pr-body.md
 ```
 
-The head must exist remotely; creation does not push local commits. The 201
-result includes `number`, `html_url`, `head.sha` and `base.ref`. Updating
-title/body/base uses `PATCH .../pulls/NUMBER`; labels use the issues endpoint.
-Read both the diff and current head before review or merge. [PR
-API](https://docs.github.com/en/rest/pulls/pulls).
+Use `--body-file` for multi-line text; shell quoting is not a
+serialization format. The GitLab equivalent is
+`POST /projects/:id/merge_requests` with `source_branch`,
+`target_branch`, and `title`. Prefix the title with `Draft:` for a
+draft.
 
-To merge, `PUT .../pulls/NUMBER/merge` can include
-`{"sha":"EXPECTED_HEAD","merge_method":"squash"}`. The expected SHA protects
-against merging a new head unseen by the reviewer. Inspect `merged`, `sha` and
-`message`, then independently read the PR. Mergeability can initially be unknown
-while GitHub calculates it; wait/re-read rather than interpreting null as true.
-Branch rules, checks, approvals and enabled merge methods remain constraints; do
-not disable them to complete a merge.
+**Cost removed.** PRs with empty or mis-quoted bodies or the wrong base.
 
-To submit a review, `POST .../pulls/NUMBER/reviews` accepts `commit_id`, `body`
-and `event` (`COMMENT`, `APPROVE` or `REQUEST_CHANGES`). Omit `event` to create
-a pending review, then submit it through `POST
-.../pulls/NUMBER/reviews/REVIEW_ID/events`. Omit API submission when producing
-only a local review draft. Bind the review to the examined commit and verify
-returned state/URL. Inline comments additionally require the actual diff path
-and supported line/side or position fields; re-read the diff after a head change
-instead of guessing an old location. Fine-grained tokens need Pull Requests
-write permission for submitting reviews; the merge endpoint instead requires
-Contents write. Verify each endpoint's permission block rather than inferring it
-from the resource name. [Reviews][ref-reviews].
+**Verify.**
 
-Read effective branch rules and required checks before review or merge. Changing
-those repository settings belongs to [the settings workflow](settings.md).
+1. `gh pr view <n> -R owner/repo --json baseRefName,headRefName,isDraft,url`
+   matches the request.
 
-## GitLab
+## Review bound to a commit
 
-Create `POST /projects/123/merge_requests` with:
+**Definition.** A review applies to the examined commit, given as
+`commit_id` in `POST /pulls/{n}/reviews`. `event` is `COMMENT`,
+`APPROVE`, or `REQUEST_CHANGES`; omitting it leaves a pending review.
+Inline comments need a path and line that exist in the current diff.
 
-```json
-{
-  "source_branch": "fix-empty",
-  "target_branch": "main",
-  "title": "Draft: Handle empty input",
-  "description": "Preserves empty-input behavior."
-}
+**Use when.** Submitting a review the user asked for.
+
+**Do not use when.** The user asked only for a review draft; keep it local
+and unsubmitted.
+
+**Example.**
+
+```sh
+head=$(gh pr view 42 -R owner/repo --json headRefOid --jq .headRefOid)
+gh api repos/owner/repo/pulls/42/reviews --method POST \
+  -f commit_id="$head" -f event=COMMENT -f body="$(cat /tmp/review.md)"
 ```
 
-A 201 response includes `iid`, `web_url`, `sha` and merge status fields. Draft
-status can be expressed by the documented title prefix. For forks, resolve
-source and target project IDs explicitly. Update using `PUT
-/projects/123/merge_requests/7`; notes use `/merge_requests/7/notes`.
-`detailed_merge_status` is more informative than assuming the older broad merge
-status alone proves readiness. [MR
-API](https://docs.gitlab.com/api/merge_requests/).
+**Cost removed.** Approvals that silently cover commits pushed after
+the review.
 
-Read current diffs with `GET /projects/123/merge_requests/7/diffs`, following
-pagination and inspecting truncation/size limits. Do not use the deprecated
-`/changes` endpoint for new workflows. Missing or collapsed diff content is not
-proof that the corresponding changes are harmless.
+**Verify.**
 
-Merge with `PUT /projects/123/merge_requests/7/merge`, with `sha` equal to the
-reviewed source head and optional supported merge choices such as `squash`. A
-SHA mismatch returns 409; re-read instead of silently merging the changed
-branch. Auto-merge fields vary by server version; do not send deprecated
-`merge_when_pipeline_succeeds` merely because an old example did. After merge,
-read `state`, merge commit and source-removal result. Select source-branch
-deletion explicitly and satisfy required approvals.
+1. `gh api repos/owner/repo/pulls/42/reviews --jq '.[-1].commit_id'`
+   equals the SHA you read.
 
-Submit an approval with `POST /projects/123/merge_requests/7/approve` with the
-reviewed `sha`. The caller must be an eligible approver; SHA mismatch returns
-409. Read `/projects/123/merge_requests/7/approval_state` for rule satisfaction;
-     `/approvals` alone does not establish which required rules are satisfied.
-     Do not assume one approval satisfies every rule. Required reauthentication
-     is a separate account policy and must not be bypassed or logged. Wait for
-     the MR's diff/approval processing when a new push is still being processed,
-     so an approval is not immediately reset. [Approval API][ref-approval-api].
+## Merge only the reviewed head
 
-Read effective protected-branch and approval rules before review or merge.
-Changing those project settings belongs to `the settings workflow in this
-skill`.
+**Definition.** Guard the merge so it succeeds only while the PR head is
+still the reviewed commit:
 
-[ref-reviews]: https://docs.github.com/en/rest/pulls/reviews
-[ref-approval-api]: https://docs.gitlab.com/api/merge_request_approvals/
+- GitHub: `gh pr merge --match-head-commit SHA`, or `sha` in
+  `PUT /pulls/{n}/merge`;
+- GitLab: `glab mr merge --sha SHA`, or `sha` in
+  `PUT /merge_requests/:iid/merge`. A mismatch returns 409.
+
+**Use when.** Any merge the user authorized.
+
+**Do not use when.** Branch protection or required checks block the merge.
+Do not disable them to finish the task.
+
+**Example.** Read, then merge with the guard:
+
+```sh
+gh pr view 42 -R owner/repo --json headRefOid,reviewDecision,mergeStateStatus
+head=362a5eb03dcc16af5e313ab8ae5a0cfdc4569e46   # the reviewed commit
+gh pr merge 42 -R owner/repo --squash --match-head-commit "$head"
+```
+
+The read half ran on `cli/cli#14517`:
+`MERGED head=362a5eb03dcc`.
+
+**Cost removed.** Merged code that nobody reviewed, pushed in the seconds
+between the review and the merge.
+
+**Verify.**
+
+1. After the merge, `gh pr view 42 --json state,mergeCommit` shows
+   `MERGED`, and the merge commit contains the reviewed head.
+
+## Mergeability and required checks
+
+**Definition.** GitHub computes mergeability asynchronously: `null` or
+`UNKNOWN` means "not computed yet", never "yes". `gh pr checks --required`
+lists only the required checks; `mergeStateStatus` summarizes branch
+protection.
+
+**Use when.** Before merging, or when asked "is this ready?".
+
+**Do not use when.** You would treat a single `UNKNOWN` read as final.
+Read again after a short wait.
+
+**Example.**
+
+```sh
+gh pr checks 42 -R owner/repo --required
+gh pr view 42 -R owner/repo --json mergeable,mergeStateStatus,reviewDecision
+```
+
+**Cost removed.** Premature merge attempts, and "ready" reports that
+missed a failing required check.
+
+**Verify.**
+
+1. The report quotes the required checks with their conclusions, and the
+   `reviewDecision`.
+
+## Auto-merge
+
+**Definition.** `gh pr merge --auto` merges once the requirements are
+met; the repository must allow auto-merge. GitLab's auto-merge fields
+depend on the server version, and the old `merge_when_pipeline_succeeds`
+flag is deprecated.
+
+**Use when.** The user wants the merge to happen after checks that are
+still running.
+
+**Do not use when.** You cannot bind it to the reviewed head. Combine
+`--auto` with `--match-head-commit` where the host supports it.
+
+**Example.**
+
+```sh
+gh pr merge 42 -R owner/repo --auto --squash --match-head-commit "$head"
+```
+
+**Cost removed.** Hand-written polling loops that wait for checks.
+
+**Verify.**
+
+1. `gh pr view 42 --json autoMergeRequest` shows the request, with its
+   merge method.
+
+## GitLab approvals
+
+**Definition.** `POST /projects/:id/merge_requests/:iid/approve` takes
+the reviewed `sha`; a mismatch returns 409. `GET .../approval_state`
+shows which approval rules are satisfied; `/approvals` alone does not.
+
+**Use when.** Approving MRs on GitLab.
+
+**Do not use when.** You would assume one approval satisfies every rule;
+check `approval_state`.
+
+**Example.**
+
+```sh
+glab api --method POST "projects/123/merge_requests/7/approve" -f sha="$head"
+glab api "projects/123/merge_requests/7/approval_state"
+```
+
+**Cost removed.** MRs assumed approved while a required rule is unmet.
+
+**Verify.**
+
+1. `approval_state` shows each rule's `approved: true`.
+
+[pulls]: https://docs.github.com/en/rest/pulls/pulls
+[reviews]: https://docs.github.com/en/rest/pulls/reviews
+[gl-mr]: https://docs.gitlab.com/api/merge_requests/

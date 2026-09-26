@@ -1,0 +1,10 @@
+# Deliberately invalid: `when: sometimes` is not a GitLab value, and
+# `artifact` (singular) is not a key of a `needs` entry.
+build:
+  script: [./ci/build.sh]
+  when: sometimes
+test:
+  needs:
+    - job: build
+      artifact: true
+  script: [./ci/test.sh]

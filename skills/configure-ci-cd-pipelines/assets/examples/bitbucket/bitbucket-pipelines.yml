@@ -1,0 +1,30 @@
+image: python:3.14-slim
+
+options:
+  max-time: 20
+
+definitions:
+  steps:
+    - step: &build-and-test
+        name: Build and test
+        script:
+          - python -m pip wheel --no-deps -w dist .
+          - python -m pip install dist/*.whl
+          - python -m unittest discover -s tests
+        artifacts:
+          - dist/**
+
+pipelines:
+  pull-requests:
+    "**":
+      - step: *build-and-test
+  branches:
+    main:
+      - step: *build-and-test
+      - step:
+          name: Deploy tested wheel
+          deployment: production
+          trigger: manual
+          oidc: true
+          script:
+            - ./ci/deploy.sh dist/*.whl

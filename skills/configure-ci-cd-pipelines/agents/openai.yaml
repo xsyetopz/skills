@@ -1,4 +1,4 @@
 interface:
   display_name: "Configure CI/CD Pipelines"
-  short_description: "Build secure, provider-native CI/CD pipelines"
-  default_prompt: "Use $configure-ci-cd-pipelines to implement or repair the requested build, test, packaging, release, or deployment pipeline using the provider's native controls."
+  short_description: "Least-privilege, linted CI/CD pipelines"
+  default_prompt: "Use $configure-ci-cd-pipelines to change this pipeline so it tests the right commit with least privilege, pins actions, fails required checks correctly, and passes actionlint/zizmor or schema validation."

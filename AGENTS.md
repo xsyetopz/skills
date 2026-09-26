@@ -9,7 +9,8 @@ changes. Preserve unrelated work and keep one clear implementation path.
   existing mechanism with the same responsibility.
 - Treat existing commands, lockfiles, and configuration as authoritative unless
   the task changes that policy.
-- Preserve `.markdownlint-cli2.jsonc`; use it for all repository Markdown.
+- Preserve `.markdownlint-cli2.jsonc` and the shared rules it extends,
+  `.markdownlint.jsonc`; use them for all repository Markdown.
 - Use Bun for JavaScript tooling. Never introduce npm, npx, Yarn, or pnpm.
 - Use `just` for new task orchestration.
 

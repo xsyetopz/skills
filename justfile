@@ -14,7 +14,10 @@ hooks:
 provision:
     mkdir -p "{{ cache }}" "{{ bun_cache }}"
     test -x "{{ venv }}/bin/python" || python3 -m venv "{{ venv }}"
-    "{{ venv }}/bin/python" -m pip install --disable-pip-version-check -r requirements-validation.txt
+    # Git hooks export GIT_INDEX_FILE; pip's git clone of skills-ref would
+    # otherwise write its tree into the index being committed.
+    env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX \
+        "{{ venv }}/bin/python" -m pip install --disable-pip-version-check -r requirements-validation.txt
 
 skills: provision
     for skill in skills/*; do "{{ venv }}/bin/skills-ref" validate "$skill"; done

@@ -1,14 +1,40 @@
-# Performance result
+# Performance change: <one-line summary>
 
-Objective and workload: actual metric, input distribution and required behavior.
-Identity: baseline/candidate revisions, toolchain, runtime, flags, CPU/OS,
-concurrency. Attributed cost: profile evidence, inclusive/self costs, relevant
-allocation/retention. Change: mechanism and why it should affect that cost;
-complexity/ownership tradeoff. Correctness: independent expected-result check,
-boundary and error cases, cancellation/lifetime checks. Measurement: exact
-commands, warmup/process/sample policy, raw native result locations. Result:
-matched identities, units, effect and variability; regressions and inconclusive
-cases. Separate startup from steady state and instrumentation from
-uninstrumented runs. Decision: keep/reject/inconclusive under the actual
-objective. No unsupported global claim such as “zero allocation” or “lock-free”;
-state the tested scope.
+## Target
+
+- Metric and goal: <for example, p99 latency of /search under 200 rps>
+- Workload: <input, size distribution, concurrency>
+- Environment: <OS, CPU, runtime version, SDK, JIT/AOT, GC mode>
+- Evaluated build properties: <dotnet msbuild -getProperty output>
+
+## Attribution
+
+- Tool and command: <dotnet-counters / dotnet-trace / BenchmarkDotNet>
+- Finding: <frame or counter and its share before the change>
+
+## Change
+
+- Construct: <card name from the skill>
+- Preconditions checked: <each "Use when" item and how it was confirmed>
+- Counter-indications ruled out: <each "Do not use when" item>
+- PERF/SAFETY comments added: <file:line list or none>
+
+## Correctness
+
+- Oracle: <test command>
+- Cases: <empty, boundary, overflow, error, concurrency>
+- Result: <pass/fail output>
+
+## Measurement
+
+| Benchmark | Baseline mean ± error | Candidate mean ± error | Allocated |
+| --- | --- | --- | --- |
+| <name> | <value> | <value> | <before -> after> |
+
+- Job and command: <for example --job default --filter '*Search*'>
+- Application-level result: <load-test numbers before/after>
+
+## Decision and limits
+
+- Keep, revert, or inconclusive: <decision and why>
+- Not verified: <platforms, runtimes, diagnosers not run>

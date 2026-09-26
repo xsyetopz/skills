@@ -1,14 +1,42 @@
-# Performance result
+# Go performance result
 
-Objective and workload: actual metric, input distribution and required behavior.
-Identity: baseline/candidate revisions, toolchain, runtime, flags, CPU/OS,
-concurrency. Attributed cost: profile evidence, inclusive/self costs, relevant
-allocation/retention. Change: mechanism and why it should affect that cost;
-complexity/ownership tradeoff. Correctness: independent expected-result check,
-boundary and error cases, cancellation/lifetime checks. Measurement: exact
-commands, warmup/process/sample policy, raw native result locations. Result:
-matched identities, units, effect and variability; regressions and inconclusive
-cases. Separate startup from steady state and instrumentation from
-uninstrumented runs. Decision: keep/reject/inconclusive under the actual
-objective. No unsupported global claim such as “zero allocation” or “lock-free”;
-state the tested scope.
+## Target
+
+- Objective and metric: <ns/op | p99 latency | allocs/op | live heap | RSS>
+- Workload and input: <benchmark name, input size, representative source>
+- Toolchain: <go version>, <GOOS/GOARCH>, CPU <model>, `go` directive <x>
+- Runtime settings: GOGC <v>, GOMEMLIMIT <v>, GOMAXPROCS <v>, PGO <on/off>
+
+## Attribution
+
+- Profile command: <go test ... -cpuprofile/-memprofile ...>
+- Finding: <function, flat/cum %, alloc_space share, or trace observation>
+
+## Change
+
+- Construct card: <reference file and card name>
+- Use when conditions met: <evidence>
+- Do not use when conditions excluded: <evidence>
+- Compiler evidence (if the card names one): <-m / -m=2 / check_bce lines>
+
+## Correctness
+
+- Oracle: <test name and command>, result <pass/fail>
+- Edge cases: <empty, boundary, error, aliasing, ordering, nil vs empty>
+- Race: <go test -race command>, result <pass/fail>
+
+## Measurement
+
+- Command: <go test -run '^$' -bench X -benchmem -count 10 ...>
+- benchstat:
+
+```text
+<paste the benchstat table: sec/op, B/op, allocs/op with p and n>
+```
+
+- Application-level result: <load test, hyperfine, service metric>
+
+## Decision
+
+- Keep, revert, or inconclusive: <decision and reason>
+- Not verified: <other platforms, production profile, container limits>

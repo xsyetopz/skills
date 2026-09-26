@@ -1,4 +1,4 @@
 interface:
   display_name: "Optimize C++ Code"
-  short_description: "Profile and optimize C++ workloads safely"
-  default_prompt: "Use $optimize-cpp-code to profile this C++ workload, preserve lifetime and ABI contracts, implement a measured optimization, and report matched evidence."
+  short_description: "Optimize C++ hot paths with counted evidence"
+  default_prompt: "Use $optimize-cpp-code to profile this C++ workload, apply one construct card with an equivalence oracle, and report allocation, copy/move, assembly, or timing evidence from matched optimized builds."

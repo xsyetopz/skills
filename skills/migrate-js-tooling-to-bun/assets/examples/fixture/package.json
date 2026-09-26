@@ -1,0 +1,14 @@
+{
+	"name": "fixture-root",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"test": "bun test",
+		"start": "node packages/app/index.js"
+	},
+	"dependencies": {
+		"native-dep": "file:./native-dep"
+	}
+}

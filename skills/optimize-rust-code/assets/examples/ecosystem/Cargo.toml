@@ -1,0 +1,19 @@
+[package]
+name = "ecosystem"
+version = "0.0.0"
+edition = "2024"
+# criterion 0.8 declares rust-version 1.86.
+rust-version = "1.86"
+publish = false
+
+[dependencies]
+constructs = { path = "../constructs" }
+rayon = "1.12"
+rustc-hash = "2.1.3"
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "pairs"
+harness = false

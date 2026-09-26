@@ -1,195 +1,152 @@
 ---
 name: optimize-rust-code
 description: >-
-  Use when profiling or optimizing Rust execution time, latency, throughput,
-  allocations, or memory use. Preserve target features, ownership, lifetimes,
-  error behavior, and synchronization. Not for introducing unsafe code or
-  changing the supported target without justification.
+  Profiles and optimizes Rust CPU time, allocations, and I/O with Criterion,
+  samply, allocation counts, and assembly. Use when a Rust benchmark or
+  profile shows the cost. Not for unmeasured unsafe rewrites.
 ---
 
 # Optimize Rust Code
 
-Improve a measured Rust performance objective for the representative Rust
-crate/binary, target features, ownership, async, and unsafe boundaries while
-preserving all observable behavior, supported targets, resource ownership,
-errors, concurrency, and deployment contracts. Correctness and matched workload
-come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use target profiler such as perf/Instruments/ETW, cargo profiling/flamegraph
-  tools approved by project, Criterion or native benchmarks, compiler
-  reports/disassembly, Miri/sanitizers where supported, allocator/heap tools,
-  and project tests as appropriate to the actual target; do not install or
-  invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Rust optimization; it MUST
-  NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide Rust toolchain, target, Cargo profile,
-  features, allocator, workload, ownership, synchronization, and unsafe
-  boundary, hard constraints, available tools, and the finish condition once.
-  Remove repeated directions and examples unless a recorded evaluation shows
-  that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with Criterion or cargo benchmarks, perf
-  profiles, Miri/sanitizers where applicable, and semantic tests. Report
-  commands, observed results, and gaps. A parser, build, or single green test
-  proves only the property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured Rust hot path cheaper without changing observable behavior.
+Each change applies one reference card to a cost that a profile attributes,
+is proven equivalent by an oracle, and is kept only if the metric the card
+names improves: allocation calls, inner I/O calls, hash computations, an
+instruction pattern in the assembly, or a Criterion interval. The cards
+state when a construct is wrong and what it breaks, so read the card before
+applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `rustc -Vv`, `cargo -V`, the `[profile.*]` tables
+   in `Cargo.toml`, `.cargo/config.toml` (`rustflags`, `build-dir`),
+   `RUSTFLAGS`, features, and `rust-version`. Keep the toolchain and
+   profile unless the task is the build configuration itself.
+1. Reproduce the workload with `cargo build --release` (never a dev
+   build). Pick the metric the user cares about: time per operation,
+   end-to-end wall time, allocations, peak memory, or binary size.
+1. Attribute the cost before editing:
+   - CPU: build with the `profiling` profile and run `samply record`
+     ([measurement](references/measurement.md#samply)); `perf` does not
+     exist on macOS.
+   - Allocations: the counting global allocator
+     ([measurement](references/measurement.md#counting-global-allocator)).
+   - One function: a Criterion benchmark with `black_box` inputs.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty, one element, boundary lengths, non-ASCII text, and
+   error or panic paths. The bundled `constructs verify` shows the shape.
+1. Apply the change. Put a `// PERF/SAFETY:` comment on every `unsafe`
+   block, `get_unchecked`, and `#[target_feature]` call stating the proof.
+1. Verify with the card's **Verify** steps: behavior first, then the
+   named metric. Assembly claims use `cargo rustc --release --lib --
+   --emit asm -C codegen-units=1` on a `#[unsafe(no_mangle)]` symbol.
+1. Measure baseline and candidate with the same toolchain, profile, flags,
+   input, and machine (Criterion `--save-baseline`/`--baseline`, or
+   hyperfine for whole processes). Keep the change only if the interval
+   separates and the application workload also improves.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Rust guide. Attribute
-   the dominant cost to algorithm, data movement/layout, allocation/GC/ARC,
-   dispatch/JIT, contention/scheduling, I/O/syscalls, serialization, or
-   native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with Criterion or existing benchmark target with release profile,
-   target features, allocator, inputs, black-box/observable result, repeated
-   statistics and independent semantic tests. Reject missing rows, invalid
-   values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Rust-specific profiling, runtime, and semantic constraints | [Rust language guide](references/rust.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/rust-native-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/rust-native-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/rust-native-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/rust-native-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/rust-native-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/rust-native-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/rust-native-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/rust-native-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/rust-native-performance-performance-language-and-runtime-authorities.md) |
+| `Vec` growth reallocations (`realloc` in counts) | [with_capacity](references/allocation.md#vecwith_capacity), [reserve](references/allocation.md#reserve-before-extend_from_slice) |
+| New `Vec`/`String` per loop iteration | [clear reuse](references/allocation.md#reuse-a-buffer-with-clear), [read_line](references/collections-io.md#read_line-into-a-reused-string) |
+| `.clone()`/`to_string()` only to call a function | [borrowed params](references/allocation.md#borrowed-parameters-instead-of-owned-ones) |
+| `x = y.clone()` into a long-lived value | [clone_from](references/allocation.md#clone_from-into-an-existing-value) |
+| Function returns `String` but usually returns input unchanged | [Cow](references/allocation.md#cow-for-conditional-modification) |
+| `format!` in a loop, `s = s + ...` | [write!](references/allocation.md#write-into-a-string-instead-of-per-item-format), [push_str](references/allocation.md#push_str-into-a-presized-string) |
+| Small fixed-bound scratch `Vec` | [stack array](references/allocation.md#fixed-size-stack-array-instead-of-a-scratch-vec) |
+| Atomic refcount traffic (`Arc::clone` in hot calls) | [borrow](references/allocation.md#borrow-instead-of-cloning-an-arc), [Rc](references/allocation.md#rc-instead-of-arc-for-single-threaded-sharing) |
+| `panic_bounds_check` in a hot loop | [iterators](references/codegen.md#iterators-instead-of-indexing), [reslice](references/codegen.md#reslice-before-the-loop), [chunks_exact](references/codegen.md#chunks_exact), [get_unchecked](references/codegen.md#get_unchecked-behind-a-checked-invariant) |
+| Scalar float reduction in a hot loop | [accumulators](references/codegen.md#independent-accumulators-for-float-auto-vectorization), [std::simd](references/codegen.md#stdsimd-nightly-only) |
+| `Vec<Box<dyn Trait>>`, `blr`/indirect calls | [generics](references/codegen.md#generics-instead-of-box-dyn-trait), [enum dispatch](references/codegen.md#enum-dispatch-for-a-closed-set-of-types) |
+| Small cross-crate function not inlined | [#\[inline\]](references/codegen.md#inline-across-crates), [LTO](references/build-profiles.md#thin-lto) |
+| Stable `sort` on primitives | [sort_unstable](references/codegen.md#sort_unstable) |
+| Hand-written delimiter or byte search | [str search](references/codegen.md#memchr-backed-str-search), [slice contains](references/codegen.md#slice-contains-for-bytes) |
+| `contains_key` then `insert`/`get_mut` | [entry](references/collections-io.md#hashmap-entry-api) |
+| HashMap resizes; SipHash hot on trusted keys | [with_capacity](references/collections-io.md#hashmapwith_capacity), [FxHashMap](references/collections-io.md#fxhashmap-for-trusted-keys) |
+| Many small `write`/`read` calls on files or sockets | [BufWriter](references/collections-io.md#bufwriter-around-many-small-writes), [BufReader](references/collections-io.md#bufreader-around-many-small-reads) |
+| `println!` in a loop dominates | [lock](references/collections-io.md#lock-stdout-once), [buffered stdout](references/collections-io.md#buffered-stdout) |
+| Independent CPU-heavy items, idle cores | [rayon](references/collections-io.md#rayon-parallel-iterators) |
+| Release profile untouched, whole-program speed or size | [codegen-units](references/build-profiles.md#codegen-units--1), [fat LTO](references/build-profiles.md#fat-lto), [panic abort](references/build-profiles.md#panic--abort), [opt-level](references/build-profiles.md#opt-level), [PGO](references/build-profiles.md#profile-guided-optimization) |
+| Newer CPU instructions available | [target-cpu](references/build-profiles.md#target-cpunative), [target_feature](references/build-profiles.md#target_feature-with-runtime-detection) |
+| Profiler shows addresses, no names | [line tables](references/build-profiles.md#debug-line-tables-for-profiling) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Measure release builds only. Dev builds (`opt-level = 0`) also turn on
+  `overflow-checks`, so they differ in behavior as well as speed.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric does not move; the iterators card's own
+  run removed a bounds check without changing the time.
+- A candidate that does less work is invalid: skipped validation, a
+  truncating `zip` instead of a panicking index, a cached result, a
+  smaller input, or an error turned into a default value
+  (`unwrap_or_default()` on a parse).
+- Preserve semantics the rewrite can silently change: byte offsets vs
+  char counts in `str`, stable vs unstable sort order for ties, float
+  rounding order (and `-0.0` from an empty `Sum`), lazy iterator side
+  effects, one-shot iterators, hash-map iteration order, and whether an
+  `Rc`/`Arc` handle aliases a value that a deep clone used to snapshot.
+- `unsafe` for speed needs: the assembly proving the safe form still has
+  the check, a proof in a `// PERF/SAFETY:` comment, and the oracle.
+  Miri needs nightly; say so if it was not run.
+- Build-profile and `RUSTFLAGS` changes affect every crate and the
+  deployment target. State the consequence (`panic = "abort"` disables
+  `catch_unwind`; `target-cpu=native` binaries may not run elsewhere) and
+  measure the application, not a microbenchmark.
+- Allocation assertions compare baseline and candidate counts measured in
+  the same run; the optimizer may elide allocations, so never assert an
+  exact baseline count.
+- Only numbers you measured (state machine and toolchain) or numbers from
+  a linked primary source go in the report.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/rust-native-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Rust optimization action. |
-| [Runtime semantics and invariants](references/rust-native-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Rust optimization from observed repository state. |
-| [Performance fixture and tool map](references/rust-native-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Rust optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+`assets/examples/verify.sh` copies the catalog to a temporary directory and
+builds there (it also redirects `CARGO_BUILD_BUILD_DIR`):
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+- `verify` (default): equivalence, allocation, and call-count checks for
+  every pair, plus stdout output comparison.
+- `benchmark`: runs every pair once; smoke only, no timing.
+- `asm`: emits assembly and asserts bounds checks, calls, atomics, and
+  vector instructions per function (SIMD, `blr`, and atomics on aarch64).
+- `time [filter]`: std-only `Instant` harness plus hyperfine.
+- `profiles`: builds every `[profile.*]` card and prints binary sizes.
+- `ecosystem` and `measure`: rayon and rustc-hash oracles, and Criterion
+  benchmarks (`BENCH_FILTER`, `BENCH_OUT`); both fetch crates.io
+  dependencies pinned by `ecosystem/Cargo.lock`.
 
-## Bundled executable helpers
+`assets/examples/nightly/simd.rs` needs a nightly toolchain and is not
+built by the script.
 
-- No bundled script is mandatory. Use the target repository's established tools.
+## References
 
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): `black_box`, std harness,
+  Criterion, baselines, hyperfine, counting allocator and wrappers,
+  `--emit asm`, samply, flamegraph, Instruments.
+- [Build profiles](references/build-profiles.md): opt-level,
+  codegen-units, thin and fat LTO, panic abort, line tables, target-cpu,
+  target_feature, PGO.
+- [Allocation](references/allocation.md): capacity, buffer reuse,
+  borrowed parameters, clone_from, Cow, strings, stack arrays, Arc, Rc.
+- [Code generation](references/codegen.md): bounds checks,
+  vectorization, SIMD, dispatch, inlining, sorting, search.
+- [Collections and I/O](references/collections-io.md): entry API, map
+  capacity, FxHashMap, buffered I/O, stdout, rayon.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- `rustc -Vv`, profile settings, `RUSTFLAGS`, OS and CPU;
+- the profile or allocation count that attributed the cost;
+- the card applied and its preconditions checked;
+- the oracle command and result, including edge and panic cases;
+- baseline and candidate numbers from the same machine and build, with
+  units and interval or ± range, plus the application-level result;
+- every check not run (Miri, nightly, other architectures, Xcode-only
+  profilers) stated as not verified.

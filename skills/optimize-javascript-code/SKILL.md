@@ -1,194 +1,161 @@
 ---
 name: optimize-javascript-code
 description: >-
-  Use when profiling or optimizing JavaScript execution time, latency,
-  throughput, allocations, or memory use in the specified browser or server
-  runtime. Preserve coercion, ordering, asynchronous behavior, and errors. Not
-  for migrating runtimes or relying on TypeScript-only checks.
+  Profiles and optimizes JavaScript CPU time, allocations, and event-loop
+  latency on Node, Bun, and browsers with CPU profiles and deopt traces. Use
+  when a JavaScript benchmark or profile shows the cost. Not for runtime
+  migration or type-check speed.
 ---
 
 # Optimize JavaScript Code
 
-Improve a measured JavaScript performance objective for the representative
-browser or server JavaScript runtime, event loop, JIT, and GC while preserving
-all observable behavior, supported targets, resource ownership, errors,
-concurrency, and deployment contracts. Correctness and matched workload come
-before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use target runtime profiler: Chrome DevTools Performance/Memory, Node.js
-  `perf_hooks`, CPU/heap profiles, `--prof`/diagnostics, browser performance
-  APIs, and the project benchmark/test harness as appropriate to the actual
-  target; do not install or invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a JavaScript optimization; it
-  MUST NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide browser or server engine, version, flags, event
-  loop, workload, coercion, async completion, and error behavior, hard
-  constraints, available tools, and the finish condition once. Remove repeated
-  directions and examples unless a recorded evaluation shows that they prevent a
-  real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with engine profiles, heap/allocation
-  evidence, runtime tests, and matched benchmarks. Report commands, observed
-  results, and gaps. A parser, build, or single green test proves only the
-  property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured JavaScript hot path cheaper on the runtime the project
+ships (node, bun, or a browser) without changing observable behavior. Each
+change applies one reference card to a cost that a profile attributes, is
+checked by an equivalence oracle, and is kept only if the metric the card
+names improves. The cards record where the common advice measured in the
+wrong direction, so read the card before applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: runtime and version (`node --version`,
+   `bun --version`, or the browser build), module format, bundler and
+   transpile target, and production flags. Keep them fixed; changing the
+   runtime is a separate, authorized decision.
+1. Reproduce the workload with representative input and pick the metric
+   the user cares about: CPU time per operation, request latency (p50,
+   p99), throughput, allocation rate or GC pauses, retained memory,
+   event-loop delay, or frame time.
+1. Attribute the cost before editing
+   ([measurement](references/measurement.md)):
+   - CPU: `node --cpu-prof` or `bun --cpu-prof`, then read inclusive
+     samples per frame;
+   - garbage and GC pauses: `--trace-gc` counts, then a sampling
+     allocation profile that includes collected objects;
+   - retained memory: `--heap-prof` or two heap snapshots;
+   - suspected deopts: `node --trace-opt --trace-deopt`;
+   - event-loop stalls: `perf_hooks.monitorEventLoopDelay`;
+   - browsers: the DevTools Performance panel.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty, boundary, `NaN`/`-0`, holes, Unicode, error, and
+   rejection cases. Await every promise the code starts.
+1. Apply the change with a short comment naming the invariant it relies
+   on (shared `lastIndex`, detached buffers, bounded cache keys, shared
+   subtrees that must not be mutated).
+1. Verify with the card's **Verify** steps: behavior first, then the named
+   metric, on every runtime the project supports. Measure baseline and
+   candidate in separate processes when they share code.
+1. Re-run the application-level workload. Keep the change only if the
+   target metric moved beyond run-to-run noise and nothing else regressed;
+   revert it otherwise.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the JavaScript guide.
-   Attribute the dominant cost to algorithm, data movement/layout,
-   allocation/GC/ARC, dispatch/JIT, contention/scheduling, I/O/syscalls,
-   serialization, or native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with a target-runtime benchmark with warmup/process isolation as
-   needed, stable inputs, observable result, event-loop/GC controls recorded,
-   repeated samples and statistics; use Benchmark.js/tinybench/project harness
-   only when already appropriate. Reject missing rows, invalid values, ambiguous
-   units, unstable setup, incomparable identities, or benchmarks whose result is
-   optimized away or whose candidate performs less work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading JavaScript-specific profiling, runtime, and semantic constraints | [JavaScript language guide](references/javascript.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/javascript-runtime-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/javascript-runtime-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/javascript-runtime-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/javascript-runtime-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/javascript-runtime-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/javascript-runtime-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/javascript-runtime-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/javascript-runtime-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/javascript-runtime-performance-performance-language-and-runtime-authorities.md) |
+| Need ns/op for one function, no harness | [Timing harness](references/measurement.md#timing-harness-with-warmup-and-a-result-sink), [mitata](references/measurement.md#mitata) |
+| Results flip when order of runs is swapped | [One process per variant](references/measurement.md#one-process-per-variant) |
+| Unknown hot function | [--cpu-prof](references/measurement.md#cpu-profile-with---cpu-prof) |
+| Many scavenges, GC time in profile | [--trace-gc](references/measurement.md#gc-trace-with---trace-gc), [Allocation profile](references/measurement.md#sampling-allocation-profile-including-collected-objects) |
+| Memory grows over time | [--heap-prof](references/measurement.md#live-heap-profile-with---heap-prof), [Heap snapshots](references/measurement.md#heap-snapshots) |
+| Hot function keeps deoptimizing | [Deopt trace](references/measurement.md#optimization-and-deoptimization-trace) |
+| Need proof of shapes, holes, ropes, tiers | [V8 natives](references/measurement.md#v8-natives-with---allow-natives-syntax-test-only), [bun:jsc](references/measurement.md#javascriptcore-probes-with-bunjsc) |
+| Allocation claim needs a CI check | [Allocation oracle](references/measurement.md#allocation-oracle-with---expose-gc-and-heapused) |
+| Same type built with different field orders | [Constructor init](references/shapes-and-collections.md#initialize-every-field-in-the-constructor) |
+| `delete obj.field` on hot objects | [Assign undefined](references/shapes-and-collections.md#assign-undefined-instead-of-delete) |
+| Hot reader sees objects of many shapes | [Monomorphic sites](references/shapes-and-collections.md#monomorphic-call-sites) |
+| `new Array(n)` or out-of-order writes | [Packed arrays](references/shapes-and-collections.md#packed-arrays-instead-of-holey-arrays) |
+| `null`/`-0`/strings mixed into numbers | [One elements kind](references/shapes-and-collections.md#one-elements-kind-per-array) |
+| Many small numeric records | [Typed arrays](references/shapes-and-collections.md#typed-arrays-for-numeric-records) |
+| Object used as a growing dictionary | [Map](references/shapes-and-collections.md#map-for-dynamic-keys) |
+| `includes`/`indexOf` inside a loop | [Set](references/shapes-and-collections.md#set-for-repeated-membership-tests) |
+| `filter().map().reduce()` in a hot path | [Fuse chains](references/allocation-and-strings.md#fuse-mapfilterreduce-chains-into-one-loop) |
+| Fresh capturing callback per call | [Hoist closures](references/allocation-and-strings.md#hoist-closures-out-of-hot-calls) |
+| Hot `forEach` callback | [for loop](references/allocation-and-strings.md#indexed-for-loop-instead-of-foreach) |
+| `arr = arr.concat([x])` or `[...arr, x]` in a loop | [push](references/allocation-and-strings.md#push-instead-of-concat-in-a-loop) |
+| Pieces pushed only to `join` | [String +=](references/allocation-and-strings.md#string--instead-of-array-join) |
+| Regex literal or `new RegExp` per call | [Hoist regex](references/allocation-and-strings.md#hoist-regular-expression-literals), [Regex cache](references/allocation-and-strings.md#cache-regexp-objects-built-from-strings) |
+| Lexer uses `exec(text.slice(pos))` | [Sticky regex](references/allocation-and-strings.md#sticky-regex-for-positional-tokenizing) |
+| Deep clone to change a few fields | [Copy changed path](references/allocation-and-strings.md#copy-the-changed-path-instead-of-deep-cloning) |
+| JSON round trip loses `Date`/`undefined`/`NaN` | [structuredClone](references/allocation-and-strings.md#structuredclone-instead-of-a-json-round-trip) |
+| Proposal to hoist try/catch for speed | [try/catch](references/allocation-and-strings.md#trycatch-inside-hot-functions) |
+| Independent awaits in a loop | [Promise.all](references/async-and-concurrency.md#promiseall-for-independent-awaits), [Bounded](references/async-and-concurrency.md#bounded-concurrency) |
+| `forEach(async ...)` | [for...of await](references/async-and-concurrency.md#forof-with-await-instead-of-foreachasync) |
+| `async` wrappers, identity `.then` | [Drop wrappers](references/async-and-concurrency.md#drop-redundant-async-wrappers-and-then-chains), [return await](references/async-and-concurrency.md#return-await-inside-try) |
+| One render per write in a burst | [Coalesce microtasks](references/async-and-concurrency.md#coalesce-notifications-into-one-microtask) |
+| Timeouts or stalls while CPU work runs | [Loop delay](references/measurement.md#event-loop-delay-with-monitoreventloopdelay) |
+| Event-loop delay from CPU work | [Yield](references/async-and-concurrency.md#yield-inside-long-synchronous-loops), [Workers](references/async-and-concurrency.md#worker_threads-for-cpu-bound-work), [Transfer](references/async-and-concurrency.md#transfer-arraybuffers-instead-of-copying) |
+| Memory grows while piping streams | [pipeline](references/async-and-concurrency.md#streampipeline-for-backpressure) |
+| Bun copies files through memory | [Bun.write](references/async-and-concurrency.md#bunfile-and-bunwrite-for-file-copies) |
+| Forced reflow, per-event style writes, long tasks | [Batch reads](references/browser.md#batch-dom-reads-before-writes), [rAF](references/browser.md#requestanimationframe-for-visual-updates), [scheduler.yield](references/browser.md#scheduleryield-in-long-tasks) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Same machine, runtime version, flags, input, and build mode for baseline
+  and candidate. Warm up, keep results in a sink, and report median plus a
+  spread (p90 or min/max) with units.
+- One construct per measured change, so each result is attributable.
+  Revert changes whose metric does not move; do not keep "harmless"
+  rewrites.
+- A candidate that does less work is invalid even if faster: skipped
+  awaits (`forEach(async`), dropped validation, cached results, smaller
+  input, or a shared object where the baseline made copies.
+- A node result is not a bun or browser result: the Map counting card
+  measured opposite directions on node and bun. Verify on every shipped
+  runtime.
+- Folklore is not evidence: the cards measured `+=` faster than `join`
+  and `structuredClone` slower than a JSON round trip. Follow the card's
+  measured direction and re-measure on the target.
+- Never change coercion, `NaN`/`-0` handling, hole semantics, key order,
+  prototype-key behavior, error types, rejection timing, or ordering of
+  side effects without the user's approval. The cards list each trap.
+- `%` natives, `--expose-gc`, and `bun:jsc` probes belong in tests and
+  investigation scripts only, never in shipped code.
+- Timing an async function's synchronous part measures promise creation;
+  time the awaited operation end to end.
+- TypeScript types are erased: a type-only rewrite is not a runtime
+  optimization.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/javascript-runtime-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed JavaScript optimization action. |
-| [Runtime semantics and invariants](references/javascript-runtime-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested JavaScript optimization from observed repository state. |
-| [Performance fixture and tool map](references/javascript-runtime-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the JavaScript optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh verify|benchmark|measure|profile|mitata`:
+  copies `assets/examples/constructs/` to a temporary directory and runs
+  it there. `verify` runs every oracle and benefit assertion on node and
+  bun plus the V8/JSC probes and the deopt trace; `benchmark` is a harness
+  smoke (no timing claim); `measure` times each pair side in its own
+  process (`BENCH_FILTER` narrows it); `profile` checks CPU, heap,
+  snapshot, and allocation profiles; `mitata` installs `mitata@1.0.34`
+  (network) and runs the pairs through it. A missing bun prints `SKIP`.
+- `assets/examples/browser/rendering.html`: browser-only pairs; open it in
+  a browser and read `#out`.
+- `assets/performance-report.md`: the report skeleton.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): timing, profiles, heap
+  tools, traces, and engine probes.
+- [Shapes and collections](references/shapes-and-collections.md): hidden
+  classes, elements kinds, typed arrays, Map, and Set.
+- [Allocation and strings](references/allocation-and-strings.md): loops,
+  closures, strings, regexes, cloning, and try/catch.
+- [Async and concurrency](references/async-and-concurrency.md): promises,
+  microtasks, the event loop, workers, streams, and Bun I/O.
+- [Browser](references/browser.md): layout, frames, and long tasks.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- runtime name and version, OS/CPU, flags, bundler/transpile target;
+- the profile, trace, or counter output that attributed the cost;
+- the construct applied, with its **Use when** and **Do not use when**
+  conditions checked against the code;
+- the oracle command and result, including edge and error cases;
+- baseline and candidate numbers with units and spread from the same
+  machine and runtime (separate processes when code is shared), plus the
+  application-level result;
+- every supported runtime not measured (bun, browsers, older node) stated
+  as not verified.

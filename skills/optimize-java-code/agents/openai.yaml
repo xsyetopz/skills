@@ -1,4 +1,4 @@
 interface:
   display_name: "Optimize Java Code"
   short_description: "Profile and optimize Java and JVM workloads"
-  default_prompt: "Use $optimize-java-code to profile this Java/JVM workload, preserve concurrency and exception contracts, implement a measured optimization, and report matched evidence."
+  default_prompt: "Use $optimize-java-code to attribute this Java/JVM cost with JFR or JMH -prof gc, apply one construct card with an equivalence oracle, and report matched before/after evidence."

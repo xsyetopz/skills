@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize TypeScript Builds"
+  short_description: "Cut TypeScript type-check, build, and emit cost"
+  default_prompt: "Use $optimize-typescript-builds to attribute this TypeScript project's type-check, build, or emitted-code cost, apply one measured construct, and report matched evidence."

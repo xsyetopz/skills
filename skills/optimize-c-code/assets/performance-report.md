@@ -1,14 +1,48 @@
-# Performance result
+# Performance change: <one-line summary>
 
-Objective and workload: actual metric, input distribution and required behavior.
-Identity: baseline/candidate revisions, toolchain, runtime, flags, CPU/OS,
-concurrency. Attributed cost: profile evidence, inclusive/self costs, relevant
-allocation/retention. Change: mechanism and why it should affect that cost;
-complexity/ownership tradeoff. Correctness: independent expected-result check,
-boundary and error cases, cancellation/lifetime checks. Measurement: exact
-commands, warmup/process/sample policy, raw native result locations. Result:
-matched identities, units, effect and variability; regressions and inconclusive
-cases. Separate startup from steady state and instrumentation from
-uninstrumented runs. Decision: keep/reject/inconclusive under the actual
-objective. No unsupported global claim such as “zero allocation” or “lock-free”;
-state the tested scope.
+## Target
+
+- Metric and goal: <for example, wall time of `tool convert big.csv`, or
+  allocator calls per request>
+- Workload: <input, size distribution, threads>
+- Environment: <OS, CPU, `cc --version`, SDKROOT or sysroot, libc>
+- Build: <C standard, optimization level, -mcpu/-march, LTO, PGO,
+  sanitizer flags, linker; unchanged or changed by this work>
+
+## Attribution
+
+- Tool and command: <sample / xctrace / perf / counting wrapper / -S>
+- Finding: <frame, count, or instruction pattern and its share before
+  the change>
+
+## Change
+
+- Construct: <card name from the skill>
+- Preconditions checked: <each "Use when" item and how it was confirmed>
+- Counter-indications ruled out: <each "Do not use when" item>
+- Invariants documented in code: <restrict contracts, ownership,
+  alignment, buffer sizes; file:line or none>
+
+## Correctness
+
+- Oracle: <command>
+- Cases: <empty, one element, boundary lengths, overlap, INT_MAX and
+  INT_MIN, NaN and -0.0 when floats change, error paths>
+- Sanitizers: <ASan+UBSan command and result>
+- Leaks: <leaks --atExit or ASan result>
+
+## Measurement
+
+| Benchmark | Baseline | Candidate | Calls or instructions |
+| --- | --- | --- | --- |
+| <id> | <median or mean ± σ> | <median or mean ± σ> | <before -> after> |
+
+- Command: <verify.sh time ..., hyperfine ...>
+- Repeats: <runs, and whether the machine was shared>
+- Application-level result: <before/after with ± range>
+
+## Decision and limits
+
+- Keep, revert, or inconclusive: <decision and why>
+- Not verified: <other compilers, targets, CPUs, perf counters, x86
+  dispatch path>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>rendering constructs</title>
+<style>
+  .box { width: 100px; height: 4px; background: #888; margin: 1px; }
+</style>
+</head>
+<body>
+<div id="host"></div>
+<pre id="out">running</pre>
+<script type="module">
+// Browser-only pairs. Open this file in a browser (or drive it headless);
+// results land in #out and window.results. Timings are machine-specific.
+const host = document.getElementById("host");
+const boxes = Array.from({ length: 400 }, () => {
+  const el = document.createElement("div");
+  el.className = "box";
+  host.append(el);
+  return el;
+});
+const reset = () => boxes.forEach((el) => (el.style.width = "100px"));
+const widths = () => boxes.map((el) => el.style.width);
+const time = (fn) => {
+  const start = performance.now();
+  fn();
+  return performance.now() - start;
+};
+
+// Layout thrashing: each read after a write forces a synchronous layout.
+function interleaved() {
+  for (const el of boxes) el.style.width = `${el.offsetWidth + 1}px`;
+}
+// Batched: every read first, then every write; one layout at most.
+function batched() {
+  const read = boxes.map((el) => el.offsetWidth);
+  boxes.forEach((el, i) => (el.style.width = `${read[i] + 1}px`));
+}
+
+// Visual updates per input event vs once per frame.
+function makeEager() {
+  let writes = 0;
+  return {
+    onInput(v) {
+      host.style.opacity = v; // one style write per event
+      writes++;
+    },
+    writes: () => writes,
+  };
+}
+function makeFramed() {
+  let writes = 0;
+  let pending = null;
+  return {
+    onInput(v) {
+      if (pending === null) {
+        requestAnimationFrame(() => {
+          host.style.opacity = pending;
+          pending = null;
+          writes++;
+        });
+      }
+      pending = v;
+    },
+    writes: () => writes,
+  };
+}
+
+// Long task vs chunks separated by scheduler.yield (falls back to a
+// macrotask where scheduler.yield is missing).
+const yieldNow = () => globalThis.scheduler?.yield
+  ? globalThis.scheduler.yield()
+  : new Promise((r) => setTimeout(r, 0));
+const spin = (ms) => {
+  const end = performance.now() + ms;
+  while (performance.now() < end);
+};
+// Rendering opportunities (animation frames) that ran during work.
+async function framesDuring(work) {
+  let frames = 0;
+  let live = true;
+  const tick = () => {
+    if (!live) return;
+    frames++;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  await new Promise((r) => requestAnimationFrame(() => r()));
+  frames = 0;
+  await work();
+  live = false;
+  return frames;
+}
+
+const results = {};
+reset();
+results.interleavedMs = time(interleaved);
+const a = widths();
+reset();
+document.body.offsetWidth;
+results.batchedMs = time(batched);
+results.sameWidths = JSON.stringify(a) === JSON.stringify(widths());
+
+const eager = makeEager();
+const framed = makeFramed();
+for (let i = 0; i < 100; i++) {
+  eager.onInput(String(i / 100));
+  framed.onInput(String(i / 100));
+}
+await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+results.eagerWrites = eager.writes();
+results.framedWrites = framed.writes();
+results.sameOpacity = host.style.opacity === "0.99";
+results.framesDuringLongTask = await framesDuring(async () => spin(200));
+results.framesDuringChunks = await framesDuring(async () => {
+  for (let i = 0; i < 20; i++) {
+    spin(10);
+    await yieldNow();
+  }
+});
+results.schedulerYield = typeof globalThis.scheduler?.yield === "function";
+window.results = results;
+document.getElementById("out").textContent = JSON.stringify(results);
+document.title = "done";
+</script>
+</body>
+</html>

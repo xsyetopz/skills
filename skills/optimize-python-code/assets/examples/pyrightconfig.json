@@ -1,8 +1,0 @@
-{
-  "pythonVersion": "3.10",
-  "typeCheckingMode": "strict",
-  "include": [
-    "comparisons/pairs.py",
-    "comparisons/test_pairs.py"
-  ]
-}

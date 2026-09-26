@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import re
 import sys
 from decimal import Decimal, InvalidOperation
@@ -24,6 +25,27 @@ UNITS = {
     "ms": Decimal(1000000),
     "s": Decimal(1000000000),
 }
+
+
+EPILOG = """\
+Exit status:
+  0  every row is within --max-regression-percent
+  1  at least one row regressed beyond the threshold
+  2  invalid or incomparable input (unclassified columns, missing or
+     duplicate rows, unparsable durations, bad flags)
+
+Output: CSV on stdout with the key columns, baseline_ns, candidate_ns,
+change_percent, and regression (true/false). --json prints a list of
+{keys: {COLUMN: VALUE}, baseline_ns, candidate_ns, change_percent,
+regression} with the numbers as decimal strings.
+
+Examples:
+  python3 scripts/compare_benchmarks.py before.csv after.csv \\
+    --keys Method Job Runtime N --ignore-columns Error StdDev \\
+    --max-regression-percent 5
+  python3 scripts/compare_benchmarks.py before.csv after.csv --keys Method \\
+    --delimiter ';' --decimal , --max-regression-percent 3 --json
+"""
 
 
 class InputError(ValueError):
@@ -148,9 +170,13 @@ def threshold_value(text: str) -> Decimal:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("baseline", type=Path)
-    parser.add_argument("candidate", type=Path)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("baseline", type=Path, help="baseline results CSV")
+    parser.add_argument("candidate", type=Path, help="candidate results CSV")
     parser.add_argument(
         "--keys",
         nargs="+",
@@ -174,6 +200,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         choices=list(UNITS),
         help="unit ONLY for cells with no suffix; no inference",
     )
+    parser.add_argument("--json", action="store_true", help="print a JSON list")
     args = parser.parse_args(argv)
     classified = [*args.keys, args.metric, *args.ignore_columns]
     if len(classified) != len(set(classified)):
@@ -197,6 +224,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     except (InputError, OSError, UnicodeError, csv.Error, ArithmeticError) as exc:
         print(f"comparison invalid: {exc}", file=sys.stderr)
         return 2
+    if args.json:
+        rows = [
+            {
+                "keys": dict(zip(args.keys, key, strict=True)),
+                "baseline_ns": str(before),
+                "candidate_ns": str(after),
+                "change_percent": format(change, ".8g"),
+                "regression": regression,
+            }
+            for key, before, after, change, regression in results
+        ]
+        print(json.dumps(rows, indent=2))
+        return int(any(row[-1] for row in results))
     writer = csv.writer(sys.stdout, lineterminator="\n")
     writer.writerow(
         [*args.keys, "baseline_ns", "candidate_ns", "change_percent", "regression"]

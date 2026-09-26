@@ -1,193 +1,150 @@
 ---
 name: optimize-go-code
 description: >-
-  Use when profiling or optimizing Go CPU time, latency, throughput,
-  allocations, or memory use with the project's native benchmarks and profiles.
-  Preserve interfaces, goroutine lifetime, cancellation, and data ownership. Not
-  for style-only edits.
+  Profiles and optimizes Go CPU time, latency, and allocations with testing.B,
+  benchstat, pprof, and compiler diagnostics. Use when a Go benchmark or
+  profile shows the cost. Not for style edits.
 ---
 
 # Optimize Go Code
 
-Improve a measured Go performance objective for the representative Go
-binary/package, runtime, goroutines, and GC while preserving all observable
-behavior, supported targets, resource ownership, errors, concurrency, and
-deployment contracts. Correctness and matched workload come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use `go test -bench`, `-benchmem`, pprof CPU/heap/block/mutex profiles,
-  execution trace, `benchstat`, escape analysis, race detector, and project
-  tests as appropriate to the actual target; do not install or invoke every tool
-  for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Go optimization; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide Go version, GOOS/GOARCH, build tags, workload,
-  goroutine lifecycle, cancellation, races, and data ownership, hard
-  constraints, available tools, and the finish condition once. Remove repeated
-  directions and examples unless a recorded evaluation shows that they prevent a
-  real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with go test benchmarks, benchstat,
-  pprof, race tests, and semantic checks. Report commands, observed results, and
-  gaps. A parser, build, or single green test proves only the property that it
-  can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured Go hot path cheaper without changing observable behavior.
+Each change applies one reference card to a cost that a profile attributes,
+is proven equivalent by a test oracle, and is kept only if the metric the
+card names improves. The cards record preconditions and traps that are easy
+to get wrong from memory, so read the card before applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `go version`, `go env GOOS GOARCH GOAMD64 GOARM64`,
+   the `go` and `toolchain` lines of `go.mod`, build tags, and any
+   `GOGC`, `GOMEMLIMIT`, `GOMAXPROCS`, or `GOEXPERIMENT` in the deployment.
+   Keep the module's Go version; do not raise the `go` directive to reach
+   a construct unless the user asked.
+1. Reproduce the workload with a `testing.B` benchmark or the real binary.
+   Pick the metric the user cares about: ns/op, tail latency, throughput,
+   allocs/op, B/op, live heap, GC CPU, or RSS.
+1. Attribute the cost before editing
+   ([measurement](references/measurement.md)):
+   - CPU: `go test -run '^$' -bench X -cpuprofile cpu.pprof` then
+     `go tool pprof -top`;
+   - allocations or GC: `-benchmem`, `-memprofile` with
+     `-sample_index=alloc_space`, `GODEBUG=gctrace=1`;
+   - waiting, contention, scheduling: block/mutex profiles, `go test -trace`.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: keep the old code as `xBaseline` in a test and
+   compare it with the candidate on empty, boundary, error, aliasing, and
+   ordering cases. Add a `testing.AllocsPerRun` assertion for allocation
+   cards, in a file tagged `//go:build !race`.
+1. Apply the change and check the compiler's view where the card says so:
+   `go build -gcflags=-m` (escape), `-gcflags=-m=2` (inlining),
+   `-gcflags=-d=ssa/check_bce/debug=1` (bounds checks).
+1. Measure: `go test -run '^$' -bench X -benchmem -count 10`, with
+   baseline and candidate as `impl=baseline` / `impl=candidate`
+   sub-benchmarks or as two revisions, then
+   `benchstat -col /impl bench.txt` or `benchstat old.txt new.txt`. Keep the
+   change only if the target metric moved with p < 0.05 and nothing else
+   regressed; run `go test -race` on the changed package.
+1. Re-run the application-level workload, then report using
+   [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Go guide. Attribute
-   the dominant cost to algorithm, data movement/layout, allocation/GC/ARC,
-   dispatch/JIT, contention/scheduling, I/O/syscalls, serialization, or
-   native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with the package's `testing.B` benchmarks with `ResetTimer`, setup
-   placement, `ReportAllocs`, stable inputs and outputs, repeated counts, and
-   `benchstat` under matched toolchain/CPU/environment. Reject missing rows,
-   invalid values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Go-specific profiling, runtime, and semantic constraints | [Go language guide](references/go.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/go-runtime-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/go-runtime-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/go-runtime-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/go-runtime-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/go-runtime-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/go-runtime-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/go-runtime-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/go-runtime-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/go-runtime-performance-performance-language-and-runtime-authorities.md) |
+| `growslice` in `alloc_space`, append in a loop | [Preallocation](references/allocation.md#preallocated-slice-capacity) |
+| Map growth while filling a map of known size | [Map size hint](references/allocation.md#map-size-hint) |
+| `s +=` string concatenation in loops | [strings.Builder](references/allocation.md#stringsbuilder-with-grow) |
+| `fmt.Sprintf`/`Sprint` formatting numbers in loops | [strconv append](references/allocation.md#strconv-append-functions-instead-of-fmt) |
+| New `bytes.Buffer` per message in one goroutine | [Buffer Reset](references/allocation.md#bytesbuffer-reused-with-reset) |
+| `string(b)` conversions before map lookups | [string(b) lookups](references/allocation.md#stringb-in-map-lookups-and-comparisons) |
+| Per-request temporary buffers across goroutines | [sync.Pool](references/allocation.md#syncpool-of-pointer-shaped-objects), [pool element type](references/allocation.md#syncpool-element-type-pointer-not-slice) |
+| Scratch map rebuilt per batch | [clear](references/allocation.md#clear-to-reuse-a-map) |
+| Keys built as `a + ":" + b` | [Struct keys](references/allocation.md#struct-map-keys-instead-of-concatenated-strings) |
+| `sort.Slice` in hot code | [slices.Sort](references/allocation.md#slicessort-instead-of-sortslice) |
+| Map iteration must be deterministic | [Sorted keys](references/allocation.md#sorted-map-keys-with-a-presized-slice) |
+| Small sub-slices keep big buffers alive (`inuse_space`) | [Clone sub-slice](references/allocation.md#copying-a-small-sub-slice-out-of-a-large-buffer) |
+| `&T{...} escapes to heap` on a small struct | [Return by value](references/allocation.md#return-small-structs-by-value), [escape report](references/compiler.md#escape-analysis-report-with--gcflags-m) |
+| `[]any` / `[]Iface` built from concrete values | [Generics](references/allocation.md#generic-functions-instead-of-interface-slices) |
+| Many live instances of a struct with mixed field sizes | [Field order](references/allocation.md#struct-field-order-and-padding) |
+| Small hot helper appears as its own frame | [Inlining budget](references/compiler.md#inlining-budget-with--gcflags-m2), [cold-path outlining](references/compiler.md#cold-path-outlining-to-fit-the-inlining-budget) |
+| `Found IsInBounds` in a hot loop | [BCE](references/compiler.md#bounds-check-elimination-with-a-length-guard) |
+| Binary with a representative CPU profile | [PGO](references/compiler.md#profile-guided-optimization-with-defaultpgo) |
+| Large struct with value-receiver methods | [Pointer receivers](references/compiler.md#pointer-receivers-for-large-structs) |
+| `defer` inside a `for` loop | [Extract loop body](references/compiler.md#extract-the-loop-body-so-defer-runs-per-iteration) |
+| Plan to remove `defer mu.Unlock()` for speed | [Keep defer](references/compiler.md#keep-defer-in-small-hot-functions) |
+| One goroutine per item for large inputs | [Worker pool](references/concurrency-io.md#bounded-worker-pool) |
+| `chansend`/`chanrecv` per small item | [Batching](references/concurrency-io.md#batching-channel-sends) |
+| Producer and consumer park on every item of an unbuffered channel | [Buffered channel](references/concurrency-io.md#buffered-channel-between-producer-and-consumer) |
+| Mutex around a single counter | [atomic.Int64](references/concurrency-io.md#atomicint64-instead-of-a-mutex-guarded-counter) |
+| Shared map/lock updated per item by workers | [Per-worker aggregation](references/concurrency-io.md#per-worker-aggregation) |
+| Many small writes to a file or socket | [bufio.Writer](references/concurrency-io.md#bufiowriter-for-many-small-writes) |
+| Byte-at-a-time or unbuffered reads | [bufio.Scanner](references/concurrency-io.md#bufioscanner-for-line-input) |
+| GC CPU high, memory to spare | [GOGC](references/runtime.md#gogc) |
+| Container memory limit, OOM kills | [GOMEMLIMIT](references/runtime.md#gomemlimit-soft-memory-limit) |
+| CPU-limited container, throttling | [GOMAXPROCS](references/runtime.md#gomaxprocs) |
+| Goroutines never finish after a change | [Leak profile](references/measurement.md#goroutine-leak-profile) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Same machine, toolchain, inputs, `GOMAXPROCS`, and power state for
+  baseline and candidate; at least `-count 10`; compare with benchstat.
+  Never rerun until the result becomes significant.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric shows `~`: a plausible rewrite can measure
+  as no change (the BCE card's own run did), and keeping it adds risk with
+  no benefit.
+- A candidate that does less work (skips validation, different input,
+  cached result, dead code the compiler removed) is invalid even if faster.
+  Every benchmark consumes its result through `b.Loop` or a typed sink.
+- Preserve the observable contract: results, error text and `errors.Is`
+  identity, panics, nil versus empty slices and maps, ordering, aliasing of
+  returned slices, and goroutine completion. The cards list each
+  construct's traps.
+- Allocation assertions never run under `-race`, and never assert exactly
+  zero for code that uses `sync.Pool`.
+- `GOGC`, `GOMEMLIMIT`, `GOMAXPROCS`, and PGO change the whole binary.
+  Apply them only with an application-level measurement and state the
+  deployment consequence.
+- Choose example inputs that really allocate: `strconv.Itoa` of 0..99,
+  strings of 32 bytes or less that do not escape, and small boxed values
+  can take allocation-free paths and make a baseline look free.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/go-runtime-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Go optimization action. |
-| [Runtime semantics and invariants](references/go-runtime-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Go optimization from observed repository state. |
-| [Performance fixture and tool map](references/go-runtime-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Go optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh MODE` works in a temp copy of the example
+  module (needs Go 1.25+). Modes: `verify`
+  (vet, equivalence and allocation oracles), `race`, `diagnostics`
+  (escape, inlining, BCE assertions), `benchmark` (smoke, 1 iteration),
+  `measure` (`-count 10` plus benchstat when found or given in the
+  `BENCHSTAT` variable), `profile` (CPU, heap, trace), `pgo`.
+- `assets/performance-report.md`: the report skeleton.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): b.Loop and b.N benchmarks,
+  RunParallel, AllocsPerRun, oracles, benchstat, pprof, traces, gctrace,
+  goroutine leaks.
+- [Allocation](references/allocation.md): preallocation, builders,
+  strconv, buffers, conversions, pools, clear, keys, sorting, retention,
+  escape, boxing, padding.
+- [Compiler](references/compiler.md): escape analysis, inlining, BCE, PGO,
+  receivers, defer.
+- [Concurrency and I/O](references/concurrency-io.md): worker pools,
+  batching, channel buffering, atomics, aggregation, bufio.
+- [Runtime configuration](references/runtime.md): GOGC, GOMEMLIMIT,
+  GOMAXPROCS.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- Go version, GOOS/GOARCH, CPU model, `go` directive, and runtime settings;
+- the profile or benchmark output that attributed the cost;
+- the construct applied, with its **Use when** conditions checked;
+- the oracle command and result, including edge cases and `-race`;
+- benchstat output for baseline and candidate with n, p-values, and
+  allocs/op, plus the application-level result;
+- anything not run (other GOOS/GOARCH, production profiles, container
+  limits) stated as not verified.

@@ -1,0 +1,39 @@
+[package]
+name = "constructs"
+version = "0.0.0"
+edition = "2024"
+# 1.86: safe fn with #[target_feature] (target_feature 1.1).
+rust-version = "1.86"
+publish = false
+
+[dependencies]
+# Separate crate so the cross-crate #[inline] card has a real crate boundary.
+helper = { path = "helper" }
+
+# Release defaults are left untouched so measurements reflect a plain
+# `cargo build --release`. The profiles below are the build-configuration
+# cards; `verify.sh profiles` builds each one and prints the binary size.
+[profile.release-cgu1]
+inherits = "release"
+codegen-units = 1
+
+[profile.release-thin]
+inherits = "release"
+lto = "thin"
+
+[profile.release-fat]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+[profile.release-abort]
+inherits = "release"
+panic = "abort"
+
+[profile.release-size]
+inherits = "release"
+opt-level = "s"
+
+[profile.profiling]
+inherits = "release"
+debug = "line-tables-only"

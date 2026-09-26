@@ -1,4 +1,4 @@
 interface:
   display_name: "Optimize Kotlin Code"
-  short_description: "Profile and optimize Kotlin workloads safely"
-  default_prompt: "Use $optimize-kotlin-code to profile this Kotlin workload on its declared backend, preserve coroutine and effect semantics, and report matched evidence."
+  short_description: "Profile and optimize Kotlin/JVM and coroutine code"
+  default_prompt: "Use $optimize-kotlin-code to attribute this Kotlin/JVM cost with javap, JMH, or JFR, apply one measured construct, keep coroutine and collection semantics, and report matched evidence."

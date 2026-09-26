@@ -1,193 +1,146 @@
 ---
 name: optimize-scala-code
 description: >-
-  Use when profiling or optimizing Scala execution time, latency, throughput,
-  allocations, or memory use for the declared backend. Preserve evaluation
-  order, collection behavior, effects, and exceptions. Do not transfer JVM
-  results to other backends.
+  Profiles and optimizes Scala JVM CPU time and allocations with JMH, JFR, and
+  javap: collections, boxing, opaque types, inline. Use when a Scala benchmark
+  or profile shows the cost. Not for style or migration edits.
 ---
 
 # Optimize Scala Code
 
-Improve a measured Scala performance objective for the representative declared
-Scala backend, commonly JVM, collections and effect/concurrency model while
-preserving all observable behavior, supported targets, resource ownership,
-errors, concurrency, and deployment contracts. Correctness and matched workload
-come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use backend-specific profiler; for Scala/JVM commonly
-  JFR/JMC/async-profiler/JMH/sbt-jmh, allocation/GC tools, compiler/bytecode
-  inspection and project tests as appropriate to the actual target; do not
-  install or invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Scala optimization; it MUST
-  NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide Scala version, JVM/JS/Native backend, compiler,
-  runtime flags, workload, collections, effects, futures, and exceptions, hard
-  constraints, available tools, and the finish condition once. Remove repeated
-  directions and examples unless a recorded evaluation shows that they prevent a
-  real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with backend-native profiles, JMH where
-  applicable, allocation evidence, and semantic tests. Report commands, observed
-  results, and gaps. A parser, build, or single green test proves only the
-  property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured Scala hot path cheaper without changing observable
+behavior. Each change applies one reference card to a cost that a profile
+attributes, is proven equivalent by an oracle, and is kept only if the
+metric the card names improves: JMH time, `gc.alloc.rate.norm` B/op, a
+ThreadMXBean byte delta, a `javap` instruction, or a call count. The cards
+record preconditions and counter-indications, so read the card before
+applying a construct. Scala 3 on the JVM is the default; the cards label
+Scala 2.13, Scala.js, and Scala Native differences.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: Scala version (`scalaVersion` in `build.sbt` or
+   `//> using scala`), backend (JVM, Scala.js, Native), `scalacOptions`,
+   `java -version`, JVM flags, and the build tool version
+   (`scala-cli version`, `project/build.properties`). Keep the project's
+   Scala and JDK versions; do not upgrade them to reach a construct unless
+   the user asked.
+1. Reproduce the workload on the deployed backend and pick the metric the
+   user cares about: ns/op, tail latency, throughput, B/op, live heap, GC
+   time, or startup.
+1. Attribute the cost before editing
+   ([measurement](references/measurement.md)):
+   - unknown hotspot: JFR with `-XX:StartFlightRecording`, then
+     `jfr view hot-methods` and `jfr view allocation-by-class`;
+   - one method: a JMH benchmark run with `-prof gc`;
+   - compile-time shape (boxing, switch, lazy val, inline): `javap -c -p`.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: keep the old code as `baseline`, compare it
+   with the candidate on empty, boundary, overflow, duplicate, and
+   side-effect-count inputs, and add an allocation assertion for allocation
+   cards ([semantic oracle][oracle]).
+1. Apply the change, then check the bytecode where the card says so.
+1. Measure baseline and candidate in the same JMH run
+   (`scala-cli --power run --jmh <inputs> -- -prof gc <regex>` or
+   `sbt -batch 'bench/Jmh/run -prof gc <regex>'`, then `sbt shutdown`).
+   Keep the change only if the target metric's `Score ± Error` intervals
+   do not overlap and nothing else regressed.
+1. Re-run the application-level workload, then report using
+   [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Scala guide.
-   Attribute the dominant cost to algorithm, data movement/layout,
-   allocation/GC/ARC, dispatch/JIT, contention/scheduling, I/O/syscalls,
-   serialization, or native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with sbt-jmh/JMH or existing backend-matched harness with
-   forks/warmup/parameters/state, target Scala/JDK/compiler flags, observable
-   result and independent semantics. Reject missing rows, invalid values,
-   ambiguous units, unstable setup, incomparable identities, or benchmarks whose
-   result is optimized away or whose candidate performs less work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Scala-specific profiling, runtime, and semantic constraints | [Scala language guide](references/scala.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/scala-backend-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/scala-backend-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/scala-backend-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/scala-backend-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/scala-backend-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/scala-backend-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/scala-backend-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/scala-backend-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/scala-backend-performance-performance-language-and-runtime-authorities.md) |
+| `LinearSeqOps.apply` or `List.length` inside an index loop | [Indexed access](references/collections.md#indexed-access-indexedseq-instead-of-listapply), [performance table](references/collections.md#sequence-choice-by-the-performance-table) |
+| Heap full of `Integer`/`Long` plus `::` cells | [ArraySeq of Int](references/collections.md#primitive-storage-arrayseq-of-int-instead-of-list-of-int) |
+| `:+` on a `List` in a loop | [ListBuffer](references/collections.md#listbuffer-instead-of-repeated-list-append) |
+| `filter`/`map` chain ending in a reduction | [Iterator chain](references/collections.md#iterator-chain-instead-of-a-strict-chain) |
+| Chain of transformers ending in one collection | [View chain](references/collections.md#view-chain-before-a-single-materialization) |
+| `map`/`sum`/`foldLeft` over `Array[Int]` with B/op | [Array while loop](references/collections.md#array-with-a-while-loop-instead-of-map-and-sum) |
+| Array or builder regrowth with a known size | [sizeHint](references/collections.md#arraynewbuilder-with-an-exact-sizehint), [ArrayBuffer sizeHint](references/collections.md#arraybuffer-with-sizehint) |
+| `ArrayBuffer[Int]` of primitives, boxed `Integer`s | [Array.newBuilder](references/collections.md#arraynewbuilder-instead-of-arraybuffer-for-primitives) |
+| `List.updated` or other L operations in a loop | [Performance table](references/collections.md#sequence-choice-by-the-performance-table) |
+| String `+` in a fold or loop | [StringBuilder](references/collections.md#stringbuilder-instead-of-string-concatenation-in-a-fold) |
+| Immutable `Map` rebuilt per update in a fold | [mutable.HashMap](references/collections.md#mutablehashmap-instead-of-folding-an-immutable-map), [HashMap.merge](references/collections.md#javautilhashmapmerge-for-counting), [slot array](references/collections.md#slot-array-for-counters-keyed-by-a-small-set) |
+| `groupBy(...).view.mapValues(...)` | [groupMapReduce](references/collections.md#groupmapreduce-instead-of-groupby-and-mapvalues) |
+| `Seq.contains` inside a loop | [Set membership](references/collections.md#set-for-repeated-membership-tests) |
+| `Numeric.plus(Object, Object)` boxing | [Primitive overload](references/language.md#primitive-overload-instead-of-a-generic-numeric-method), [inline def](references/language.md#inline-def-for-a-generic-numeric-helper), [@specialized](references/language.md#specialized-scala-213-only) |
+| Custom generic function trait on primitives | [Function1 specialization](references/language.md#function1-specialization-instead-of-a-custom-generic-sam) |
+| Wrapper type stored in arrays or collections | [Opaque type](references/language.md#opaque-type-instead-of-a-value-class-for-arrays), [value class](references/language.md#value-class-extends-anyval) |
+| Log/trace message built while disabled | [Inline parameter](references/language.md#inline-parameter-for-a-disabled-log-message), [by-name](references/language.md#by-name-parameter-for-a-disabled-log-message) |
+| `StackOverflowError` from recursion | [@tailrec](references/language.md#tailrec-loop-instead-of-non-tail-recursion) |
+| Hot `match` on `Int` literals | [@switch](references/language.md#switch-on-an-int-match), [sealed match](references/language.md#sealed-trait-match) |
+| Lazy val read in a hot loop | [Hoist](references/language.md#hoist-a-lazy-val-read-out-of-a-loop), [@threadUnsafe](references/language.md#threadunsafe-lazy-val) |
+| `implicit class` wrapper allocations | [Extension method](references/language.md#extension-method-instead-of-an-implicit-class), [AnyVal implicit class](references/language.md#implicit-class-extending-anyval) |
+| `Array` passed as `Seq[Int]` | [IArray](references/language.md#iarray-instead-of-a-seq-view-of-an-array) |
+| `f"..."` on plain values in hot code | [s interpolator](references/language.md#s-interpolator-instead-of-f-for-plain-values) |
+| Futures on `global` stall, blocking calls | [global](references/concurrency.md#executioncontextglobal-for-cpu-bound-futures), [blocking](references/concurrency.md#blocking-inside-executioncontextglobal), [dedicated pool](references/concurrency.md#dedicated-executioncontext-for-blocking-io) |
+| Trivial `map` callbacks hop threads | [parasitic](references/concurrency.md#executioncontextparasitic-for-cheap-callbacks) |
+| Large pure CPU-bound collection work, idle cores | [.par](references/concurrency.md#parallel-collections-with-par) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Same machine, JDK, Scala version, compiler options, JVM flags, and
+  inputs for baseline and candidate; run them in one JMH invocation with
+  at least 2 forks. A 1-fork, 1-iteration smoke run is not a result.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric does not move; several cards record
+  measured "no difference" or "worse" results.
+- A candidate that does less work (skipped validation, cached result,
+  smaller input, dead result) is invalid. Build inputs in `@Setup` and
+  return every result from `@Benchmark` methods.
+- Preserve the observable contract: results, exceptions and their timing,
+  overflow, ordering, duplicates, laziness and side-effect counts, single
+  traversal of iterators, thread and execution-context behavior.
+- Bytecode shows what the compiler emitted, not what C2 runs: pair every
+  `javap` claim with an allocation or timing measurement on warmed code.
+- Never claim JVM results for Scala.js or Scala Native; measure those
+  backends with their own tools and say so when you cannot.
+- `scala-cli --jmh` needs `--power` and the Bloop server (no
+  `--server=false`); give each JMH run its own `java.io.tmpdir` on a
+  shared machine.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/scala-backend-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Scala optimization action. |
-| [Runtime semantics and invariants](references/scala-backend-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Scala optimization from observed repository state. |
-| [Performance fixture and tool map](references/scala-backend-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Scala optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh MODE` (needs scala-cli 1.10+ and a JDK 17+)
+  copies the examples to a temp directory and runs there, so no
+  `.scala-build/`, `.bsp/`, or class files land in the skill. Modes:
+  `verify` (equivalence and allocation oracles), `diagnostics` (javap
+  assertions, Scala 2.13 `@specialized`, expected compile failures),
+  `benchmark` (every JMH benchmark once, smoke only), `measure` (JMH with
+  `-prof gc`, JSON to `BENCH_OUT`), `profile` (JFR plus `jfr view`), `sbt`
+  (sbt 2 with sbt-jmh, smoke).
+- `assets/performance-report.md`: the report skeleton.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): JMH through scala-cli,
+  `-prof gc`, sbt-jmh, ThreadMXBean oracle, javap, JFR, semantic oracle.
+- [Collections](references/collections.md): performance table, indexed
+  access, primitive storage, ArrayBuffer, builders, iterators, views,
+  arrays, strings, maps, grouping, membership.
+- [Language](references/language.md): boxing, inline, `@specialized`,
+  function specialization, opaque and value classes, by-name,
+  `@tailrec`, `@switch`, sealed matches, lazy vals, extensions, `IArray`,
+  interpolators.
+- [Concurrency](references/concurrency.md): `global`, `blocking`,
+  dedicated pools, `parasitic`, parallel collections.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
+- Scala version, backend, JDK, build tool, CPU/OS, compiler options, and
+  JVM flags;
+- the profile or benchmark output that attributed the cost;
+- the construct applied, with its **Use when** conditions checked;
+- the oracle command and result, including edge cases;
+- JMH output for baseline and candidate with `Score ± Error`, forks, and
+  `gc.alloc.rate.norm`, plus the application-level result;
+- bytecode evidence where the card names it;
+- anything not run (other backends, JDKs, Scala versions, production
+  profiles) stated as not verified.
 
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[oracle]: references/measurement.md#semantic-oracle-for-collection-rewrites

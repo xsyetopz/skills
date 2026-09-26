@@ -1,163 +1,147 @@
 ---
 name: migrate-js-tooling-to-bun
 description: >-
-  Use when migrating explicitly selected JavaScript or TypeScript
-  package-management, script, test, bundling, or runtime operations to Bun. A
-  package-manager migration does not imply a runtime replacement. Not for
-  unrelated upgrades or performance tuning.
+  Moves JavaScript or TypeScript tooling from npm, Yarn, or pnpm to Bun:
+  installs, lockfile migration, lifecycle scripts, workspaces, bun test, and
+  bun build. Use when asked to adopt Bun as package manager, test runner, or
+  bundler. Not for tuning app performance.
 ---
 
-# Migrate JavaScript Tooling to Bun
+# Migrate JS Tooling to Bun
 
-Migrate only the selected JavaScript/TypeScript tooling responsibilities to Bun
-while preserving dependency resolution, registry/authentication, lifecycle
-behavior, runtime semantics, test behavior, build outputs, deployment contracts,
-and retained Node or other tools.
-
-## Operating contract
-
-- Treat package manager, runtime, test runner, bundler, script shell, and
-  deployment image as separate responsibilities. Migrate only those requested.
-- Inspect package manifests, all lockfiles, workspaces, registries/scopes,
-  lifecycle scripts, native dependencies, patches/overrides, CI, containers,
-  deployment, and supported Node/Bun versions.
-- Do not regenerate or replace lockfiles blindly. Compare resolved versions,
-  integrity/provenance, peer/optional dependencies, and workspace links.
-- Use Bun's actual compatibility for the target version. A Node API being listed
-  as compatible does not prove the project's package/test/build works unchanged.
-- Preserve security, secrets, registry authentication, frozen/reproducible
-  install behavior, and production runtime when not selected.
-
-## Toolchain migration contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Bun migration; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide selected package-manager, runtime, test, build,
-  script, registry, lockfile, and deployment responsibilities, hard constraints,
-  available tools, and the finish condition once. Remove repeated directions and
-  examples unless a recorded evaluation shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with clean installs, lockfile checks,
-  script parity, tests, builds, and target-runtime execution. Report commands,
-  observed results, and gaps. A parser, build, or single green test proves only
-  the property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Move only the named responsibilities to Bun. Keep the resolved dependency
+graph, lifecycle build output, registry access, runtime, test coverage,
+and build artifacts equal to the old ones unless the request changes them.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    S[Selected responsibility] --> I[Inventory project and delivery files]
-    I --> B[Establish current behavior and resolution baseline]
-    B --> M[Make smallest Bun-specific change]
-    M --> C[Compare dependency graph and outputs]
-    C --> T[Test scripts/tests/build/runtime boundaries]
-    T --> D{Selected migration complete?}
-    D -->|No| R[Diagnose unsupported behavior]
-    D -->|Yes| P[Update docs/CI for selected responsibility only]
-    R --> M
-```
+1. Fill the [responsibility inventory][inventory]: installation and
+   lockfile, the runtime each script really starts, test runner,
+   bundler, CI setup, and image. Mark which rows the request moves.
+1. Pin the Bun version the user named and print `bun --version` and
+   `bun --revision` wherever it runs ([version selection][version]).
+1. Run the current workflow once in a disposable copy and record the
+   test count, build outputs, and the runtime shown at startup.
+1. Package manager: run `bun install` with the old lockfile present so
+   [migration][migration] converts it. Then run
+   `scripts/compare_lockfiles.py` ([comparison][compare]) and explain
+   every changed line before you delete the old lockfile.
+1. Review blocked lifecycle scripts with `bun pm untrusted`. Trust only
+   packages whose script you read ([trust][trust]). Record the linker
+   and `configVersion` ([linker][linker]).
+1. Runtime, tests, or bundler: apply only the requested cards in
+   [runtime, tests, and bundling](references/runtime-test-build.md).
+1. Replace CI installs with `bun ci`. Also add the
+   [workspace edge check][ws-gap] for workspaces. Update each CI setup
+   step, image, and document that names the old tool, and leave the
+   rest unchanged.
+1. Run every moved command on the migrated tree. Report the results,
+   the rollback unit, and the remaining compatibility gaps.
 
-## Procedure
+## Route the evidence to a card
 
-1. State exactly which responsibilities move to Bun and which remain on
-   Node/npm/yarn/pnpm/another tool. Record supported environments and rollout
-   boundary.
-1. Inventory manifests, lockfiles, workspaces, package manager fields, engines,
-   `.npmrc`/registry/auth settings, install scripts, native addons,
-   overrides/patches, CI caches, containers, deployment commands, test configs,
-   and build outputs.
-1. Run the current workflow in an isolated copy and record dependency
-   resolution, scripts executed, tests/build outputs, runtime behavior, and
-   relevant timing only if performance is an explicit objective.
-1. Install or select the approved Bun version without changing global developer
-   state. Perform the smallest migration. Preserve registry scopes/auth and use
-   documented frozen/lockfile controls.
-1. Compare old and new resolved graphs and workspace links. Investigate changed
-   transitive versions, peer handling, optional/platform packages, lifecycle
-   scripts, and native builds instead of accepting a green top-level install.
-1. Run each selected responsibility and retained boundary: install, scripts,
-   tests, type checks, build/bundle, package, application/runtime, and
-   CI/deployment as applicable. Verify error codes, coverage/reporters,
-   snapshots, watch behavior, and output compatibility.
-1. Update only affected commands, docs, CI caches/images, and deployment
-   declarations. Remove superseded files only after proving no retained consumer
-   uses them. Report known Bun compatibility gaps and rollback.
-
-## Choose the migration evidence reference
-
-| Situation | Read or use |
+| Evidence or request | Card |
 | --- | --- |
-| Selecting package-manager, runtime, test, or bundler scope | [Migration decisions](references/migration-decisions.md) |
-| Checking Bun runtime, package manager, Node compatibility, and tests | [Runtime and tooling](references/runtime-and-tooling.md) |
-| Choosing graph comparison and rollout checks | [Operational decisions](references/bun-toolchain-migration-operational-decisions.md) |
-| Using complete package-manager and test-runner examples | [Worked scenarios](references/bun-toolchain-migration-worked-scenarios.md) |
-| Verifying dependency, output, runtime, and CI equivalence | [Verification and claim evidence](references/bun-toolchain-migration-verification-and-claim-evidence.md) |
-| Avoiding lockfile churn and accidental runtime replacement | [Failure patterns and recovery](references/bun-toolchain-migration-failure-patterns-and-recovery.md) |
-| Checking current Bun documentation | [Standards, APIs, and authorities](references/bun-toolchain-migration-standards-apis-and-authorities.md) |
+| "Switch to Bun", unclear scope | [Responsibility inventory][inventory] |
+| Pinning or upgrading Bun only | [Version selection][version] |
+| `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` present | [Automatic migration][migration] |
+| Need to prove versions did not move | [Resolution comparison][compare] |
+| `bun.lockb` in the repository | [Binary lockfile conversion][lockb] |
+| CI install should fail on drift | [Frozen installs][frozen] |
+| Workspace repository, new internal dependency | [Workspace edge gap][ws-gap] |
+| `Blocked N postinstall`, missing native binary | [trustedDependencies][trust] |
+| Import works locally, fails when published | [Linker][linker] |
+| Private registry, scoped packages, tokens | [Registries][registries] |
+| Scripts must run on Bun, or must stay on Node | [bun run and --bun][run] |
+| "Run the server on Bun" | [Direct entry][entry], [Node boundary][compat] |
+| Jest or `node:test` suite to `bun test` | [Test runner][tests], [setup and coverage][coverage] |
+| esbuild, Rollup, or webpack to `bun build` | [Bundler target][bundler] |
+| Undo plan | [Rollback unit][rollback] |
 
-## Bun migration references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Moving the package manager does not move the runtime. `bun run`
+  keeps a script's `node` command on Node. Add `--bun` only when the
+  request moves the runtime.
+- Never run `bun update` or delete the old lockfile to get past an
+  install error. Only a comparison with an explained result lets a
+  version change in.
+- CI installs use `bun ci`, which is the same as
+  `bun install --frozen-lockfile`. In workspaces, also run
+  `bun install --lockfile-only` followed by `git diff --exit-code
+  bun.lock`, because frozen installs miss new `workspace:*` edges.
+- Put a package in `trustedDependencies` only after reading its install
+  script. A list replaces Bun's built-in trusted list. `file:`, `git:`,
+  and `link:` sources always need an explicit entry.
+- Keep registry tokens in environment variables. Never switch a private
+  scope to the public registry.
+- Keep type checking (`tsc --noEmit`) as its own step. Bun runs
+  TypeScript without checking types.
+- Do not run `bun test --update-snapshots` to make a suite pass. Review
+  each snapshot change.
+- A green install proves only that the install worked. Show a real run of
+  every moved command before claiming the migration works.
 
-| Reference | Use when |
-| --- | --- |
-| [Concepts, contracts, and invariants](references/bun-toolchain-migration-concepts-contracts-and-invariants.md) | Use when distinguishing the requested Bun migration from observed repository state. |
-| [Enterprise operation and governance](references/bun-toolchain-migration-organizational-controls-and-scale.md) | Use when the Bun migration crosses ownership, data-handling, release, or audit boundaries. |
+## Bundled tools
 
-## Behavioral evaluation
+- `scripts/compare_lockfiles.py OLD NEW [--json]` diffs the resolved
+  versions between `package-lock.json` (v2/v3) and `bun.lock`. It exits
+  0 when they are the same, 1 on a difference, and 2 on bad input or a
+  graph with nested versions (then diff `bun pm ls --all` instead).
+  `scripts/test_compare_lockfiles.py` holds its tests.
+- `assets/examples/npm-project/` is the npm workspace before the
+  migration, with `package-lock.json`. `assets/examples/fixture/` is
+  the same workspace written for Bun (`workspace:*`).
+- `sh assets/examples/verify.sh` exercises every card offline in a
+  temporary copy. `BUN`, `NODE`, and `PYTHON` override the executables.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- No output template is mandatory. Preserve the repository's established format.
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Package manager](references/package-manager.md): inventory, version,
+  lockfile migration and comparison, `bun.lockb`, frozen installs, the
+  workspace gap, lifecycle trust, linker, and registries.
+- [Runtime, tests, and bundling](references/runtime-test-build.md):
+  `bun run` versus `--bun`, direct entry, the Node compatibility
+  boundary, `bun test`, preload, coverage and JUnit output, the
+  `bun build` target, and rollback.
 
 ## Completion evidence
 
-- Explicit migrated and retained responsibilities.
-- Current and candidate tool/runtime versions and configurations.
-- Dependency-resolution comparison including workspaces, peers, optional/native
-  packages, patches, and registries.
-- Executed install/script/test/type/build/runtime/CI checks at affected
-  boundaries.
-- Scoped command/config/docs changes, rollback path, and known compatibility
-  gaps.
+- A responsibility table that lists each row as moved or kept, with the
+  command that proves it.
+- The Bun version and revision from every environment that runs it.
+- `compare_lockfiles.py` output or the `bun pm ls --all` diff, with
+  every change explained.
+- The `bun pm untrusted` result and the trusted packages, with a reason
+  for each.
+- Test counts before and after, build artifacts checked on their
+  consumer, and the runtime observed at startup.
+- The CI diff, the rollback command, and known gaps, each marked
+  Executed, Compiled, or Not runnable here.
 
-## Stop or escalate
+## Stop and ask
 
-- The user has not decided which responsibility to migrate and the choice
-  changes production behavior.
-- Registry/authentication or dependency resolution cannot be preserved or
-  compared safely.
-- A required package/API/tool feature is unsupported by the selected Bun
-  version.
-- The migration would change production runtime, deployment, or dependency
-  versions outside scope.
+- The request does not say whether the runtime moves, and production
+  runs the affected scripts.
+- The comparison shows changed versions that the user did not approve.
+- A registry needs credentials that are not available.
+- A required API, Jest feature, or bundler plugin is unsupported in the
+  selected Bun version.
 
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[inventory]: references/package-manager.md#responsibility-inventory
+[version]: references/package-manager.md#bun-version-selection
+[migration]: references/package-manager.md#automatic-lockfile-migration
+[compare]: references/package-manager.md#resolution-comparison
+[lockb]: references/package-manager.md#binary-lockfile-conversion
+[frozen]: references/package-manager.md#frozen-installs-in-ci
+[ws-gap]: references/package-manager.md#workspace-edge-gap
+[trust]: references/package-manager.md#lifecycle-script-trust
+[linker]: references/package-manager.md#linker-hoisted-or-isolated
+[registries]: references/package-manager.md#registries-scopes-and-credentials
+[run]: references/runtime-test-build.md#script-runtime-bun-run-and---bun
+[entry]: references/runtime-test-build.md#direct-entry-point-on-bun
+[compat]: references/runtime-test-build.md#node-compatibility-boundary
+[tests]: references/runtime-test-build.md#test-runner-switch
+[coverage]: references/runtime-test-build.md#test-setup-coverage-and-reports
+[bundler]: references/runtime-test-build.md#bundler-target
+[rollback]: references/runtime-test-build.md#rollback-unit

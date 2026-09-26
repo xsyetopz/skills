@@ -1,14 +1,37 @@
-# Performance result
+# Python performance result
 
-Objective and workload: actual metric, input distribution and required behavior.
-Identity: baseline/candidate revisions, toolchain, runtime, flags, CPU/OS,
-concurrency. Attributed cost: profile evidence, inclusive/self costs, relevant
-allocation/retention. Change: mechanism and why it should affect that cost;
-complexity/ownership tradeoff. Correctness: independent expected-result check,
-boundary and error cases, cancellation/lifetime checks. Measurement: exact
-commands, warmup/process/sample policy, raw native result locations. Result:
-matched identities, units, effect and variability; regressions and inconclusive
-cases. Separate startup from steady state and instrumentation from
-uninstrumented runs. Decision: keep/reject/inconclusive under the actual
-objective. No unsupported global claim such as “zero allocation” or “lock-free”;
-state the tested scope.
+## Target
+
+- Interpreter: `python -VV` output; GIL or free-threaded
+  (`Py_GIL_DISABLED`, `sys._is_gil_enabled()`); JIT state.
+- Supported Python range (`requires-python`), OS, CPU, lockfile revision.
+- Metric and workload: what was measured, input sizes, and why they are
+  representative.
+
+## Attribution
+
+- Command (cProfile, tracemalloc diff, `-X importtime`, `perf`) and the rows
+  that attribute the cost, with `ncalls`/`tottime`/`cumtime` or bytes.
+
+## Change
+
+- Construct card applied and its **Use when** conditions, checked.
+- Invariants recorded in code comments.
+
+## Equivalence
+
+- Oracle command and result. Inputs covered: empty, one-shot iterator,
+  duplicates, ties, errors, boundaries.
+
+## Measurement
+
+- Deterministic card metric before and after (calls, executed
+  instructions, comparisons, traced peak bytes).
+- pyperf commands, options (`--fast`, `--rigorous`, `--inherit-environ`),
+  and `compare_to --table` rows with mean ± std dev and significance.
+- Application-level result for the same workload.
+
+## Decision
+
+- Keep, revert, or inconclusive, with the reason.
+- Not verified: platforms, builds, or versions not run.

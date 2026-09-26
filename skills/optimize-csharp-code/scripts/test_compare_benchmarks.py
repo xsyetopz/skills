@@ -3,6 +3,7 @@
 import contextlib
 import csv
 import io
+import json
 import tempfile
 import unittest
 from decimal import Decimal
@@ -142,6 +143,22 @@ class TableTests(unittest.TestCase):
         ):
             self.assertEqual(main(args), 2)
         self.assertEqual(stdout.getvalue(), "")
+
+    def test_cli_json_output(self):
+        base = self.table("base.csv", "Method,Mean\nA,100 ns\n")
+        candidate = self.table("new.csv", "Method,Mean\nA,1.1 us\n")
+        stdout = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            status = main(
+                [str(base), str(candidate), "--keys", "Method",
+                 "--max-regression-percent", "5", "--json"]
+            )  # fmt: skip
+        self.assertEqual(status, 1)
+        (row,) = json.loads(stdout.getvalue())
+        self.assertEqual(row["keys"], {"Method": "A"})
+        self.assertEqual(row["regression"], True)
+        self.assertEqual(Decimal(row["candidate_ns"]), Decimal(1100))
+        self.assertEqual(Decimal(row["change_percent"]), Decimal(1000))
 
 
 class ComparisonTests(unittest.TestCase):

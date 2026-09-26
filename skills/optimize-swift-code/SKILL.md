@@ -1,194 +1,175 @@
 ---
 name: optimize-swift-code
 description: >-
-  Use when profiling or optimizing Swift execution time, latency, throughput,
-  allocations, or memory use on the specified target. Preserve ownership,
-  copy-on-write, exclusivity, errors, and actor isolation. Not for
-  deployment-target changes or stylistic refactoring.
+  Profiles and optimizes Swift CPU time, allocations, and ARC traffic with
+  package-benchmark, Instruments, and SIL or assembly. Use when a Swift
+  benchmark or profile shows the cost. Not for deployment-target bumps.
 ---
 
 # Optimize Swift Code
 
-Improve a measured Swift performance objective for the representative Swift
-package/application, ARC, copy-on-write, actors, and target platform while
-preserving all observable behavior, supported targets, resource ownership,
-errors, concurrency, and deployment contracts. Correctness and matched workload
-come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use Instruments (Time Profiler, Allocations, Leaks, Points of Interest),
-  Swift/LLVM optimization diagnostics, package-benchmark or project harness,
-  signposts, memory graph and project tests as appropriate to the actual target;
-  do not install or invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Swift optimization; it MUST
-  NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide Swift toolchain, deployment target,
-  optimization mode, workload, ARC, copy-on-write, exclusivity, Unicode, and
-  actor isolation, hard constraints, available tools, and the finish condition
-  once. Remove repeated directions and examples unless a recorded evaluation
-  shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with Instruments, XCTest metrics or
-  benchmarks, allocation evidence, and semantic tests. Report commands, observed
-  results, and gaps. A parser, build, or single green test proves only the
-  property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured Swift hot path cheaper without changing observable
+behavior. Each change applies one reference card to a cost that a profile
+attributes, is proven equivalent by an oracle, and is kept only if the
+metric the card names improves: malloc calls, retains, hash calls, an
+instruction pattern in SIL or assembly, or a benchmark percentile. Several
+cards record classic rewrites that measured as **no difference** because
+`-O` with whole-module optimization already did the work, so check the
+real build before rewriting.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `xcrun swift --version`, `Package.swift` platforms
+   and `swiftLanguageModes`, and the flags the release build really
+   passes (`xcrun swift build -c release -v`: look for `-O`,
+   `-whole-module-optimization`, `-enable-default-cmo`,
+   `-enable-library-evolution`). Keep the toolchain, deployment target,
+   and flags unless the task is the build configuration.
+1. Reproduce the workload in a release build (`swift build -c release`,
+   or Xcode's Release configuration). Pick the metric the user cares
+   about: time per operation, wall time, allocations, retains, peak or
+   retained memory, or binary size.
+1. Attribute the cost before editing
+   ([measurement](references/measurement.md)):
+   - CPU: `xcrun xctrace record --template 'Time Profiler' --launch --`
+     on the release binary (needs full Xcode).
+   - Allocations and ARC: package-benchmark with `.mallocCountTotal`,
+     `.retainCount`, `.releaseCount`, or the counting hooks in
+     `assets/examples/constructs/Sources/CCount`.
+   - One function: read its assembly (`-emit-assembly`) or SIL
+     (`-emit-sil`) for `blr`, `objc_msgSend`, `swift_retain`,
+     `swift_allocObject`, `swift_beginAccess`, `b.vs`, or bounds traps.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty, one element, boundary sizes, non-ASCII and grapheme
+   clusters (combining marks, ZWJ emoji, flags, `\r\n`), overflow, and
+   error paths. `Sources/Catalog/Checks.swift` shows the shape.
+1. Apply the change. Put a `// PERF/SAFETY:` comment on every
+   `withUnsafe...` closure, `unsafe` expression, unchecked subscript, and
+   memory ordering weaker than sequentially consistent, stating the proof.
+1. Verify with the card's **Verify** steps: behavior first, then the
+   named metric. Count allocations and retains on a second, warmed-up run;
+   the first run includes one-time metadata allocations.
+1. Measure baseline and candidate with the same toolchain, flags, input,
+   and machine (package-benchmark baselines, or the ContinuousClock
+   harness). Keep the change only if the metric moves beyond run-to-run
+   noise and the application workload improves too.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Swift guide.
-   Attribute the dominant cost to algorithm, data movement/layout,
-   allocation/GC/ARC, dispatch/JIT, contention/scheduling, I/O/syscalls,
-   serialization, or native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with package-benchmark or existing target harness with release
-   configuration, exact Swift/toolchain/OS/architecture, representative inputs,
-   repeated statistics and independent result checks. Reject missing rows,
-   invalid values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Swift-specific profiling, runtime, and semantic constraints | [Swift language guide](references/swift.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/swift-target-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/swift-target-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/swift-target-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/swift-target-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/swift-target-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/swift-target-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/swift-target-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/swift-target-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/swift-target-performance-performance-language-and-runtime-authorities.md) |
+| Measurements from a debug build | [-O release](references/build-settings.md#release-builds-with--o) |
+| Binary size is the goal | [-Osize](references/build-settings.md#-osize) |
+| Someone proposes `-Ounchecked` | [-Ounchecked](references/build-settings.md#-ounchecked), [wrapping](references/memory.md#wrapping-arithmetic) |
+| `class_method` or generic calls across files, custom build | [WMO](references/build-settings.md#whole-module-optimization) |
+| Calls into another module's small functions | [CMO](references/build-settings.md#cross-module-optimization-and-library-evolution), [@inlinable](references/dispatch.md#inlinable-usablefrominline-and-frozen-across-modules) |
+| `swift_beginAccess` in a profile | [local accumulator](references/memory.md#local-accumulator-instead-of-a-class-property), [flag](references/build-settings.md#-enforce-exclusivityunchecked) |
+| `blr` vtable calls on a leaf class | [final](references/dispatch.md#final-classes-and-members), [access control](references/dispatch.md#access-control-that-lets-wmo-infer-final) |
+| `objc_msgSend` from Swift callers | [@objc dynamic](references/dispatch.md#avoiding-objc-dynamic) |
+| Witness calls through `any P` | [some P](references/dispatch.md#generic-specialization-instead-of-any-p-parameters), [stored generic](references/dispatch.md#generic-stored-property-instead-of-a-stored-existential), [enum](references/dispatch.md#enum-instead-of-an-array-of-existentials) |
+| `AnyObject` protocol suggested for ARC | [class-constrained](references/dispatch.md#class-constrained-protocols) |
+| One allocation per element of plain data | [struct](references/memory.md#structs-instead-of-classes-for-plain-data) |
+| Retains proportional to a traversal | [contiguous values](references/memory.md#contiguous-values-instead-of-linked-nodes) |
+| Struct with class storage copies or aliases | [COW](references/memory.md#copy-on-write-with-isknownuniquelyreferenced) |
+| `x = f(x)` copies a collection | [inout](references/memory.md#inout-instead-of-copy-and-reassign), [consuming](references/memory.md#consuming-parameters), [consume](references/memory.md#the-consume-operator) |
+| Retain per initializer call | [borrowing](references/memory.md#borrowing-parameters) |
+| Class that only owns a resource | [~Copyable](references/memory.md#noncopyable-types) |
+| `swift_allocObject` for a captured `var` | [inout](references/memory.md#inout-instead-of-a-captured-var) |
+| `b.vs` overflow branches block vectorization | [wrapping](references/memory.md#wrapping-arithmetic) |
+| Array growth reallocations | [reserveCapacity](references/collections.md#array-reservecapacity), [reduce(into:)](references/collections.md#reduceinto-instead-of-reduce-with-array-concatenation) |
+| `_CocoaArrayWrapper` in a class-array loop | [ContiguousArray](references/collections.md#contiguousarray-for-class-elements) |
+| Bounds trap in a loop | [monotonic](references/collections.md#withunsafebufferpointer-on-a-monotonic-loop), [data-dependent](references/collections.md#withunsafemutablebufferpointer-for-data-dependent-indices) |
+| Generic `Sequence` API is hot | [contiguous storage](references/collections.md#withcontiguousstorageifavailable-fast-path), [Span](references/collections.md#span-parameters) |
+| Byte-by-byte integer decoding | [RawSpan](references/collections.md#rawspan-loads) |
+| Dictionary rehashing or double lookups | [minimumCapacity](references/collections.md#dictionary-minimumcapacity), [default subscript](references/collections.md#dictionary-subscript-with-default) |
+| Intermediate arrays in `map`/`filter` chains | [lazy](references/collections.md#lazy-sequences) |
+| Memory retained by small slices | [copy slice](references/collections.md#copy-a-slice-at-an-ownership-boundary) |
+| `removeFirst` in a drain loop | [popFirst](references/collections.md#queue-with-popfirst-instead-of-removefirst) |
+| Grapheme iteration for byte scans | [utf8 view](references/strings.md#utf-8-view-instead-of-character-iteration) |
+| `String(substring)` per field | [Substring](references/strings.md#substring-instead-of-string-copies), [small strings](references/strings.md#small-strings) |
+| `index(_:offsetBy:)` in a loop | [iterate](references/strings.md#iteration-instead-of-index-offsetby) |
+| String `+=` reallocations | [reserveCapacity](references/strings.md#string-reservecapacity) |
+| Shared mutable state across tasks | [actor](references/concurrency.md#actor-isolated-state), [Mutex](references/concurrency.md#mutex-from-synchronization), [Atomic](references/concurrency.md#atomic-from-synchronization), [unfair lock](references/concurrency.md#osallocatedunfairlock) |
+| `await actor.method()` per element | [batching](references/concurrency.md#batching-actor-calls) |
+| One busy core on independent CPU work | [TaskGroup](references/concurrency.md#taskgroup-for-cpu-bound-work) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Release builds only, same flags for baseline and candidate. A debug
+  build has different ARC, inlining, and specialization.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric does not move; several cards record exactly
+  that outcome.
+- A candidate that does less work is invalid: skipped validation, a
+  smaller input, a cached result, a dropped overflow check, a byte scan
+  replacing a grapheme-correct scan, or an unordered result replacing an
+  ordered one.
+- Preserve value semantics (a shared copy must not see a mutation),
+  identity (`===`), `deinit` timing, error and trap behavior, Unicode
+  semantics, actor isolation, and `Sendable` guarantees.
+- Unsafe pointers, unchecked subscripts, `-Ounchecked`, and
+  `-enforce-exclusivity=unchecked` need a written proof and the assembly
+  showing the safe form still pays the check. Never ship the counting
+  hooks: they use private runtime and allocator symbols.
+- `@inlinable`, `@frozen`, and `final` on public API are ABI and
+  source-compatibility promises; do not add them to a library without
+  its owner's approval.
+- Only numbers you measured (state machine, toolchain, load) or numbers
+  from a linked primary source go in the report. Timings from a shared
+  machine are labeled as such.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/swift-target-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Swift optimization action. |
-| [Runtime semantics and invariants](references/swift-target-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Swift optimization from observed repository state. |
-| [Performance fixture and tool map](references/swift-target-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Swift optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+`assets/examples/verify.sh` copies the catalog to a temporary directory
+and runs everything through `xcrun`:
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+- `verify` (default): oracles plus malloc, retain, hash-call, and
+  `next()`-call assertions for every pair.
+- `benchmark`: runs every pair once; smoke only, no timing.
+- `asm`: emits assembly with `-O`, library evolution,
+  `-Ounchecked`, and `-enforce-exclusivity=unchecked`, and asserts
+  dispatch, ARC, bounds, overflow, and access-check patterns (arm64).
+- `wmo`: SIL with and without whole-module optimization.
+- `build`: `-O` versus `-Osize` sizes and the `-O` overflow trap.
+- `time [filter]`: ContinuousClock medians per pair.
+- `measure`: package-benchmark pinned by `benchmarks/Package.resolved`
+  (`BENCH_FILTER` selects).
+- `trace`: xctrace Time Profiler and Allocations recordings.
 
-## Bundled executable helpers
+## References
 
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): ContinuousClock,
+  package-benchmark, malloc and ARC hooks, SIL, assembly, xctrace.
+- [Build settings](references/build-settings.md): `-O`, `-Osize`,
+  `-Ounchecked`, WMO, CMO and library evolution, exclusivity flag.
+- [Dispatch](references/dispatch.md): final, access control, `@objc
+  dynamic`, generics versus existentials, `@inlinable`.
+- [Values, ARC, and ownership](references/memory.md): structs, COW,
+  `inout`, `consuming`, `borrowing`, `~Copyable`, exclusivity, captures,
+  wrapping arithmetic.
+- [Collections](references/collections.md): capacity, `ContiguousArray`,
+  unsafe buffers, `Span`, `RawSpan`, dictionaries, `lazy`, slices.
+- [Strings](references/strings.md): UTF-8 view, `Substring`, indexing,
+  capacity, small strings.
+- [Concurrency](references/concurrency.md): actors, `Mutex`, `Atomic`,
+  `OSAllocatedUnfairLock`, batching, `TaskGroup`.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- `swift --version`, deployment target, OS and CPU, and the release
+  flags from `swift build -c release -v`;
+- the profile, counter, or assembly evidence that attributed the cost;
+- the card applied, its preconditions checked, and its counter-indications
+  ruled out;
+- the oracle command and result, including Unicode, empty, boundary, and
+  overflow cases;
+- baseline and candidate numbers from the same build and machine, with
+  units, percentiles or spread, and machine load, plus the
+  application-level result;
+- every check not run (Linux, other architectures, Instruments without
+  full Xcode, older deployment targets) stated as not verified.

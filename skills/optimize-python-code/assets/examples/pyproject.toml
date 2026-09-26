@@ -1,11 +1,25 @@
 [project]
-name = "python-optimization-examples"
+name = "python-optimization-constructs"
 version = "0.0.0"
 requires-python = ">=3.10"
+description = "Baseline/candidate pairs with oracles; pyperf only for timing."
 
 [tool.ruff]
 target-version = "py310"
 line-length = 80
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "UP", "S", "BLE", "RUF"]
+select = [
+    "B",
+    "BLE",
+    "E4",
+    "E7",
+    "E9",
+    "EXE",
+    "F",
+    "I",
+    "RUF",
+    "S110",
+    "S112",
+    "SIM",
+]

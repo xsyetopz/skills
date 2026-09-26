@@ -1,4 +1,4 @@
 interface:
   display_name: "Migrate JS Tooling to Bun"
-  short_description: "Migrate selected JavaScript tooling to Bun"
-  default_prompt: "Use $migrate-js-tooling-to-bun to migrate only the requested package-manager, test, build, bundling, or runtime responsibilities to Bun."
+  short_description: "Move selected JS tooling to Bun with proof"
+  default_prompt: "Use $migrate-js-tooling-to-bun to move only the requested package-manager, test, bundler, or runtime responsibility to Bun, compare the dependency graph, and prove each moved command."

@@ -1,191 +1,151 @@
 ---
 name: optimize-java-code
 description: >-
-  Use when profiling or optimizing Java/JVM CPU time, latency, throughput,
-  allocations, or memory use. Preserve the target JDK, warmup conditions,
-  synchronization, ordering, exceptions, and workload. Not for Kotlin/Scala
-  source changes or style-only edits.
+  Profiles and optimizes Java CPU time, allocation, latency, and startup with
+  JMH, JFR, and GC and JIT logs. Use when a Java benchmark or profile shows
+  the cost. Not for Kotlin or Scala code.
 ---
 
 # Optimize Java Code
 
-Improve a measured Java performance objective for the representative Java/JVM
-application, JIT, GC, concurrency, and libraries while preserving all observable
-behavior, supported targets, resource ownership, errors, concurrency, and
-deployment contracts. Correctness and matched workload come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use JFR/JDK Mission Control, async-profiler or approved profiler, GC logs,
-  JMH, compiler/disassembly tools, heap histograms/dumps, and project tests as
-  appropriate to the actual target; do not install or invoke every tool for
-  completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Java/JVM optimization; it
-  MUST NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide JDK, JVM flags, GC, classpath, warmup phase,
-  workload, synchronization, and exception behavior, hard constraints, available
-  tools, and the finish condition once. Remove repeated directions and examples
-  unless a recorded evaluation shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with JMH, JFR, GC logs, profiles, and
-  semantic tests. Report commands, observed results, and gaps. A parser, build,
-  or single green test proves only the property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured Java hot path or JVM configuration cheaper without changing
+observable behavior. Each change applies one reference card to a cost that
+JFR, JMH, or a GC/JIT log attributes, is checked by an equivalence oracle,
+and is kept only if the metric the card names improves. Several cards
+report **no measurable difference** because C2 already optimizes the
+baseline, so read the card before applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `java -version`, the build's `--release`/
+   `maven.compiler.release` (or Gradle toolchain), the production JVM flags,
+   and `java -XX:+PrintFlagsFinal -version` values the card depends on
+   (collector, `MaxInlineSize`, `UseCompactObjectHeaders`). Keep the JDK
+   and language level; a construct that needs a newer JDK is a separate,
+   user-approved change.
+1. Reproduce the workload with production flags. Pick the metric the user
+   cares about: mean or tail latency, throughput, bytes per operation, GC
+   pause, heap footprint, startup, or time to peak.
+1. Attribute the cost before editing
+   ([measurement](references/measurement.md)):
+   - application CPU or allocation: JFR with `settings=profile`, then
+     `jfr view hot-methods` and `jfr view allocation-by-class`;
+   - running service: `jcmd <pid> JFR.start` / `JFR.dump`,
+     `GC.class_histogram` for retention;
+   - GC pauses: `-Xlog:gc,gc+phases`;
+   - one isolated method: a JMH benchmark with `-prof gc`.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty, boundary, overflow, `null`, Unicode, and exception
+   cases, in the project's test framework. `Verify.java` in the examples
+   shows the minimum.
+1. Apply the change, then run the card's **Verify** steps: behavior
+   first, then the named metric. Per-operation allocation claims use
+   `gc.alloc.rate.norm` from JMH forks (steady-state C2 code); an
+   in-process allocation delta is valid only for objects that are stored
+   (so escape analysis cannot remove them), such as footprint checks.
+1. Compare runs with `scripts/jmh_compare.py` and re-run the
+   application-level workload. Keep the change only when the target metric
+   moved beyond the error bars and nothing else regressed; revert
+   otherwise.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Java guide. Attribute
-   the dominant cost to algorithm, data movement/layout, allocation/GC/ARC,
-   dispatch/JIT, contention/scheduling, I/O/syscalls, serialization, or
-   native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with JMH or existing benchmark suite with forks, warmup, measurement
-   iterations, modes, parameters, state scope, consumption, GC/JVM arguments,
-   target JDK and independent result checks. Reject missing rows, invalid
-   values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Java-specific profiling, runtime, and semantic constraints | [Java language guide](references/java.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/java-jvm-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/java-jvm-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/java-jvm-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/java-jvm-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/java-jvm-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/java-jvm-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/java-jvm-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/java-jvm-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/java-jvm-performance-performance-language-and-runtime-authorities.md) |
+| Need a trustworthy microbenchmark | [JMH anatomy](references/measurement.md#jmh-benchmark-anatomy), [consuming results](references/measurement.md#consuming-results-in-jmh) |
+| Need bytes per operation | [JMH -prof gc](references/measurement.md#jmh-gc-profiler-and-alloc-rate-norm), [comparing results](references/measurement.md#comparing-jmh-json-results) |
+| Unknown hotspot in an app | [JFR](references/measurement.md#jdk-flight-recorder), [jcmd](references/measurement.md#jcmd-on-a-live-jvm), [async-profiler](references/measurement.md#async-profiler) |
+| GC pauses or collector unknown | [GC logging](references/measurement.md#unified-gc-logging) |
+| Inlining or deopt questions | [JIT logs](references/measurement.md#jit-compilation-and-inlining-logs) |
+| Small temporaries allocated per call | [Escape analysis](references/allocation.md#escape-analysis-and-scalar-replacement), [escaping temporaries](references/allocation.md#escaping-temporaries) |
+| `s = s + x` in a loop | [StringBuilder](references/allocation.md#stringbuilder-for-loop-concatenation) |
+| Request to replace `a + b + c` with a builder | [Single-expression concat](references/allocation.md#single-expression-concatenation) (no gain) |
+| Many `Integer`/`Long` objects in heap | [Primitive arrays](references/allocation.md#primitive-arrays-instead-of-boxed-collections), [primitive accumulators](references/allocation.md#primitive-accumulators) |
+| `==` on `Integer`/`Long` | [Integer cache](references/allocation.md#integer-cache-and-boxed-identity) |
+| `ArrayList.grow`/`HashMap.resize` in profiles | [Presized ArrayList](references/allocation.md#presized-arraylist), [newHashMap](references/allocation.md#hashmap-newhashmap-sizing) |
+| String keys built per lookup | [Record keys](references/allocation.md#records-as-composite-map-keys) |
+| Stream pipelines in hot loops | [Streams with collect](references/allocation.md#streams-versus-loops-with-collection), [primitive reductions](references/allocation.md#primitive-stream-reductions) |
+| Request to add `final` for speed | [final and CHA](references/codegen.md#final-classes-and-class-hierarchy-analysis) (no gain) |
+| Megamorphic interface call site | [Sealed switch](references/codegen.md#pattern-switch-over-a-sealed-hierarchy) |
+| Hand-written array compare/copy loops | [Array intrinsics](references/codegen.md#array-intrinsics-in-javautilarrays) |
+| Float/double reductions dominate | [Vector API](references/codegen.md#vector-api-for-floating-point-reductions) |
+| Fixed pool threads blocked in I/O | [Virtual threads](references/concurrency.md#virtual-threads-for-blocking-tasks) |
+| `jdk.VirtualThreadPinned` events | [Pinning after JEP 491](references/concurrency.md#virtual-thread-pinning-after-jep-491) |
+| `get` then `put` caches, duplicate work | [computeIfAbsent](references/concurrency.md#concurrenthashmap-computeifabsent) |
+| Contended `AtomicLong` statistics | [LongAdder](references/concurrency.md#longadder-for-contended-counters) |
+| Pause goals, collector choice | [G1](references/runtime.md#g1-default-collector), [ZGC](references/runtime.md#generational-zgc), [Parallel](references/runtime.md#parallel-gc-for-throughput) |
+| Slow startup or warmup | [AppCDS](references/runtime.md#appcds-dynamic-archive), [AOT cache](references/runtime.md#aot-cache), [AOT profiles](references/runtime.md#aot-method-profiles) |
+| Heap full of small objects | [Compact headers](references/runtime.md#compact-object-headers) |
+| JNI glue or native call cost | [FFM downcalls](references/runtime.md#ffm-downcalls-instead-of-jni), [critical downcalls](references/runtime.md#critical-ffm-downcalls), [arenas](references/runtime.md#arena-scoped-native-memory) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Benchmarks use JMH with forks, warmup, `@State` inputs built in
+  `@Setup(Level.Trial)`, and every result returned or consumed by a
+  `Blackhole`. Never time a loop with `System.nanoTime` in `main`.
+- Pass shared JVM options to JMH with `-jvmArgs`, not `-jvmArgsAppend`,
+  and read each `# VM options:` line: command-line options replace
+  annotation values.
+- One construct per measured change, so each result is attributable. A
+  candidate that does less work (skipped validation, cached result,
+  smaller input) is invalid.
+- Never trade semantics for speed: keep exception types, `null` handling,
+  iteration order, floating-point results (unless the contract allows
+  reassociation and the oracle uses a tolerance), and memory-model
+  guarantees (`volatile`, locks, safe publication).
+- Process-wide flags (collector, heap, compact headers, AOT cache, native
+  access) need an application-level measurement and a stated deployment
+  consequence. Match training and production JDK, OS, architecture, and
+  class path for CDS/AOT caches.
+- `jdk.tracePinnedThreads` was removed in JDK 24; use the
+  `jdk.VirtualThreadPinned` JFR event.
+- JMH refuses to start while another run holds `jmh.lock` in
+  `java.io.tmpdir`. Do not pass `-Djmh.ignoreLock=true` on a dedicated
+  benchmark host; on a shared machine give the run a private
+  `-Djava.io.tmpdir` and label its timings as shared-machine results.
+- The cards' async-profiler, `perf`/`perfasm`, and `hsdis` commands were
+  never executed; treat them as unverified.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/java-jvm-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Java/JVM optimization action. |
-| [Runtime semantics and invariants](references/java-jvm-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Java/JVM optimization from observed repository state. |
-| [Performance fixture and tool map](references/java-jvm-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Java/JVM optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh verify|benchmark|measure|tools|startup`: builds
+  the Maven/JMH catalog and the JNI/FFM library in a temp copy. `verify`
+  runs every oracle; `benchmark` runs each benchmark once; `measure` runs
+  JMH `-prof gc`, exports JSON, and asserts the allocation claims; `tools`
+  exercises GC logs, JFR, jcmd, JIT logs, and pinning events; `startup`
+  builds AppCDS and AOT caches and times them with hyperfine. Needs JDK 25,
+  Maven, a C compiler (`CC`), and python3.
+- `scripts/jmh_compare.py`: prints JMH JSON rows with `gc.alloc.rate.norm`,
+  asserts allocation pairs, or compares two runs by row identity; exits 1
+  on a failed check and 2 on invalid input.
+- `assets/performance-report.md`: the report skeleton.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): JMH anatomy and pitfalls,
+  `-prof gc`, JSON comparison, JFR, jcmd, async-profiler, GC and JIT logs.
+- [Allocation](references/allocation.md): escape analysis, strings,
+  boxing, presizing, record keys, streams.
+- [Code generation](references/codegen.md): `final`/CHA, sealed switch,
+  array intrinsics, Vector API.
+- [Concurrency](references/concurrency.md): virtual threads, pinning,
+  `computeIfAbsent`, `LongAdder`.
+- [Runtime and interop](references/runtime.md): G1, ZGC, Parallel,
+  AppCDS, AOT cache and profiles, compact headers, FFM.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- JDK vendor and version, `--release`, JVM flags, collector, OS/CPU;
+- the JFR view, log excerpt, or JMH row that attributed the cost;
+- the construct applied, with its **Use when** conditions checked;
+- the oracle command and result, including edge and error cases;
+- baseline and candidate JMH rows with units, error, and
+  `gc.alloc.rate.norm` from the same machine and flags, plus the
+  application-level result;
+- anything not run (other JDKs, Linux-only profilers, production load)
+  stated as not verified.

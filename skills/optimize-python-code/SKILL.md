@@ -1,194 +1,159 @@
 ---
 name: optimize-python-code
 description: >-
-  Use when profiling or optimizing Python execution time, latency, allocations,
-  or memory use. Preserve supported Python versions, iterator consumption,
-  errors, identity, and input behavior. Not for PEP 20 readability work without
-  a performance objective.
+  Profiles and optimizes CPython time and memory with pyperf, cProfile,
+  tracemalloc, and import timing. Use when a Python benchmark or profile shows
+  the cost. Not for readability-only refactors.
 ---
 
 # Optimize Python Code
 
-Improve a measured Python performance objective for the representative CPython
-or declared implementation/version and extension/runtime environment while
-preserving all observable behavior, supported targets, resource ownership,
-errors, concurrency, and deployment contracts. Correctness and matched workload
-come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use cProfile/profile, py-spy or approved sampler, `tracemalloc`,
-  allocation/heap tools, pyperf, line/memory profilers where approved,
-  interpreter statistics, and project tests as appropriate to the actual target;
-  do not install or invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a Python optimization; it MUST
-  NOT broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide Python implementation and version,
-  dependencies, interpreter flags, workload, iterator behavior, identity,
-  errors, and extension boundary, hard constraints, available tools, and the
-  finish condition once. Remove repeated directions and examples unless a
-  recorded evaluation shows that they prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with pyperf, cProfile or sampling
-  profiles, allocation evidence, and semantic tests. Report commands, observed
-  results, and gaps. A parser, build, or single green test proves only the
-  property that it can discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured CPython hot path cheaper without changing observable
+behavior. Each change applies one reference card to a cost that a profile
+attributes, is checked by a differential oracle, and is kept only if the
+metric the card names improves. The cards record preconditions, version
+gates, and traps, so read the card before applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target. Run `python -VV`, read `requires-python` in
+   `pyproject.toml`, and note the lockfile and the deployment interpreter.
+   Check whether it is a free-threaded build
+   (`sysconfig.get_config_var("Py_GIL_DISABLED")`) and whether a JIT is
+   enabled. Keep the project's minimum version; a construct gated to a
+   newer Python needs a version guard or an explicit request.
+1. Reproduce the workload with representative inputs. Pick the metric the
+   user cares about: CPU time, wall latency, throughput, peak traced
+   memory, RSS, or start-up time.
+1. Attribute the cost before editing. Commands and interpretation are in
+   [measurement](references/measurement.md).
+   - CPU in Python functions: `python -m cProfile -o out.prof -s cumulative
+     app.py`, then `python -m pstats out.prof`.
+   - Memory growth: tracemalloc snapshot diff grouped by `lineno`.
+   - Start-up: `python -X importtime -c 'import pkg' 2>&1 | tail`.
+   - Native or mixed stacks on Linux: `perf record` with `-X perf`.
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first. Run baseline and candidate on the same inputs,
+   including empty input, a one-shot iterator, duplicates, ties, and error
+   cases (see the differential oracle card in
+   [measurement](references/measurement.md)). Use the project's test runner.
+1. Apply the change. Comment every invariant the card requires (for example,
+   "the global is not rebound", "the input is sorted", "the view does not
+   outlive the buffer").
+1. Verify with the card's **Verify** steps: behavior first, then the named
+   metric (calls, executed instructions, comparisons, traced bytes).
+1. Time the pair with pyperf in the same interpreter and on the same machine:
+   `bench_func` in worker processes, then `python -m pyperf compare_to
+   base.json cand.json --table`. Keep the change only if the row is
+   significant in the intended direction and nothing else regressed. Then
+   re-run the application-level workload.
+1. Report using [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the Python guide.
-   Attribute the dominant cost to algorithm, data movement/layout,
-   allocation/GC/ARC, dispatch/JIT, contention/scheduling, I/O/syscalls,
-   serialization, or native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with pyperf or existing project benchmark with process
-   isolation/warmups, metadata, stable inputs, repeated runs, independent result
-   checks and matching Python implementation/version/build. Reject missing rows,
-   invalid values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading Python-specific profiling, runtime, and semantic constraints | [Python language guide](references/python.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/python-interpreter-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/python-interpreter-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/python-interpreter-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/python-interpreter-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/python-interpreter-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/python-interpreter-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/python-interpreter-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/python-interpreter-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/python-interpreter-performance-performance-language-and-runtime-authorities.md) |
+| No test proves baseline and candidate equal | [Differential oracle](references/measurement.md#differential-equivalence-oracle) |
+| Need a quick in-process timing | [timeit](references/measurement.md#timeit-with-the-minimum-of-repeats) |
+| Need a keep/revert timing decision | [bench_func](references/measurement.md#pyperf-runnerbench_func), [pyperf timeit](references/measurement.md#pyperf-timeit-command), [compare_to](references/measurement.md#pyperf-compare_to) |
+| Unknown which function costs time | [cProfile](references/measurement.md#cprofile-and-pstats) |
+| Memory claim, need a number | [tracemalloc peak](references/measurement.md#tracemalloc-peak-as-an-allocation-oracle) |
+| Memory grows, unknown line | [Snapshot diff](references/measurement.md#tracemalloc-snapshot-diff) |
+| Need exact call counts without timing overhead | [sys.monitoring](references/measurement.md#sysmonitoring-call-counter) |
+| Claim is about loads, calls, or loop iterations | [Instruction counting](references/measurement.md#executed-instruction-counting) |
+| Slow start-up or CLI | [-X importtime](references/measurement.md#python--x-importtime), [Deferred import](references/runtime.md#deferred-import) |
+| Time hidden in C extensions (Linux) | [perf trampoline](references/measurement.md#linux-perf-trampoline) |
+| `math.sqrt`, `len`, and similar globals called in a hot loop | [Local binding](references/interpreter.md#local-binding-of-module-attributes) |
+| `out.append(...)` per iteration | [Hoist method](references/interpreter.md#hoisting-a-bound-method), [Comprehension](references/interpreter.md#list-comprehension-instead-of-an-append-loop) |
+| Python loop computing count, search, max, or dedupe | [C methods](references/interpreter.md#c-implemented-methods-instead-of-python-loops) |
+| `sum([...])`, `max([...])` temporaries | [Generator expression](references/interpreter.md#generator-expression-instead-of-a-temporary-list) |
+| `sum(lists, [])` or `acc = acc + row` | [chain.from_iterable](references/interpreter.md#itertoolschainfrom_iterable-instead-of-sumlists-) |
+| `s += piece` in a loop | [str.join](references/interpreter.md#strjoin-instead-of-repeated-concatenation), [StringIO](references/interpreter.md#iostringio-for-incremental-writers) |
+| `key=lambda r: r[1]` over many rows | [itemgetter](references/interpreter.md#operatoritemgetter-and-attrgetter-keys) |
+| `re.match(CONST, s)` per record | [re.compile](references/interpreter.md#precompiled-regular-expressions) |
+| Same pure call repeated with same args | [functools.cache](references/interpreter.md#functoolscache-and-lru_cache) |
+| `x in list` inside a loop | [set membership](references/containers.md#set-or-dict-membership-instead-of-list-membership) |
+| `list.pop(0)` or `insert(0, x)` | [deque](references/containers.md#collectionsdeque-for-fifo-queues) |
+| `list.count` per element, manual tallies | [Counter](references/containers.md#collectionscounter-instead-of-listcount-per-element) |
+| Range or rank queries on sorted data | [bisect](references/containers.md#bisect-on-a-sorted-list) |
+| `sorted(xs)[:k]` with small k | [nsmallest](references/containers.md#heapqnsmallest-and-nlargest-for-top-k) |
+| Sorting concatenated sorted inputs | [heapq.merge](references/containers.md#heapqmerge-for-sorted-streams) |
+| Many small instances dominate memory | [\_\_slots\_\_](references/containers.md#__slots__), [dataclass slots](references/containers.md#dataclassslotstrue) |
+| Large lists of numbers | [array.array](references/containers.md#arrayarray-for-homogeneous-numbers) |
+| `data[a:b]` copies of large bytes | [memoryview](references/containers.md#memoryview-slices) |
+| `bytes +=` in a loop | [bytearray](references/containers.md#bytearray-accumulation) |
+| `struct.unpack` per record with slicing | [struct.Struct](references/containers.md#structstruct-precompiled-formats) |
+| Pure-Python CPU work that splits into tasks | [ProcessPoolExecutor](references/concurrency.md#processpoolexecutor-for-cpu-bound-work), [InterpreterPoolExecutor](references/concurrency.md#interpreterpoolexecutor) |
+| Wall time dominated by blocking I/O | [ThreadPoolExecutor](references/concurrency.md#threadpoolexecutor-for-blocking-io) |
+| Sequential `await` of independent calls | [TaskGroup](references/concurrency.md#asynciotaskgroup-for-concurrent-awaits) |
+| Blocking call inside `async def` | [to_thread](references/concurrency.md#asyncioto_thread-for-blocking-calls-in-async-code) |
+| CPU threads on 3.13t/3.14t | [Free-threaded build](references/concurrency.md#threads-on-a-free-threaded-build) |
+| Micro-optimization measured no gain on 3.11+ | [Specialization](references/runtime.md#specializing-adaptive-interpreter) |
+| Asked to "turn on the JIT" | [Experimental JIT](references/runtime.md#experimental-jit) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- The same interpreter binary, flags, environment, inputs, and machine for
+  baseline and candidate. pyperf workers receive a reduced environment, so
+  pass `--inherit-environ` for variables such as `PYTHON_JIT`.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose pyperf row is not significant; do not keep
+  "harmless" rewrites.
+- A candidate that does less work (skipped validation, cached result,
+  different input, early exit) is invalid even if it is faster.
+- Preserve laziness, iteration count, ordering and tie rules, exception
+  types and timing, `None`/falsy distinctions, identity, and float results.
+  `sum` uses compensated summation since 3.12, so a manual float loop is not
+  equivalent.
+- Never widen a public signature (default-argument binding) or weaken
+  thread-safety to get speed. Never catch `BaseException` in a fast path.
+- Do not quote timings from cProfile, tracemalloc, or `sys.monitoring`
+  runs: those tools slow the code they observe.
+- Gate version-specific APIs: `sys.monitoring` needs 3.12+,
+  `sys._is_gil_enabled` 3.13+, and `InterpreterPoolExecutor` and `sys._jit`
+  3.14+. `-X perf` is Linux-only. The JIT is experimental and not for
+  production.
+- Report only numbers you measured (with machine, OS, and interpreter) or
+  numbers from a cited primary source.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/python-interpreter-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed Python optimization action. |
-| [Runtime semantics and invariants](references/python-interpreter-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested Python optimization from observed repository state. |
-| [Performance fixture and tool map](references/python-interpreter-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the Python optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+- `assets/examples/verify.sh verify|benchmark|measure` runs the construct
+  catalog in a temporary copy. `verify` (stdlib only) runs every
+  equivalence oracle and deterministic benefit check. `benchmark` is a
+  pyperf smoke run. `measure` writes pyperf JSON for both variants and
+  prints `compare_to --table`. `PYTHON` selects the interpreter.
+  `benchmark` and `measure` need pyperf.
+- `assets/examples/constructs/check.py` provides oracle helpers to copy into
+  a project's tests: `peak_bytes`, `executed_ops`, `python_calls`, `Probe`
+  comparison counting, and `at_least_times_faster` for asymptotic gaps.
+- `assets/performance-report.md`: the report skeleton.
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+## References
 
-## Bundled executable helpers
-
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): the oracle, timeit, pyperf,
+  cProfile, tracemalloc, sys.monitoring, importtime, and perf.
+- [Interpreter](references/interpreter.md): lookups, comprehensions, C
+  methods, generators, strings, keys, regex, and caches.
+- [Containers](references/containers.md): sets, deque, Counter, bisect,
+  heapq, slots, array, memoryview, bytearray, and struct.
+- [Concurrency](references/concurrency.md): processes, threads, asyncio,
+  subinterpreters, and free-threading.
+- [Runtime](references/runtime.md): specialization, the JIT, and deferred
+  imports.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
-
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+- the interpreter (`python -VV`), the GIL or free-threaded build, JIT
+  state, OS and CPU, and the project's supported Python range;
+- the profile, trace, or import-time output that attributed the cost;
+- the construct applied, with its **Use when** conditions checked;
+- the oracle command and its result, including edge cases;
+- the card's deterministic metric before and after;
+- pyperf `compare_to` rows (mean ± std dev and significance) from the same
+  machine and interpreter, plus the application-level result;
+- anything not run, for example Linux `perf`, free-threaded builds, JIT
+  builds, or other Python versions, stated as not verified.

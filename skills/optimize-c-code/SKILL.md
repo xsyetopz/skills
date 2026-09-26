@@ -1,191 +1,158 @@
 ---
 name: optimize-c-code
 description: >-
-  Use when profiling or optimizing C execution time, throughput, allocations, or
-  memory use. Preserve C semantics, target compiler/standard, ABI, and workload
-  behavior. Not for C++-only changes or readability-only refactoring.
+  Profiles and optimizes C CPU time, memory, and I/O with sanitizers, compiler
+  remarks, assembly, LTO, and PGO. Use when a C benchmark or profile shows the
+  cost. Not for C++ code or style fixes.
 ---
 
 # Optimize C Code
 
-Improve a measured C performance objective for the representative native
-executable/library and ABI while preserving all observable behavior, supported
-targets, resource ownership, errors, concurrency, and deployment contracts.
-Correctness and matched workload come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use the project profiler; commonly Linux perf, Instruments, ETW/WPA,
-  Valgrind/Callgrind, compiler optimization reports, sanitizers, and the project
-  benchmark harness as appropriate to the actual target; do not install or
-  invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a C optimization; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide C standard, compiler, ABI, target ISA,
-  optimization flags, workload, ownership, and undefined-behavior constraints,
-  hard constraints, available tools, and the finish condition once. Remove
-  repeated directions and examples unless a recorded evaluation shows that they
-  prevent a real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with profiles, sanitizers, differential
-  tests, and matched benchmarks. Report commands, observed results, and gaps. A
-  parser, build, or single green test proves only the property that it can
-  discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured C hot path cheaper without changing observable behavior.
+Each change applies one reference card to a cost that a profile attributes,
+is checked by an equivalence oracle under sanitizers, and is kept only if
+the metric the card names improves: allocator calls, OS write calls, an
+instruction pattern in `-S` output, an optimization record, or a timing
+interval. The cards record where clang already does the rewrite (copy and
+zero loops, read-only `strlen`), so read the card before applying a
+construct; a hand-written change there is noise.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `cc --version`, the standard (`-std=`), the
+   optimization, target, LTO, and sanitizer flags from the build files,
+   the linker, the libc, and the OS and CPU. Keep them unless the task is
+   the build configuration itself.
+1. Reproduce the workload with the release flags, never `-O0`. Pick the
+   metric the user cares about: time per operation, wall time,
+   allocator calls, peak memory, OS calls, or binary size.
+1. Attribute the cost before editing:
+   - CPU on macOS: `sample PID` or `xctrace record --template 'Time
+     Profiler'` ([sample](references/measurement.md#sample),
+     [xctrace](references/measurement.md#xctrace-time-profiler)); on
+     Linux, [perf](references/measurement.md#linux-perf).
+   - Allocator calls: [counting wrappers][count]; leaks only:
+     [leaks](references/measurement.md#leaks-at-exit).
+   - Codegen: [`-S`](references/measurement.md#assembly-inspection) and
+     [remarks](references/measurement.md#optimization-remarks).
+1. Choose one construct from the routing table whose **Use when** matches
+   the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty, one element, boundary lengths, overlapping ranges,
+   `INT_MAX`/`INT_MIN`, embedded `'\0'`, and error paths.
+1. Apply the change. Document every `restrict`, alignment, ownership,
+   and buffer-size precondition in a comment at the definition.
+1. Run the oracle under
+   [ASan and UBSan](references/measurement.md#sanitizer-oracle-build),
+   then check the card's metric.
+1. Measure baseline and candidate with the same compiler, flags, input,
+   and machine: the [monotonic timing
+   loop](references/measurement.md#monotonic-clock-timing-loop) for a
+   function, [hyperfine](references/measurement.md#hyperfine-for-whole-programs)
+   for a program. Repeat; keep the change only when the difference
+   exceeds the run-to-run spread and the application workload improves.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the C guide. Attribute
-   the dominant cost to algorithm, data movement/layout, allocation/GC/ARC,
-   dispatch/JIT, contention/scheduling, I/O/syscalls, serialization, or
-   native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with a repository-native C benchmark harness or a small
-   process/function benchmark with independent result checks; do not require C++
-   Google Benchmark for a C-only task. Reject missing rows, invalid values,
-   ambiguous units, unstable setup, incomparable identities, or benchmarks whose
-   result is optimized away or whose candidate performs less work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading C-specific profiling, runtime, and semantic constraints | [C language guide](references/c.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/c-native-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/c-native-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/c-native-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/c-native-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/c-native-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/c-native-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/c-native-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/c-native-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/c-native-performance-performance-language-and-runtime-authorities.md) |
+| Value reloaded after a store; overlap checks; copy loop not `memcpy` | [restrict](references/codegen.md#restrict-pointers) |
+| `strlen` in a loop condition; `strcat` in a loop | [hoist strlen](references/codegen.md#hoist-strlen-out-of-the-loop-condition), [end offset](references/memory.md#end-offset-instead-of-strcat) |
+| Branch misses on random data | [branchless select](references/codegen.md#branchless-selection), [unconditional store](references/codegen.md#unconditional-store-with-select) |
+| Cold error path in the hot loop | [branch hints](references/codegen.md#branch-probability-hints), [IR PGO](references/build-flags.md#ir-pgo) |
+| Float reduction not vectorized (`fadd s`, no `fadd.4s`) | [pragma](references/build-flags.md#scoped-reassociation-pragma), [fast math](references/build-flags.md#fast-math), [NEON](references/codegen.md#neon-intrinsics) |
+| Remark names a blocker the source cannot remove | [NEON](references/codegen.md#neon-intrinsics), [x86 dispatch](references/codegen.md#x86-runtime-dispatch) |
+| Large array of small values | [narrow types](references/codegen.md#narrow-element-types) |
+| `a + 1 < a`, overflow checks, size math | [signed overflow](references/codegen.md#signed-overflow-and-wraparound-types), [ckd_add](references/codegen.md#checked-arithmetic-with-ckd_add) |
+| `sizeof` record larger than its fields | [member order](references/memory.md#struct-member-ordering) |
+| Loop reads two fields of wide records | [struct of arrays](references/memory.md#struct-of-arrays) |
+| Inner loop strides over rows | [loop order](references/memory.md#row-major-loop-order) |
+| Hand copy, shift, or zero loops | [memcpy](references/memory.md#memcpy-for-non-overlapping-copies), [memmove](references/memory.md#memmove-for-overlapping-ranges), [memset](references/memory.md#memset-for-zeroing) |
+| `memmove` per deleted element | [compaction](references/memory.md#single-pass-compaction) |
+| One pass over data per key | [counting table](references/memory.md#direct-indexed-counting-table) |
+| `malloc` per node, freed together | [arena](references/memory.md#arena-allocator) |
+| `malloc`/`free` churn of one size | [free list](references/memory.md#free-list-of-fixed-size-slots) |
+| `realloc` per push | [geometric growth](references/memory.md#geometric-growth-with-realloc) |
+| Many small writes; `_IONBF`; `write` per record | [setvbuf](references/io.md#full-buffering-with-setvbuf), [line buffering](references/io.md#line-buffering), [batched write](references/io.md#batched-write-calls) |
+| Hot call into another `.c` file | [full LTO](references/build-flags.md#full-lto), [ThinLTO](references/build-flags.md#thinlto), [static inline](references/build-flags.md#static-inline-functions-in-headers) |
+| Branchy code, representative training input | [IR PGO](references/build-flags.md#ir-pgo), [front-end PGO](references/build-flags.md#front-end-pgo) |
+| Release flags untouched | [O3](references/build-flags.md#optimization-level-o3), [target CPU](references/build-flags.md#target-cpu-native) |
+| Shared library exports internals | [visibility](references/build-flags.md#hidden-visibility), [static](references/build-flags.md#static-internal-linkage) |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Measure optimized builds with the project's flags. Sanitizer and
+  `-O0` builds answer correctness questions only.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric does not move: several cards record
+  constructs that measured no difference or a slowdown.
+- A candidate that does less work is invalid: skipped validation, a
+  smaller input, a result the optimizer deleted (use the barrier and
+  sink), or an error turned into a default.
+- Undefined behavior invalidates any timing: signed overflow, aliasing
+  that violates `restrict` or effective-type rules, out-of-bounds or
+  overlapping `memcpy`, use after `realloc`, reads of freed arena
+  memory. The oracle must run clean under ASan and UBSan.
+- Preserve semantics a rewrite silently changes: float summation order
+  and `-0.0`/NaN (fast math, reassociation, SIMD), stable element order
+  (compaction), embedded `'\0'` in length-delimited data, output
+  visibility timing (buffering), per-record durability (batched writes),
+  and struct layout used as an ABI or file format.
+- Flags such as `-mcpu`/`-march`, `-ffast-math`, LTO, PGO, and
+  `-fvisibility` apply to the whole build and the deployment target.
+  State the consequence and measure the application, not one loop.
+- Before weakening an atomic memory order, state the synchronization and
+  lifetime contract; fewer locks prove neither correctness nor less
+  contention.
+- Report only numbers you measured (with machine, compiler, and flags)
+  or numbers from a linked primary source.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/c-native-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed C optimization action. |
-| [Runtime semantics and invariants](references/c-native-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested C optimization from observed repository state. |
-| [Performance fixture and tool map](references/c-native-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the C optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+`assets/examples/verify.sh` copies the catalog to a temporary directory,
+builds there with `CC`, `CSTD`, and `OPT` (defaults `cc`, `c17`, `-O2`),
+and falls back to an installed macOS SDK that links when the default
+does not:
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+- `verify` (default): oracles, allocator and write-call counts, C23
+  `ckd_add` path, identical output from four emit variants.
+- `benchmark`: every pair once; smoke only, no timing.
+- `sanitize`: ASan+UBSan oracle run; requires UBSan to flag `ub.c`.
+- `asm` and `remarks`: assert `-S` patterns and optimization records.
+- `flags`: LTO call sites, visibility, target CPU, `-O3`, x86 dispatch.
+- `pgo`: IR and front-end PGO pipelines, then hyperfine.
+- `time [filter]`: timing loop medians plus hyperfine; `profile`:
+  `leaks --atExit`, `sample`, `xctrace`.
 
-## Bundled executable helpers
+The clang-only modes (`asm`, `remarks`, `flags`, `pgo`) print `NOT RUN`
+for other compilers instead of passing.
 
-- No bundled script is mandatory. Use the target repository's established tools.
+## References
 
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): timing loop, barrier,
+  hyperfine, sanitizers, counting wrappers, remarks, records, `-S`,
+  sample, xctrace, leaks, perf.
+- [Build flags](references/build-flags.md): `-O3`, target CPU, LTO,
+  ThinLTO, PGO, fast math, reassociation pragma, visibility, linkage.
+- [Code generation](references/codegen.md): restrict, `strlen`,
+  branchless, stores, hints, narrow types, NEON, dispatch, overflow.
+- [Memory](references/memory.md): layout, SoA, loop order,
+  `memcpy`/`memmove`/`memset`, joins, compaction, arena, free list,
+  growth.
+- [I/O](references/io.md): `setvbuf` modes and batched `write`.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
+- `cc --version`, the full compile and link flags, OS and CPU;
+- the profile, count, or codegen evidence that attributed the cost;
+- the card applied and its preconditions checked;
+- the oracle command and its result under ASan and UBSan;
+- baseline and candidate numbers from the same machine and build, with
+  units, repeats, and spread, plus the application-level result;
+- every check not run (perf counters, other compilers or targets, the
+  x86 path) stated as not verified.
 
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[count]: references/measurement.md#counting-allocation-wrappers

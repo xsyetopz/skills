@@ -1,0 +1,7 @@
+{
+	"name": "native-dep",
+	"version": "1.0.0",
+	"scripts": {
+		"postinstall": "node -e \"require('fs').writeFileSync('built.txt','ok')\""
+	}
+}

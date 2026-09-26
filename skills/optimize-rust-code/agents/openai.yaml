@@ -1,4 +1,4 @@
 interface:
   display_name: "Optimize Rust Code"
-  short_description: "Profile and optimize Rust workloads safely"
-  default_prompt: "Use $optimize-rust-code to profile this Rust workload, preserve ownership and synchronization contracts, implement a measured optimization, and report matched evidence."
+  short_description: "Profile and optimize Rust hot paths with evidence"
+  default_prompt: "Use $optimize-rust-code to profile this Rust workload, apply one construct card with an equivalence oracle, and report allocation, assembly, or Criterion evidence from matched release builds."

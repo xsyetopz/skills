@@ -1,193 +1,173 @@
 ---
 name: optimize-cpp-code
 description: >-
-  Use when profiling or optimizing C++ execution time, throughput, allocations,
-  or memory use. Preserve the selected C++ standard, lifetime, exception,
-  iterator, ABI, and concurrency contracts. Not for C-only changes or stylistic
-  refactoring.
+  Optimizes measured C++ hot paths: allocations, copies and moves,
+  string_view, containers, devirtualization, atomics, false sharing, checked
+  with counters and assembly. Use when a C++ benchmark or profile shows the
+  cost. Not for C-only code.
 ---
 
 # Optimize C++ Code
 
-Improve a measured C++ performance objective for the representative native
-executable/library, templates, and ABI while preserving all observable behavior,
-supported targets, resource ownership, errors, concurrency, and deployment
-contracts. Correctness and matched workload come before timing.
-
-## Operating contract
-
-- Require a performance objective, representative workload, metric, and evidence
-  that the target area is material. Do not optimize from aesthetics or folklore.
-- Record baseline and candidate revision, toolchain/runtime, build/profile
-  options, hardware/OS, input, concurrency, setup boundary, and correctness
-  contract.
-- Use the project profiler; commonly perf, Instruments, ETW/WPA, compiler
-  optimization reports, heap/allocation profilers, sanitizers, and Google
-  Benchmark or the repository harness as appropriate to the actual target; do
-  not install or invoke every tool for completeness.
-- Change one hypothesis-sized unit and preserve a clean comparison. Reduce
-  work/algorithmic cost before syntax-level micro-tuning.
-- Run independent semantic checks before and after measurement. A deliberately
-  faulty example or changed workload is not a valid fast candidate.
-- Use repeated matched measurements and report variability. One run, debug
-  build, changed runtime flags, or incomparable environment cannot establish an
-  improvement.
-
-## Measured optimization contract
-
-- Treat the user goal, scope, approval boundary, and required evidence as
-  controlling. This skill narrows how to produce a C++ optimization; it MUST NOT
-  broaden authority or override repository instructions.
-- For GPT-5.6 and GPT-6, provide C++ standard, compiler, ABI, allocator,
-  exception model, target ISA, workload, and lifetime constraints, hard
-  constraints, available tools, and the finish condition once. Remove repeated
-  directions and examples unless a recorded evaluation shows that they prevent a
-  real failure.
-- Infer routine, reversible steps from inspected evidence. Ask only when an
-  unresolved choice changes an external contract. Stop before an external write,
-  destructive action, credential use, or material scope expansion that the user
-  did not authorize.
-- Load a linked reference only when its subject affects the current decision.
-  Use scripts for deterministic mechanics; use model judgment for semantic
-  decisions. Inspect tool output before relying on it.
-- Validate at the boundary of the claim with profiles, sanitizers, differential
-  tests, and matched benchmarks. Report commands, observed results, and gaps. A
-  parser, build, or single green test proves only the property that it can
-  discriminate.
-- Use **MUST** only for an absolute safety or interoperability requirement,
-  **SHOULD** for a default with valid exceptions, and **MAY** for an option.
-  Write short active sentences and use one stable term for each concept. This
-  style is STE-inspired; it is not a claim of formal ASD-STE100 conformance.
+Make a measured C++ hot path cheaper without changing observable
+behavior. Each change applies one reference card to a cost that a
+profile or counter attributes, is checked by an equivalence oracle, and
+is kept only if the metric the card names improves: allocation calls,
+copies or moves, hash or comparison counts, flushes, an instruction
+pattern in the assembly, or a timing pair. The cards record where a
+common construct measured as no difference or a slowdown, so read the
+card before applying a construct.
 
 ## Workflow
 
-```mermaid
-flowchart TD
-    G[Goal and representative workload] --> B[Verified baseline]
-    B --> P[Profile and attribute dominant cost]
-    P --> H[Concrete optimization hypothesis]
-    H --> C[Small candidate change]
-    C --> S[Semantic and safety equivalence checks]
-    S --> M[Matched repeated measurement]
-    M --> A{Benefit material under goal?}
-    A -->|No| R[Revert candidate / retain evidence]
-    A -->|Yes| I[Application-level and target-matrix checks]
-    I --> D[Report result, variance, tradeoffs, limits]
-```
+1. Record the target: `c++ --version`, the libc++ version
+   (`_LIBCPP_VERSION`, see
+   [toolchain record](references/measurement.md#toolchain-and-sdk-record)),
+   `-std=`, `-O` level, `-march`/`-mcpu`, LTO, hardening mode,
+   exceptions and RTTI flags, and the deployment target. Keep them
+   unless the task is the build configuration itself.
+1. Reproduce the workload in an optimized build (`-O2` or the
+   project's release flags). Pick the metric the user cares about:
+   time per operation, end-to-end time, allocations, peak memory.
+1. Attribute the cost before editing: a profile
+   ([xctrace][xctrace] on macOS, `perf` on Linux), the
+   [counting operator new][count-new], or the
+   [copy/move counter][count-moves].
+1. Choose one construct from the routing table whose **Use when**
+   matches the evidence and whose **Do not use when** does not.
+1. Write the oracle first: baseline and candidate on the same inputs,
+   including empty input, one element, boundary values (`LONG_MIN`,
+   `-0.0`), embedded NUL, non-ASCII bytes, missing keys, and error
+   paths. `constructs verify` in the bundled catalog shows the shape.
+1. Apply the change. Put a `// PERF:` comment on every lifetime
+   assumption the change adds (a `string_view`, `span`, view, or
+   reference into a container or buffer, a `pmr` arena, a relaxed
+   atomic) stating why it holds, and run the sanitizers over it
+   (`verify.sh sanitize` shows the command); state it if ASan was not
+   run.
+1. Verify with the card's **Verify** steps: behavior first, then the
+   named metric. Assembly claims use `-S` on `extern "C"` `noinline`
+   functions with the same flags as the timed build.
+1. Measure baseline and candidate with the same compiler, SDK, flags,
+   input, and machine (Google Benchmark if the project has it, else the
+   [chrono harness][chrono] or [hyperfine][hyperfine]).
+   Keep the change only if the difference repeats and the application
+   workload also improves.
+1. Report with [the report template](assets/performance-report.md).
 
-## Procedure
+## Route evidence to a construct
 
-1. Define the requested metric—CPU time, wall latency, tail latency, throughput,
-   allocation rate, retained memory, startup, build/type-check time, energy, or
-   another project metric—and the representative workload/acceptance threshold
-   from evidence. If no threshold exists, measure and report rather than invent
-   one.
-1. Establish baseline behavior and measurements on the actual target
-   configuration. Separate setup from measured work, startup from steady state,
-   CPU from elapsed time, allocation from retention, average from tail, and cold
-   from warm cache/JIT state.
-1. Profile using the target-appropriate tools and read the C++ guide. Attribute
-   the dominant cost to algorithm, data movement/layout, allocation/GC/ARC,
-   dispatch/JIT, contention/scheduling, I/O/syscalls, serialization, or
-   native/host work.
-1. State a causal hypothesis with predicted profile and metric changes.
-   Implement the smallest candidate that tests it. Keep
-   compiler/runtime/dependency/target settings matched unless the settings
-   change is itself the authorized optimization and its deployment consequences
-   are evaluated.
-1. Run semantic equivalence checks over representative and boundary inputs,
-   errors, ordering, cancellation/concurrency, ownership/lifetime, numeric
-   behavior, ABI/API/serialization, and supported fallbacks. Use the bundled
-   fixtures as examples, not proof for target code.
-1. Measure with Google Benchmark or the existing native benchmark target with
-   matched compiler, standard, allocator, LTO/PGO, CPU target, fixtures,
-   counters, and independent correctness tests. Reject missing rows, invalid
-   values, ambiguous units, unstable setup, incomparable identities, or
-   benchmarks whose result is optimized away or whose candidate performs less
-   work.
-1. Validate the application-level effect and operational tradeoffs: memory
-   versus CPU, throughput versus tail latency, startup versus steady state, code
-   size, maintainability, security, portability, target fleet, and rollback.
-   Keep the change only when evidence justifies its cost.
-1. Report complete benchmark identity, raw/summary results,
-   repetitions/variance, semantic checks, profile evidence, tradeoffs, and
-   unexecuted targets. Do not generalize beyond the measured
-   workload/environment.
-
-## Choose the language-performance reference
-
-| Situation | Read or use |
+| Evidence | Card |
 | --- | --- |
-| Reading C++-specific profiling, runtime, and semantic constraints | [C++ language guide](references/cpp.md) |
-| Understanding the bundled semantic fixtures and non-benchmark contract | [Executable fixture contract](references/cpp-native-performance-executable-performance-fixtures.md) |
-| Choosing measurement method, setup boundary, and comparison design | [Profiling and benchmark protocol](references/cpp-native-performance-profiling-and-benchmark-protocol.md) |
-| Selecting optimization techniques after profiling | [Measured optimization techniques](references/cpp-native-performance-measured-optimization-techniques.md) |
-| Reviewing language-specific semantic traps | [Performance semantic hazards](references/cpp-native-performance-performance-semantic-hazards.md) |
-| Using complete benchmark and optimization examples | [Optimization case studies](references/cpp-native-performance-optimization-case-studies.md) |
-| Matching performance and correctness claims to evidence | [Benchmark, profile, and equivalence evidence](references/cpp-native-performance-benchmark-profile-and-equivalence-evidence.md) |
-| Avoiding benchmark, environment, and equivalence failures | [Optimization regressions and recovery](references/cpp-native-performance-optimization-regressions-and-recovery.md) |
-| Applying enterprise rollout, target, and reproducibility controls | [Performance rollout and governance](references/cpp-native-performance-performance-rollout-and-governance.md) |
-| Running the bundled examples | [Example verifier](assets/examples/verify.sh) |
-| Using the performance report format | [Performance report template](assets/performance-report.md) |
-| Checking current official sources | [Performance, language, and runtime authorities](references/cpp-native-performance-performance-language-and-runtime-authorities.md) |
+| `std::move(f())`, `return std::move(local)`, `-Wpessimizing-move` | [elision](references/objects.md#guaranteed-copy-elision-of-prvalues), [NRVO](references/objects.md#return-a-local-by-name-nrvo), [implicit move](references/objects.md#implicit-move-on-return) |
+| Copies where moves were expected | [const local](references/objects.md#non-const-locals-for-values-that-will-be-moved), [last use](references/objects.md#stdmove-at-the-last-use), [noexcept move](references/objects.md#noexcept-move-constructor-for-vector-growth) |
+| Containers or strings passed by value | [const&](references/objects.md#const-reference-for-read-only-parameters), [sink by value](references/objects.md#pass-by-value-and-move-for-sink-parameters), [span](references/containers.md#span-for-read-only-sequence-parameters) |
+| `push_back(T{...})` | [emplace_back](references/objects.md#emplace_back-instead-of-push_back-of-a-temporary) |
+| `shared_ptr` copies, `ldadd`/`ldaddal` in hot code | [make_shared](references/objects.md#make_shared-instead-of-shared_ptr-from-new), [unique_ptr](references/objects.md#unique_ptr-instead-of-shared_ptr), [by const&](references/objects.md#pass-shared_ptr-by-const-reference) |
+| Vector growth reallocations; memory kept after shrinking | [reserve](references/containers.md#vectorreserve), [shrink_to_fit](references/containers.md#shrink_to_fit), [clear reuse](references/containers.md#clear-to-reuse-a-buffer) |
+| `substr`, `std::string const&` from literals | [SSO](references/containers.md#short-string-optimization-capacity), [view substrings](references/containers.md#string_view-for-substrings), [view params](references/containers.md#string_view-for-read-only-text-parameters) |
+| Hash map rehashing, double lookups, `std::string(key)` probes | [reserve](references/containers.md#unordered_mapreserve), [try_emplace](references/containers.md#try_emplace-for-a-single-lookup), [heterogeneous](references/containers.md#heterogeneous-lookup-with-a-transparent-hash) |
+| `std::map::find` hot, read-mostly tables | [hash map](references/containers.md#hash-map-instead-of-an-ordered-map-for-point-lookups), [sorted vector](references/containers.md#sorted-vector-with-lower_bound), [flat_map](references/containers.md#stdflat_map) |
+| Many short-lived allocations per request | [pmr arena](references/containers.md#pmrmonotonic_buffer_resource) |
+| `erase(it)` in a loop | [erase_if](references/containers.md#stderase_if-instead-of-erase-in-a-loop) |
+| `blr` or vtable loads in a hot loop | [templates](references/codegen.md#templates-instead-of-virtual-dispatch), [CRTP](references/codegen.md#crtp-for-static-polymorphism), [visit](references/codegen.md#stdvariant-with-stdvisit), [get_if](references/codegen.md#stdvariant-with-get_if), [final](references/codegen.md#final-for-devirtualization) |
+| `std::function` parameter called per element | [template callable](references/codegen.md#template-callable-instead-of-stdfunction) |
+| Runtime-built constant tables, `__cxa_guard` | [constexpr table](references/codegen.md#constexpr-lookup-table), [consteval](references/codegen.md#consteval-for-guaranteed-compile-time-values) |
+| Branch hints proposed | [likely/unlikely](references/codegen.md#likely-and-unlikely-attributes) (card measured a slowdown) |
+| `__cxa_throw` or unwinding in the profile | [expected](references/codegen.md#stdexpected-for-frequent-failures), [exceptions](references/codegen.md#exceptions-for-rare-failures) |
+| `brk` traps in indexing loops; hardening debate | [hardening mode](references/codegen.md#libc-hardening-mode) |
+| Sorting cost, top-k, pipeline temporaries | [sort](references/codegen.md#stdsort-instead-of-stdstable_sort), [partial_sort](references/codegen.md#partial_sort-for-top-k), [ranges](references/codegen.md#lazy-ranges-views-instead-of-intermediate-containers) |
+| Slow line output, `std::endl`, `std::print` | [newline](references/io.md#newline-instead-of-stdendl), [sync_with_stdio](references/io.md#sync_with_stdiofalse-and-cintienullptr), [buffer](references/io.md#build-text-in-a-buffer-and-write-once), [print](references/io.md#stdprint), [format_to](references/io.md#stdformat_to-into-a-reused-buffer) |
+| `ostringstream`, `to_string`, `stol`, `istringstream` in loops | [to_chars](references/io.md#stdto_chars-for-numbers-to-text), [from_chars](references/io.md#stdfrom_chars-for-text-to-numbers) |
+| seq_cst atomics, contended counters, adjacent per-thread slots | [relaxed](references/concurrency.md#memory_order_relaxed-for-event-counters), [acquire/release](references/concurrency.md#acquire-and-release-instead-of-seq_cst-for-publication), [padding](references/concurrency.md#padding-per-thread-data-against-false-sharing), [interference size](references/concurrency.md#hardware_destructive_interference_size), [local sums](references/concurrency.md#per-thread-accumulation-instead-of-a-shared-atomic) |
+| Idle cores during a large sort or transform | [std::execution::par](references/concurrency.md#parallel-algorithms-with-stdexecutionpar) |
+| Compiler flags, LTO, PGO, `restrict`, SoA, C allocators | the optimize-c-code skill |
 
-## Optimization decision references
+## Rules
 
-Read only the reference whose subject affects the current task.
+- Measure optimized builds only, with the same compiler, SDK, flags,
+  and hardening mode for baseline and candidate. On macOS the libc++
+  headers come from the SDK; a different `SDKROOT` is a different
+  standard library.
+- One construct per measured change, so each result is attributable.
+  Revert a change whose metric does not move: several cards record
+  constructs that changed the assembly but not the time (`constexpr`
+  table, `std::visit`) or made it slower (`[[unlikely]]`).
+- A candidate that does less work is invalid: a skipped error check
+  (`from_chars` without checking `ptr`), a dropped flush the user
+  needs, a cached result, a smaller input, or an exception turned into
+  a default value.
+- Preserve semantics a rewrite can silently change: tie order
+  (`stable_sort` vs `sort`, `partial_sort` ties), moved-from state
+  being read, iterator and pointer invalidation after growth or
+  `erase`, map iteration order, view and span lifetimes, whitespace and
+  `+` handling in parsers, float formatting (`-0`, shortest form), and
+  `std::reduce` grouping (its card shows it wrapping 32-bit sums).
+- Allocation and copy assertions compare baseline and candidate
+  counts measured in the same run; never assert an exact baseline
+  count. Counts under ASan are not valid (it interposes `operator new`).
+- Availability is per library and deployment target: check the
+  feature-test macro (`__cpp_lib_flat_map`, `__cpp_lib_print`) and
+  compile with the real `-mmacosx-version-min`. Parallel algorithms
+  need `-fexperimental-library` on libc++; say so.
+- Report only numbers you measured (with machine, compiler, and
+  library) or numbers from a linked primary source.
 
-| Reference | Use when |
-| --- | --- |
-| [Cost model and optimization rules](references/cpp-native-performance-cost-model-and-optimization-rules.md) | Use when selecting the next evidence-backed C++ optimization action. |
-| [Runtime semantics and invariants](references/cpp-native-performance-runtime-semantics-and-invariants.md) | Use when distinguishing the requested C++ optimization from observed repository state. |
-| [Performance fixture and tool map](references/cpp-native-performance-performance-fixture-and-tool-map.md) | Use when locating bundled resources for the C++ optimization. |
+## Bundled tools
 
-## Behavioral evaluation
+`assets/examples/verify.sh` builds in a temporary directory, prints the
+compiler, `SDKROOT`, and `_LIBCPP_VERSION`, and falls back to the
+newest Command Line Tools SDK that links when the default SDK cannot:
 
-Run [the maintained Agent Skills evaluations](evals/evals.json) in clean
-target-client contexts. Compare this revision with a no-skill or prior-skill
-baseline. Review commands, diffs, and artifacts; do not grade prose alone. The
-checked-in cases are test inputs, not claimed results.
+- `verify` (default): equality oracles plus `ALLOC`, `COPIES`,
+  `MOVES`, `HASHES`, `COMPARES`, `PREDICATE`, and `FLUSHES` assertions;
+  identical stdout bytes from every printer.
+- `benchmark`: runs every pair once; smoke only, no timing.
+- `asm`: asserts `blr`, atomics, `__cxa_guard`, and `ldaddal`/`ldadd`
+  per function on aarch64.
+- `diagnose`: move warnings, the `consteval` compile error, and
+  `-Wdangling-gsl`.
+- `time [filter]`: chrono median timing of every pair.
+- `io`: hyperfine over the stdout printers.
+- `sanitize`: ASan and UBSan build of the oracles and a dangling
+  `string_view` that must be reported.
+- `hardening`: libc++ `NONE` versus `FAST` (`brk`, trap, hyperfine).
+- `parallel`: `std::execution::par` versus sequential with oracles.
 
-## Bundled executable helpers
+## References
 
-- No bundled script is mandatory. Use the target repository's established tools.
-
-Run a helper only for the contract it documents. Inspect arguments and output; a
-zero exit status proves only the checks implemented by that helper.
-
-## Bundled output material
-
-- `assets/examples/`
-- `assets/performance-report.md`
-
-Copy or adapt assets into the target workspace. Do not edit the installed skill
-as a substitute for changing the requested repository.
+- [Measurement](references/measurement.md): toolchain record, sink,
+  chrono harness, counting `operator new`, copy/move counter, call
+  counters, `-S`, diagnostics, sanitizers, hyperfine, Google Benchmark,
+  xctrace.
+- [Objects](references/objects.md): elision, moves, parameters, and
+  smart pointers.
+- [Containers](references/containers.md): vectors, strings, views,
+  hash maps, flat maps, and `pmr`.
+- [Code generation](references/codegen.md): dispatch, type erasure,
+  compile-time evaluation, hints, errors, hardening, and algorithms.
+- [I/O](references/io.md): streams, formatting, and `charconv`.
+- [Concurrency](references/concurrency.md): memory order, false
+  sharing, and parallel algorithms.
 
 ## Completion evidence
 
-- Performance goal, workload, metric, target threshold/source, and
-  representative input.
-- Baseline/candidate source revisions, toolchain/runtime/build options,
-  hardware/OS, dependencies, and benchmark identity.
-- Profile evidence and explicit optimization hypothesis.
-- Independent semantic/safety checks including relevant faults and supported
-  targets.
-- Repeated matched measurements with units, variability, raw artifacts, and
-  invalid-run handling.
-- Application-level effect, tradeoffs, rollback, and unmeasured boundaries.
+The final report contains:
 
-## Stop or escalate
+- compiler version, `_LIBCPP_VERSION` (or the library in use),
+  `SDKROOT` or sysroot, flags, OS, and CPU;
+- the profile or counter output that attributed the cost;
+- the card applied and each **Use when** / **Do not use when** item
+  checked;
+- the oracle command and result, including edge and error cases;
+- the card's metric before and after (counts, assembly pattern, or
+  timing with spread) from the same build and machine, and the
+  application-level result;
+- every check not run (sanitizers, other standard libraries, other
+  architectures, Google Benchmark) stated as not verified.
 
-- No representative workload, performance objective, or evidence that the area
-  is material can be established.
-- Correctness/equivalence cannot be demonstrated for the candidate.
-- Baseline and candidate environments/jobs/inputs cannot be matched or
-  normalized.
-- The candidate requires unsupported target features, unsafe behavior, public
-  contract change, or dependency/toolchain upgrade outside scope.
-- Observed variance or benchmark invalidity is too large for the claimed
-  conclusion.
-
-Do not claim completion while a required check is failed, unattempted, or
-unavailable. State the exact evidence and the remaining boundary instead of
-promoting a narrower result into a broader claim.
+[xctrace]: references/measurement.md#xctrace-time-profiler
+[count-new]: references/measurement.md#counting-global-operator-new
+[count-moves]: references/measurement.md#copy-and-move-counting-type
+[chrono]: references/measurement.md#stdchrono-median-harness
+[hyperfine]: references/measurement.md#hyperfine-for-whole-process-comparisons

@@ -1,47 +1,47 @@
 #!/usr/bin/env sh
-# Run in a disposable copy. No installation, lock regeneration, or source cleanup.
+# Builds and runs the construct catalog in a disposable copy so the skill
+# directory never receives bin/, obj/, or BenchmarkDotNet artifacts.
+#
+#   sh verify.sh verify      equivalence + allocation oracles (default)
+#   sh verify.sh runtime     print the effective runtime configuration
+#   sh verify.sh benchmark   BenchmarkDotNet dry job: harness smoke, no timing
+#   sh verify.sh measure     BenchmarkDotNet short job with JSON export
 set -eu
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+MODE=${1:-verify}
+case "$MODE" in
+    verify | runtime | benchmark | measure) ;;
+    *)
+        echo 'usage: verify.sh [verify|runtime|benchmark|measure]' >&2
+        exit 2
+        ;;
+esac
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' 0
 trap 'exit 130' INT
 trap 'exit 143' TERM
-trap 'exit 129' HUP
-cp -R "$ROOT/." "$WORK/"
-cd "$WORK"
-MODE=${1:-all}
-CASE=${2:-}
-if [ "$#" -gt 2 ] || { [ -n "$CASE" ] && [ "$MODE" != correctness ]; }; then
-    echo 'usage: verify.sh [all|comparisons|correctness [1..8]|reproduction|benchmark]' >&2; exit 2
-fi
-if [ -n "$CASE" ]; then case "$CASE" in 1|2|3|4|5|6|7|8) ;; *) echo 'case must be 1..8' >&2; exit 2;; esac; fi
-case "$MODE" in all|comparisons|correctness|reproduction|benchmark) ;; *)
-    echo 'usage: verify.sh [all|comparisons|correctness|reproduction|benchmark]' >&2; exit 2;; esac
-pair() {
-    topic=$1; shift
-    status=0
-    output=$("$@" red "$topic" 2>&1) || status=$?
-    if [ "$status" -ne 1 ]; then printf '%s\n' "$output"; echo "mutant did not fail its contract (exit $status)" >&2; exit 1; fi
-    case "$output" in *"CONTRACT topic $topic: FAIL"*) ;; *) printf '%s\n' "$output"; echo 'wrong failure; not an oracle result' >&2;exit 1;; esac
-    printf '%s\n' "$output"
-    output=$("$@" green "$topic")
-    case "$output" in *"CONTRACT topic $topic: PASS"*) ;; *) echo 'correction did not satisfy its contract' >&2;exit 1;; esac
-    printf '%s\n' "$output"
-}
-dotnet --info
-dotnet build comparisons/Pairs.csproj -c Release
-DLL=comparisons/bin/Release/net10.0/Pairs.dll
-correctness() { for n in ${CASE:-1 2 3 4 5 6 7 8}; do pair "$n" dotnet "$DLL" semantics; done; }
-comparisons() { dotnet "$DLL" verify; }
-reproduction() { dotnet run -c Release --project reproduction/Repro.csproj; }
+cp -R "$ROOT/constructs/." "$WORK/"
+rm -rf "${WORK:?}/bin" "${WORK:?}/obj"
+dotnet build "$WORK/Constructs.csproj" -c Release --nologo -v quiet
+DLL="$WORK/bin/Release/net10.0/Constructs.dll"
 case "$MODE" in
-    all) comparisons; correctness; reproduction;;
-    benchmark)
-        echo 'Legacy benchmark mode: execution smoke only; no timing measurements.'
-        comparisons
-        echo 'SMOKE PASSED: baseline/candidate result checks; not a performance result.'
+    verify)
+        # Allocation oracles need fully optimized code: tier-0 JIT code can
+        # box or allocate where the optimized tier does not.
+        DOTNET_TieredCompilation=0 dotnet "$DLL" verify
         ;;
-    comparisons) comparisons;;
-    correctness) correctness;;
-    reproduction) reproduction;;
+    runtime)
+        dotnet "$DLL" runtime
+        ;;
+    benchmark)
+        dotnet "$DLL" bench --filter '*' --job dry --artifacts "$WORK/artifacts"
+        echo 'SMOKE PASSED: every benchmark ran once; not a timing result.'
+        ;;
+    measure)
+        OUT=${BENCH_OUT:-$PWD/bench-results}
+        mkdir -p "$OUT"
+        dotnet "$DLL" bench --filter "${BENCH_FILTER:-*}" --job short \
+            --exporters json --artifacts "$OUT"
+        echo "Results: $OUT/results"
+        ;;
 esac

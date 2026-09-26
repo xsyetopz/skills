@@ -9,6 +9,27 @@ import yaml
 SKILL_LINK = re.compile(r"(?<!!)\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)")
 REFERENCE_LINK = re.compile(r"^\[[^]]+\]:\s*(?:\n\s*)?([^\s#]+)", re.MULTILINE)
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+
+
+def outside_fences(text: str) -> str:
+    """Drop fenced code blocks; examples inside them are not links."""
+    kept: list[str] = []
+    opener = ""
+    for line in text.splitlines():
+        fence = FENCE.match(line)
+        if fence and not opener:
+            opener = fence.group(1)
+            continue
+        if fence and opener:
+            marker = fence.group(1)
+            closes = marker[0] == opener[0] and len(marker) >= len(opener)
+            if closes and not line.strip()[len(marker) :].strip():
+                opener = ""
+                continue
+        if not opener:
+            kept.append(line)
+    return "\n".join(kept)
 
 
 def fail(message: str) -> None:
@@ -77,9 +98,13 @@ def main() -> int:
             fail(f"{openai_path}: invalid OpenAI metadata: {error}")
             errors += 1
         for markdown in skill.rglob("*.md"):
-            if markdown.name.endswith(".template.md"):
+            # Eval fixtures are test inputs, often deliberately broken.
+            if (
+                markdown.name.endswith(".template.md")
+                or "/evals/files/" in markdown.as_posix()
+            ):
                 continue
-            markdown_text = markdown.read_text()
+            markdown_text = outside_fences(markdown.read_text())
             targets = [
                 *SKILL_LINK.findall(markdown_text),
                 *REFERENCE_LINK.findall(markdown_text),

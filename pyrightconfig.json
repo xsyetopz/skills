@@ -1,13 +1,16 @@
 {
 	"include": ["scripts", "skills"],
+	"exclude": ["**/node_modules", "**/__pycache__", "**/.*", "skills/*/evals/files"],
 	"pythonVersion": "3.10",
-	"stubPath": "typings",
 	"typeCheckingMode": "standard",
 	"executionEnvironments": [
 		{
-			"root": "skills/sublime-plugin-development/assets/package-template",
-			"extraPaths": ["typings"],
-			"pythonVersion": "3.8"
+			"root": "skills/develop-sublime-text-plugins/assets/examples",
+			"extraPaths": [
+				"skills/develop-sublime-text-plugins/assets/examples/offline/host_stub"
+			],
+			"pythonVersion": "3.8",
+			"reportIncompatibleMethodOverride": "none"
 		},
 		{
 			"root": ".",

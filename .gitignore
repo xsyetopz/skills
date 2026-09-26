@@ -3,34 +3,122 @@
 /SUMMARY.md
 /guidance/
 
-# Python environments and caches
-__pycache__/
-*.py[cod]
-/.venv/
-/.pyright/
-/.pytest_cache/
-/.ruff_cache/
-
-# Bun and JavaScript dependencies
-node_modules/
-
-# Local editor and operating-system state
-/.idea/
-/.vscode/
-.DS_Store
-
 # Local secrets and logs
 .env
 .env.*
 !.env.example
 *.log
 
-# Generated reports and packages
+# Eval runs
+/.evals/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.DocumentRevisions-V100
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+.fuse_hidden*
+
+# Editors (the root only: skill examples may ship editor settings)
+/.idea/
+/.vscode/
+*.swp
+*.swo
+.*.sw[a-p]
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pyright/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+*.egg-info/
+.eggs/
+
+# JavaScript, TypeScript, Bun
+node_modules/
+*.tsbuildinfo
+.vscode-test/
+*.vsix
+
+# Swift and Xcode
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# JVM: Gradle, Maven, Java, Kotlin, Scala
+.gradle/
+.kotlin/
+.intellijPlatform/
+*.class
+.bsp/
+.bloop/
+.metals/
+.scala-build/
+
+# Native: C, C++, Rust, Go, .NET
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.dSYM/
+cmake-build-*/
+BenchmarkDotNet.Artifacts/
+*.user
+
+# Editor plugin packages
+*.sublime-package
+
+# Generated reports and build output
 bin/
 build/
 coverage/
 dist/
 obj/
+out/
 target/
-*.sublime-package
-*.vsix
+
+# Eval fixtures are committed inputs even when they look generated
+# (bin/, dist/, *.log); only caches that runs create inside them stay ignored.
+!/skills/*/evals/files/**
+/skills/*/evals/files/**/__pycache__/
+/skills/*/evals/files/**/*.py[cod]
+/skills/*/evals/files/**/.build/
+/skills/*/evals/files/**/.gradle/
+/skills/*/evals/files/**/node_modules/

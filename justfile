@@ -26,7 +26,7 @@ metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
 
 markdown:
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md"
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md" "!skills/*/evals/files/**"
 
 tests: provision
     "{{ venv }}/bin/python" scripts/run_python_tests.py
@@ -35,17 +35,17 @@ assets: provision
     "{{ venv }}/bin/python" scripts/validate_assets.py
 
 justfiles: provision
-    "{{ venv }}/bin/python" skills/write-justfiles/scripts/check_justfiles.py .
+    "{{ venv }}/bin/python" skills/write-justfiles/scripts/check_justfiles.py justfile skills
 
 python-lint: provision
-    "{{ venv }}/bin/ruff" check scripts skills typings
-    "{{ venv }}/bin/ruff" format --check --exclude '*.md' scripts skills typings
+    "{{ venv }}/bin/ruff" check --no-cache scripts skills
+    "{{ venv }}/bin/ruff" format --no-cache --check --exclude '*.md' scripts skills
 
 python-types: provision
     BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun pyright --pythonpath "{{ venv }}/bin/python"
 
 shell:
-    if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
+    if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -not -path '*/evals/files/*' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
 
 validate: skills metadata markdown tests assets justfiles python-lint python-types shell benchmarks
     git diff --check

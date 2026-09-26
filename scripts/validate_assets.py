@@ -14,7 +14,8 @@ import yaml
 def main() -> int:
     errors: list[str] = []
     for path in Path("skills").rglob("*"):
-        if not path.is_file():
+        # Eval fixtures may be deliberately malformed inputs.
+        if not path.is_file() or "/evals/files/" in path.as_posix():
             continue
         try:
             match path.suffix:

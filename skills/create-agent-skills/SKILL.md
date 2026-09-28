@@ -18,6 +18,13 @@ verification steps. Runnable examples and helper scripts prove the claims.
 
 ## Workflow
 
+1. Before creating a skill, search installed and catalog skills for the same
+   trigger words and scope
+   ([overlap check](references/descriptions.md#overlap-check-before-creating)).
+   Extend an existing skill instead of adding a second one with the same
+   responsibility. When two skills must legitimately coexist, give each a
+   boundary clause naming the other
+   ([boundary clause](references/descriptions.md#boundary-clause)).
 1. Collect evidence before writing: real task prompts, the target hosts and
    versions, primary documentation for the domain, and failures agents
    make without the skill. Write `evals/evals.json` first
@@ -26,7 +33,7 @@ verification steps. Runnable examples and helper scripts prove the claims.
    get wrong without help
    ([choosing constructs](references/construct-cards.md#choosing-constructs)).
    Give each variant its own card.
-1. For each construct, write the runnable example in `assets/examples/`
+1. For each construct, write the runnable example in `<skill>/assets/examples/`
    first (baseline and candidate where the card transforms code), with an
    oracle and a benefit assertion
    ([executable resources](references/executable-resources.md)).
@@ -57,21 +64,25 @@ verification steps. Runnable examples and helper scripts prove the claims.
 
 For an existing skill, start with
 [audit and rewrite](references/audit-and-rewrite.md): detect templated
-text, find thin constructs, salvage real content, then follow the workflow.
+text, find thin constructs, salvage real content, check
+[trigger collisions](references/audit-and-rewrite.md#trigger-collisions)
+with neighbors, then follow the workflow.
 
 ## Route the task to a card
 
 | Task or symptom | Card |
 | --- | --- |
+| A new skill might duplicate an existing one's trigger or scope | [Overlap check](references/descriptions.md#overlap-check-before-creating) |
 | Starting a new skill directory | [Directory layout](references/package-format.md#directory-layout) |
 | Frontmatter fields and limits | [Frontmatter](references/package-format.md#skillmd-frontmatter) |
-| Choosing or changing a name | [Name](references/package-format.md#name) |
+| Choosing or changing a name, or sizing a skill's scope | [Name](references/package-format.md#name) |
 | Deciding what goes in body versus references | [Disclosure budget](references/package-format.md#progressive-disclosure-budget) |
 | Agent misses content in references | [One level deep](references/package-format.md#references-one-level-deep) |
 | Deciding between a script and instructions | [Scripts](references/package-format.md#scripts-execute-or-read), [Helper script](references/executable-resources.md#deterministic-helper-script) |
 | Claude Code-only fields, manual-only skills | [Claude Code extensions](references/package-format.md#claude-code-frontmatter-extensions) |
 | Install paths and invocation per host | [Discovery](references/package-format.md#host-discovery-and-invocation) |
 | Skill does not trigger, or triggers wrongly | [Description structure](references/descriptions.md#description-structure), [Triggering evaluation](references/descriptions.md#triggering-evaluation) |
+| Writing `evals/eval_queries.json` | [Triggering evaluation](references/descriptions.md#triggering-evaluation) |
 | Many skills, descriptions truncated | [Length budget](references/descriptions.md#length-budget-across-a-catalog) |
 | Writing a card | [Card structure](references/construct-cards.md#card-structure) |
 | Examples that might not compile | [Examples that run](references/construct-cards.md#examples-that-run) |
@@ -102,7 +113,13 @@ text, find thin constructs, salvage real content, then follow the workflow.
   100 lines a `## Contents` section so a partial read still shows the scope.
 - Runnable assets build and run in a disposable copy; no build output in
   the skill directory.
-- Do not rename a published skill; renames break invocations.
+- A rename breaks invocations of the old name: retire it in the changelog
+  and update every reference in the same change.
+- Keep gotchas in the `SKILL.md` rules with their reasons, because a
+  reference may never be read and a bare MUST gives nothing to generalize.
+- Do not add a skill whose trigger and scope already belong to another
+  skill; extend the existing one, or add a boundary clause to both if they
+  must coexist.
 - Published skills must not link to internal maintenance records.
 - Static validation does not show that a skill changes agent behavior;
   report evaluation trials separately, or say they were not run.
@@ -122,7 +139,7 @@ text, find thin constructs, salvage real content, then follow the workflow.
   names, disclosure budget, references, scripts, assets, host discovery,
   Claude Code extensions.
 - [Descriptions](references/descriptions.md): structure, trigger words,
-  boundary clause, catalog budget, triggering evaluation.
+  overlap check, boundary clause, catalog budget, triggering evaluation.
 - [Construct cards](references/construct-cards.md): card structure,
   choosing constructs, variants, runnable examples, cost and measurement,
   verification tiers, grounding, non-code skills.
@@ -132,7 +149,8 @@ text, find thin constructs, salvage real content, then follow the workflow.
 - [Evaluation](references/evaluation.md): evals.json, assertions, paired
   protocol, failure classification, content sufficiency.
 - [Audit and rewrite](references/audit-and-rewrite.md): boilerplate and
-  thin-card detection, salvage, patterns not to copy, coverage records.
+  thin-card detection, trigger collisions, salvage, patterns not to copy,
+  coverage records.
 - [Codex metadata](references/codex-metadata.md): interface fields,
   invocation policy, MCP dependencies, loader behavior.
 

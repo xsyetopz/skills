@@ -29,8 +29,8 @@ change is a construct card applied to observed evidence and verified.}
 
 ## Rules
 
-- {Rule that prevents a known failure in this domain; add the reason only
-  when it is not obvious.}
+- {Gotcha that causes a known failure in this domain, with the reason it
+  fails; not a bare MUST or NEVER.}
 
 ## Bundled tools
 

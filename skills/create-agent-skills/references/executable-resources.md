@@ -19,7 +19,22 @@ to execute or read them ([best practices][anthropic-bp],
 
 **Definition.** A standalone program in `scripts/` that does one
 mechanical task (parse, compare, validate, generate), with documented
-usage, explicit error messages, and its own tests.
+usage, explicit error messages, and its own tests. Its contract with the
+host environment:
+
+- Bounded output by default. Harnesses truncate long tool output, so a
+  script that can print a lot defaults to a summary or a limit and takes
+  `--limit`, `--offset`, or `--output FILE` for the rest
+  ([using scripts][using-scripts]).
+- Declared dependencies. Declare them inline (PEP 723 `# /// script`
+  block run with `uv run`, Bun or Deno versioned imports) or list them in
+  `SKILL.md`; install packages locally, never globally, and pin versions
+  in one-off commands (`uvx ruff@0.8.0`)
+  ([using scripts][using-scripts], [overview][overview]).
+- Network calls only when they serve the skill's stated purpose. Audits
+  look for "unexpected network calls ... that don't match the Skill's
+  stated purpose", and the Claude API runs skills without network access
+  ([overview][overview]).
 
 **Use when.**
 
@@ -62,6 +77,10 @@ writing it; only the script's output enters context.
 
 1. `python3 scripts/test_<name>.py` passes with the standard library only.
 1. `python3 scripts/<name>.py` with no arguments prints usage and exits 2.
+1. On a large input, the default output stays within a screen; the
+   script names the flag that shows the rest.
+1. `rg -n 'urllib|requests|fetch\(|curl|wget' scripts/` finds network
+   calls only where the skill's description says it fetches data.
 
 ## Exit-code contract
 
@@ -224,3 +243,4 @@ after execution.
 
 [anthropic-bp]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 [using-scripts]: https://agentskills.io/skill-creation/using-scripts
+[overview]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview

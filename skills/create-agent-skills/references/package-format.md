@@ -122,19 +122,33 @@ newlines.
 ## Name
 
 **Definition.** The directory name and `name` field identify the skill
-and become its invocation (`/name` in Claude Code, `$name` in Codex).
+and become its invocation (`/name` in Claude Code, `$name` in Codex). The
+name covers one coherent job: OpenAI says "Keep each skill focused on one
+job" ([build skills][codex-skills]), and "Skills scoped too broadly become
+hard to activate precisely" ([best practices][agentskills-bp]).
 
-**Use when.** Creating a skill. Prefer an action and object
-(`optimize-csharp-code`, `write-justfiles`); Anthropic suggests gerund
-forms (`processing-pdfs`) or action forms, applied consistently across a
-collection ([best practices][anthropic-bp]).
+**Use when.** Creating a skill. Anthropic prefers gerund forms
+(`processing-pdfs`) but accepts action forms, provided one pattern holds
+across the collection ([best practices][anthropic-bp]); this catalog uses
+action-oriented verb-noun names (`optimize-csharp-code`,
+`write-justfiles`). Size the scope before naming it:
+
+- Too broad: two unrelated ecosystems or jobs in one skill; split it, so
+  each description can name its own triggers.
+- Too narrow: a single construct with no workflow around it; make it a
+  card in the owning skill ([choosing
+  constructs](construct-cards.md#choosing-constructs)).
+- The name covers the whole job: name a skill that writes and reviews an
+  artifact for its primary verb and artifact, and state the review in the
+  description (`write-behavior-tests` writes, reviews, and retires tests).
 
 **Do not use when.** Renaming a published skill breaks callers,
 documentation, and `$name` references in other skills; treat a rename as
-a migration.
+a migration: retire the old name in the changelog and update every
+reference in the same change.
 
-**Example.** `debug-software-failures`, not `git-helper` (vague) or
-`claude-bisect` (reserved word).
+**Example.** `debug-software-failures`, not `git-helper` (vague),
+`claude-bisect` (reserved word), or `rust-and-python-tooling` (two jobs).
 
 **Cost removed.** Ambiguous invocation and collisions.
 
@@ -157,7 +171,8 @@ at 1% of the context window, and drops the descriptions of the
 least-invoked skills when it overflows; `disable-model-invocation: true`
 keeps a description out entirely ([Claude Code skills][cc-skills]). Codex
 budgets 2% of the context window in tokens, or 8,000 characters when the
-window is unknown, and removes descriptions before omitting skills
+window is unknown, and shortens and then removes descriptions before
+omitting skills
 ([render.rs][codex-render]).
 
 **Use when.** Deciding what goes in the description, the body, and the
@@ -168,9 +183,14 @@ thin. A reference costs nothing until read, so put the complete technical
 detail there and have `SKILL.md` route to it precisely.
 
 **Example.** Body: workflow, routing table from symptom to card, rules,
-completion evidence. References: one card per construct with complete code.
-Assets: runnable projects. A repository may set a stricter body limit (this
-collection: 220 lines, validated by `scripts/validate_repository.py`).
+completion evidence. Gotchas (non-obvious facts that cause known
+failures) stay in the body's rules, because the agent may never open the
+reference that would hold them ([best practices][agentskills-bp]); each
+rule states its reason, since "reasoning-based instructions" work better
+than bare MUST or NEVER ([evaluating skills][agentskills-eval]).
+References: one card per construct with complete code. Assets: runnable
+projects. A repository may set a stricter body limit (this collection:
+220 lines, validated by `scripts/validate_repository.py`).
 
 **Cost removed.** Context spent on detail irrelevant to the current task,
 and listing truncation that drops trigger words.
@@ -188,7 +208,13 @@ and listing truncation that drops trigger words.
 may preview a file reached through another reference (for example with
 `head -100`) instead of reading it whole, so nested chains lose content
 ([best practices][anthropic-bp]). References over 100 lines start with a
-table of contents, so a partial read still shows the scope.
+table of contents, so a partial read still shows the scope. Every
+reference also needs a load condition: when to open it, which is "more
+useful than a generic 'see references/ for details'"
+([best practices][agentskills-bp]). A routing-table row or a workflow
+step that links the card next to its triggering symptom satisfies this;
+a bottom `## References` list is an index of what each file holds, not a
+load condition.
 
 **Use when.** Always.
 
@@ -206,12 +232,15 @@ directly.
   counters.
 ```
 
-**Cost removed.** Content an agent never reads.
+**Cost removed.** Content an agent never reads, and references read
+for the wrong task.
 
 **Verify.**
 
 1. `python3 scripts/check_reference_structure.py <skill-dir>` reports
    unlinked references and missing `## Contents` sections.
+1. Each reference file appears in at least one routing row or workflow
+   step: `rg -o 'references/[a-z-]+\.md' SKILL.md | sort | uniq -c`.
 
 ## Scripts: execute or read
 
@@ -225,7 +254,10 @@ per task, or correctness depends on exact handling (exit codes, units,
 row identity).
 
 **Do not use when.** A native command already does it (`skills-ref`,
-`markdownlint-cli2`, `just --fmt --check`); do not wrap it.
+`markdownlint-cli2`, `just --fmt --check`); do not wrap it. Call it as a
+one-off command with a pinned version (`bunx eslint@9.0.0`,
+`uvx ruff@0.8.0`), so the command behaves the same over time
+([using scripts][using-scripts]).
 
 **Example.**
 
@@ -282,7 +314,8 @@ testing one locally.
 loads skills identically; test each target host.
 
 **Example.** Install this collection for detected agents with
-`bunx skills add https://github.com/xsyetopz/skills`, or copy one skill
+`bunx skills@1.7.0 add https://github.com/xsyetopz/skills` (pinned; check
+the current release with `bun pm view skills version`), or copy one skill
 directory into `.claude/skills/` for a project.
 
 **Cost removed.** "Skill not found" debugging.
@@ -338,4 +371,7 @@ workflows, and permission prompts for the one script the skill needs.
 [cc-skills]: https://code.claude.com/docs/en/skills
 [codex-skills]: https://learn.chatgpt.com/docs/build-skills
 [skills-ref]: https://github.com/agentskills/agentskills/tree/main/skills-ref
+[agentskills-bp]: https://agentskills.io/skill-creation/best-practices
+[agentskills-eval]: https://agentskills.io/skill-creation/evaluating-skills
+[using-scripts]: https://agentskills.io/skill-creation/using-scripts
 [codex-render]: https://github.com/openai/codex/blob/e72da2b/codex-rs/ext/skills/src/render.rs

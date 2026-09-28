@@ -7,6 +7,7 @@ as construct cards without losing what was real.
 
 - Templated boilerplate
 - Thin card detection
+- Trigger collisions
 - Salvage before delete
 - Patterns not to copy
 - Catalog coverage record
@@ -65,6 +66,44 @@ Complete: the "Bounded stackalloc with ArrayPool fallback" card in
 
 1. Each construct the skill mentions (`rg -n '^- ' references/`) has
    its own card or is supporting context.
+
+## Trigger collisions
+
+**Definition.** Two skills claim the same request when their descriptions
+share trigger words and neither excludes the other, so the agent picks the
+wrong one or loads both.
+
+**Use when.** Auditing a catalog or adding a skill next to an existing
+one in the same domain.
+
+**Do not use when.** The shared word is a generic verb ("write", "review")
+rather than a domain-specific trigger; generic overlap is not a
+collision.
+
+**Example.** List each skill's trigger nouns from its description, then
+find pairs that share one without a boundary clause:
+
+```sh
+for f in skills/*/SKILL.md; do
+  name=$(awk -F': ' '/^name:/{print $2; exit}' "$f")
+  words=$(awk '/^description:/{f=1;next} f&&/^[a-z-]+:/{f=0} f' "$f" |
+    tr -cs 'A-Za-z0-9' '\n' | tr 'A-Z' 'a-z' | sort -u)
+  echo "$name: $words"
+done
+```
+
+Compare the word sets by eye or with `comm`; a shared multi-word trigger
+(`github actions`, `justfile`) between two skills without a "Not for ..."
+clause on either side is a collision.
+
+**Cost removed.** An agent loading the wrong skill, or both, for one
+request.
+
+**Verify.**
+
+1. Every shared trigger between two skills' descriptions resolves to one
+   owning skill, or both have a
+   [boundary clause](descriptions.md#boundary-clause) naming the other.
 
 ## Salvage before delete
 

@@ -36,11 +36,9 @@
 		},
 		{
 			"id": 2,
-			"prompt": "The skill in describe/skills/gradle-build-speed/ almost never gets used: people say things like \"the build is slow\" or \"gradle takes forever on CI\" and the agent doesn't pick it. Fix what's stopping it from being picked (don't touch the instructions themselves), and give me prompts to test triggering with in describe/skills/gradle-build-speed/evals/eval_queries.json as a JSON list of {\"query\", \"should_trigger\"} objects.",
-			"expected_output": "Rewrites only the description: third person, what the skill does (measure and speed up Gradle builds: build cache, configuration cache, parallel, undeclared inputs) and when to use it in the user's words (slow builds, build time), plus a Not-for boundary. eval_queries.json has realistic should-trigger queries and near-miss should-not-trigger queries. The body is unchanged.",
-			"files": [
-				"evals/files/describe/skills/gradle-build-speed/SKILL.md"
-			],
+			"prompt": "The skill in describe/skills/gradle-build-speed/ almost never gets used: people say things like \"the build is slow\" or \"gradle takes forever on CI\" and the agent doesn't pick it. Fix what's stopping it from being picked (don't touch the instructions themselves), and give me prompts to test triggering with in describe/skills/gradle-build-speed/evals/eval_queries.json.",
+			"expected_output": "Rewrites only the description: third person, what the skill does (measure and speed up Gradle builds: build cache, configuration cache, parallel, undeclared inputs) and when to use it in the user's words (slow builds, build time), plus a Not-for boundary. eval_queries.json holds about 20 {query, should_trigger, split} objects: 8-10 realistic should-trigger queries and 8-10 near-miss should-not-trigger queries, split into train and validation with both labels in each part. The body is unchanged.",
+			"files": ["evals/files/describe/skills/gradle-build-speed/SKILL.md"],
 			"assertions": [
 				{
 					"text": "The description is 100-1024 characters, names Gradle, uses the users' wording (slow or build time), and says when to use it.",
@@ -55,8 +53,8 @@
 					"check": "python3 - <<'PY'\nimport json, os, re, subprocess, sys\ndef front(path):\n    text = open(path, encoding=\"utf-8\").read()\n    m = re.match(r\"---\\n(.*?)\\n---\\n\", text, re.S)\n    if not m:\n        print(\"no frontmatter in\", path); sys.exit(1)\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(STDIN.read))\"], input=m.group(1), capture_output=True, text=True)\n    if out.returncode:\n        print(\"frontmatter YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout), text[m.end():]\ndef yaml_file(path):\n    out = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0])))\", path], capture_output=True, text=True)\n    if out.returncode:\n        print(\"YAML invalid:\", out.stderr[-200:]); sys.exit(1)\n    return json.loads(out.stdout)\n\nimport hashlib\n_, body = front(\"describe/skills/gradle-build-speed/SKILL.md\")\nsys.exit(0 if hashlib.sha256(body.encode()).hexdigest() == \"c1bc66548455789910afab4fa6f3eb2c36b414294819e1eb61def825c578e0fd\" else 1)\nPY"
 				},
 				{
-					"text": "eval_queries.json is a JSON list of at least 8 {query, should_trigger} objects with at least 3 true and 3 false.",
-					"check": "python3 - <<'PY'\nimport json, sys\nq = json.load(open(\"describe/skills/gradle-build-speed/evals/eval_queries.json\"))\nok = isinstance(q, list) and len(q) >= 8 and all(isinstance(x.get(\"query\"), str) and isinstance(x.get(\"should_trigger\"), bool) for x in q)\nt = sum(1 for x in q if x.get(\"should_trigger\") is True); f = sum(1 for x in q if x.get(\"should_trigger\") is False)\nprint(len(q), t, f)\nsys.exit(0 if ok and t >= 3 and f >= 3 else 1)\nPY"
+					"text": "eval_queries.json is a JSON list of 16-24 {query, should_trigger, split} objects with 8-10 true and 8-10 false, split into train and validation, each part holding both labels.",
+					"check": "python3 - <<'PY'\nimport json, sys\nq = json.load(open(\"describe/skills/gradle-build-speed/evals/eval_queries.json\"))\nok = isinstance(q, list) and 16 <= len(q) <= 24 and all(isinstance(x, dict) and isinstance(x.get(\"query\"), str) and isinstance(x.get(\"should_trigger\"), bool) and x.get(\"split\") in (\"train\", \"validation\") for x in q)\nt = sum(1 for x in q if x.get(\"should_trigger\") is True); f = sum(1 for x in q if x.get(\"should_trigger\") is False)\nparts = {(x.get(\"split\"), x.get(\"should_trigger\")) for x in q} if ok else set()\nprint(len(q), t, f, sorted(parts, key=str))\nsys.exit(0 if ok and 8 <= t <= 10 and 8 <= f <= 10 and len(parts) == 4 else 1)\nPY"
 				},
 				"Most should_trigger false queries are near misses that share vocabulary with the skill (Gradle, builds, CI, speed) but need something else, such as a slow app at runtime, a Maven migration, or a failing Gradle build."
 			]
@@ -65,9 +63,7 @@
 			"id": 3,
 			"prompt": "Make codex/skills/release-notes look right in the Codex app (a proper name, a short blurb, an example prompt) and make sure Codex never picks it by itself, only when someone asks for it explicitly. Add icons too so it looks nice.",
 			"expected_output": "Adds codex/skills/release-notes/agents/openai.yaml with interface.display_name, short_description, and default_prompt mentioning $release-notes, and policy.allow_implicit_invocation: false as a YAML boolean. No icon files are invented: the reply asks for image files (or explains the icon_small/icon_large fields need them). SKILL.md is unchanged.",
-			"files": [
-				"evals/files/codex/skills/release-notes/SKILL.md"
-			],
+			"files": ["evals/files/codex/skills/release-notes/SKILL.md"],
 			"assertions": [
 				{
 					"text": "agents/openai.yaml parses and sets policy.allow_implicit_invocation to the boolean false.",

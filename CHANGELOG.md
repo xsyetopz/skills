@@ -48,8 +48,16 @@ no released versions yet.
   each other and against each worktree's diff before integration.
 - `design-software-architecture` puts data invariants in database
   constraints and keeps application checks for error messages.
+- `create-agent-skills` checks existing skills for trigger and scope
+  overlap before creating one, and audits trigger collisions.
 - `write-implementation-plans` requires each slice to remove or name the TODO,
   stub, or placeholder it adds, and reviews plans for unremoved markers.
+- `create-agent-skills` teaches the Agent Skills, Anthropic, and OpenAI
+  authoring rules it lacked: front-loaded third-person descriptions,
+  `evals/eval_queries.json` and its train and validation split, bounded
+  script output, inline dependencies, pinned one-off commands, network use
+  limited to the stated purpose, one job per skill, load conditions for
+  references, and gotchas with reasons in `SKILL.md`.
 - Bundled scripts name the missing or unwritable path and the expected
   input (`check_gate.py`, `check_hook_config.py`, `merge_hooks.py`,
   `ddmin.py`, `sync_labels.py`, `upsert_comment.py`); the hook handlers'

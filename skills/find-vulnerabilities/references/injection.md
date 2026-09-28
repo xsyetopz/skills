@@ -7,7 +7,7 @@ a program's option parser, HTML, and templates. Runnable pairs live in
 
 Tier: **Executed** on Apple M1 Max, macOS, Python 3.14.7:
 `python3 assets/examples/python/test_injection.py` ran 12 tests, OK.
-Jinja2 3.1.6 ran through `uv run --with jinja2`.
+Jinja2 3.1.6 ran through `uv run --with jinja2==3.1.6`.
 
 ## Contents
 
@@ -358,7 +358,7 @@ renders `<script>alert(1)</script>` verbatim; the fixed one renders
 
 **Verify.**
 
-1. `uv run --no-project --with jinja2 python
+1. `uv run --no-project --with jinja2==3.1.6 python
    assets/examples/thirdparty/autoescape_jinja2.py` prints `PASS`.
 1. `rg -n 'Environment\(|autoescape|\|safe|Markup\(|mark_safe' .` in the
    target; trace every escape hatch to its input.

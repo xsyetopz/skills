@@ -184,10 +184,13 @@ classes"
 '^Tests run: [0-9]+, Failures' "$WORK/nosingleton.log" | tail -n 1)"
 
     mkdir -p "$WORK/inst"
+    # One URL per variable: the director takes a comma-separated list.
+    platform_site="https://download.eclipse.org/eclipse/updates/4.41/"
+    local_site="file:$repo"
     (cd "$WORK/inst" && "$MVN" -B \
         org.eclipse.tycho:tycho-p2-director-plugin:5.0.4:director \
         -Ddestination="$WORK/inst/eclipse" \
-        -Drepositories="https://download.eclipse.org/eclipse/updates/4.41/,file:$repo" \
+        -Drepositories="$platform_site,$local_site" \
         -DinstallIUs=org.eclipse.platform.ide,org.acme.todos.feature.feature.group \
         -Dprofile=SDKProfile -Droaming=true) >"$WORK/director.log" 2>&1 ||
         fail "director: $(tail -n 20 "$WORK/director.log")"

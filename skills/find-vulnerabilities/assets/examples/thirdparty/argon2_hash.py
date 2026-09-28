@@ -1,6 +1,6 @@
 """Argon2id password hashing with argon2-cffi.
 
-Run: uv run --no-project --with argon2-cffi python argon2_hash.py
+Run: uv run --no-project --with argon2-cffi==25.1.0 python argon2_hash.py
 Uses OWASP's first Argon2id option: m=47104 KiB (46 MiB), t=1, p=1.
 """
 

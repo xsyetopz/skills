@@ -1,6 +1,6 @@
 """Template autoescape pair with Jinja2 (CWE-79, CWE-1336).
 
-Run: uv run --no-project --with jinja2 python autoescape_jinja2.py
+Run: uv run --no-project --with jinja2==3.1.6 python autoescape_jinja2.py
 Exits 0 when the vulnerable environment emits markup and the fixed one
 does not.
 """

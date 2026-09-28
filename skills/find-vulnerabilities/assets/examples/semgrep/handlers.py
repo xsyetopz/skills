@@ -28,4 +28,6 @@ def search_fixed(request: Request, db: sqlite3.Connection) -> list:
 
 def page_sanitized(request: Request, db: sqlite3.Connection) -> list:
     limit = int(request.args.get("limit"))
+    if limit < 0:  # SQLite reads a negative LIMIT as "no limit".
+        raise ValueError("limit must be non-negative")
     return db.execute(f"SELECT id FROM users LIMIT {limit}").fetchall()

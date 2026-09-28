@@ -132,8 +132,8 @@ third_party() {
         echo 'SKIP third-party examples: uv not installed'
         return 0
     fi
-    for pair in autoescape_jinja2:jinja2 defused_xml:defusedxml \
-        argon2_hash:argon2-cffi; do
+    for pair in autoescape_jinja2:jinja2==3.1.6 defused_xml:defusedxml==0.7.1 \
+        argon2_hash:argon2-cffi==25.1.0; do
         script=${pair%%:*}
         package=${pair#*:}
         uv run --quiet --no-project --with "$package" \
@@ -176,7 +176,7 @@ dependency_audits() {
     if have pip-audit; then
         audit='pip-audit'
     elif have uvx; then
-        audit='uvx --quiet pip-audit'
+        audit='uvx --quiet pip-audit@2.10.1'
     else
         audit=''
     fi

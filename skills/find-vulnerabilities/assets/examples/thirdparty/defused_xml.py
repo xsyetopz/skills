@@ -1,6 +1,6 @@
 """defusedxml refuses entity declarations (CWE-611, CWE-776).
 
-Run: uv run --no-project --with defusedxml python defused_xml.py
+Run: uv run --no-project --with defusedxml==0.7.1 python defused_xml.py
 """
 
 from __future__ import annotations

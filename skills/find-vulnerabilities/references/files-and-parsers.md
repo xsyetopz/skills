@@ -564,7 +564,7 @@ internal entity to `expanded`; defusedxml refused it.
 
 **Verify.**
 
-1. `uv run --no-project --with defusedxml python
+1. `uv run --no-project --with defusedxml==0.7.1 python
    assets/examples/thirdparty/defused_xml.py` prints `PASS`.
 
 [pathlib-rel]:

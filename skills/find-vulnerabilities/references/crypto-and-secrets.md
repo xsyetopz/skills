@@ -143,7 +143,7 @@ a wrong password raises `VerifyMismatchError`.
 
 **Verify.**
 
-1. `uv run --no-project --with argon2-cffi python
+1. `uv run --no-project --with argon2-cffi==25.1.0 python
    assets/examples/thirdparty/argon2_hash.py` prints `PASS` (local:
    argon2-cffi 25.1.0, encoded prefix `argon2id`, `v=19`,
    `m=47104,t=1,p=1`).

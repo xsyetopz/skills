@@ -155,7 +155,7 @@ it is not a static analyzer ([pip-audit][pip-audit]).
 **Example.** pip-audit was not installed, so it ran through `uvx`:
 
 ```console
-$ uvx pip-audit -r requirements.txt --no-deps --disable-pip \
+$ uvx pip-audit@2.10.1 -r requirements.txt --no-deps --disable-pip \
     -f json -o audit.json; echo $?
 1
 $ grep -o 'PYSEC-[0-9]*-[0-9]*' audit.json | sort -u

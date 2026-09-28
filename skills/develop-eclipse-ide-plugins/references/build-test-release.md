@@ -582,10 +582,11 @@ mojo][director]).
 **Example.** From `verify.sh network`:
 
 ```sh
+platform_site="https://download.eclipse.org/eclipse/updates/4.41/"
+local_site="file:$PWD/org.acme.todos.repository/target/repository"
 mvn -B org.eclipse.tycho:tycho-p2-director-plugin:5.0.4:director \
   -Ddestination="$PWD/inst/eclipse" \
-  -Drepositories="https://download.eclipse.org/eclipse/updates/4.41/,\
-file:$PWD/org.acme.todos.repository/target/repository" \
+  -Drepositories="$platform_site,$local_site" \
   -DinstallIUs=org.eclipse.platform.ide,\
 org.acme.todos.feature.feature.group \
   -Dprofile=SDKProfile -Droaming=true

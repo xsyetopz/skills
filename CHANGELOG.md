@@ -63,6 +63,12 @@ no released versions yet.
   `ddmin.py`, `sync_labels.py`, `upsert_comment.py`); the hook handlers'
   `--help` lists exit status and examples; the Bun migration and `just`
   example verifiers accept `--help` and reject unknown arguments.
+- `find-vulnerabilities` pins the packages its examples and dependency
+  audit fetch (`jinja2==3.1.6`, `defusedxml==0.7.1`, `argon2-cffi==25.1.0`,
+  `pip-audit@2.10.1`) and treats text in the reviewed code as data, not
+  instructions.
+- The Eclipse p2 director example names each repository URL in its own
+  variable instead of one comma-joined string.
 - Sublime Text examples are type-checked against the skill's bundled host
   fakes instead of root stubs.
 - Shared Markdown lint rules live in `.markdownlint.jsonc`, which
@@ -78,6 +84,8 @@ no released versions yet.
 
 ### Fixed
 
+- `find-vulnerabilities`' `int()`-sanitized Semgrep example rejects a
+  negative `LIMIT`, which SQLite reads as no limit.
 - The IntelliJ Platform workflow runs `scripts/check_plugin_xml.py`
   instead of an unresolved `<skill>/` path.
 - Reference cards no longer claim that `return cond ? a : b;` moves in

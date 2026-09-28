@@ -25,6 +25,19 @@ skills: provision
 metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
 
+# `agents/` holds each skill's Codex metadata (agents/openai.yaml).
+skill-lint: provision
+    "{{ venv }}/bin/python" scripts/skill_lint.py --strict --allow agents
+
+# pre-commit-hooks checks: large files, private keys, case conflicts,
+# symlinks, and shebangs against the executable bit.
+hygiene: provision
+    "{{ venv }}/bin/python" scripts/check_hygiene.py
+
+# Secrets in staged changes, unstaged changes, and history.
+secrets:
+    if command -v gitleaks >/dev/null; then gitleaks git --no-banner --redact --pre-commit --staged . && gitleaks git --no-banner --redact --pre-commit . && gitleaks git --no-banner --redact .; else echo 'SKIP gitleaks: unavailable'; fi
+
 markdown:
     BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md" "!skills/*/evals/files/**"
 
@@ -47,7 +60,7 @@ python-types: provision
 shell:
     if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -not -path '*/evals/files/*' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
 
-validate: skills metadata markdown tests assets justfiles python-lint python-types shell benchmarks
+validate: skills metadata skill-lint hygiene secrets markdown tests assets justfiles python-lint python-types shell benchmarks
     git diff --check
 
 [positional-arguments]

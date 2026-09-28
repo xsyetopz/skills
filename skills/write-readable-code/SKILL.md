@@ -12,9 +12,8 @@ description: >-
 Make the correct interpretation of code require as little inference as
 possible. Each card has a runnable before/after example, a metric,
 scanner, or type-checker signal, and the command that proves behavior did
-not change. A Zen of Python (PEP 20) review uses the same cards through
-the [aphorism map][zen-map], which links each of the 19 aphorisms to its
-card.
+not change. A Zen of Python (PEP 20) review reaches the same cards
+through the [aphorism map][zen-map] of all 19 aphorisms.
 
 ## Workflow
 
@@ -157,9 +156,8 @@ satisfy a count. The repository's linter limits win.
 ## References
 
 - [Function shape](references/function-shape.md): read when restructuring
-  a function; metrics and limits, guard clauses, phases, lookup and
-  dispatch tables, parameter objects, explaining variables, flag
-  arguments, when not to extract.
+  a function; metrics, guard clauses, phases, lookup and dispatch tables,
+  parameter objects, explaining variables, flag arguments, extraction.
 - [Names and types](references/names-and-types.md): read when naming or
   typing values; canonical terms, units, typed IDs, enums over flag sets,
   predicates, module names, name length.

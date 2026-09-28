@@ -29,6 +29,15 @@ no released versions yet.
 - `just eval-triggers` and `just eval-outputs` run those evals in isolated,
   sandboxed Claude Code sessions and write agentskills.io-style results
   under `.evals/`.
+- `just skill-lint` (`scripts/skill_lint.py`) checks each skill for body
+  token budgets, bare file references including `${CLAUDE_SKILL_DIR}/`
+  paths, orphan files, nested references, prompting scripts, `--help`,
+  layout, and auxiliary or junk files. `just validate` and the pre-commit
+  hook run it with `--strict`.
+- `just hygiene` runs the pre-commit-hooks checks (large files, private
+  keys, case conflicts, symlinks, shebangs against the executable bit), and
+  `just secrets` runs gitleaks on staged, unstaged, and committed content.
+  The pre-commit hook and `just validate` run both.
 - Bundled checkers accept `--json`; scanners accept `--limit`; `mutate.py`
   accepts `--list` for a dry run.
 
@@ -74,6 +83,7 @@ no released versions yet.
   instructions.
 - The Eclipse p2 director example names each repository URL in its own
   variable instead of one comma-joined string.
+- Every script with a shebang is executable.
 - `update-changelogs` hands version choice to `apply-semantic-versioning`
   and keeps checking release-heading syntax in `audit_changelog.py`.
 - Sublime Text examples are type-checked against the skill's bundled host

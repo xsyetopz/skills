@@ -1,4 +1,4 @@
-# Repository instructions
+# xsyetopz/skills
 
 Skills guide requested work without expanding its scope or authorizing adjacent
 changes. Preserve unrelated work and keep one clear implementation path.

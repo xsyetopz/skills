@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Drafts entries from a Conventional Commits history, audits a valid and a
-# broken changelog, and checks SemVer strings. Uses a throwaway repository.
+# broken changelog. Uses a throwaway repository.
 set -eu
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 SCRIPTS=$(CDPATH='' cd -- "$ROOT/../../scripts" && pwd)
@@ -55,12 +55,4 @@ cat "$WORK/broken.log"
 [ "$status" -eq 1 ] || { echo 'FAIL broken changelog passed' >&2; exit 1; }
 echo 'PASS broken changelog rejected'
 
-"$PY" -I "$SCRIPTS/audit_semver.py" 1.2.3 2.0.0-rc.1 1.0.0+build.5 >/dev/null
-if "$PY" -I "$SCRIPTS/audit_semver.py" v1.2.3 01.2.3 >/dev/null 2>&1; then
-    echo 'FAIL invalid SemVer accepted' >&2
-    exit 1
-fi
-echo 'PASS SemVer syntax checks'
-"$PY" -I "$SCRIPTS/audit_semver.py" --from-tags >/dev/null
-echo 'PASS tags are SemVer'
 echo 'VERIFY PASSED'

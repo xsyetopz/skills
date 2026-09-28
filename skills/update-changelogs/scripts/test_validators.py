@@ -29,32 +29,6 @@ class ValidatorTests(unittest.TestCase):
             check=False,
         )
 
-    def test_semver_valid_invalid_and_missing_arguments(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            for args, status in [
-                (["1.2.3", "2.0.0-rc.1+build.9"], 0),
-                (["9" * 5000 + ".2.3"], 0),
-                (["v1.2.3"], 1),
-                (["1.2.3", "01.2.3"], 1),
-                (["1.2.3\n"], 1),
-                (["1٢.2.3"], 1),
-                (["1.2.3-1٢"], 1),
-                (["1.2.3-01"], 1),
-                (["1.2.3-0.alpha-1+001"], 0),
-                ([], 1),
-                (["--unknown"], 2),
-            ]:
-                for mode in ([], ["--json"]):
-                    with self.subTest(args=args, mode=mode):
-                        result = self.run_cli("audit_semver.py", args, mode, tmp)
-                        self.assertEqual(result.returncode, status, result.stderr)
-                        if mode and args and args[0] != "--unknown":
-                            records = json.loads(result.stdout)
-                            self.assertIsInstance(records, list)
-                            self.assertEqual(
-                                any(not r["valid"] for r in records), status == 1
-                            )
-
     def test_changelog_valid_invalid_empty_and_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
             for text, status in [
@@ -150,19 +124,6 @@ class ValidatorTests(unittest.TestCase):
                 self.assertFalse(
                     [f for f in record["findings"] if f["severity"] == "error"]
                 )
-                with tempfile.TemporaryDirectory() as tmp:
-                    path = Path(tmp) / "CHANGELOG.md"
-                    path.write_text(text)
-                    result = self.run_cli(
-                        "audit_semver.py",
-                        ["--from-changelog", str(path)],
-                        ["--json"],
-                        tmp,
-                    )
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertEqual(
-                        [r["version"] for r in json.loads(result.stdout)], ["1.0.0"]
-                    )
 
     def test_rendered_release_headings_and_yanked_marker(self):
         for heading, definitions in (
@@ -255,22 +216,12 @@ fenced code is content
     def test_source_errors_and_invalid_cli(self):
         with tempfile.TemporaryDirectory() as tmp:
             for mode in ([], ["--json"]):
-                for args in (["--from-changelog", "missing.md"], ["--from-tags"]):
-                    result = self.run_cli("audit_semver.py", args, mode, tmp)
-                    self.assertEqual(result.returncode, 1, result.stderr)
                 result = self.run_cli("audit_changelog.py", ["--unknown"], mode, tmp)
                 self.assertEqual(result.returncode, 2)
 
-    def test_changelog_extraction_and_warning_only(self):
+    def test_warning_only_changelogs_pass(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "CHANGELOG.md"
-            path.write_text(VALID_CHANGELOG)
-            for mode in ([], ["--json"]):
-                result = self.run_cli(
-                    "audit_semver.py", ["--from-changelog", str(path)], mode, tmp
-                )
-                self.assertEqual(result.returncode, 0, result.stderr)
-
             path.write_text(VALID_CHANGELOG.replace(" and Semantic Versioning", ""))
             for mode in ([], ["--json"]):
                 result = self.run_cli("audit_changelog.py", [str(path)], mode, tmp)
@@ -291,66 +242,14 @@ fenced code is content
                 result = self.run_cli("audit_changelog.py", [str(path)], mode, tmp)
                 self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_changelog_extraction_does_not_skip_invalid_versions(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "CHANGELOG.md"
-            for version in ("1.2", "v1.2.3", "1.2.3-", "1٢.2.3"):
-                path.write_text(VALID_CHANGELOG + f"## [{version}] - 2025-01-01\n")
-                for mode in ([], ["--json"]):
-                    with self.subTest(version=version, mode=mode):
-                        result = self.run_cli(
-                            "audit_semver.py",
-                            ["--from-changelog", str(path)],
-                            mode,
-                            tmp,
-                        )
-                        self.assertEqual(result.returncode, 1, result.stdout)
-                        if mode:
-                            self.assertEqual(
-                                [r["version"] for r in json.loads(result.stdout)],
-                                ["1.0.0", version],
-                            )
-
-    def test_git_tag_wrapper_is_only_accepted_from_tags(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            subprocess.run(["git", "init", "-q"], cwd=tmp, check=True)
-            subprocess.run(
-                [
-                    "git",
-                    "-c",
-                    "user.name=Test",
-                    "-c",
-                    "user.email=test@example.com",
-                    "commit",
-                    "--allow-empty",
-                    "-qm",
-                    "test",
-                ],
-                cwd=tmp,
-                check=True,
-            )
-            subprocess.run(["git", "tag", "v1.2.3"], cwd=tmp, check=True)
-            for mode in ([], ["--json"]):
-                result = self.run_cli("audit_semver.py", ["--from-tags"], mode, tmp)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertIn(
-                    "wrapper",
-                    result.stdout,
-                    "tag wrappers must be identified in text and JSON output",
+    def test_invalid_release_versions_are_reported(self):
+        for version in ("1.2", "v1.2.3", "1.2.3-", "1٢.2.3", "1.2.3-01"):
+            with self.subTest(version=version):
+                record = self.audit_text(
+                    VALID_CHANGELOG + f"## [{version}] - 2025-01-01\n### Fixed\n- X.\n"
                 )
-            path = Path(tmp) / "CHANGELOG.md"
-            path.write_text(VALID_CHANGELOG.replace("[1.0.0]", "[v1.0.0]"))
-            result = self.run_cli(
-                "audit_semver.py",
-                ["--from-tags", "--from-changelog", str(path)],
-                ["--json"],
-                tmp,
-            )
-            self.assertEqual(result.returncode, 1, result.stdout)
-            self.assertEqual(
-                [(r["version"], r["valid"]) for r in json.loads(result.stdout)],
-                [("v1.2.3", True), ("v1.0.0", False)],
-            )
+                self.assertIn(version, record["versions"])
+                self.assertIn("semver-format", [f["rule"] for f in record["findings"]])
 
     def test_unreadable_source_types_fail_without_tracebacks(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -358,14 +257,12 @@ fenced code is content
             bad.write_bytes(b"\xff\xfe")
             for path in (Path(tmp), bad):
                 for mode in ([], ["--json"]):
-                    for script, args in (
-                        ("audit_semver.py", ["--from-changelog", str(path)]),
-                        ("audit_changelog.py", [str(path)]),
-                    ):
-                        with self.subTest(path=path, mode=mode, script=script):
-                            result = self.run_cli(script, args, mode, tmp)
-                            self.assertEqual(result.returncode, 1)
-                            self.assertNotIn("Traceback", result.stderr)
+                    with self.subTest(path=path, mode=mode):
+                        result = self.run_cli(
+                            "audit_changelog.py", [str(path)], mode, tmp
+                        )
+                        self.assertEqual(result.returncode, 1)
+                        self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":

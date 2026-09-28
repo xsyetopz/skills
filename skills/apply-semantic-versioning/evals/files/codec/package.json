@@ -1,0 +1,10 @@
+{
+  "name": "@acme/codec",
+  "version": "3.1.0",
+  "description": "Audio codec bindings",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:wasm": "node build.js --target wasm",
+    "build:native": "node build.js --target native"
+  }
+}

@@ -16,6 +16,11 @@ no released versions yet.
   reproduction through optional reduction and `git bisect` to a root cause
   and a regression test, with a fast path for crashes whose backtrace
   already names the fault.
+- `apply-semantic-versioning` covers all of Semantic Versioning 2.0.0,
+  including pre-release identifiers, build metadata, and precedence, and
+  decides whether SemVer fits the product. It maps versions to npm, Cargo,
+  Go modules, PEP 440, Maven, OCI tags, and app stores. `scripts/semver.py`
+  checks, compares, sorts, and bumps versions.
 - `write-readable-code` restructures code for readers and reviews it
   against the Zen of Python (PEP 20) in any language.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
@@ -69,6 +74,8 @@ no released versions yet.
   instructions.
 - The Eclipse p2 director example names each repository URL in its own
   variable instead of one comma-joined string.
+- `update-changelogs` hands version choice to `apply-semantic-versioning`
+  and keeps checking release-heading syntax in `audit_changelog.py`.
 - Sublime Text examples are type-checked against the skill's bundled host
   fakes instead of root stubs.
 - Shared Markdown lint rules live in `.markdownlint.jsonc`, which
@@ -81,6 +88,8 @@ no released versions yet.
 - `reproduce-software-bugs`, `find-regression-commits`, and
   `diagnose-software-failures`; use `debug-software-failures`.
 - `apply-pep20-to-codebases`; use `write-readable-code`.
+- `update-changelogs/scripts/audit_semver.py` and the SemVer cards; use
+  `apply-semantic-versioning` and `scripts/semver.py check`.
 
 ### Fixed
 

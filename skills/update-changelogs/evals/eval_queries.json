@@ -25,7 +25,7 @@
     "split": "train"
   },
   {
-    "query": "What should the next version be? Since v0.8.2 we removed the --legacy flag and added two new subcommands, and our changelog follows Keep a Changelog.",
+    "query": "Since v0.8.2 we removed the --legacy flag and added two new subcommands. Write the release section in our Keep a Changelog CHANGELOG.md, with the version heading.",
     "should_trigger": true,
     "split": "train"
   },

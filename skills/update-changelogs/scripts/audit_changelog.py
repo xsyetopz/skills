@@ -13,9 +13,16 @@ from typing import Literal, TypedDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from audit_semver import SEMVER_RE
 from changelog_markdown import Section, release_header, sections
 
+# The regex published with Semantic Versioning 2.0.0 (https://semver.org/).
+SEMVER_RE = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+    r"(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?"
+    r"(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$",
+    re.ASCII,
+)
 KEEP_A_CHANGELOG_SPEC = "https://keepachangelog.com/en/2.0.0/"
 VALID_CATEGORIES = {"Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"}
 EPILOG = """\

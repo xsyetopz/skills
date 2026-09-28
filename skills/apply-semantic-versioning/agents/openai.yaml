@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apply Semantic Versioning"
+  short_description: "Choose, validate, and order SemVer 2.0.0 versions"
+  default_prompt: "Use $apply-semantic-versioning to decide whether SemVer fits this product, choose the next version from the public API changes, and validate it with the bundled script."

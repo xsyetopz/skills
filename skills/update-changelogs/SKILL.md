@@ -3,8 +3,8 @@ name: update-changelogs
 description: >-
   Adds and corrects changelog entries from verified changes in a Git range:
   Keep a Changelog sections, user-facing wording, breaking-change notes,
-  SemVer bumps. Use when preparing release notes or a CHANGELOG. Not for
-  publishing releases.
+  release sections. Use when preparing release notes or a CHANGELOG. Not
+  for publishing releases or SemVer rules on their own.
 ---
 
 # Update Changelogs
@@ -28,11 +28,10 @@ increment justified by the changes.
    steps ([format](references/changelog-format.md)).
 1. Verify each entry against its commit and the release's code
    ([verification][verification]).
-1. Choose the version with the project's policy (SemVer increment rules or
-   pre-1.0 policy); for a release, move Unreleased into a dated section and
-   update comparison links.
-1. Run `python3 -I scripts/audit_changelog.py CHANGELOG.md` and, for new
-   tags or headings, `scripts/audit_semver.py`.
+1. Choose the version with the project's policy; for SemVer, apply
+   `$apply-semantic-versioning` to the entries. For a release, move
+   Unreleased into a dated section and update comparison links.
+1. Run `python3 -I scripts/audit_changelog.py CHANGELOG.md`.
 1. Report the range, the entries with their commits, the chosen version
    and why, and the audit output.
 
@@ -48,8 +47,8 @@ increment justified by the changes.
 | Entry reads like a commit message | [User-visible entries](references/changelog-format.md#user-visible-entries) |
 | Removing or changing public behavior | [Breaking changes](references/changelog-format.md#breaking-changes-and-migration) |
 | A release was withdrawn | [Yanked](references/changelog-format.md#yanked-releases) |
-| Choosing the next version | [SemVer increment](references/versions-and-ranges.md#semver-increment), [pre-1.0](references/versions-and-ranges.md#pre-10-versions), [pre-release](references/versions-and-ranges.md#pre-release-and-build-metadata) |
-| Checking the file and versions | [Changelog audit](references/versions-and-ranges.md#changelog-audit), [SemVer audit](references/versions-and-ranges.md#semver-syntax-audit) |
+| Choosing the next version | `$apply-semantic-versioning`, fed the Removed, Changed, Added, and Fixed entries |
+| Checking the file and its release headings | [Changelog audit](references/versions-and-ranges.md#changelog-audit) |
 
 ## Rules
 
@@ -71,9 +70,8 @@ increment justified by the changes.
 - `scripts/draft_entries.py RANGE [--version V --date D]`: Conventional
   Commits to a grouped draft with a suggested increment.
 - `scripts/audit_changelog.py FILE [--json]`: Keep a Changelog profile
-  audit; exit 1 on errors.
-- `scripts/audit_semver.py VERSION... | --from-tags | --from-changelog F`:
-  SemVer 2.0.0 syntax check.
+  audit, including SemVer 2.0.0 syntax of release headings; exit 1 on
+  errors.
 - `assets/examples/`: a clean changelog, a broken one, and
   `verify.sh`, which drafts from a throwaway Git history and runs every
   audit. `assets/CHANGELOG.template.md` starts a new file.
@@ -84,8 +82,8 @@ increment justified by the changes.
   headings, change types, Fixed versus Changed, security, user-visible
   wording, breaking changes, yanked releases, links.
 - [Versions, ranges, and validation](references/versions-and-ranges.md):
-  release ranges, drafting, entry verification, SemVer increments, pre-1.0
-  and pre-release rules, the two audits.
+  read when collecting a release's changes or auditing the file; release
+  ranges, drafting, entry verification, the changelog audit.
 
 ## Completion evidence
 

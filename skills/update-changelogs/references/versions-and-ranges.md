@@ -1,7 +1,7 @@
 # Versions, ranges, and validation
 
-Choosing the version, finding a release's changes, and running the
-bundled checks. `assets/examples/verify.sh` exercises every command
+Finding a release's changes, verifying entries, and auditing the
+changelog. `assets/examples/verify.sh` exercises every command
 here in a throwaway repository.
 
 ## Contents
@@ -9,11 +9,7 @@ here in a throwaway repository.
 - Release range from tags
 - Drafting entries from Conventional Commits
 - Verifying an entry against its commit
-- SemVer increment
-- Pre-1.0 versions
-- Pre-release and build metadata
 - Changelog audit
-- SemVer syntax audit
 
 ## Release range from tags
 
@@ -93,75 +89,13 @@ git grep -n 'cancel' v1.1.0 -- src/api/
 
 1. Each entry has a commit or PR reference in the review notes.
 
-## SemVer increment
-
-**Definition.** For a stable public API: incompatible changes → MAJOR,
-backward-compatible features (including deprecations) → MINOR,
-backward-compatible fixes → PATCH ([SemVer 2.0.0][semver]).
-
-**Use when.** The project adopts SemVer and must choose the next version.
-
-**Do not use when.** The project uses CalVer or another scheme; do not
-convert it.
-
-**Example.** Removed or breaking Changed entries → 2.0.0 from 1.4.2; any
-Added or Deprecated → 1.5.0; only Fixed or Security → 1.4.3. The draft
-script's suggestion follows the same order.
-
-**Cost removed.** Breaking users with a minor release.
-
-**Verify.**
-
-1. The chosen increment is at least the draft script's suggestion, and the
-   public API diff (`git diff PREV..HEAD -- <public paths>`) supports it.
-
-## Pre-1.0 versions
-
-**Definition.** Major version zero (`0.y.z`) is for initial development.
-Anything may change, and the public API should not be considered stable
-([SemVer][semver]).
-
-**Use when.** The project is below 1.0.0.
-
-**Do not use when.** Never assume a patch is safe. Follow the project's
-documented pre-1.0 policy; many projects bump minor for breaking changes.
-
-**Example.** `0.4.2` → `0.5.0` for a breaking change under a
-"minor-for-breaking" policy.
-
-**Cost removed.** Surprise breakage in `0.x` patch releases.
-
-**Verify.**
-
-1. The policy is quoted from the project's docs in the review notes.
-
-## Pre-release and build metadata
-
-**Definition.** `1.2.0-rc.1` is a pre-release with lower precedence than
-`1.2.0`. Numeric identifiers compare numerically (`rc.2 < rc.10`).
-`+build.5` metadata does not affect precedence. A `v` tag prefix is not
-part of SemVer ([SemVer][semver]).
-
-**Use when.** Naming release candidates or builds.
-
-**Do not use when.** Never sort releases by tag string; `git tag` order is
-not SemVer precedence.
-
-**Example.** `1.2.0-rc.1 < 1.2.0-rc.2 < 1.2.0 < 1.2.1`
-
-**Cost removed.** Wrong "latest version" picks.
-
-**Verify.**
-
-1. `python3 -I scripts/audit_semver.py 1.2.0-rc.1 1.2.0+build.5`
-   accepts both; `v1.2.3` and `01.2.3` are rejected.
-
 ## Changelog audit
 
 **Definition.** `scripts/audit_changelog.py FILE [--json]` checks the Keep
 a Changelog profile: release headings and dates, duplicate or misplaced
-sections, unknown or empty categories, empty releases. Exit codes: 1 for
-errors, 0 for warnings alone, 2 for argument errors.
+sections, unknown or empty categories, empty releases, and release
+versions that are not [SemVer 2.0.0][semver] (`semver-format`). Exit
+codes: 1 for errors, 0 for warnings alone, 2 for argument errors.
 
 **Use when.** After every changelog edit.
 
@@ -182,29 +116,6 @@ python3 -I scripts/audit_changelog.py CHANGELOG.md --json
 1. `verify.sh`: the example exits 0; the broken file exits 1 with
    `date-format`, `invalid-category`, `unreleased-order`,
    `duplicate-version`, `empty-version`, and `empty-category` errors.
-
-## SemVer syntax audit
-
-**Definition.** `scripts/audit_semver.py VERSION... | --from-tags |
---from-changelog FILE` validates versions with SemVer's published regular
-expression. `--from-tags` accepts a leading `v` on tags.
-
-**Use when.** Before tagging, and when auditing existing tags or headings.
-
-**Do not use when.** Choosing the increment; it checks syntax only.
-
-**Example.**
-
-```sh
-python3 -I scripts/audit_semver.py --from-tags
-python3 -I scripts/audit_semver.py --from-changelog CHANGELOG.md
-```
-
-**Cost removed.** Tags that tooling cannot parse.
-
-**Verify.**
-
-1. `python3 -I scripts/test_validators.py` passes.
 
 [cc]: https://www.conventionalcommits.org/en/v1.0.0/
 [semver]: https://semver.org/spec/v2.0.0.html

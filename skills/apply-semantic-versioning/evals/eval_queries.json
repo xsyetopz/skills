@@ -1,0 +1,102 @@
+[
+	{
+		"query": "We removed the deprecated `--legacy` flag and added `--json`. We're on 3.4.1. What version do we release?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "is 1.0.0-rc.1+build.5 a valid semver string? and does the +build.5 part change how it sorts?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our library has been at 0.14.x for two years and people run it in production. Should we go 1.0.0, and what does that commit us to?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We accidentally shipped a breaking change in 2.3.0. Can I just republish 2.3.0 with the fix?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Should our iOS/Android app use semantic versioning? PM wants 4.2.0-beta.1 style versions in the store.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Go module is at v1.8.0 and we need to break the API. How do I release v2 properly?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want to embed the git commit in our CLI's version so support can see exactly which build a user has. How should the version string look?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Python package uses 2.0.0-rc.1 for release candidates. Is that right for PyPI?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Plan the pre-release sequence for our 5.0 release: alphas, betas, RCs, then final. What should each version be called?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "what's the precedence order of 1.0.0-alpha, 1.0.0-alpha.1, 1.0.0-beta.11, 1.0.0-beta.2 and 1.0.0?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Rewrite these commit subjects as changelog entries under Added and Fixed for the 2.4.0 release notes.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "How do I create and push an annotated git tag for a release and then delete a wrong one on the remote?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Upgrade our project from React 18 to React 19 and fix whatever breaks.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "What date format should the release headings in CHANGELOG.md use, e.g. ## [1.2.0] - 2026-09-28?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Conventional Commits message for this diff that adds retry logic to the HTTP client.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our npm lockfile is out of sync with package.json after a merge. How do I regenerate it with bun?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Set up a GitHub Actions workflow that publishes to npm when a tag is pushed.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Which Python versions should our library support next year, and how do we test them in CI?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Rename the `fetchUser` function to `getUser` across the codebase and update the call sites.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write the migration guide section of our 3.0 upgrade docs explaining the new config file layout.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

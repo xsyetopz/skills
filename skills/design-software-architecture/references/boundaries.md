@@ -18,6 +18,7 @@ plants a violation.
 - Contract tests shared by adapters
 - Dependency direction check
 - Adapter owns its resource's concurrency
+- Invariants enforced by database constraints
 - Operation identity for retries
 - HTTP contract with problem details
 - Parallel change for two-sided contracts
@@ -180,6 +181,47 @@ turns unclosed connections into failures.
 **Verify.**
 
 1. The HTTP tests pass, and the suite runs clean under `-W error`.
+
+## Invariants enforced by database constraints
+
+**Definition.** Encode a data invariant — uniqueness, a foreign key, a
+required field, or a shape or range rule — as a database constraint
+(`UNIQUE`, `FOREIGN KEY`, `NOT NULL`, `CHECK`), so the database rejects a
+violation for every writer, not only the one that runs the application's
+check. Keep the application check too, but only to give a clear domain
+error: catch the constraint violation and map it, rather than trusting
+the check alone to keep the data valid.
+
+**Use when.** More than one process, thread, or client can write the
+same table: concurrent requests, a retry, an admin script, or another
+service sharing the database.
+
+**Do not use when.** The data lives only in one process's memory for its
+lifetime, with no other writer to race.
+
+**Example.** `orders/adapters/sqlite.py` declares the invariants in the
+schema, not only in code:
+
+```sql
+CREATE TABLE orders (
+  order_id TEXT PRIMARY KEY, customer TEXT NOT NULL,
+  items TEXT NOT NULL, idempotency_key TEXT NOT NULL UNIQUE)
+```
+
+`new_order` rejects a missing customer or a non-positive count first, for
+a readable message, but it is the `UNIQUE` column that actually stops two
+racing writers from creating two orders for one key:
+`test_same_key_returns_first_order` calls `store.add` twice directly,
+bypassing the service's own duplicate handling, and still gets one order.
+
+**Cost removed.** A second writer, a bulk script, or a code path that
+skips the application check leaving duplicate, orphaned, or missing-field
+rows that no test on the application layer ever saw.
+
+**Verify.**
+
+1. A write that skips the application check (a raw `INSERT`, another
+   client, a second thread) still fails, or converges, at the store.
 
 ## Operation identity for retries
 

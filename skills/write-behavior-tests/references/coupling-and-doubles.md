@@ -10,6 +10,7 @@ both against conforming alternatives (`alt_*`) and faults (`bug_*`).
 
 - Public consequence, not private helper
 - Value, not representation
+- Program effect, not doc wording
 - Architecture rule, not frozen declarations
 - Test double roles
 - Outcome, not call choreography
@@ -87,6 +88,46 @@ which stores the list but reports 1.
    those the report justifies.
 1. The matrix shows the value test passing the alternative
    representation.
+
+## Program effect, not doc wording
+
+**Definition.** When the subject is a doc, prompt, README, or AGENTS.md,
+test what its text makes a program do, or test a machine-read part of
+the file (a JSON Schema, a frontmatter key, a config block a loader
+parses). Do not assert the sentences themselves.
+
+**Use when.** A test reads instruction or documentation text and
+asserts that a string, heading, or sentence appears in it.
+
+**Do not use when.** The file's own format is machine-read, such as
+YAML frontmatter or a JSON Schema; assert the parsed value there, not
+the raw text around it. Prose meant for a human or an agent to read is
+checked by reading it, not by a test.
+
+**Example.**
+
+```python
+# Weak: fails on every rewording; catches no behavior change.
+def test_agents_md_tells_agents_to_run_tests(self):
+    self.assertIn("run tests before committing", read_text("AGENTS.md"))
+
+# Fits: asserts the machine-read key the file drives.
+def test_skill_frontmatter_names_are_unique(self):
+    names = [load_frontmatter(path)["name"] for path in skill_paths()]
+    self.assertEqual(len(names), len(set(names)))
+```
+
+**Cost removed.** Churn with no signal. Rewording the sentence, with no
+change to what any program does, breaks the weak test; it neither
+passes an alternative phrasing of the same rule nor fails a change that
+actually drops the rule's effect. The frontmatter test survives
+rewording and fails when the parsed key it checks changes.
+
+**Verify.**
+
+1. Editing the prose alone, with no code, config, or frontmatter
+   change, leaves the test's result unchanged.
+1. The test still fails when the machine-read value it checks changes.
 
 ## Architecture rule, not frozen declarations
 

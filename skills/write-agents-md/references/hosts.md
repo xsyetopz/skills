@@ -9,6 +9,7 @@ installed versions.
 ## Contents
 
 - AGENTS.md format
+- Symlinked instruction files
 - Codex discovery chain
 - Codex override files
 - Codex fallback file names
@@ -41,6 +42,33 @@ files.
 **Verify.**
 
 1. The file renders as ordinary Markdown and passes the checker.
+
+## Symlinked instruction files
+
+**Definition.** A symlink such as `CLAUDE.md -> AGENTS.md` or
+`GEMINI.md -> AGENTS.md` gives several hosts one file to edit. Claude Code
+reads the content once through the link and its Edit and Write tools
+refuse to write through the symlink, redirecting to `AGENTS.md` instead
+([memory docs][cc-memory]). A symlink whose target is missing loads
+nothing in any host, silently: nothing warns the user.
+
+**Use when.** Every host that reads the symlinked name should see the same
+content as the target.
+
+**Do not use when.** A host needs its own additional rules; import the
+shared file instead of symlinking
+([sharing with @AGENTS.md](#claude-code-sharing-one-file-with-agentsmd)).
+
+**Example.** `ln -s AGENTS.md CLAUDE.md` then `ln -s AGENTS.md GEMINI.md`.
+
+**Cost removed.** Copies that drift, and a dangling link that silently
+loads nothing.
+
+**Verify.**
+
+1. `python3 scripts/check_instructions.py CLAUDE.md` follows the link,
+   checks `AGENTS.md` once under its own path, and reports a dangling
+   target as an error rather than loading nothing silently.
 
 ## Codex discovery chain
 

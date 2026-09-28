@@ -57,6 +57,7 @@ versions of each test show which fault they miss.
 | Encoder, parser, serializer | [Standard vectors][vectors] |
 | Snapshot or golden files | [Golden output][golden] |
 | Test reads private helpers or fields | [Public consequence][public], [value][value] |
+| Test asserts doc, prompt, or README wording | [Program effect, not wording][wording] |
 | Structural or layering rule | [Architecture rule][arch] |
 | Choosing a mock, stub, spy, or fake | [Double roles][roles] |
 | Test asserts call order or counts | [Outcome][outcome], [required effects][effects] |
@@ -152,6 +153,7 @@ versions of each test show which fault they miss.
 [golden]: references/inputs-and-oracles.md#golden-output-with-narrow-normalization
 [public]: references/coupling-and-doubles.md#public-consequence-not-private-helper
 [value]: references/coupling-and-doubles.md#value-not-representation
+[wording]: references/coupling-and-doubles.md#program-effect-not-doc-wording
 [arch]: references/coupling-and-doubles.md#architecture-rule-not-frozen-declarations
 [roles]: references/coupling-and-doubles.md#test-double-roles
 [outcome]: references/coupling-and-doubles.md#outcome-not-call-choreography

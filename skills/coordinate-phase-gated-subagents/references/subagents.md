@@ -10,6 +10,7 @@ and the results workers return. The host facts come from the
 - Host capabilities
 - Work-item brief
 - Worker result contract
+- Cross-checking reports
 - Parallel waves from ownership
 - Worktree isolation
 - Independent review
@@ -125,6 +126,41 @@ late.
 
 1. For each accepted result, the report quotes its check command and
    outcome.
+
+## Cross-checking reports
+
+**Definition.** A result's own claims are not enough. Before it
+integrates, check it two ways: against the other reports in the wave,
+and against its worktree's actual diff.
+
+- Where two reports describe the same fact (a shared file's contents, an
+  interface shape, a passing check), they must agree. A conflict is a
+  process defect, not something to average or wave through.
+- `git diff BASE..ITEM` must show every change the report claims and no
+  change it never mentions. A file the report calls unchanged but the
+  diff touches, or a fix the report claims but the diff lacks, is a
+  false result.
+
+**Use when.** More than one worker's report touches the same fact, and
+before any result merges into the integration branch.
+
+**Do not use when.** A review already reran the exact check that would
+expose the mismatch; do not duplicate it.
+
+**Example.** Two items each report "the shared schema's `id` field is
+`int`"; one worktree's diff shows `id: str`. Stop both items on the
+baseline instead of merging either.
+
+**Cost removed.** An integration built on a report that contradicts its
+own diff, or on two reports whose disagreement surfaces only after the
+merge breaks.
+
+**Verify.**
+
+1. For every pair of reports that share a fact, the report quotes the
+   agreement or names the conflict as unresolved.
+1. For every accepted result, `git diff` for its worktree matches what
+   the report claims, file by file.
 
 ## Parallel waves from ownership
 

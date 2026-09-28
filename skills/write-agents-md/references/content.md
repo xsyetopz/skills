@@ -4,8 +4,8 @@ What goes into an AGENTS.md (or CLAUDE.md) and how to prove each line
 true. The worked files in [`assets/examples/`](../assets/examples/) are
 named `*.example.md`; only `verify.sh`'s temporary project renames them,
 so no host loads them as live instructions.
-`scripts/check_instructions.py` checks links, imports, size, and generic
-phrases, and extracts commands.
+`scripts/check_instructions.py` checks links, imports, symlinks, size, and
+generic phrases, and extracts commands.
 
 ## Contents
 
@@ -15,6 +15,7 @@ phrases, and extracts commands.
 - Boundaries with reasons
 - Definition of done
 - Evidence for each rule
+- Revising rules instead of appending
 - What to leave out
 - Size budget
 - Example files never named AGENTS.md
@@ -174,6 +175,31 @@ and `bun.lock`.
 
 1. For each rule, name its evidence in the change description.
 
+## Revising rules instead of appending
+
+**Definition.** Teams add one rule per correction. After weeks the file
+holds rules that are stale (the tool changed), duplicate (two rules say
+the same thing differently), or contradictory (a later exception was never
+folded into the original rule).
+
+**Use when.** Adding a rule that overlaps an existing one.
+
+**Do not use when.** No exception: never append a rule next to one it
+supersedes and leave both.
+
+**Example.** A rule says "use `npm test`"; the project moved to Bun.
+Replace it with "use `bun test`" instead of adding a second, newer line.
+
+**Cost removed.** A file that grows past its budget with instructions that
+no longer apply, and an agent that cannot tell which of two rules to
+follow.
+
+**Verify.**
+
+1. Search the file for the tool, path, or convention the new rule
+   mentions; merge or remove what it supersedes.
+1. `python3 scripts/check_instructions.py` still reports no size warning.
+
 ## What to leave out
 
 **Definition.** Generic advice ("follow best practices", "write clean
@@ -200,7 +226,13 @@ broken link; the checker flags all five.
 size reaches `project_doc_max_bytes` (32 KiB by default)
 ([Codex AGENTS.md][codex]). Claude Code recommends under 200 lines per
 CLAUDE.md because longer files reduce adherence
-([Claude Code memory][cc-memory]).
+([Claude Code memory][cc-memory]). dotclaude's session-start hook applies
+its own, stricter policy on top of that host target, not a host limit: it
+warns once one file passes 150 lines and fails at 200 (Claude Code's own
+target), counting each `@import` and each `.claude/rules/` file as its own
+file and stripping block-level HTML comments first, since Claude Code
+never sends them; and it warns once everything loaded at session start
+passes about 3,000 tokens and fails at 5,000.
 
 **Use when.** A file grows past a screen or two.
 
@@ -208,13 +240,20 @@ CLAUDE.md because longer files reduce adherence
 Cut prose first, then move path-specific rules into nested files or
 `.claude/rules/`.
 
-**Example.** The example `AGENTS.md` is 803 bytes and 29 lines.
+**Example.** The example `AGENTS.md` is 803 bytes and 29 lines. Across
+five runs on an ambiguous task, a 12-line AGENTS.md cut wall time 27% and
+tokens 24% against no file; concrete instructions ("run `npm run lint`
+after any source change") beat aspirational ones ("follow best
+practices") ([aaif.io][aaif-agents-md]).
 
-**Cost removed.** Instructions silently truncated or ignored.
+**Cost removed.** Instructions silently truncated or ignored, and the
+slower, costlier runs a missing or vague file produces.
 
 **Verify.**
 
 1. `check_instructions.py` warns above 32 KiB or 200 lines.
+1. Where dotclaude is installed, its session-start hook reports the same
+   file against the 150/200-line and 3,000/5,000-token thresholds.
 
 ## Example files never named AGENTS.md
 
@@ -240,3 +279,4 @@ project.
 
 [codex]: https://learn.chatgpt.com/docs/agent-configuration/agents-md
 [cc-memory]: https://code.claude.com/docs/en/memory
+[aaif-agents-md]: https://aaif.io/blog/measuring-agents-md-what-five-runs-show-that-one-doesn-t

@@ -126,9 +126,11 @@ edits outside `owns` in the item's diff.
 
 ## Phase 4: integration and verification
 
-**Definition.** Merge the items in the planned order. Group failures by
-root cause into queues and give each queue one owner. Fill in the
-verification matrix: requirement, command, environment, and result.
+**Definition.** Before merging, [cross-check][xcheck] each item's report
+against the others and against its own diff. Merge the items in the
+planned order. Group failures by root cause into queues and give each
+queue one owner. Fill in the verification matrix: requirement, command,
+environment, and result.
 
 **Use when.** All implementation items are done or explicitly deferred.
 
@@ -236,3 +238,4 @@ returns to wave 2.
 
 [req-template]: ../assets/software-requirements-baseline.template.md
 [result]: subagents.md#worker-result-contract
+[xcheck]: subagents.md#cross-checking-reports

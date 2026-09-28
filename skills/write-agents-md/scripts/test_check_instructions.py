@@ -66,7 +66,7 @@ class FileTests(unittest.TestCase):
         report = json.loads(out.getvalue())
         self.assertEqual((status, report["errors"]), (1, 1))
         (entry,) = report["files"]
-        self.assertEqual(entry["file"], str(path))
+        self.assertEqual(entry["file"], str(path.resolve()))
         self.assertEqual(entry["commands"], ["just test"])
         self.assertEqual(len(entry["errors"]), 1)
         self.assertIn("docs/guide.md", entry["errors"][0])
@@ -107,6 +107,33 @@ class FileTests(unittest.TestCase):
 
     def test_missing_file_is_input_error(self) -> None:
         self.assertEqual(run("/nonexistent/AGENTS.md")[0], 2)
+
+    def test_dangling_symlink_is_an_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "CLAUDE.md").symlink_to("missing.md")
+            status, output = run(str(root / "CLAUDE.md"))
+            self.assertEqual(status, 1)
+            self.assertIn("symlink target does not exist", output)
+
+    def test_symlinked_file_is_checked_once_under_its_own_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "AGENTS.md").write_text("Follow best practices.\n")
+            (root / "CLAUDE.md").symlink_to("AGENTS.md")
+            status, output = run(str(root / "AGENTS.md"), str(root / "CLAUDE.md"))
+            self.assertEqual(status, 0)
+            self.assertEqual(output.count("generic phrase"), 1)
+            self.assertIn(str((root / "AGENTS.md").resolve()), output)
+
+    def test_block_html_comments_are_stripped_before_counting_lines(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "AGENTS.md"
+            comment = "\n".join(f"line {n}" for n in range(300))
+            path.write_text(f"# Rules\n\n<!--\n{comment}\n-->\n\nUse Bun.\n")
+            status, output = run(str(path))
+            self.assertEqual(status, 0)
+            self.assertNotIn("200-line target", output)
 
 
 if __name__ == "__main__":

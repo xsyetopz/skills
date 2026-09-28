@@ -32,8 +32,10 @@ and a git worktree integration.
    Accept a result only when it has evidence and stays in scope
    ([results][results]). Optionally, spawn one independent reviewer per
    unit ([review][review]).
-1. Phase 4: integrate in the planned order, partition failures by owner
-   and cause, and fill in the verification matrix ([verification][p4]).
+1. Phase 4: cross-check each report against the others and against its
+   diff ([cross-check][xcheck]), then integrate in the planned order,
+   partition failures by owner and cause, and fill in the verification
+   matrix ([verification][p4]).
 1. Phase 5: prepare the release from the verified revision. Publish
    only with explicit approval ([release][p5]).
 1. At every gate, run `python3 scripts/check_gate.py GATE.json`, and
@@ -52,6 +54,7 @@ and a git worktree integration.
 | Parallel edits | [Worktree isolation][worktrees] |
 | Worker says "done" | [Result contract][results] |
 | Reviewing a unit | [Independent review][review] |
+| Reports disagree, or a diff doesn't match | [Cross-checking reports][xcheck] |
 | Integration failures | [Phase 4][p4], [failure diagnosis][diagnosis] |
 | May we move on? | [Gate decision][gates] |
 | Requirement or interface must change | [Change request][change] |
@@ -99,6 +102,8 @@ and a git worktree integration.
 - The work plan, and the `check_work_items.py` output with its waves.
 - For each worker: its brief, its result with commands, and an
   in-scope diff check.
+- The cross-check of reports against each other and against each
+  worktree's diff, before integration.
 - Review findings with their dispositions, and the change requests
   with the gates they reopened.
 - The final verification matrix, and what stays unavailable or not run.
@@ -113,6 +118,7 @@ and a git worktree integration.
 [host]: references/subagents.md#host-capabilities
 [brief]: references/subagents.md#work-item-brief
 [results]: references/subagents.md#worker-result-contract
+[xcheck]: references/subagents.md#cross-checking-reports
 [waves]: references/subagents.md#parallel-waves-from-ownership
 [worktrees]: references/subagents.md#worktree-isolation
 [review]: references/subagents.md#independent-review

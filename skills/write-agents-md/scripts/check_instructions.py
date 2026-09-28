@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Check agent instruction files (AGENTS.md, CLAUDE.md) for measurable issues.
 
-For each FILE it reports:
-  - size in bytes and lines; warns above Codex's default combined limit
-    (project_doc_max_bytes = 32 KiB) and above Claude Code's 200-line
-    per-file target;
+Each FILE argument is resolved through its symlinks first (CLAUDE.md,
+AGENTS.md, and GEMINI.md are often symlinked to one file); a dangling
+symlink is reported as an error, and a real file reached by more than one
+FILE argument is checked once, under its own resolved path. For each real
+file it reports:
+  - size in bytes and lines, counted after stripping block-level HTML
+    comments (Claude Code does not send them); warns above Codex's default
+    combined limit (project_doc_max_bytes = 32 KiB) and above Claude Code's
+    200-line per-file target;
   - relative Markdown links and `@path` imports that do not resolve (imports
     are followed up to Claude Code's four-hop limit; code spans and fences
     are skipped, as Claude Code does);
@@ -14,8 +19,8 @@ For each FILE it reports:
 
 Usage: check_instructions.py FILE [FILE ...] [--commands | --json]
   --commands  print only the extracted commands, one per line
-Exit status: 0 no errors, 1 errors (missing links/imports), 2 bad input.
-Warnings (size, generic phrases) do not change the exit status.
+Exit status: 0 no errors, 1 errors (missing links/imports/dangling symlinks),
+  2 bad input. Warnings (size, generic phrases) do not change the exit status.
 """
 
 from __future__ import annotations
@@ -33,6 +38,8 @@ LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s#]+)(?:#[^)]*)?\)")
 IMPORT = re.compile(r"(?:^|\s)@((?:~|\.{1,2})?/?[\w./-]+)")
 CODE_SPAN = re.compile(r"`[^`]*`")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w-]*)")
+FENCED_BLOCK = re.compile(r"(^(?:```|~~~)[\s\S]*?^(?:```|~~~)[^\n]*$)", re.M)
+BLOCK_COMMENT = re.compile(r"^[ \t]*<!--[\s\S]*?-->[ \t]*(?:\r?\n|$)", re.M)
 SHELL_LANGS = {"sh", "bash", "shell", "console", "zsh"}
 TOOLS = (
     "bun", "cargo", "dotnet", "go", "gradle", "just", "make", "mvn", "npm",
@@ -76,6 +83,16 @@ def scan(text: str) -> tuple[list[str], list[str]]:
     return prose, commands
 
 
+def strip_block_comments(text: str) -> str:
+    """Remove block-level HTML comments outside fenced code, as Claude Code
+    strips them before sending instructions to the model."""
+    parts = FENCED_BLOCK.split(text)
+    return "".join(
+        part if index % 2 else BLOCK_COMMENT.sub("", part)
+        for index, part in enumerate(parts)
+    )
+
+
 def check_file(path: Path, seen: set[Path], depth: int) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -83,7 +100,7 @@ def check_file(path: Path, seen: set[Path], depth: int) -> tuple[list[str], list
     prose, _ = scan(text)
     if depth == 0:
         size = len(text.encode("utf-8"))
-        lines = len(text.splitlines())
+        lines = len(strip_block_comments(text).splitlines())
         if size > CODEX_LIMIT_BYTES:
             warnings.append(f"{path}: {size} bytes exceeds Codex's 32 KiB default")
         if lines > CLAUDE_LINE_TARGET:
@@ -144,14 +161,37 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     all_errors: list[str] = []
     reports: list[dict] = []
+    seen_reals: set[Path] = set()
     for raw in args.files:
         path = Path(raw)
+        if path.is_symlink() and not path.exists():
+            message = f"{path}: symlink target does not exist"
+            all_errors.append(message)
+            if args.json:
+                reports.append(
+                    {
+                        "file": raw,
+                        "bytes": 0,
+                        "lines": 0,
+                        "commands": [],
+                        "warnings": [],
+                        "errors": [message],
+                    }
+                )
+            elif not args.commands:
+                print(f"{path}: dangling symlink")
+                print(f"  ERROR {message}")
+            continue
         if not path.is_file():
             print(
                 f"error: {raw} is not a file; pass instruction files such as AGENTS.md",
                 file=sys.stderr,
             )
             return 2
+        path = path.resolve()
+        if path in seen_reals:
+            continue
+        seen_reals.add(path)
         try:
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as error:
@@ -167,7 +207,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             reports.append(
                 {
-                    "file": raw,
+                    "file": str(path),
                     "bytes": size,
                     "lines": len(text.splitlines()),
                     "commands": list(dict.fromkeys(commands)),

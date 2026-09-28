@@ -52,8 +52,10 @@ target host loads it.
 | Repository has AGENTS.md and Claude users | [CLAUDE.md or AGENTS.md](references/hosts.md#claude-code-claudemd-or-agentsmd), [sharing with @AGENTS.md](references/hosts.md#claude-code-sharing-one-file-with-agentsmd) |
 | Personal, uncommitted instructions | [CLAUDE.local.md](references/hosts.md#claude-code-claudelocalmd) |
 | Reusing another file | [Imports](references/hosts.md#claude-code-imports) |
+| One file shared as CLAUDE.md, AGENTS.md, GEMINI.md | [Symlinked instruction files](references/hosts.md#symlinked-instruction-files) |
 | Monorepo packages | [Nested files](references/hosts.md#nested-files-in-monorepos) |
 | Did the host load it? | [Confirming what loaded](references/hosts.md#confirming-what-loaded) |
+| A rule now duplicates or contradicts an older one | [Revising rules instead of appending](references/content.md#revising-rules-instead-of-appending) |
 
 ## Rules
 
@@ -70,12 +72,17 @@ target host loads it.
   default; Claude Code recommends under 200 lines per file.
 - Preserve existing instruction files' scope and owners; edit in place
   rather than adding a parallel file.
+- Adding a rule that supersedes an older one: remove or merge the older
+  rule in the same change and keep the file under its size budget
+  ([revising rules](references/content.md#revising-rules-instead-of-appending)).
 
 ## Bundled tools
 
-- `scripts/check_instructions.py FILE... [--commands]`: resolves links and
-  `@` imports (four hops), warns on size and generic phrases, and extracts
-  commands; exit 1 on missing links or imports.
+- `scripts/check_instructions.py FILE... [--commands]`: resolves links,
+  `@` imports (four hops), and symlinks (checking each real file once);
+  warns on size (after stripping block-level HTML comments) and generic
+  phrases, and extracts commands; exit 1 on missing links, imports, or a
+  dangling symlink.
 - `assets/examples/*.example.md` and `verify.sh`: a root AGENTS.md, a
   CLAUDE.md that imports it, a path-scoped rule, a nested web AGENTS.md,
   and a generic file the checker rejects; `verify.sh` installs them in a

@@ -49,6 +49,7 @@ layer rules plus a planted violation, and LSP framing.
 | Swap storage or mock it | [Ports and adapters][ports], [contract tests][contracts] |
 | Keep layers clean | [Dependency direction][direction] |
 | Thread or connection errors in an adapter | [Adapter owns concurrency][concurrency] |
+| Uniqueness/FK/required field checked only in code | [Database constraints][invariant] |
 | Duplicates on retry | [Operation identity][idem] |
 | API error format | [Problem details][http] |
 | Change an API or event shape | [Parallel change][parallel] |
@@ -66,6 +67,9 @@ layer rules plus a planted violation, and LSP framing.
   need.
 - Each piece of state has one authoritative writer, and projections
   never write back.
+- A uniqueness, foreign-key, required-field, or shape rule is a
+  database constraint (`UNIQUE`, `FOREIGN KEY`, `NOT NULL`, `CHECK`); the
+  application check only turns the violation into a clear domain error.
 - Dependency rules live in a checked file (`layers.json`) and run in
   CI. Architecture that is not checked erodes.
 - Every adapter passes the same port contract tests.
@@ -124,6 +128,7 @@ layer rules plus a planted violation, and LSP framing.
 [contracts]: references/boundaries.md#contract-tests-shared-by-adapters
 [direction]: references/boundaries.md#dependency-direction-check
 [concurrency]: references/boundaries.md#adapter-owns-its-resources-concurrency
+[invariant]: references/boundaries.md#invariants-enforced-by-database-constraints
 [idem]: references/boundaries.md#operation-identity-for-retries
 [http]: references/boundaries.md#http-contract-with-problem-details
 [parallel]: references/boundaries.md#parallel-change-for-two-sided-contracts

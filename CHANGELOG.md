@@ -38,6 +38,16 @@ no released versions yet.
   `design-system-architecture` to `design-software-architecture`, and
   `test-implementation-behavior` to `write-behavior-tests`. The old names
   are not kept as aliases.
+- `write-agents-md` covers symlinked instruction files, dotclaude's size
+  thresholds, and merging superseded rules; `check_instructions.py` follows
+  symlinks, fails on a dangling one, checks each real file once, and strips
+  block-level HTML comments before counting lines.
+- `write-behavior-tests` routes tests of doc, prompt, or README wording to
+  tests of the program effect or of a machine-read format.
+- `coordinate-phase-gated-subagents` cross-checks worker reports against
+  each other and against each worktree's diff before integration.
+- `design-software-architecture` puts data invariants in database
+  constraints and keeps application checks for error messages.
 - `write-implementation-plans` requires each slice to remove or name the TODO,
   stub, or placeholder it adds, and reviews plans for unremoved markers.
 - Sublime Text examples are type-checked against the skill's bundled host

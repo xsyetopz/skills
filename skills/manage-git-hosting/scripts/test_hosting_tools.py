@@ -169,6 +169,13 @@ class SyncLabelsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("gh not found", result.stderr)
 
+    def test_missing_desired_file_names_expected_input(self) -> None:
+        fake = FakeGh({"labels": LABELS})
+        result = fake.run("sync_labels.py", "o/r", "/no/such/labels.json")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("/no/such/labels.json", result.stderr)
+        self.assertIn("expected a JSON list of label objects", result.stderr)
+
     def test_matching_labels_do_nothing(self) -> None:
         fake = FakeGh({"labels": LABELS})
         result = fake.run(
@@ -241,6 +248,13 @@ class UpsertCommentTests(unittest.TestCase):
         result = fake.run("upsert_comment.py", "o/r", "7", "k", self.body(fake, "x"))
         self.assertEqual(result.returncode, 1)
         self.assertIn("gh not found", result.stderr)
+
+    def test_missing_body_file_names_expected_input(self) -> None:
+        fake = FakeGh({"comments": []})
+        result = fake.run("upsert_comment.py", "o/r", "7", "k", "/no/such/body.md")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("/no/such/body.md", result.stderr)
+        self.assertIn("expected a Markdown comment body file", result.stderr)
 
     def test_dry_run_makes_no_write(self) -> None:
         fake = FakeGh({"comments": []})

@@ -204,6 +204,26 @@ class InterfaceTests(unittest.TestCase):
         self.assertEqual((status, report["written"]), (0, False))
         self.assertFalse(target.parent.exists())
 
+    def test_write_failure_is_a_one_line_error_not_a_traceback(self) -> None:
+        blocker = self.dir / "blocker"
+        blocker.write_text("not a directory")
+        target = blocker / "settings.json"
+        status, out, err = self.call(
+            merge_hooks,
+            str(target),
+            "--host",
+            "claude",
+            "--event",
+            "PreToolUse",
+            "--matcher",
+            "Bash",
+            "--handler",
+            json.dumps(HANDLER),
+        )
+        self.assertEqual((status, out), (2, ""))
+        self.assertIn(str(target), err)
+        self.assertEqual(len(err.strip().splitlines()), 1)
+
     def test_json_add_then_repeat_then_remove(self) -> None:
         status, first = self.merge_json(self.path)
         self.assertEqual((status, first["changed"], first["written"]), (0, True, True))
@@ -305,6 +325,13 @@ class InterfaceTests(unittest.TestCase):
         status, out, err = self.call(chc, str(self.path), "--host", "claude")
         self.assertEqual((status, out), (2, ""))
         self.assertIn("hooks.PreToolUse[0].hooks[0] must be an object", err)
+
+    def test_check_missing_file_names_path_and_expectation(self) -> None:
+        missing = self.dir / "does-not-exist.json"
+        status, out, err = self.call(chc, str(missing), "--host", "claude")
+        self.assertEqual((status, out), (2, ""))
+        self.assertIn(str(missing), err)
+        self.assertIn("hook configuration JSON file", err)
 
     def test_help_documents_exit_status(self) -> None:
         for module in (merge_hooks, chc):

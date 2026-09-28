@@ -117,7 +117,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="print a JSON report")
     args = parser.parse_args(argv)
     try:
-        desired = json.loads(args.desired.read_text(encoding="utf-8"))
+        text = args.desired.read_text(encoding="utf-8")
+    except OSError as error:
+        print(
+            f"error: cannot read {args.desired}: {error}; expected a JSON list of"
+            " label objects (see --help)",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        desired = json.loads(text)
         if not isinstance(desired, list) or not all("name" in d for d in desired):
             raise ValueError("desired file must be a list of objects with name")
         commands = plan(current_labels(args.repo), desired, args.prune)

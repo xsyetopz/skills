@@ -140,7 +140,8 @@ exact verification steps, so read the card before applying a construct.
   native-library workloads (SDL3, BASS, fonts, images).
 - [Runtime configuration](references/runtime-config.md): tiering, PGO,
   ReadyToRun, NativeAOT, GC modes.
-- [Sources](references/sources.md): primary documentation per card.
+- [Sources](references/sources.md): primary documentation per card; read
+  it when a card's claim must be checked against the target version.
 
 ## Completion evidence
 

@@ -39,6 +39,18 @@ SHELL_TOOLS = {
 }
 
 
+EPILOG = """\
+Exit status:
+  0  allow (no output, or an explicit allow decision for a host that
+     requires output) or deny (the host's JSON deny decision printed)
+  2  stdin is not a valid event for HOST (reason on stderr; fails closed)
+
+Examples:
+  python3 guard_shell.py --host claude < pretooluse-event.json
+  python3 guard_shell.py --host cursor --deny 'curl .* \\| sh' < event.json
+"""
+
+
 class BadEvent(ValueError):
     pass
 
@@ -99,7 +111,11 @@ def deny(host: str, reason: str) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
+    parser = argparse.ArgumentParser(
+        description=(__doc__ or "").splitlines()[0],
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--host", required=True, choices=sorted(SHELL_TOOLS))
     parser.add_argument("--deny", action="append", default=[])
     args = parser.parse_args(argv)

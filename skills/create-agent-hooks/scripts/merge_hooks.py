@@ -219,8 +219,12 @@ def main(argv: list[str] | None = None) -> int:
         else:
             sys.stdout.write(diff)
         return 0
-    args.file.parent.mkdir(parents=True, exist_ok=True)
-    args.file.write_text(after_text, encoding="utf-8")
+    try:
+        args.file.parent.mkdir(parents=True, exist_ok=True)
+        args.file.write_text(after_text, encoding="utf-8")
+    except OSError as error:
+        print(f"error: cannot write {args.file}: {error}", file=sys.stderr)
+        return 2
     written = True
     if args.json:
         report()

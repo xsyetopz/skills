@@ -144,6 +144,13 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(status, 2)
         self.assertIn("missing key 'conditions'", err)
 
+    def test_gate_missing_file_names_expected_input(self) -> None:
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(check_gate.main(["/no/such/GATE.json"]), 2)
+        self.assertIn("/no/such/GATE.json", err.getvalue())
+        self.assertIn("expected a gate evidence JSON object", err.getvalue())
+
     def test_work_items_missing_id_is_explained(self) -> None:
         status, _, err = run_main(cwi.main, {"phase": "p", "items": [{"phase": "p"}]})
         self.assertEqual(status, 2)

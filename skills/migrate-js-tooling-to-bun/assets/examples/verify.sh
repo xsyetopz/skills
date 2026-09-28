@@ -3,8 +3,32 @@
 # fixtures in a disposable copy. Offline: the fixtures have no registry
 # dependencies. BUN, NODE, and PYTHON override the executables.
 #
-#   sh verify.sh
+#   sh verify.sh          run every check; exit 0 if all pass, 1 on the
+#                         first failure
+#   sh verify.sh --help   print this usage and exit 0
 set -eu
+case "${1:-}" in
+    "") ;;
+    -h | --help)
+        cat <<'EOF'
+usage: verify.sh
+
+Runs every migration check from the references against the bundled
+fixtures in a disposable copy. Offline: the fixtures have no registry
+dependencies. BUN, NODE, and PYTHON override the executables.
+
+Exit status:
+  0  every check passed
+  1  a check failed
+  2  unrecognized argument
+EOF
+        exit 0
+        ;;
+    *)
+        echo 'usage: verify.sh [--help]' >&2
+        exit 2
+        ;;
+esac
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 COMPARE="$ROOT/../../scripts/compare_lockfiles.py"
 BUN=${BUN:-bun}

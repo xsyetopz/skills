@@ -35,8 +35,24 @@ def git(cwd: str, *args: str) -> str | None:
     return result.stdout if result.returncode == 0 else None
 
 
+EPILOG = """\
+Exit status:
+  0  for any valid event, including outside a repository (adds no
+     context) and when git commands fail (adds no context)
+  2  stdin is not an event object with a "cwd" string (reason on stderr)
+
+Examples:
+  python3 session_context.py < sessionstart-event.json
+  python3 session_context.py --max-files 5 < sessionstart-event.json
+"""
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
+    parser = argparse.ArgumentParser(
+        description=(__doc__ or "").splitlines()[0],
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--max-files", type=int, default=20)
     args = parser.parse_args(argv)
     raw = sys.stdin.buffer.read(LIMIT + 1)

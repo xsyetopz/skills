@@ -2,8 +2,31 @@
 # Runs every construct in the example justfiles in a disposable copy and
 # compares exact output and exit status. Requires just >= 1.55.
 #
-#   sh verify.sh          all checks
+#   sh verify.sh          run every construct; exit 0 if all pass, 1 on
+#                         the first failure
+#   sh verify.sh --help   print this usage and exit 0
 set -eu
+case "${1:-}" in
+    "") ;;
+    -h | --help)
+        cat <<'EOF'
+usage: verify.sh
+
+Runs every construct in the example justfiles in a disposable copy and
+compares exact output and exit status. Requires just >= 1.55.
+
+Exit status:
+  0  every check passed (or just is unavailable, skipped)
+  1  a check failed
+  2  unrecognized argument
+EOF
+        exit 0
+        ;;
+    *)
+        echo 'usage: verify.sh [--help]' >&2
+        exit 2
+        ;;
+esac
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 command -v just >/dev/null 2>&1 || {
     echo 'SKIP: just not found'

@@ -123,6 +123,14 @@ class InterfaceTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(json.loads(out)["output"], target)
 
+    def test_missing_input_file_names_path_and_expectation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = str(Path(tmp) / "no-such-input.txt")
+            status, out, err = self.run_main(missing, "--oracle", "true {}")
+        self.assertEqual((status, out), (2, ""))
+        self.assertIn(missing, err)
+        self.assertIn("UTF-8 failing input file", err)
+
     def test_missing_oracle_program_is_exit_2_not_traceback(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "input.txt"

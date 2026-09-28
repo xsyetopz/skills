@@ -22,9 +22,24 @@ import sys
 LIMIT = 1024 * 1024
 TAIL = 2000  # characters of check output passed back to the agent
 
+EPILOG = """\
+Exit status:
+  0  always, for a valid Stop event (the JSON decision carries the
+     check's outcome: block with a reason, or {} to let the agent stop)
+  2  stdin is not a Stop event object (reason on stderr)
+
+Examples:
+  python3 stop_gate.py --check "python3 -m unittest -q" < stop-event.json
+  python3 stop_gate.py --check "just test" --timeout 300 < stop-event.json
+"""
+
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
+    parser = argparse.ArgumentParser(
+        description=(__doc__ or "").splitlines()[0],
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--check", required=True, help="command, one string")
     parser.add_argument("--timeout", type=float, default=120.0)
     args = parser.parse_args(argv)

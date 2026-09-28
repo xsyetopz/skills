@@ -80,7 +80,11 @@ def upsert(args: argparse.Namespace) -> int:
     try:
         text = args.body_file.read_text(encoding="utf-8")
     except OSError as error:
-        print(f"error: {error}", file=sys.stderr)
+        print(
+            f"error: cannot read {args.body_file}: {error}; expected a Markdown"
+            " comment body file",
+            file=sys.stderr,
+        )
         return 2
     marker = f"<!-- upsert:{args.key} -->"
     body = f"{marker}\n{text}"

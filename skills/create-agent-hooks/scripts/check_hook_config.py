@@ -321,9 +321,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="print a JSON list")
     args = parser.parse_args(argv)
     try:
-        config = json.loads(Path(args.file).read_text(encoding="utf-8"))
+        text = Path(args.file).read_text(encoding="utf-8")
+    except OSError as error:
+        print(
+            f"error: cannot read {args.file}: {error}; pass a hook configuration "
+            "JSON file (see --help)",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        config = json.loads(text)
         problems = check(config, args.host, args.project)
-    except (OSError, ValueError, AttributeError) as error:
+    except (ValueError, AttributeError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
     if args.json:

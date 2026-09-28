@@ -29,7 +29,7 @@ threading page still shows it.
    ([toolchain card][toolchain]).
 1. Read the existing `plugin.xml` and run the checker on it before
    editing:
-   `python3 <skill>/scripts/check_plugin_xml.py --src-root
+   `python3 scripts/check_plugin_xml.py --src-root
    src/main/kotlin --src-root src/main/java
    src/main/resources/META-INF/plugin.xml`.
 1. Pick the cards from the routing table whose **Use when** matches the

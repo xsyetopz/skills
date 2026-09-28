@@ -129,7 +129,8 @@ skill.
   project references, isolated declarations, noCheck.
 - [TypeScript 7](references/typescript-7.md): removed options, defaults,
   checkers, builders, single-threaded mode, tsc6.
-- [Sources](references/sources.md): primary documentation per card.
+- [Sources](references/sources.md): primary documentation per card; read
+  it when a card's claim must be checked against the target version.
 
 ## Completion evidence
 

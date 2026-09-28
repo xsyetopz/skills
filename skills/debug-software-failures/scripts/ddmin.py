@@ -132,7 +132,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         text = Path(args.input).read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as error:
-        print(f"error: {error}", file=sys.stderr)
+        print(
+            f"error: cannot read {args.input}: {error}; "
+            "pass an existing UTF-8 failing input file",
+            file=sys.stderr,
+        )
         return 2
     try:
         oracle_words = shlex.split(args.oracle)

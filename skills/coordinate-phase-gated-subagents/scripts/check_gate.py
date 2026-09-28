@@ -87,7 +87,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     except (OSError, ValueError, TypeError, AttributeError) as error:
-        print(f"error: cannot check {args.gate}: {error}", file=sys.stderr)
+        print(
+            f"error: cannot check {args.gate}: {error}; expected a gate evidence"
+            " JSON object (see --help)",
+            file=sys.stderr,
+        )
         return 2
     phase = gate.get("phase", "?")
     if args.json:

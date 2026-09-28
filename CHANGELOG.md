@@ -50,6 +50,11 @@ no released versions yet.
   constraints and keeps application checks for error messages.
 - `write-implementation-plans` requires each slice to remove or name the TODO,
   stub, or placeholder it adds, and reviews plans for unremoved markers.
+- Bundled scripts name the missing or unwritable path and the expected
+  input (`check_gate.py`, `check_hook_config.py`, `merge_hooks.py`,
+  `ddmin.py`, `sync_labels.py`, `upsert_comment.py`); the hook handlers'
+  `--help` lists exit status and examples; the Bun migration and `just`
+  example verifiers accept `--help` and reject unknown arguments.
 - Sublime Text examples are type-checked against the skill's bundled host
   fakes instead of root stubs.
 - Shared Markdown lint rules live in `.markdownlint.jsonc`, which
@@ -65,6 +70,8 @@ no released versions yet.
 
 ### Fixed
 
+- The IntelliJ Platform workflow runs `scripts/check_plugin_xml.py`
+  instead of an unresolved `<skill>/` path.
 - Reference cards no longer claim that `return cond ? a : b;` moves in
   C++, that `quote(args)` forwards `just` variadic arguments separately, or
   that release-mode `#[inline]` matches LTO in Rust; the Java integer-cache

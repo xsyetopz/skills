@@ -1,0 +1,4 @@
+[
+  {"name": "web", "region": "eu-west-1"},
+  {"name": "staging", "region": "us-east-1"}
+]

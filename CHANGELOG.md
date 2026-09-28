@@ -10,6 +10,11 @@ no released versions yet.
 
 ### Added
 
+- `design-command-line-interfaces` designs, changes, renames, and reviews
+  an application's CLI commands from the Command Line Interface Guidelines
+  (clig.dev): streams, exit codes, help, errors, flags, prompts, config, and
+  deprecated aliases for renamed commands. `scripts/check_cli.py` probes a
+  built CLI for help, unknown-flag, color, stack-trace, and hang defects.
 - `write-implementation-plans` writes implementation plans and reviews
   existing plans for flaws with one set of cards and both bundled checkers.
 - `debug-software-failures` takes a failure of unknown cause from a strict

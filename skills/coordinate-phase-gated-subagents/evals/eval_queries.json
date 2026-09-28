@@ -63,7 +63,7 @@
     "query": "Plan the search rewrite for me: ordered tasks, the files each one touches, and a verify command per task.",
     "should_trigger": false,
     "split": "train",
-    "expected_skill": "plan-implementation"
+    "expected_skill": "write-implementation-plans"
   },
   {
     "query": "Write the requirements for billing v2 with IDs and acceptance criteria we can test against.",

@@ -10,8 +10,8 @@ no released versions yet.
 
 ### Added
 
-- `plan-implementation` writes implementation plans and reviews existing
-  plans for flaws with one set of cards and both bundled checkers.
+- `write-implementation-plans` writes implementation plans and reviews
+  existing plans for flaws with one set of cards and both bundled checkers.
 - `debug-software-failures` takes a failure of unknown cause from a strict
   reproduction through optional reduction and `git bisect` to a root cause
   and a regression test, with a fast path for crashes whose backtrace
@@ -38,6 +38,8 @@ no released versions yet.
   `design-system-architecture` to `design-software-architecture`, and
   `test-implementation-behavior` to `write-behavior-tests`. The old names
   are not kept as aliases.
+- `write-implementation-plans` requires each slice to remove or name the TODO,
+  stub, or placeholder it adds, and reviews plans for unremoved markers.
 - Sublime Text examples are type-checked against the skill's bundled host
   fakes instead of root stubs.
 - Shared Markdown lint rules live in `.markdownlint.jsonc`, which
@@ -45,8 +47,8 @@ no released versions yet.
 
 ### Removed
 
-- `write-implementation-plans` and `find-implementation-plan-flaws`; use
-  `plan-implementation`.
+- `find-implementation-plan-flaws`; use `write-implementation-plans`, which
+  also reviews plans.
 - `reproduce-software-bugs`, `find-regression-commits`, and
   `diagnose-software-failures`; use `debug-software-failures`.
 - `apply-pep20-to-codebases`; use `write-readable-code`.

@@ -1,5 +1,5 @@
 ---
-name: plan-implementation
+name: write-implementation-plans
 description: >-
   Writes implementation plans as ordered tasks with files, verify commands,
   and done conditions, and reviews plans for flaws like unsafe order, lost
@@ -7,7 +7,7 @@ description: >-
   Not for requirements or executing plans.
 ---
 
-# Plan Implementation
+# Write Implementation Plans
 
 Produce plans another engineer or agent can execute without guessing, and
 find the ways a plan fails before anyone executes it. Each task names its
@@ -30,7 +30,9 @@ Write a plan for an agreed change:
    ([goal](references/plan-structure.md#goal-and-acceptance)).
 1. List tasks as vertical slices; put tests that pin current behavior
    before the change they protect; add spikes where an unknown decides
-   later tasks ([structure](references/plan-structure.md)).
+   later tasks; name any TODO, stub, or placeholder a slice leaves for
+   a later slice and give that later slice's done condition its
+   removal ([structure](references/plan-structure.md)).
 1. For changes to shared interfaces or data, use expand, migrate,
    contract; add flags with removal tasks and rollbacks for irreversible
    steps ([delivery](references/delivery.md)).
@@ -74,6 +76,7 @@ Review a plan:
 | Done conditions; "done when it works" | [Done condition](references/plan-structure.md#done-condition-per-task) |
 | Ordering tasks; a task uses something no earlier task creates | [Dependencies](references/plan-structure.md#dependencies-in-executable-order), [tests first](references/plan-structure.md#tests-before-the-change-they-protect) |
 | Feature across layers | [Vertical slices](references/plan-structure.md#vertical-slices) |
+| A slice leaves a TODO, stub, or placeholder for later | [Done condition](references/plan-structure.md#done-condition-per-task), [unremoved marker](references/flaw-types.md#unremoved-marker-left-across-slices) |
 | Unknown feasibility or performance | [Spikes](references/plan-structure.md#spikes-with-a-decision-rule) |
 | Renaming a column, API field, or config key; lockstep change across separately deployed parts | [Expand and contract](references/delivery.md#expand-and-contract-migration) |
 | Releasing behavior gradually | [Feature flag](references/delivery.md#feature-flag-with-removal-task) |
@@ -136,7 +139,7 @@ Review a plan:
   classification, process choice.
 - [Flaw types](references/flaw-types.md): read when reviewing: lost
   updates, destructive ordering, retries, contradictions, repository
-  claims, unsupported numbers, missing cases.
+  claims, unsupported numbers, missing cases, unremoved markers.
 - [Review method](references/review-method.md): read when reviewing any
   plan, including your own draft: inputs, execution walk, claims audit,
   counterexample tests, finding format, severity, minimal corrections,
@@ -146,7 +149,10 @@ Review a plan:
 
 A written plan passes `check_plan.py` with zero defects, and each
 MISSING claim from `audit_plan_claims.py` names the earlier task that
-creates it; the report lists the
+creates it; every TODO, stub, or placeholder a slice leaves for later
+is named and its removal is in a later done condition, with a
+completion check (for example a diff grep for the introduced markers)
+that finds none once the plan ends; the report lists the
 critical path, each Verify command with the result of running it once
 (or why it could not run yet), and any open decisions. A review lists
 findings ordered by severity, each with step, constraint,

@@ -59,7 +59,7 @@
     "query": "Plan the migration from SQLAlchemy 1.4 to 2.0 across our 30 model files: task order, a verify step for each, and how we roll back halfway.",
     "should_trigger": false,
     "split": "train",
-    "expected_skill": "plan-implementation"
+    "expected_skill": "write-implementation-plans"
   },
   {
     "query": "this 300-line function is nothing but nested ifs, make it readable without changing what it does",

@@ -122,6 +122,10 @@ them, or name a command that does not exist in the repository.
 **Definition.** `Done when:` names what the task's command proves: the
 new cases, the expected output. A done condition that no command or
 observation can decide ("works", "is fast", "edits appear") is a flaw.
+It also includes no TODO, stub, or placeholder that this task added; if
+the task must leave one for a later task (a stub a following slice
+wires up), the task names the marker and the later task's `Done when:`
+states that it removes it.
 
 **Use when.** Every task, written or reviewed.
 
@@ -129,15 +133,23 @@ observation can decide ("works", "is fast", "edits appear") is a flaw.
 
 **Example.** "Done when: all cases pass against the split-based
 implementation." Flawed: F5 in the worked review, "the CLI works".
+Naming a carried marker: "Done when: cases pass; `# TODO: T4 wires
+retries` is the only marker left, removed by T4." T4's own `Done when:`
+then states it removes that TODO.
 
 **Cost removed.** Tasks marked done with weaker tests than intended, or
-without evidence.
+without evidence, and TODOs or stubs that outlive the plan.
 
 **Verify.**
 
 1. For a task without one, the checker reports `no 'Done when:'`.
 1. In review, replace each undecidable condition with a test name or a
    command and its expected output.
+1. For each TODO, stub, or placeholder a task's diff introduces, the
+   plan names the later task that removes it, or it is gone by the
+   task's own done condition. The plan's completion check (for example
+   a grep over the whole diff for the markers it introduced) finds none
+   once the last task lands.
 
 ## Dependencies in executable order
 
@@ -204,6 +216,8 @@ must exist first; make it its own task.
 **Verify.**
 
 1. Each slice task's Verify runs an end-to-end or integration test.
+1. Each slice's done condition covers the markers it leaves behind
+   ([done condition](#done-condition-per-task)).
 
 ## Spikes with a decision rule
 

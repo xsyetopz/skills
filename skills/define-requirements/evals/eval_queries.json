@@ -59,7 +59,7 @@
     "query": "Break the SSO requirements we agreed on into an ordered implementation plan: tasks, files each one touches, and a verify command per task.",
     "should_trigger": false,
     "split": "train",
-    "expected_skill": "plan-implementation"
+    "expected_skill": "write-implementation-plans"
   },
   {
     "query": "Write pytest tests for the acceptance criteria in our login lockout spec; the code is in auth/lockout.py and the spec says five wrong passwords lock the account.",
@@ -88,7 +88,7 @@
     "query": "Review this plan and tell me what's wrong with it: 1) migrate the db schema, 2) deploy the new code, 3) backfill old rows.",
     "should_trigger": false,
     "split": "validation",
-    "expected_skill": "plan-implementation"
+    "expected_skill": "write-implementation-plans"
   },
   {
     "query": "Define the REST contract for the orders service: resources, idempotency keys on POST, error codes, and how we version it.",

@@ -27,6 +27,7 @@ Five flaw classes live on the card for the construct that prevents them:
 - Claims that do not match the repository
 - Unsupported decision or invented number
 - Missing failure and boundary cases
+- Unremoved marker left across slices
 
 ## Lost update between read and write
 
@@ -174,3 +175,32 @@ validation.
 
 1. List the boundary and failure cases per step; each has a task or an
    explicit exclusion.
+
+## Unremoved marker left across slices
+
+**Definition.** A slice adds a TODO, stub, or placeholder for a later
+slice, but no task names it, or the later slice's done condition never
+confirms it is gone, so it survives past the plan.
+
+**Use when.** Tasks are ordered as vertical slices and a slice's code
+cannot be complete before a later slice exists (a stub a following
+slice wires up, a branch marked TODO).
+
+**Do not use when.** The leaving slice names the marker, the slice that
+removes it says so in its own `Done when:`, and the plan's completion
+check confirms none remain.
+
+**Example.** T2 leaves `# TODO: T4 handles retries` in `export.py`; T4's
+`Done when:` never mentions removing it, and no step greps the diff for
+leftover markers.
+
+**Cost removed.** Stub code and dead markers shipped as if the feature
+were finished.
+
+**Verify.**
+
+1. For each TODO, stub, or placeholder a slice's diff introduces, the
+   plan names the task that removes it and that task's `Done when:`
+   says so.
+1. The plan's completion check (for example a `grep` over the diff for
+   the markers it introduced) finds none once the last task lands.

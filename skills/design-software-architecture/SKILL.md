@@ -4,7 +4,8 @@ description: >-
   Designs and reviews system boundaries: modules, ports, or services, state
   ownership, dependency rules, idempotent operations, and API and protocol
   contracts. Use for architecture decisions, service splits, or layering
-  problems. Not for requirement wording.
+  problems. Not for requirement wording or for documenting an existing
+  codebase's architecture in ARCHITECTURE.md.
 ---
 
 # Design Software Architecture

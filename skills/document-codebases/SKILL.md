@@ -3,8 +3,8 @@ name: document-codebases
 description: >-
   Writes and fixes repository documentation (README, CONTRIBUTING, guides, API
   reference, ADRs), runs every documented command, and checks links. Use when
-  docs are missing, wrong, or out of date. Not for changelogs or agent
-  instruction files.
+  docs are missing, wrong, or out of date. Not for changelogs, agent
+  instruction files, or ARCHITECTURE.md.
 ---
 
 # Document Codebases

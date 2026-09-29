@@ -10,6 +10,13 @@ no released versions yet.
 
 ### Added
 
+- `write-architecture-md` writes, updates, and audits ARCHITECTURE.md files
+  from the architecture.md template, with matklad's durability rules. The
+  file is always `ARCHITECTURE.md` at the repository root; one kept in
+  `docs/` is moved there. `scripts/check_architecture.py` checks the
+  document against the repository: its name and location, missing or
+  empty sections, leftover placeholders, unfenced
+  diagrams, paths that do not exist, and undescribed top-level directories.
 - `design-command-line-interfaces` designs, changes, renames, and reviews
   an application's CLI commands from the Command Line Interface Guidelines
   (clig.dev): streams, exit codes, help, errors, flags, prompts, config, and

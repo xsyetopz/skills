@@ -243,6 +243,8 @@ Consequences: inputs larger than RAM are unsupported; the README says so.
 
 **Definition.** Changelogs belong to `$update-changelogs`. Agent
 instruction files (AGENTS.md, CLAUDE.md) belong to `$write-agents-md`.
+ARCHITECTURE.md and other architecture overviews of the whole codebase
+belong to `$write-architecture-md`.
 Code comments and names belong to `$write-readable-code`.
 
 **Use when.** A request mentions those files.

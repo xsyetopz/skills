@@ -145,6 +145,8 @@ no released versions yet.
   keeps refusing.
 - `coordinate-phase-gated-subagents` reads the concurrent subagent limit
   before planning a wave and gives each brief one behavior.
+- `write-behavior-tests` treats snapshot update commands as loosened
+  assertions.
 
 ### Removed
 

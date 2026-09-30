@@ -263,7 +263,11 @@ generated file, CLI help, a rendered template.
 
 **Do not use when.** Most of the output is incidental formatting.
 Assert the specific fields instead. Never update a golden file without
-reviewing the diff.
+reviewing the diff. A snapshot update command (`jest -u`, `vitest -u`,
+syrupy's `pytest --snapshot-update`, `cargo insta accept`) rewrites
+every failing snapshot at once and hides the failure like a loosened
+assertion: run it only when the old snapshot is wrong, and say so in the
+report.
 
 **Example.**
 

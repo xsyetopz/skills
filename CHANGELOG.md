@@ -143,6 +143,8 @@ no released versions yet.
 - `debug-software-failures` reads effective settings and profiles before
   blaming a tool, and starts a new session with a handoff when an agent
   keeps refusing.
+- `coordinate-phase-gated-subagents` reads the concurrent subagent limit
+  before planning a wave and gives each brief one behavior.
 
 ### Removed
 

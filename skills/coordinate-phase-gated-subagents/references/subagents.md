@@ -33,7 +33,14 @@ Map each one to the host's real feature. On Claude Code:
   `~/.claude/agents/`;
 - their frontmatter sets `tools`, `disallowedTools`, `model`,
   `permissionMode`, `maxTurns`, `background`, and
-  `isolation: worktree`.
+  `isolation: worktree`;
+- `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` caps the subagents that run at
+  once ([default 20][cc-limit]); at the cap, spawning fails with
+  "Concurrent subagent limit reached". Read the effective value before
+  you plan a wave, because a settings file or profile can lower it.
+
+Choose each role's model and effort with
+`$choose-claude-model-and-effort`.
 
 On Codex:
 
@@ -80,6 +87,10 @@ so its brief holds everything it needs:
 - its constraints, including forbidden shortcuts;
 - the local check command;
 - the result format.
+
+Size each brief to one behavior and the few files it touches. A worker
+that stops at its turn limit returns no usable result, so split an item
+that needs more.
 
 **Use when.** Spawning any worker.
 
@@ -280,4 +291,5 @@ design rule, so one change request, not three local fixes.
    affected items rerun.
 
 [cc]: https://code.claude.com/docs/en/sub-agents
+[cc-limit]: https://code.claude.com/docs/en/sub-agents#concurrent-subagent-limit
 [cx]: https://developers.openai.com/codex/subagents

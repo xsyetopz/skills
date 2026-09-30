@@ -1,0 +1,42 @@
+; tool: disassembler export, game.exe (PE32+, x86-64, MSVC), image base 0x140000000
+; function sub_140012380 (auto-named)
+140012380  push   rbx
+140012382  sub    rsp, 20h
+140012386  mov    ecx, 48h
+14001238b  call   j_operator_new            ; import thunk
+140012390  mov    rbx, rax
+140012393  test   rax, rax
+140012396  jz     short loc_1400123d0
+140012398  mov    rcx, rax
+14001239b  call   sub_1400124f0
+1400123a0  mov    rax, rbx
+1400123a3  add    rsp, 20h
+1400123a7  pop    rbx
+1400123a8  retn
+1400123d0  xor    eax, eax
+1400123d2  add    rsp, 20h
+1400123d6  pop    rbx
+1400123d7  retn
+
+; function sub_1400124f0 (auto-named)
+1400124f0  lea    rax, off_140230a18
+1400124f7  mov    [rcx], rax
+1400124fa  mov    dword ptr [rcx+8], 0
+140012501  mov    qword ptr [rcx+10h], 0
+140012509  mov    byte ptr [rcx+40h], 1
+14001250d  mov    rax, rcx
+140012510  retn
+
+; function sub_140012600 (auto-named), called from 14001a2c4 with rcx = object
+140012600  mov    eax, [rcx+8]
+140012603  or     eax, 4
+140012606  mov    [rcx+8], eax
+140012609  mov    rax, [rcx]
+14001260c  jmp    qword ptr [rax+18h]
+
+; data
+140230a10  dq 1402f1c30                     ; referenced by vftable[-1]
+140230a18  dq sub_140012700, sub_140012760, sub_1400127a0, sub_140012800
+1402f1c30  dd 1, 0, 0, 2f1d00h, 2f1d40h, 2f1c30h
+1402f1d00  dq 1402a0f08                      ; type descriptor vftable
+1402f1d10  db '.?AVSession@net@@', 0

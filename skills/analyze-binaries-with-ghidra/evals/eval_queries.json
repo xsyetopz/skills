@@ -1,0 +1,102 @@
+[
+	{
+		"query": "What does the function at 0x401a30 in our game.exe do? The Ghidra project is in ghidra/.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Decompile FUN_08001a30 from firmware.bin and tell me what its parameters are.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up pyghidra-mcp for this repo so Claude can query our Ghidra project.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "There's a ghidra-bridge.yaml here; export the project and find all callers of the CRC routine.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Show me the xrefs to the global at 0x0804c010 in the Ghidra project.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "ghidra-bridge export all fails with 'Unable to lock project!' — what's wrong?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our release build crashed at 0x7ff6a1b31a3c; which function in the binary is that, using Ghidra?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Dump the CEntity struct and its vtable from the Ghidra exports.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Should the Ghidra MCP server use stdio or streamable-http if two agent sessions share one project?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Find which function in the vendor driver binary references the string 'calibration failed'.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Rewrite this decompiled Ghidra function as clean C that compiles to the same bytes for our matching decomp.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Audit our Flask app's source for SQL injection and path traversal.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our C service segfaults under load; bisect and find the commit that broke it.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "PCSX2 crashes when booting my game after a build from master; debug it.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "DuckStation shows broken textures in one game; figure out whether it's the emulator.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Profile this C hot loop and read the compiler's assembly to make it faster.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a README for our Ghidra plugin repository with install steps.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Review this justfile recipe that runs our build and tests.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Check our dependencies for known CVEs and hard-coded secrets.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Design the CLI flags and help text for our new binary-diffing tool.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

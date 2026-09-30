@@ -1,0 +1,102 @@
+[
+	{
+		"query": "Our N64 decomp builds but func_80012345 is still 3 instructions off from the original. Help me get it matching.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up a byte-identical rebuild of this old Win32 DLL: pin the compiler and flags and verify against the original's SHA-256.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review tools/verify.py in our decompilation repo; I think it can report a match when the function is truncated.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The progress badge says 80% matched but half the functions are still INCLUDE_ASM. Fix the progress script.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This function decompiles fine but the registers come out swapped compared to the target; how do I steer MSVC 6 to allocate them like the original?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write acceptance evidence for our matching decompilation: fresh hashes, negative controls, ABI checks.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Figure out what this function at 0x4012a0 in the Ghidra project does and give it a name and signature.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write unit tests for the save-file parser we rewrote from the decompiled game code.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "The PCSX2 build crashes when loading my game's save state; help me debug it.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Make this C hash function faster; the profile shows it at 40% of CPU.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our release build differs between two CI runs; make the build reproducible so the tarballs are identical.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Audit this reverse-engineered network protocol handler for buffer overflows.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "I pasted a decomp.me scratch; the target has the stores in a different order than my C. What should I try?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We want the rebuilt game.exe to match the original exactly. Where do we keep the original binary, and should we commit it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Keep a machine-readable log of every attempt at matching each function, with source and toolchain hashes.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our objdiff config ignores relocations to make more functions green. Is that okay?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Recover the struct layout used by this game's inventory code from the disassembly.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our regression tests pass but the ported game crashes on level 3; find the root cause.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Bump our library to 2.0.0 or 1.1.0? We changed a function signature.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Run DuckStation with a clean profile and capture the crash in the CPU debugger.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

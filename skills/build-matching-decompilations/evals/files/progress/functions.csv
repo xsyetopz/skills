@@ -1,0 +1,5 @@
+name,address,size,file
+Player_Update,0x401000,128,src/player.c
+Player_Draw,0x401080,64,src/player.c
+Crt_Start,0x4010c0,256,src/crt.c
+Sound_Init,0x4011c0,64,src/sound.c

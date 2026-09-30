@@ -1,0 +1,33 @@
+; tool: decompiler + disassembly, tool32.exe (PE32, x86, MSVC), image base 0x400000
+; decompiler header shown by the tool:
+;   int __cdecl FUN_00401a30(char *param_1, int param_2, int param_3)
+00401a30  push   ebp
+00401a31  mov    ebp, esp
+00401a33  sub    esp, 110h
+00401a39  mov    eax, ___security_cookie
+00401a3e  xor    eax, ebp
+00401a40  mov    [ebp-4], eax
+00401a43  mov    edx, [ebp+8]
+00401a46  lea    ecx, [edx+1]
+00401a49  mov    al, [edx]
+00401a4b  inc    edx
+00401a4c  test   al, al
+00401a4e  jnz    short 00401a49
+00401a50  sub    edx, ecx
+00401a52  cmp    edx, [ebp+0Ch]
+00401a55  ja     short 00401a70
+00401a57  push   edx
+00401a58  push   dword ptr [ebp+8]
+00401a5b  lea    eax, [ebp-108h]
+00401a61  push   eax
+00401a62  call   dword ptr [ebp+10h]
+00401a65  add    esp, 0Ch
+00401a68  jmp    short 00401a75
+00401a70  or     eax, 0FFFFFFFFh
+00401a75  mov    ecx, [ebp-4]
+00401a78  xor    ecx, ebp
+00401a7a  call   @__security_check_cookie@4
+00401a7f  mov    esp, ebp
+00401a81  pop    ebp
+00401a82  retn   0Ch
+; callers: 00402210 pushes 3 dwords then calls; no add esp after the call

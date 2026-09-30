@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reverse Engineer Functions"
+  short_description: "Reverse one binary function with cited evidence"
+  default_prompt: "Use $reverse-engineer-functions to reverse this function in a binary I may analyze: settle the calling convention from the code, strip compiler idioms, recover types with evidence addresses, give each name a confidence level, stop at the first unresolved dependency, and report the answer, evidence, types, and open questions."

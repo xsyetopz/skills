@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "id": 1,
+      "function": "Inventory_Add",
+      "source_sha256": "7f43df7e32248cc72f3f5fd71d415af46ec5d18ba61b65b96413a936cf05b501",
+      "toolchain_sha256": "5f1c2a9e0b7d4c3e8a6f1b2d9c0e7a4b3f8d6c1e2a9b0f7d4c3e8a6f1b2d9c0e",
+      "change": "first translation from the decompiler output",
+      "result": "nonmatching",
+      "differing_bytes": 4,
+      "diff_summary": "ESI and EDI swapped for count and slot pointer"
+    }
+  ]
+}

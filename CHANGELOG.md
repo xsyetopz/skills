@@ -38,6 +38,19 @@ no released versions yet.
   files to 300 code lines and test files to 500, split by responsibility;
   `scripts/file_length.py` counts code lines without comments or blank
   lines in any common language and flags files over their limit.
+- `analyze-binaries-with-ghidra` queries Ghidra projects from a coding
+  agent through the pyghidra-mcp MCP server, or the ghidra-bridge CLI over
+  exported data: setup, the one-time export, the query order, output
+  limits, crash-address lookup, and project-lock errors.
+- `reverse-engineer-functions` reverses one function with any disassembler
+  or decompiler: evidence-cited claims, calling conventions per platform,
+  compiler idioms, struct recovery, vtables and RTTI, name confidence, and
+  a report with open questions by address.
+- `build-matching-decompilations` builds source that compiles to the same
+  bytes as a reference binary, with a pinned reference hash and toolchain,
+  fail-closed full-function compares, negative controls, and an attempt
+  log. `scripts/check_match_evidence.py` recomputes the recorded hashes and
+  coverage and fails on any gap in the acceptance evidence.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

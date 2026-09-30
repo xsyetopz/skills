@@ -1,0 +1,9 @@
+Inventory_Add: 4 of 52 bytes differ (objdiff, pinned compiler and flags)
+
+  offset  target                     build
+  0x0c    mov esi, [ecx+0x04]        mov edi, [ecx+0x04]
+  0x0f    lea edi, [ecx+0x08]        lea esi, [ecx+0x08]
+  0x18    cmp [edi], edx             cmp [esi], edx
+  0x1e    inc dword [edi+0x04]       inc dword [esi+0x04]
+
+All other instructions and every relocation are identical.

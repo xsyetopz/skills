@@ -25,8 +25,9 @@ and the worktree are checked after every operation.
 1. Protect work before risky operations: a recovery branch for rewrites,
    `stash push -u` or a commit for dirty files
    ([recovery ref][recovery]).
-1. Find the repository's hooks, commit message policy, and merge or
-   rebase policy.
+1. Find the repository's hooks, commit message policy, merge or rebase
+   policy, and, when an agent commits, its attribution rules
+   ([attribution][attribution]).
 1. Perform the operation with the narrowest command from the cards.
 1. Verify: status and diffs again, `git show --stat HEAD`,
    `write-tree` versus `HEAD^{tree}` where hooks run, and the checks for
@@ -43,6 +44,7 @@ and the worktree are checked after every operation.
 | Hooks run on commit | [Existing hooks](references/staging-and-commits.md#existing-hooks), [hooks change snapshot](references/staging-and-commits.md#hooks-that-change-the-snapshot), [write-tree](references/staging-and-commits.md#snapshot-identity-with-write-tree) |
 | Several changes in the tree | [Commit slices](references/staging-and-commits.md#commit-slices-by-behavior) |
 | Writing the message | [Message policy](references/staging-and-commits.md#commit-message-policy) |
+| An agent writes the commit or pull request | [Agent attribution](references/staging-and-commits.md#agent-commit-attribution) |
 | Fix an earlier unpublished commit | [Fixup and autosquash](references/staging-and-commits.md#fixup-commits-and-autosquash), [amend](references/staging-and-commits.md#amend) |
 | Clear the tree temporarily | [Stash](references/history-and-recovery.md#stash-with-untracked-files-and-index) |
 | Bring in another branch | [Merge policies](references/history-and-recovery.md#merge-policies), [rebase](references/history-and-recovery.md#rebase-and-conflict-sides) |
@@ -61,6 +63,7 @@ and the worktree are checked after every operation.
   .`, `clean -f`, `stash drop`) without the user's go-ahead for that
   action.
 - Stage named paths; never `git add -A` in a tree with unrelated changes.
+  Warn before staging binaries under analysis or `.ghidra-exports/`.
 - Do not bypass hooks (`--no-verify`) or change `core.hooksPath`.
 - Rewrite (amend, rebase, reset of pushed commits) only when authorized.
   Publish a rewrite only with `--force-with-lease=REF:EXPECTED`; a bare
@@ -83,7 +86,7 @@ and the worktree are checked after every operation.
 
 - [Staging and commits](references/staging-and-commits.md): three states,
   exact paths, hunk staging, the `--only` trap, write-tree, hooks, slices,
-  message policy, fixups, amend.
+  message policy, agent attribution, fixups, amend.
 - [History and recovery](references/history-and-recovery.md): recovery
   refs, stash, merge, rebase sides, cherry-pick, revert, reset/restore
   table, reflog, worktrees.
@@ -99,3 +102,4 @@ worktree, or unpushed commit left behind.
 
 [states]: references/staging-and-commits.md#inspect-the-three-states
 [recovery]: references/history-and-recovery.md#recovery-ref-before-a-rewrite
+[attribution]: references/staging-and-commits.md#agent-commit-attribution

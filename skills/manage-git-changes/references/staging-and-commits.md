@@ -16,6 +16,7 @@ measured with git 2.55.0 in disposable repositories);
 - Hooks that change the snapshot
 - Commit slices by behavior
 - Commit message policy
+- Agent commit attribution
 - Fixup commits and autosquash
 - Amend
 
@@ -62,7 +63,10 @@ commit.
 **Use when.** Staging any change: name its paths.
 
 **Do not use when.** No exception. Never use `-A` in a tree with unrelated
-changes, build output, or secrets.
+changes, build output, or secrets. Warn before staging a binary under
+analysis (ELF, Mach-O, PE), a reference executable, or analysis output
+such as `.ghidra-exports/`: they are usually licensed to the user alone,
+and a pushed copy stays in history.
 
 **Example.**
 
@@ -79,6 +83,8 @@ commits.
 1. `git diff --cached --name-only` lists exactly the intended paths.
 1. `git diff --cached | rg -i 'secret|password|token|BEGIN .*PRIVATE KEY'`
    finds nothing.
+1. `git diff --cached --numstat` shows no `-  -` (binary) rows you did
+   not intend.
 
 ## Stage one hunk without a prompt
 
@@ -298,6 +304,67 @@ A missing test command exited 127, which git bisect run treats as bad.
 
 1. The repository's message linter passes on the new commits.
 
+## Agent commit attribution
+
+**Definition.** When an agent writes a commit or pull request text, it
+may mark its part with a trailer (`Co-Authored-By:`), an author or
+committer name, or a line in the message. Whether to mark it, and how,
+comes from the first of these sources that says anything:
+
+1. Organization-managed harness settings (for Claude Code, managed
+   settings), which override the rest.
+1. Repository rules for agents: `AGENTS.md`, `CLAUDE.md`,
+   `CONTRIBUTING.md`, an AI policy file, pull request templates, and
+   the commit linter. A rule that forbids AI contributions stops the
+   work; tell the user.
+1. The user's own instructions, in the request or their personal agent
+   instructions file. When they conflict with a repository rule, ask
+   before committing.
+1. The harness's attribution setting (table below), read from every
+   settings file it merges.
+1. Nothing set: the harness default.
+
+| Harness | Setting | Where | Default |
+| --- | --- | --- | --- |
+| [Claude Code][cc-attribution] | `attribution.commit`, `attribution.pr` (strings), `attribution.sessionUrl` (Boolean), or `attribution: false`; deprecated `includeCoAuthoredBy` | `~/.claude/settings.json`, `.claude/settings.json`, `.claude/settings.local.json`, managed settings | `Co-Authored-By` trailer; pull request text |
+| [Aider][aider-options] | `--attribute-co-authored-by`, `--attribute-author`, `--attribute-committer`, `--attribute-commit-message-author`, `--attribute-commit-message-committer` | flags, or `AIDER_ATTRIBUTE_*` environment variables | `Co-authored-by` trailer; no message prefix |
+| [GitHub Copilot CLI][copilot-cli] | `includeCoAuthoredBy` (Boolean) | `~/.copilot/settings.json`, `.github/copilot/settings.json`, `.github/copilot/settings.local.json` (repository wins) | `true` |
+| [Cursor agent and CLI][cursor-cli] | `attribution.attributeCommitsToAgent`, `attribution.attributePRsToAgent` (Booleans) | Cursor CLI configuration | `true` ("Made with Cursor") |
+
+Codex CLI, Gemini CLI, and OpenCode list no attribution setting in their
+configuration references (checked 2026-09-30); follow the repository and
+the user. For another harness, find the setting in its documentation
+before you state one. Keep the configured Git identity (`user.name`,
+`user.email`); attribution never changes it.
+
+**Use when.** An agent writes, amends, or rewords a commit or drafts a
+pull request.
+
+**Do not use when.** A person writes the commit; their message is theirs.
+
+**Example.**
+
+```sh
+rg -n -i 'co-authored|attribution|ai[- ]generated|assisted' \
+  AGENTS.md CLAUDE.md CONTRIBUTING.md .github 2>/dev/null
+jq -c '{attribution, includeCoAuthoredBy}' ~/.claude/settings.json \
+  .claude/settings.json .claude/settings.local.json 2>/dev/null
+```
+
+In Claude Code, `"attribution": false` hides all attribution (Claude
+Code v2.1.281 or later; earlier versions skip the settings file that
+holds it). Setting `commit` or `pr` makes Claude Code ignore
+`includeCoAuthoredBy`.
+
+**Cost removed.** Commits rejected by a project that requires or forbids
+AI disclosure, and trailers the user turned off.
+
+**Verify.**
+
+1. `git log -1 --format=%B` ends with the attribution the first
+   applicable source asks for, or none when it says none.
+1. `git log -1 --format='%an <%ae>'` is the configured identity.
+
 ## Fixup commits and autosquash
 
 **Definition.** `git commit --fixup=COMMIT` creates a commit titled
@@ -360,3 +427,7 @@ git commit --amend --no-edit
 [write-tree]: https://git-scm.com/docs/git-write-tree
 [rebase]: https://git-scm.com/docs/git-rebase
 [cc]: https://www.conventionalcommits.org/en/v1.0.0/
+[cc-attribution]: https://code.claude.com/docs/en/settings#attribution-settings
+[aider-options]: https://aider.chat/docs/config/options.html
+[copilot-cli]: https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference
+[cursor-cli]: https://cursor.com/docs/cli/reference/configuration

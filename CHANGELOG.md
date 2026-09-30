@@ -137,6 +137,9 @@ no released versions yet.
   that name the next action, an ask budget, a verdict log without secrets,
   shell-faithful path checks for writes through Bash, loop and waste
   detectors, and refusal detection.
+- `manage-git-changes` checks repository rules and harness settings for
+  agent commit attribution (Claude Code, Aider, Copilot CLI, Cursor), and
+  warns before staging binaries under analysis or tool exports.
 
 ### Removed
 

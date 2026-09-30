@@ -1,0 +1,102 @@
+[
+	{
+		"query": "Why is my Claude Code usage so high this week? Look at my session transcripts and tell me where the tokens went.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Audit my Claude Code sessions in this project and find wasted turns.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review this transcript: ~/.claude/projects/-Users-me-api/3f2a.jsonl. Where did the agent waste time?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "What burns my limit? Break down tokens by main conversation vs subagents from ~/.claude/projects.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My subagents keep returning partial output. Check the subagent transcripts to see if they hit their turn limit.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "That was a long session. Before we stop, what would have made it faster or cheaper, and what should we change?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a PreToolUse hook that blocks git push --force in Claude Code.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Should our reviewer subagent run on Opus or Sonnet, and at what effort?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a CLAUDE.md for this repository with the build and test commands.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Find out why our Go service crashes with a nil pointer after the last deploy.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a Python script that calls the Anthropic API and logs token usage per request.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Profile why our Node API server uses so much CPU under load.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "How often does the agent re-read the same file or rerun git status in my sessions? Count it from the jsonl logs.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Estimate what my last ten Claude Code sessions would cost at API prices, per model.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Check my transcripts for tasks where Claude said it was done but never ran the tests.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How many times did my sessions auto-compact this month, and at what context size?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Create a new Agent Skill for our release process with evals and an openai.yaml.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Set CLAUDE_CODE_EFFORT_LEVEL so my sessions stop using max effort.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Our pytest suite fails intermittently in CI. Find the cause.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write an implementation plan for splitting the billing service into two modules.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

@@ -58,6 +58,11 @@ no released versions yet.
   for a main session, subagent, headless run, or API call from current
   prices, cache economics, and task shape, and sets `model`, `effort`, and
   the prompt cache TTL where they take effect.
+- `audit-agent-sessions` audits Claude Code transcripts for wasted turns,
+  tokens, and attention, and turns each finding into one rule, hook, or
+  prompt fix. `scripts/session_stats.py` reports token use by model and
+  agent, repeated reads and commands, and compaction points without
+  printing message text.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

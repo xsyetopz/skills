@@ -149,6 +149,8 @@ no released versions yet.
   assertions.
 - `write-agents-md` covers Claude Code's `# Compact instructions` section
   and links human docs from the project map.
+- `write-implementation-plans` tags each task's evidence as verified,
+  reported, or inferred, and starts report-only tasks with a spike.
 
 ### Removed
 

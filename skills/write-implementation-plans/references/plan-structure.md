@@ -19,6 +19,7 @@ command.
 - Tests before the change they protect
 - Vertical slices
 - Spikes with a decision rule
+- Evidence tag per task
 
 ## Goal and acceptance
 
@@ -245,3 +246,42 @@ review.
 **Verify.**
 
 1. Later tasks name the spike's outcome.
+
+## Evidence tag per task
+
+**Definition.** Each task carries `[evidence: verified]`,
+`[evidence: reported]`, or `[evidence: inferred]` for the fact it rests
+on: verified means you checked it in the code, a run, or a primary
+source; reported means someone said it (an issue, a user, a subagent);
+inferred means you concluded it without a check. The sources go in a
+separate evidence file next to the plan, keyed by task ID, so the plan
+stays short.
+
+**Use when.** A task rests on a claim about behavior, a cause, a limit,
+or a number that you have not reproduced.
+
+**Do not use when.** The task only creates something new and rests on no
+claim about what exists.
+
+**Example.** A task that rests on a report starts with a spike and a
+decision rule:
+
+```markdown
+- T1 [depends: -] [files: -] [evidence: reported] Reproduce "exports
+  drop the last row" with a three-row file.
+  Verify: `python3 export.py tests/data/three_rows.csv`
+  Done when: row count recorded; 2 rows means T2 fixes the batch loop,
+  3 rows means T2 is dropped and the report is answered with the run.
+```
+
+```markdown
+<!-- EVIDENCE.md -->
+T1: issue #412 (user report, not reproduced); export.py:88 batch loop.
+```
+
+**Cost removed.** Plans that fix a reported cause nobody reproduced.
+
+**Verify.**
+
+1. Every `reported` or `inferred` task has a spike before it, or is one.
+1. Every task ID in the evidence file exists in the plan.

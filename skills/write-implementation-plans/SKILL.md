@@ -78,6 +78,7 @@ Review a plan:
 | Feature across layers | [Vertical slices](references/plan-structure.md#vertical-slices) |
 | A slice leaves a TODO, stub, or placeholder for later | [Done condition](references/plan-structure.md#done-condition-per-task), [unremoved marker](references/flaw-types.md#unremoved-marker-left-across-slices) |
 | Unknown feasibility or performance | [Spikes](references/plan-structure.md#spikes-with-a-decision-rule) |
+| A task rests on a report or an unchecked inference | [Evidence tag](references/plan-structure.md#evidence-tag-per-task), [spikes](references/plan-structure.md#spikes-with-a-decision-rule) |
 | Renaming a column, API field, or config key; lockstep change across separately deployed parts | [Expand and contract](references/delivery.md#expand-and-contract-migration) |
 | Releasing behavior gradually | [Feature flag](references/delivery.md#feature-flag-with-removal-task) |
 | Data migration, deletion, external notification | [Rollback](references/delivery.md#rollback-per-irreversible-step) |

@@ -54,6 +54,10 @@ no released versions yet.
 - `run-reagent-pipelines` runs Reagent (`re-agent`) as a budgeted batch
   job: `doctor`, `estimate`, `plan`, then a small `reverse` run, with a
   measured usage check and review of parity results as candidates.
+- `choose-claude-model-and-effort` picks the Claude model and effort level
+  for a main session, subagent, headless run, or API call from current
+  prices, cache economics, and task shape, and sets `model`, `effort`, and
+  the prompt cache TTL where they take effect.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

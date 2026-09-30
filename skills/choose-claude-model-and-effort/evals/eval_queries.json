@@ -1,0 +1,102 @@
+[
+	{
+		"query": "This subagent only implements one planned slice with a named test. Should it run on Opus or Sonnet?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "What effort level should I put in .claude/agents/reviewer.md for our code-review agent?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My Max weekly limit is gone by Tuesday every week. Which model and effort should my main session and subagents use?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I keep typing /effort high but Claude Code runs at medium anyway. How do I set effort so it sticks?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is Opus 5.5 really more expensive than Sonnet 5.5 for a long agent run that is mostly cache reads?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Pick a model and effort for 500 headless claude -p jobs that each fix one lint warning.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a Python script that calls the Anthropic Messages API with streaming and tool use.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Rewrite this system prompt so the agent stops hedging and follows instructions literally.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Create a new SKILL.md for our deploy workflow with evals.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Run this feature as a phase-gated Waterfall delivery with subagents and gates.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add a PreToolUse hook that blocks rm -rf in Claude Code.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write an AGENTS.md for this repository with the build and test commands.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Should I set CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL to 1h for my subagents, or is it a waste?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Which Claude model should our root-cause debugging agent use, and at what effort?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Opus at xhigh or Sonnet at max for a hard multi-file refactor?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "What is the default effort on Opus 5.5, and should I raise it for agent work?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Compare GPT-5 and Gemini for our summarization service.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Profile why our Python service uses so much memory under load.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Migrate our Anthropic SDK code from claude-opus-5 to claude-opus-5-5 and fix the request parameters that changed.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Find out why the test suite fails intermittently in CI.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

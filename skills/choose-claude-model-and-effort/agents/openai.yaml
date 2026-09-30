@@ -1,0 +1,4 @@
+interface:
+  display_name: "Choose Claude Model and Effort"
+  short_description: "Pick Claude model, effort, and cache TTL from cost and task"
+  default_prompt: "Use $choose-claude-model-and-effort to choose the model and effort level for this session, subagent, or headless run from current prices, cache economics, and task shape, and set them where they take effect."

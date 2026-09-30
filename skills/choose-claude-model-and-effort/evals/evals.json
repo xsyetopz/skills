@@ -1,0 +1,86 @@
+{
+	"skill_name": "choose-claude-model-and-effort",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our Max plan's weekly limit runs out by Wednesday. Both subagents in agents-demo/.claude/agents/ run on Opus at max effort. Set a model and effort in each file that fits what the agent does (see agents-demo/PLAN.md for the kind of slices the implementer gets), and explain the choice.",
+			"expected_output": "slice-implementer moves to Sonnet (or another cheaper model) at low, medium, or high effort because its slices name files and a done test; bug-hunter stays on Opus because open-ended debugging has no stopping test; both keep valid effort values; the answer explains the main-session-plans, subagents-do-slices split and does not quote benchmark or limit multipliers.",
+			"files": [
+				"evals/files/agents-demo/.claude/agents/slice-implementer.md",
+				"evals/files/agents-demo/.claude/agents/bug-hunter.md",
+				"evals/files/agents-demo/PLAN.md"
+			],
+			"assertions": [
+				{
+					"text": "slice-implementer uses a Sonnet or Haiku model.",
+					"check": "grep -Eq '^model: *(sonnet|claude-sonnet-5-5|haiku|claude-haiku-4-5) *$' agents-demo/.claude/agents/slice-implementer.md"
+				},
+				{
+					"text": "slice-implementer effort is low, medium, or high, not max or xhigh.",
+					"check": "grep -Eq '^effort: *(low|medium|high) *$' agents-demo/.claude/agents/slice-implementer.md"
+				},
+				{
+					"text": "bug-hunter still runs on an Opus-class or stronger model.",
+					"check": "grep -Eq '^model: *(opus|claude-opus-5-5|fable|claude-fable-5-1|inherit) *$' agents-demo/.claude/agents/bug-hunter.md"
+				},
+				{
+					"text": "bug-hunter has a valid effort value.",
+					"check": "grep -Eq '^effort: *(low|medium|high|xhigh|max) *$' agents-demo/.claude/agents/bug-hunter.md"
+				},
+				{
+					"text": "The answer quotes no percentage-point benchmark gap or limit multiplier.",
+					"check": "! grep -Eiq '[0-9.]+ *(points|pp)\\b|[0-9]+ *(x|times) (the|your|more) (weekly|limit|usage)' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "usage/run-usage.json is the result of one claude -p run on Opus 5.5. What did it cost at API list prices, and what would the same token counts cost on Sonnet 5.5? Is switching worth it?",
+			"expected_output": "Opus 5.5: 0.12 x 4 + 0.6 x 5 + 30 x 0.20 + 0.25 x 20 = $14.48. Sonnet 5.5: 0.12 x 2 + 0.6 x 2.50 + 30 x 0.20 + 0.25 x 10 = $10.24. The $6.00 of cache reads is the same on both; the gap is output, writes, and input. The answer says the same token counts are an assumption because Sonnet may use more output tokens or need reruns, gives the break-even rerun share (about 41%), cites the pricing page with a date, and suggests measuring Sonnet on the same task at equal effort.",
+			"files": [
+				"evals/files/usage/run-usage.json"
+			],
+			"assertions": [
+				{
+					"text": "The answer gives the Opus 5.5 cost as $14.48.",
+					"check": "grep -q '14\\.48' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The answer gives the Sonnet 5.5 cost as $10.24.",
+					"check": "grep -q '10\\.24' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The answer notes cache reads cost the same on both models.",
+					"check": "grep -Eiq 'cache.{0,80}(same|equal|identical)|(same|equal|identical).{0,80}cache' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The answer names the pricing page as the source.",
+					"check": "grep -q 'about-claude/pricing' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "I'm on a Max plan and want to run about 300 headless jobs overnight with batch/run.sh (batch/jobs.txt holds the first few). How much more of my limit does claude -p burn than doing the same work interactively? Should I just start it?",
+			"expected_output": "The answer says the docs make no official statement on how headless runs count against plan limits, gives no multiplier, and gives the measurement method: run a small representative sample with --output-format json, read /usage session and weekly percentages before and after with no other use, compute limit use per job and API-equivalent cost from the usage fields, extrapolate to 300 jobs, and split across windows if it does not fit.",
+			"files": [
+				"evals/files/batch/run.sh",
+				"evals/files/batch/jobs.txt"
+			],
+			"assertions": [
+				{
+					"text": "The answer tells the user to read /usage before and after a sample.",
+					"check": "grep -q '/usage' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The answer proposes a small sample run first.",
+					"check": "grep -Eiq 'sample|small batch|pilot|first [0-9]+ jobs' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The answer gives no headless-versus-interactive limit multiplier.",
+					"check": "! grep -Eiq '\\b([2-9]|[2-9]\\.[0-9])( ?x| times)\\b|\\b(twice|three times|triple)\\b' \"$EVAL_RESPONSE_FILE\""
+				}
+			]
+		}
+	]
+}

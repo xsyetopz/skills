@@ -8,13 +8,15 @@ How command-line values reach commands. Each card is a recipe in
 
 ## Contents
 
-- Interpolation splits arguments
-- quote()
-- Positional arguments
-- Exported parameters
-- Default parameter values
-- Variadic parameters
-- Option-style arguments with the arg attribute
+- [Interpolation splits arguments](#interpolation-splits-arguments)
+- [quote()](#quote)
+- [Positional arguments](#positional-arguments)
+- [Exported parameters](#exported-parameters)
+- [Default parameter values](#default-parameter-values)
+- [Variadic parameters](#variadic-parameters)
+- [Option-style arguments with the arg attribute][toc-1]
+
+[toc-1]: #option-style-arguments-with-the-arg-attribute
 
 ## Interpolation splits arguments
 

@@ -7,14 +7,14 @@ Help, Documentation, and Errors. Runnable examples are in
 
 ## Contents
 
-- Help flags at every level
-- Concise usage when run bare
-- Help text layout
-- Suggest corrections, do not run them
-- Waiting on a terminal stdin
-- Documentation outside the help text
-- Rewrite expected errors for people
-- Unexpected errors and bug reports
+- [Help flags at every level](#help-flags-at-every-level)
+- [Concise usage when run bare](#concise-usage-when-run-bare)
+- [Help text layout](#help-text-layout)
+- [Suggest corrections, do not run them](#suggest-corrections-do-not-run-them)
+- [Waiting on a terminal stdin](#waiting-on-a-terminal-stdin)
+- [Documentation outside the help text](#documentation-outside-the-help-text)
+- [Rewrite expected errors for people](#rewrite-expected-errors-for-people)
+- [Unexpected errors and bug reports](#unexpected-errors-and-bug-reports)
 
 ## Help flags at every level
 

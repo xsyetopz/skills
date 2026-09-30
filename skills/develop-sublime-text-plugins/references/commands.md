@@ -14,14 +14,16 @@ with UnitTesting.
 
 ## Contents
 
-- TextCommand and the Edit token
-- Last-to-first multi-selection edits
-- WindowCommand
-- ApplicationCommand
-- is_enabled, is_visible, and is_checked
-- Command names from class names
-- ListInputHandler
-- TextInputHandler with next_input
+- [TextCommand and the Edit token](#textcommand-and-the-edit-token)
+- [Last-to-first multi-selection edits](#last-to-first-multi-selection-edits)
+- [WindowCommand](#windowcommand)
+- [ApplicationCommand](#applicationcommand)
+- [is_enabled, is_visible, and is_checked][toc-1]
+- [Command names from class names](#command-names-from-class-names)
+- [ListInputHandler](#listinputhandler)
+- [TextInputHandler with next_input](#textinputhandler-with-next_input)
+
+[toc-1]: #is_enabled-is_visible-and-is_checked
 
 ## TextCommand and the Edit token
 

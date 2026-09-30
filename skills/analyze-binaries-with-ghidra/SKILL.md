@@ -1,15 +1,9 @@
 ---
 name: analyze-binaries-with-ghidra
 description: >-
-  Queries Ghidra projects from a coding agent: the pyghidra-mcp MCP server
-  first, the ghidra-bridge CLI over exported data as the fallback. Covers
-  setup, ghidra-bridge.yaml, the one-time export, the query order (search,
-  decompile, xrefs, types), output limits, crash-address lookup, and
-  project-lock errors. Use when asked to decompile, list xrefs, or explain a
-  function in a binary the user may analyze, or when a ghidra-bridge.yaml
-  exists. Not for the tool-independent method of reversing a function
-  (calling conventions, type recovery), source-code security audits, or
-  licence, DRM, or anti-cheat bypass.
+  Queries Ghidra projects via pyghidra-mcp or ghidra-bridge to decompile, list
+  xrefs, recover types, and map crash addresses. Use to explain a binary
+  function. Not for DRM bypass.
 ---
 
 # Analyze Binaries with Ghidra

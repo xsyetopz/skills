@@ -14,18 +14,23 @@ counts are not.
 
 ## Contents
 
-- Toolchain and SDK record
-- Optimization barrier (sink and clobber)
-- std::chrono median harness
-- Counting global operator new
-- Copy and move counting type
-- Call-counting hasher, comparator, and predicate
-- Assembly inspection with -S
-- Compiler diagnostics as evidence
-- AddressSanitizer and UBSan oracle build
-- hyperfine for whole-process comparisons
-- Google Benchmark
-- xctrace Time Profiler
+- [Toolchain and SDK record](#toolchain-and-sdk-record)
+- [Optimization barrier (sink and clobber)][toc-1]
+- [std::chrono median harness](#stdchrono-median-harness)
+- [Counting global operator new](#counting-global-operator-new)
+- [Copy and move counting type](#copy-and-move-counting-type)
+- [Call-counting hasher, comparator, and predicate][toc-2]
+- [Assembly inspection with -S](#assembly-inspection-with--s)
+- [Compiler diagnostics as evidence](#compiler-diagnostics-as-evidence)
+- [AddressSanitizer and UBSan oracle build][toc-3]
+- [hyperfine for whole-process comparisons][toc-4]
+- [Google Benchmark](#google-benchmark)
+- [xctrace Time Profiler](#xctrace-time-profiler)
+
+[toc-1]: #optimization-barrier-sink-and-clobber
+[toc-2]: #call-counting-hasher-comparator-and-predicate
+[toc-3]: #addresssanitizer-and-ubsan-oracle-build
+[toc-4]: #hyperfine-for-whole-process-comparisons
 
 ## Toolchain and SDK record
 

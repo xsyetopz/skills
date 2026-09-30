@@ -2,8 +2,8 @@
 name: optimize-scala-code
 description: >-
   Profiles and optimizes Scala JVM CPU time and allocations with JMH, JFR, and
-  javap: collections, boxing, opaque types, inline. Use when a Scala benchmark
-  or profile shows the cost. Not for style or migration edits.
+  javap. Use when a Scala benchmark or profile shows the cost. Not for style or
+  migration edits.
 ---
 
 # Optimize Scala Code

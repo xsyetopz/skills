@@ -1,12 +1,9 @@
 ---
 name: write-architecture-md
 description: >-
-  Writes, updates, and audits ARCHITECTURE.md files with the architecture.md
-  template: project tree, Mermaid diagram, components, data stores,
-  deployment, security, invariants, all checked against the repository. Use
-  when documenting how an existing codebase is built or when an architecture
-  document has drifted from the code. Not for READMEs, AGENTS.md, ADRs, or
-  designing a new system.
+  Writes, updates, and audits ARCHITECTURE.md from the repository, with tree,
+  diagram, components, and invariants. Use when documenting how a codebase is
+  built or fixing drift. Not for READMEs or ADRs.
 ---
 
 # Write ARCHITECTURE.md

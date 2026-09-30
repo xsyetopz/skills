@@ -12,24 +12,30 @@ runtime and input; timings are not portable.
 
 ## Contents
 
-- Span slicing instead of Substring and Split
-- Bounded stackalloc with ArrayPool fallback
-- ArrayPool rent and return
-- string.Create
-- TryWrite and ISpanFormattable into caller storage
-- Presized StringBuilder
-- Static lambdas and state-passing overloads
-- IEquatable on struct keys
-- LINQ pipeline to loop
-- Presized collections
-- CollectionsMarshal.GetValueRefOrAddDefault
-- CollectionsMarshal.AsSpan
-- ValueTask for synchronous completion
-- SearchValues
-- Frozen collections
-- Dictionary alternate lookup
-- params ReadOnlySpan
-- JIT stack allocation (.NET 10)
+- [Span slicing instead of Substring and Split][toc-1]
+- [Bounded stackalloc with ArrayPool fallback][toc-2]
+- [ArrayPool rent and return](#arraypool-rent-and-return)
+- [string.Create](#stringcreate)
+- [TryWrite and ISpanFormattable into caller storage][toc-3]
+- [Presized StringBuilder](#presized-stringbuilder)
+- [Static lambdas and state-passing overloads][toc-4]
+- [IEquatable on struct keys](#iequatable-on-struct-keys)
+- [LINQ pipeline to loop](#linq-pipeline-to-loop)
+- [Presized collections](#presized-collections)
+- [CollectionsMarshal.GetValueRefOrAddDefault][toc-5]
+- [CollectionsMarshal.AsSpan](#collectionsmarshalasspan)
+- [ValueTask for synchronous completion](#valuetask-for-synchronous-completion)
+- [SearchValues](#searchvalues)
+- [Frozen collections](#frozen-collections)
+- [Dictionary alternate lookup](#dictionary-alternate-lookup)
+- [params ReadOnlySpan](#params-readonlyspan)
+- [JIT stack allocation (.NET 10)](#jit-stack-allocation-net-10)
+
+[toc-1]: #span-slicing-instead-of-substring-and-split
+[toc-2]: #bounded-stackalloc-with-arraypool-fallback
+[toc-3]: #trywrite-and-ispanformattable-into-caller-storage
+[toc-4]: #static-lambdas-and-state-passing-overloads
+[toc-5]: #collectionsmarshalgetvaluereforadddefault
 
 ## Span slicing instead of Substring and Split
 

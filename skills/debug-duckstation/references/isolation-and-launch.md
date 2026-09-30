@@ -7,13 +7,13 @@ app in a scratch directory with no BIOS and no game image.
 
 ## Contents
 
-- Portable user directory
-- Default user directories
-- Settings changes by file edit
-- Command-line launch flags
-- Save-state launch flags
-- Bounded batch run
-- Launch command builder
+- [Portable user directory](#portable-user-directory)
+- [Default user directories](#default-user-directories)
+- [Settings changes by file edit](#settings-changes-by-file-edit)
+- [Command-line launch flags](#command-line-launch-flags)
+- [Save-state launch flags](#save-state-launch-flags)
+- [Bounded batch run](#bounded-batch-run)
+- [Launch command builder](#launch-command-builder)
 
 ## Portable user directory
 

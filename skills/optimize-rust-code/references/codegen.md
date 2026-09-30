@@ -16,18 +16,22 @@ other architectures.
 
 ## Contents
 
-- Iterators instead of indexing
-- Reslice before the loop
-- chunks_exact
-- get_unchecked behind a checked invariant
-- Independent accumulators for float auto-vectorization
-- std::simd (nightly only)
-- Generics instead of Box dyn Trait
-- Enum dispatch for a closed set of types
-- #[inline] across crates
-- sort_unstable
-- memchr-backed str search
-- slice contains for bytes
+- [Iterators instead of indexing](#iterators-instead-of-indexing)
+- [Reslice before the loop](#reslice-before-the-loop)
+- [chunks_exact](#chunks_exact)
+- [get_unchecked behind a checked invariant][toc-1]
+- [Independent accumulators for float auto-vectorization][toc-2]
+- [std::simd (nightly only)](#stdsimd-nightly-only)
+- [Generics instead of Box dyn Trait](#generics-instead-of-box-dyn-trait)
+- [Enum dispatch for a closed set of types][toc-3]
+- [#[inline] across crates](#inline-across-crates)
+- [sort_unstable](#sort_unstable)
+- [memchr-backed str search](#memchr-backed-str-search)
+- [slice contains for bytes](#slice-contains-for-bytes)
+
+[toc-1]: #get_unchecked-behind-a-checked-invariant
+[toc-2]: #independent-accumulators-for-float-auto-vectorization
+[toc-3]: #enum-dispatch-for-a-closed-set-of-types
 
 ## Iterators instead of indexing
 

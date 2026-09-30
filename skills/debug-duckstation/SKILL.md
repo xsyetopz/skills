@@ -1,10 +1,9 @@
 ---
 name: debug-duckstation
 description: >-
-  Runs and debugs official DuckStation (PS1 emulator) releases with isolated
-  data, logs, the CPU debugger, and crash capture. Use for DuckStation crashes
-  or rendering and save-state problems. Not for building it from source,
-  PCSX2, or obtaining BIOS or games.
+  Runs and debugs the DuckStation PS1 emulator with isolated data, logs, and
+  the CPU debugger. Use for DuckStation crashes, rendering, or save-state
+  problems. Not for PCSX2 or obtaining BIOS or games.
 ---
 
 # Run and Debug DuckStation Releases

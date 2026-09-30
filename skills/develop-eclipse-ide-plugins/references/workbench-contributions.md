@@ -14,18 +14,23 @@ Eclipse 4.41, macOS 27 arm64, JDK 25.0.4.1; machine-specific).
 - [Handler class](#handler-class)
 - [Handler activeWhen](#handler-activewhen)
 - [Handler enabledWhen](#handler-enabledwhen)
-- [Expression definitions and reference][toc-defs]
-- [Menu contribution: menu: locations][toc-menu]
-- [Menu contribution: popup: locations][toc-popup]
-- [Menu contribution: toolbar: locations][toc-toolbar]
+- [Expression definitions and reference](#expression-definitions-and-reference)
+- [Menu contribution: menu: locations](#menu-contribution-menu-locations)
+- [Menu contribution: popup: locations](#menu-contribution-popup-locations)
+- [Menu contribution: toolbar: locations](#menu-contribution-toolbar-locations)
 - [visibleWhen on a menu item](#visiblewhen-on-a-menu-item)
-- [Part-scoped handler through IHandlerService][toc-part]
-- [Executing a command from code or a test][toc-exec]
-- [Text editor command with one undoable edit][toc-editor]
+- [Part-scoped handler through IHandlerService][toc-1]
+- [Executing a command from code or a test][toc-2]
+- [Text editor command with one undoable edit][toc-3]
 - [View contribution](#view-contribution)
-- [LocalResourceManager owned by a control][toc-lrm]
+- [LocalResourceManager owned by a control][toc-4]
 - [SWT Color without disposal](#swt-color-without-disposal)
-- [Eclipse 4 injection in a 3.x view][toc-di]
+- [Eclipse 4 injection in a 3.x view](#eclipse-4-injection-in-a-3x-view)
+
+[toc-1]: #part-scoped-handler-through-ihandlerservice
+[toc-2]: #executing-a-command-from-code-or-a-test
+[toc-3]: #text-editor-command-with-one-undoable-edit
+[toc-4]: #localresourcemanager-owned-by-a-control
 
 ## Command definition
 
@@ -753,12 +758,3 @@ the label reaches `2 TODO marker(s)` after a background scan.
 [jface-res]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/guide/jface_resources.htm
 [color]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/swt/graphics/Color.html
 [job]: jobs-and-threads.md#job-with-a-progress-monitor
-[toc-defs]: #expression-definitions-and-reference
-[toc-menu]: #menu-contribution-menu-locations
-[toc-popup]: #menu-contribution-popup-locations
-[toc-toolbar]: #menu-contribution-toolbar-locations
-[toc-part]: #part-scoped-handler-through-ihandlerservice
-[toc-exec]: #executing-a-command-from-code-or-a-test
-[toc-editor]: #text-editor-command-with-one-undoable-edit
-[toc-lrm]: #localresourcemanager-owned-by-a-control
-[toc-di]: #eclipse-4-injection-in-a-3x-view

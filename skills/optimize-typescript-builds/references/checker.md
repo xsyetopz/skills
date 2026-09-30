@@ -17,11 +17,11 @@ Tier: Executed (`verify.sh checker`; timings from `verify.sh measure`).
 
 ## Contents
 
-- Base type instead of a large union
-- Interfaces instead of intersections
-- Tail-recursive conditional types
-- Named conditional types
-- Explicit return types on exports
+- [Base type instead of a large union](#base-type-instead-of-a-large-union)
+- [Interfaces instead of intersections](#interfaces-instead-of-intersections)
+- [Tail-recursive conditional types](#tail-recursive-conditional-types)
+- [Named conditional types](#named-conditional-types)
+- [Explicit return types on exports](#explicit-return-types-on-exports)
 
 ## Base type instead of a large union
 

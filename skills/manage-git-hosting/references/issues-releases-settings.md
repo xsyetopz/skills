@@ -12,13 +12,15 @@ run; the label sync ran as a dry run.
 
 ## Contents
 
-- Create an issue without duplicates
-- Label sync
-- Release: draft, verify, publish
-- Deleting a release versus deleting its tag
-- Branch protection and rulesets
-- Repository settings
-- CI evidence for the reviewed commit
+- [Create an issue without duplicates](#create-an-issue-without-duplicates)
+- [Label sync](#label-sync)
+- [Release: draft, verify, publish](#release-draft-verify-publish)
+- [Deleting a release versus deleting its tag][toc-1]
+- [Branch protection and rulesets](#branch-protection-and-rulesets)
+- [Repository settings](#repository-settings)
+- [CI evidence for the reviewed commit](#ci-evidence-for-the-reviewed-commit)
+
+[toc-1]: #deleting-a-release-versus-deleting-its-tag
 
 ## Create an issue without duplicates
 

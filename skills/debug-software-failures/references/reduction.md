@@ -8,12 +8,14 @@ one (executed locally, macOS arm64).
 
 ## Contents
 
-- Failure oracle
-- Oracle strictness
-- Delta debugging with ddmin
-- Manual halving of code, config, and dependencies
-- Reduction log
-- Language-specific reducers
+- [Failure oracle](#failure-oracle)
+- [Oracle strictness](#oracle-strictness)
+- [Delta debugging with ddmin](#delta-debugging-with-ddmin)
+- [Manual halving of code, config, and dependencies][toc-1]
+- [Reduction log](#reduction-log)
+- [Language-specific reducers](#language-specific-reducers)
+
+[toc-1]: #manual-halving-of-code-config-and-dependencies
 
 ## Failure oracle
 

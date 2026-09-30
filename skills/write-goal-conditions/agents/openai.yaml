@@ -1,4 +1,4 @@
 interface:
   display_name: "Write goal conditions"
-  short_description: "Write /goal conditions a transcript-only evaluator can judge"
+  short_description: "Write goal conditions a transcript-only evaluator can judge"
   default_prompt: "Use $write-goal-conditions to rewrite this request as a /goal condition that names an end state the transcript shows, the exact check command, and a turn bound."

@@ -15,19 +15,23 @@ machine-specific. For `runIde` and `publishPlugin`, see their cards.
 
 ## Contents
 
-- IntelliJ Platform Gradle Plugin 2.x setup
-- Platform dependency: intellijIdea(version)
-- Platform dependency: local(path)
-- Java toolchain and Kotlin version for the target
-- Test framework dependencies
-- Light test with BasePlatformTestCase
-- runIde
-- buildPlugin and archive inspection
-- verifyPluginProjectConfiguration
-- verifyPluginStructure
-- verifyPlugin (Plugin Verifier)
-- signPlugin and verifyPluginSignature
-- publishPlugin
+- [IntelliJ Platform Gradle Plugin 2.x setup][toc-1]
+- [Platform dependency: intellijIdea(version)][toc-2]
+- [Platform dependency: local(path)](#platform-dependency-localpath)
+- [Java toolchain and Kotlin version for the target][toc-3]
+- [Test framework dependencies](#test-framework-dependencies)
+- [Light test with BasePlatformTestCase](#light-test-with-baseplatformtestcase)
+- [runIde](#runide)
+- [buildPlugin and archive inspection](#buildplugin-and-archive-inspection)
+- [verifyPluginProjectConfiguration](#verifypluginprojectconfiguration)
+- [verifyPluginStructure](#verifypluginstructure)
+- [verifyPlugin (Plugin Verifier)](#verifyplugin-plugin-verifier)
+- [signPlugin and verifyPluginSignature](#signplugin-and-verifypluginsignature)
+- [publishPlugin](#publishplugin)
+
+[toc-1]: #intellij-platform-gradle-plugin-2x-setup
+[toc-2]: #platform-dependency-intellijideaversion
+[toc-3]: #java-toolchain-and-kotlin-version-for-the-target
 
 ## IntelliJ Platform Gradle Plugin 2.x setup
 

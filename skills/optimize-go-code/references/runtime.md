@@ -14,9 +14,9 @@ re-measure any GC tuning done on an older toolchain.
 
 ## Contents
 
-- GOGC
-- GOMEMLIMIT soft memory limit
-- GOMAXPROCS
+- [GOGC](#gogc)
+- [GOMEMLIMIT soft memory limit](#gomemlimit-soft-memory-limit)
+- [GOMAXPROCS](#gomaxprocs)
 
 ## GOGC
 

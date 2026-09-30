@@ -8,13 +8,13 @@ the editor skills (`$develop-vscode-extensions`, `$develop-neovim-plugins`,
 
 ## Contents
 
-- LSP framing counts bytes
-- Position encoding negotiation
-- LSP lifecycle and document ownership
-- Cancellation is not rollback
-- Debug adapter sessions
-- Pipeline contracts by kind
-- Host adapter around a portable core
+- [LSP framing counts bytes](#lsp-framing-counts-bytes)
+- [Position encoding negotiation](#position-encoding-negotiation)
+- [LSP lifecycle and document ownership](#lsp-lifecycle-and-document-ownership)
+- [Cancellation is not rollback](#cancellation-is-not-rollback)
+- [Debug adapter sessions](#debug-adapter-sessions)
+- [Pipeline contracts by kind](#pipeline-contracts-by-kind)
+- [Host adapter around a portable core](#host-adapter-around-a-portable-core)
 
 ## LSP framing counts bytes
 

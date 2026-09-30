@@ -4,7 +4,10 @@
 Checks, for one skill directory:
   1. every Markdown file under references/ is linked directly from SKILL.md
      (one level deep, so agents read whole files instead of previews);
-  2. every reference longer than 100 lines has a "## Contents" section;
+  2. every reference longer than 100 lines has a "## Contents" section, and
+     every Contents section is a list of links to headings ("[Title](#anchor)"
+     or "[Title][label]" with "[label]: #anchor") that names every "##"
+     heading, as $write-github-markdown's markdown_toc.py writes it;
   3. every relative Markdown link in SKILL.md and references/ resolves to a
      file, and every "#anchor" resolves to a heading in the target file
      (GitHub-style slugs);
@@ -30,6 +33,8 @@ INLINE_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
 DEFINITION = re.compile(r"^\[[^\]]+\]:\s*(\S+)", re.MULTILINE)
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+CONTENTS_ENTRY = re.compile(r"^\s*[-*+] \[.+\](?:\(#[^)\s]+\)|\[[^\]]+\])$")
+FRAGMENT_DEFINITION = re.compile(r"^\[[^\]]+\]:\s*#\S+$")
 
 
 def github_slug(heading: str) -> str:
@@ -72,6 +77,31 @@ def headings(path: Path) -> set[str]:
         slugs.add(slug if seen == 0 else f"{slug}-{seen}")
         counts[slug] = seen + 1
     return slugs
+
+
+def contents_problems(lines: list[str]) -> list[str]:
+    """Problems with the "## Contents" section of lines outside fences."""
+    problems: list[str] = []
+    level_two = [
+        match.group(2)
+        for line in lines
+        if (match := HEADING.match(line)) and len(match.group(1)) == 2
+    ]
+    if "Contents" not in level_two:
+        return problems
+    start = lines.index("## Contents") + 1
+    end = next(
+        (i for i in range(start, len(lines)) if HEADING.match(lines[i])), len(lines)
+    )
+    section = [line.strip() for line in lines[start:end] if line.strip()]
+    for line in section:
+        if not (CONTENTS_ENTRY.match(line) or FRAGMENT_DEFINITION.match(line)):
+            problems.append(f"Contents entry is not a link to a heading: {line}")
+    listed = set(re.findall(r"(?:\(|: *)#([^)\s]+)", "\n".join(section)))
+    for title in level_two:
+        if title != "Contents" and github_slug(title) not in listed:
+            problems.append(f"Contents does not link '## {title}'")
+    return problems
 
 
 def links(path: Path) -> list[str]:
@@ -121,13 +151,16 @@ def check_skill(skill: Path) -> list[str]:
     for reference in references:
         if reference.resolve() not in linked_from_skill:
             problems.append(f"{reference}: not linked directly from SKILL.md")
-        lines = reference.read_text(encoding="utf-8").splitlines()
+        text = reference.read_text(encoding="utf-8")
+        lines = text.splitlines()
         if len(lines) > 100 and not any(
             line.strip() == "## Contents" for line in lines
         ):
             problems.append(
                 f"{reference}: {len(lines)} lines but no '## Contents' section"
             )
+        for problem in contents_problems(outside_fences(text)):
+            problems.append(f"{reference}: {problem}")
 
     for document in [skill_md, *references]:
         for target in links(document):

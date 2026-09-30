@@ -2,9 +2,8 @@
 name: configure-ci-cd-pipelines
 description: >-
   Writes, reviews, and debugs GitHub Actions, GitLab CI, and Bitbucket
-  Pipelines: triggers, token permissions, script injection, pinned actions,
-  required checks, deploys. Use when editing pipeline YAML or when CI
-  misbehaves. Not for local build scripts.
+  Pipelines, covering permissions, script injection, pinned actions, and
+  deploys. Use when editing pipeline YAML or CI fails.
 ---
 
 # Configure CI/CD Pipelines

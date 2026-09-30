@@ -15,18 +15,25 @@ checked with `javap` on the 2026.2.2 jars.
 
 ## Contents
 
-- EDT and background threads
-- Forbidden slow operations on the EDT
-- readAction (write-allowing, suspending)
-- readActionBlocking (write-blocking, suspending)
-- ReadAction.nonBlocking
-- ReadAction.computeBlocking (replaces ReadAction.compute)
-- Object validity across read actions
-- writeCommandAction and writeAction in coroutines
-- WriteCommandAction.runWriteCommandAction on the EDT
-- Dispatchers.EDT, Default, and IO
-- currentThreadCoroutineScope in actionPerformed
-- Task.Backgroundable (Progress API)
+- [EDT and background threads](#edt-and-background-threads)
+- [Forbidden slow operations on the EDT](#forbidden-slow-operations-on-the-edt)
+- [readAction (write-allowing, suspending)][toc-1]
+- [readActionBlocking (write-blocking, suspending)][toc-2]
+- [ReadAction.nonBlocking](#readactionnonblocking)
+- [ReadAction.computeBlocking (replaces ReadAction.compute)][toc-3]
+- [Object validity across read actions](#object-validity-across-read-actions)
+- [writeCommandAction and writeAction in coroutines][toc-4]
+- [WriteCommandAction.runWriteCommandAction on the EDT][toc-5]
+- [Dispatchers.EDT, Default, and IO](#dispatchersedt-default-and-io)
+- [currentThreadCoroutineScope in actionPerformed][toc-6]
+- [Task.Backgroundable (Progress API)](#taskbackgroundable-progress-api)
+
+[toc-1]: #readaction-write-allowing-suspending
+[toc-2]: #readactionblocking-write-blocking-suspending
+[toc-3]: #readactioncomputeblocking-replaces-readactioncompute
+[toc-4]: #writecommandaction-and-writeaction-in-coroutines
+[toc-5]: #writecommandactionrunwritecommandaction-on-the-edt
+[toc-6]: #currentthreadcoroutinescope-in-actionperformed
 
 ## EDT and background threads
 

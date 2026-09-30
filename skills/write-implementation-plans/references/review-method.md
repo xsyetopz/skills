@@ -6,14 +6,14 @@ your own draft before handing it over. The worked output is
 
 ## Contents
 
-- Inputs to collect
-- Walk the plan as an execution
-- Claims audit
-- Counterexample as a test
-- Finding format
-- Severity
-- Minimal correction
-- What not to report as a flaw
+- [Inputs to collect](#inputs-to-collect)
+- [Walk the plan as an execution](#walk-the-plan-as-an-execution)
+- [Claims audit](#claims-audit)
+- [Counterexample as a test](#counterexample-as-a-test)
+- [Finding format](#finding-format)
+- [Severity](#severity)
+- [Minimal correction](#minimal-correction)
+- [What not to report as a flaw](#what-not-to-report-as-a-flaw)
 
 ## Inputs to collect
 

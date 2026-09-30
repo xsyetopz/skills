@@ -12,13 +12,13 @@ gives the documented command, unexecuted.
 
 ## Contents
 
-- Advisory triage by reachability
-- cargo audit
-- bun audit
-- pip-audit
-- osv-scanner
-- Package identity before install
-- Provenance and SBOM
+- [Advisory triage by reachability](#advisory-triage-by-reachability)
+- [cargo audit](#cargo-audit)
+- [bun audit](#bun-audit)
+- [pip-audit](#pip-audit)
+- [osv-scanner](#osv-scanner)
+- [Package identity before install](#package-identity-before-install)
+- [Provenance and SBOM](#provenance-and-sbom)
 
 ## Advisory triage by reachability
 

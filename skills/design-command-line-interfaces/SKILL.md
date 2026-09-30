@@ -1,12 +1,9 @@
 ---
 name: design-command-line-interfaces
 description: >-
-  Designs, reviews, and changes an application's command-line interface:
-  subcommands, flags and arguments, help text, stdout and stderr, exit codes,
-  errors, prompts, color, `--json` output, config and environment variables,
-  and renaming or deprecating commands without breaking scripts. Probes a
-  built CLI with a bundled checker. Use when adding, editing, renaming, or
-  reviewing CLI commands. Not for justfile recipes or full-screen TUIs.
+  Designs and reviews command-line interfaces, including subcommands, flags,
+  help text, exit codes, stderr, JSON output, and renames. Use when changing
+  CLI commands. Not for justfiles or TUI.
 ---
 
 # Design Command-Line Interfaces
@@ -88,9 +85,12 @@ them, `assets/examples/todo_bad.py` is the baseline, and
   hangs until the job times out.
 - Color, animation, and pagers only on a terminal, and never with
   `NO_COLOR` set or `TERM=dumb`; escape codes corrupt logs and `grep`.
-- A shipped name is an interface. Renames keep the old name as a hidden,
-  warned alias until a documented major version, because user scripts
-  cannot be updated in the same commit as the tool.
+- A shipped name is an interface. Under a compatibility promise, renames
+  keep the old name as a hidden, warned alias until a documented major
+  version, because user scripts cannot be updated in the same commit as
+  the tool. When the project's policy or the maintainer allows breaking
+  changes, remove the old name outright and list old and new names in the
+  changelog.
 - A flag the parser accepts must take effect wherever the user puts it; an
   accepted but ignored flag is worse than an error. Test both positions.
 - No secrets in flag values (visible in `ps` and shell history) or in

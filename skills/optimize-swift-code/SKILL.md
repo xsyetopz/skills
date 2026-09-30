@@ -2,8 +2,8 @@
 name: optimize-swift-code
 description: >-
   Profiles and optimizes Swift CPU time, allocations, and ARC traffic with
-  package-benchmark, Instruments, and SIL or assembly. Use when a Swift
-  benchmark or profile shows the cost. Not for deployment-target bumps.
+  package-benchmark and Instruments. Use when a Swift benchmark or profile
+  shows the cost. Not for deployment-target bumps.
 ---
 
 # Optimize Swift Code

@@ -6,12 +6,12 @@ boundary a mechanism protects. The worked boundary decision is in
 
 ## Contents
 
-- Quality attribute scenario
-- Decision record with alternatives
-- Module, port, or service
-- Direct call before a queue
-- Pattern only for a named boundary
-- UI state with its owner
+- [Quality attribute scenario](#quality-attribute-scenario)
+- [Decision record with alternatives](#decision-record-with-alternatives)
+- [Module, port, or service](#module-port-or-service)
+- [Direct call before a queue](#direct-call-before-a-queue)
+- [Pattern only for a named boundary](#pattern-only-for-a-named-boundary)
+- [UI state with its owner](#ui-state-with-its-owner)
 
 ## Quality attribute scenario
 

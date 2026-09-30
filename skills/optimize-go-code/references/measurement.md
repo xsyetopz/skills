@@ -13,19 +13,21 @@ toolchain and input; timings do not transfer to other machines.
 
 ## Contents
 
-- Benchmark with b.Loop
-- Benchmark with a b.N loop
-- ReportAllocs and -benchmem
-- Parallel benchmark with RunParallel
-- AllocsPerRun allocation oracle
-- Equivalence oracle test
-- benchstat comparison
-- CPU profile from go test
-- Heap profile with alloc_space and inuse_space
-- Block and mutex profiles
-- Execution trace
-- GC trace with GODEBUG=gctrace=1
-- Goroutine leak profile
+- [Benchmark with b.Loop](#benchmark-with-bloop)
+- [Benchmark with a b.N loop](#benchmark-with-a-bn-loop)
+- [ReportAllocs and -benchmem](#reportallocs-and--benchmem)
+- [Parallel benchmark with RunParallel](#parallel-benchmark-with-runparallel)
+- [AllocsPerRun allocation oracle](#allocsperrun-allocation-oracle)
+- [Equivalence oracle test](#equivalence-oracle-test)
+- [benchstat comparison](#benchstat-comparison)
+- [CPU profile from go test](#cpu-profile-from-go-test)
+- [Heap profile with alloc_space and inuse_space][toc-1]
+- [Block and mutex profiles](#block-and-mutex-profiles)
+- [Execution trace](#execution-trace)
+- [GC trace with GODEBUG=gctrace=1](#gc-trace-with-godebuggctrace1)
+- [Goroutine leak profile](#goroutine-leak-profile)
+
+[toc-1]: #heap-profile-with-alloc_space-and-inuse_space
 
 ## Benchmark with b.Loop
 

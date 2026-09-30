@@ -7,22 +7,25 @@ to apply them. The host sections link the primary docs, fetched on
 
 ## Contents
 
-- Guardrail, not enforcement boundary
-- Event authority: observe, modify, or block
-- Untrusted input parsing
-- Shell paths and write targets
-- Deny, allow, and no decision
-- Ask budget and ask memory
-- Verdict log
-- Fail open or fail closed
-- Stop gate with a loop guard
-- Loop and waste detectors
-- Session context injection
-- Script path resolution
-- Install and roll back one entry
-- Configuration check before the host loads it
-- Environment and secrets
-- Sources
+- [Guardrail, not enforcement boundary](#guardrail-not-enforcement-boundary)
+- [Event authority: observe, modify, or block][toc-1]
+- [Untrusted input parsing](#untrusted-input-parsing)
+- [Shell paths and write targets](#shell-paths-and-write-targets)
+- [Deny, allow, and no decision](#deny-allow-and-no-decision)
+- [Ask budget and ask memory](#ask-budget-and-ask-memory)
+- [Verdict log](#verdict-log)
+- [Fail open or fail closed](#fail-open-or-fail-closed)
+- [Stop gate with a loop guard](#stop-gate-with-a-loop-guard)
+- [Loop and waste detectors](#loop-and-waste-detectors)
+- [Session context injection](#session-context-injection)
+- [Script path resolution](#script-path-resolution)
+- [Install and roll back one entry](#install-and-roll-back-one-entry)
+- [Configuration check before the host loads it][toc-2]
+- [Environment and secrets](#environment-and-secrets)
+- [Sources](#sources)
+
+[toc-1]: #event-authority-observe-modify-or-block
+[toc-2]: #configuration-check-before-the-host-loads-it
 
 ## Guardrail, not enforcement boundary
 

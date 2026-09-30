@@ -1,9 +1,9 @@
 ---
 name: write-justfiles
 description: >-
-  Writes, debugs, and reviews justfiles for the just command runner: recipes,
-  parameters and quoting, dependencies, attributes, settings, dotenv, modules.
-  Use when adding or fixing just recipes. Not for replacing a build system.
+  Writes, debugs, and reviews justfiles for the just command runner, covering
+  recipes, parameters, dependencies, settings, and modules. Use when adding or
+  fixing just recipes. Not for build systems.
 ---
 
 # Write Justfiles

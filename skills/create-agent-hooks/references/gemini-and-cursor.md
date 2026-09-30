@@ -7,13 +7,18 @@ fetched on 2026-09-25. Neither host is installed here, so host runs are
 
 ## Contents
 
-- Gemini: settings layers and handler fields
-- Gemini: BeforeTool and AfterTool decisions
-- Gemini: agent and lifecycle events
-- Gemini: trust and management
-- Cursor: configuration levels and working directory
-- Cursor: preToolUse decision and failure policy
-- Cursor: stop follow-ups
+- [Gemini: settings layers and handler fields][toc-1]
+- [Gemini: BeforeTool and AfterTool decisions][toc-2]
+- [Gemini: agent and lifecycle events](#gemini-agent-and-lifecycle-events)
+- [Gemini: trust and management](#gemini-trust-and-management)
+- [Cursor: configuration levels and working directory][toc-3]
+- [Cursor: preToolUse decision and failure policy][toc-4]
+- [Cursor: stop follow-ups](#cursor-stop-follow-ups)
+
+[toc-1]: #gemini-settings-layers-and-handler-fields
+[toc-2]: #gemini-beforetool-and-aftertool-decisions
+[toc-3]: #cursor-configuration-levels-and-working-directory
+[toc-4]: #cursor-pretooluse-decision-and-failure-policy
 
 ## Gemini: settings layers and handler fields
 

@@ -1,10 +1,9 @@
 ---
 name: develop-vscode-extensions
 description: >-
-  Builds, tests, and packages VS Code extensions: manifest, activation,
-  commands, edits, diagnostics, language providers, Workspace Trust, web
-  builds, vsce. Use when writing or fixing a VS Code extension. Not for Visual
-  Studio or standalone language servers.
+  Builds, tests, and packages VS Code extensions, covering the manifest,
+  activation, commands, language providers, and vsce. Use when writing or
+  fixing a VS Code extension. Not for Visual Studio.
 ---
 
 # Develop VS Code Extensions

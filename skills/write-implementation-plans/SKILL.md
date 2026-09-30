@@ -1,10 +1,9 @@
 ---
 name: write-implementation-plans
 description: >-
-  Writes implementation plans as ordered tasks with files, verify commands,
-  and done conditions, and reviews plans for flaws like unsafe order, lost
-  updates, or no rollback. Use when planning a change or critiquing a plan.
-  Not for requirements or executing plans.
+  Writes implementation plans as ordered tasks with files, verify commands, and
+  done conditions, and reviews plans for flaws. Use when planning a change or
+  critiquing a plan. Not for requirements.
 ---
 
 # Write Implementation Plans

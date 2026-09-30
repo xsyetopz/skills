@@ -6,14 +6,14 @@ its cleaned form `after/`; `verify.sh` runs every check below on them.
 
 ## Contents
 
-- Version-gated branch
-- Import fallback
-- Deprecated alias
-- Persisted or serialized alias
-- Package export alias
-- Feature probe and polyfill
-- Fully rolled-out feature flag
-- Generated compatibility surface
+- [Version-gated branch](#version-gated-branch)
+- [Import fallback](#import-fallback)
+- [Deprecated alias](#deprecated-alias)
+- [Persisted or serialized alias](#persisted-or-serialized-alias)
+- [Package export alias](#package-export-alias)
+- [Feature probe and polyfill](#feature-probe-and-polyfill)
+- [Fully rolled-out feature flag](#fully-rolled-out-feature-flag)
+- [Generated compatibility surface](#generated-compatibility-surface)
 
 ## Version-gated branch
 

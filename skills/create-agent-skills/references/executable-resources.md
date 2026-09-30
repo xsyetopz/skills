@@ -8,12 +8,14 @@ to execute or read them ([best practices][anthropic-bp],
 
 ## Contents
 
-- Deterministic helper script
-- Exit-code contract
-- Disposable-copy verifier
-- Equivalence oracle with a benefit assertion
-- SKIP versus FAIL
-- Plan-validate-execute
+- [Deterministic helper script](#deterministic-helper-script)
+- [Exit-code contract](#exit-code-contract)
+- [Disposable-copy verifier](#disposable-copy-verifier)
+- [Equivalence oracle with a benefit assertion][toc-1]
+- [SKIP versus FAIL](#skip-versus-fail)
+- [Plan-validate-execute](#plan-validate-execute)
+
+[toc-1]: #equivalence-oracle-with-a-benefit-assertion
 
 ## Deterministic helper script
 

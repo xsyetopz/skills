@@ -6,14 +6,16 @@ someone else can run. Examples are in
 
 ## Contents
 
-- Failure rate over repeated runs
-- Forced interleaving
-- Fixed seeds and environment
-- AddressSanitizer
-- Race detectors
-- Artifact shape per ecosystem
-- Delivery record
-- Regression test from the reproduction
+- [Failure rate over repeated runs](#failure-rate-over-repeated-runs)
+- [Forced interleaving](#forced-interleaving)
+- [Fixed seeds and environment](#fixed-seeds-and-environment)
+- [AddressSanitizer](#addresssanitizer)
+- [Race detectors](#race-detectors)
+- [Artifact shape per ecosystem](#artifact-shape-per-ecosystem)
+- [Delivery record](#delivery-record)
+- [Regression test from the reproduction][toc-1]
+
+[toc-1]: #regression-test-from-the-reproduction
 
 ## Failure rate over repeated runs
 

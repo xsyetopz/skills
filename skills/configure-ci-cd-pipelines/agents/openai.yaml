@@ -1,4 +1,4 @@
 interface:
   display_name: "Configure CI/CD Pipelines"
-  short_description: "Least-privilege, linted CI/CD pipelines"
+  short_description: "Least-privilege, linted CI and CD pipelines"
   default_prompt: "Use $configure-ci-cd-pipelines to change this pipeline so it tests the right commit with least privilege, pins actions, fails required checks correctly, and passes actionlint/zizmor or schema validation."

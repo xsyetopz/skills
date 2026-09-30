@@ -1,9 +1,9 @@
 ---
 name: optimize-rust-code
 description: >-
-  Profiles and optimizes Rust CPU time, allocations, and I/O with Criterion,
-  samply, allocation counts, and assembly. Use when a Rust benchmark or
-  profile shows the cost. Not for unmeasured unsafe rewrites.
+  Profiles and optimizes Rust CPU time, allocations, and IO with Criterion,
+  samply, and assembly. Use when a Rust benchmark or profile shows the cost.
+  Not for unmeasured unsafe rewrites.
 ---
 
 # Optimize Rust Code

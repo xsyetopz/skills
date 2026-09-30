@@ -2,12 +2,8 @@
 name: build-matching-decompilations
 description: >-
   Builds and verifies matching decompilations, source that compiles to the
-  same bytes as a reference binary: pinned reference hash and toolchain,
-  fail-closed full-function compares with relocations, honest coverage,
-  negative controls, compiler steering, and an attempt log with
-  machine-readable acceptance evidence. Use when a project must be
-  "matching", "byte-identical", or "match the original", or pins a reference
-  hash. Not for understanding what a function does, or for behavior tests.
+  same bytes as a reference binary. Use when a project must be matching or
+  byte-identical. Not for understanding a function.
 ---
 
 # Build Matching Decompilations

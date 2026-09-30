@@ -7,12 +7,14 @@ provenance, caching, and secrets. Provider syntax is in
 
 ## Contents
 
-- Selection before execution
-- Build once, promote the same artifact
-- Provenance and SBOM
-- Cache keys and cache trust
-- Secrets reach only the job that needs them
-- Local reproduction of a failing step
+- [Selection before execution](#selection-before-execution)
+- [Build once, promote the same artifact](#build-once-promote-the-same-artifact)
+- [Provenance and SBOM](#provenance-and-sbom)
+- [Cache keys and cache trust](#cache-keys-and-cache-trust)
+- [Secrets reach only the job that needs them][toc-1]
+- [Local reproduction of a failing step](#local-reproduction-of-a-failing-step)
+
+[toc-1]: #secrets-reach-only-the-job-that-needs-them
 
 ## Selection before execution
 

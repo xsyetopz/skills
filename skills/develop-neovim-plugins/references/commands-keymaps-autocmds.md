@@ -13,12 +13,12 @@ executed.
 
 ## Contents
 
-- User command with nargs and range
-- Command completion function
-- Plug mappings
-- Buffer-local keymap
-- Augroup with clear
-- Buffer lifetime autocmd
+- [User command with nargs and range](#user-command-with-nargs-and-range)
+- [Command completion function](#command-completion-function)
+- [Plug mappings](#plug-mappings)
+- [Buffer-local keymap](#buffer-local-keymap)
+- [Augroup with clear](#augroup-with-clear)
+- [Buffer lifetime autocmd](#buffer-lifetime-autocmd)
 
 ## User command with nargs and range
 

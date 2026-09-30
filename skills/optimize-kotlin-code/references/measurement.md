@@ -16,15 +16,15 @@ Native/JS boundary, which are Not runnable here (stated in the cards).
 
 ## Contents
 
-- javap bytecode inspection
-- Thread allocation counter
-- Escape-analysis control run
-- JMH through Maven for Kotlin
-- JMH gc profiler
-- Virtual time with runTest
-- JFR allocation profile
-- kotlinx-benchmark (Gradle)
-- Kotlin/Native and Kotlin/JS boundary
+- [javap bytecode inspection](#javap-bytecode-inspection)
+- [Thread allocation counter](#thread-allocation-counter)
+- [Escape-analysis control run](#escape-analysis-control-run)
+- [JMH through Maven for Kotlin](#jmh-through-maven-for-kotlin)
+- [JMH gc profiler](#jmh-gc-profiler)
+- [Virtual time with runTest](#virtual-time-with-runtest)
+- [JFR allocation profile](#jfr-allocation-profile)
+- [kotlinx-benchmark (Gradle)](#kotlinx-benchmark-gradle)
+- [Kotlin/Native and Kotlin/JS boundary](#kotlinnative-and-kotlinjs-boundary)
 
 ## javap bytecode inspection
 

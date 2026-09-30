@@ -16,18 +16,21 @@ difference**, which several cards report.
 
 ## Contents
 
-- Escape analysis and scalar replacement
-- Escaping temporaries
-- StringBuilder for loop concatenation
-- Single-expression concatenation
-- Primitive arrays instead of boxed collections
-- Primitive accumulators
-- Integer cache and boxed identity
-- Presized ArrayList
-- HashMap newHashMap sizing
-- Records as composite map keys
-- Streams versus loops with collection
-- Primitive stream reductions
+- [Escape analysis and scalar replacement][toc-1]
+- [Escaping temporaries](#escaping-temporaries)
+- [StringBuilder for loop concatenation](#stringbuilder-for-loop-concatenation)
+- [Single-expression concatenation](#single-expression-concatenation)
+- [Primitive arrays instead of boxed collections][toc-2]
+- [Primitive accumulators](#primitive-accumulators)
+- [Integer cache and boxed identity](#integer-cache-and-boxed-identity)
+- [Presized ArrayList](#presized-arraylist)
+- [HashMap newHashMap sizing](#hashmap-newhashmap-sizing)
+- [Records as composite map keys](#records-as-composite-map-keys)
+- [Streams versus loops with collection](#streams-versus-loops-with-collection)
+- [Primitive stream reductions](#primitive-stream-reductions)
+
+[toc-1]: #escape-analysis-and-scalar-replacement
+[toc-2]: #primitive-arrays-instead-of-boxed-collections
 
 ## Escape analysis and scalar replacement
 

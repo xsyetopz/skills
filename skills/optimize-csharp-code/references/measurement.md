@@ -5,15 +5,18 @@ card's **Verify** section uses them.
 
 ## Contents
 
-- Effective MSBuild properties
-- BenchmarkDotNet benchmark class
-- BenchmarkDotNet jobs and exporters
-- Comparing benchmark exports
-- Allocation assertions with GetAllocatedBytesForCurrentThread
-- JIT disassembly with DOTNET_JitDisasm
-- DisassemblyDiagnoser
-- dotnet-counters
-- dotnet-trace
+- [Effective MSBuild properties](#effective-msbuild-properties)
+- [BenchmarkDotNet benchmark class](#benchmarkdotnet-benchmark-class)
+- [BenchmarkDotNet jobs and exporters](#benchmarkdotnet-jobs-and-exporters)
+- [Comparing benchmark exports](#comparing-benchmark-exports)
+- [Allocation assertions with GetAllocatedBytesForCurrentThread][toc-1]
+- [JIT disassembly with DOTNET_JitDisasm][toc-2]
+- [DisassemblyDiagnoser](#disassemblydiagnoser)
+- [dotnet-counters](#dotnet-counters)
+- [dotnet-trace](#dotnet-trace)
+
+[toc-1]: #allocation-assertions-with-getallocatedbytesforcurrentthread
+[toc-2]: #jit-disassembly-with-dotnet_jitdisasm
 
 ## Effective MSBuild properties
 

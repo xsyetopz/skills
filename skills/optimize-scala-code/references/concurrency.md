@@ -16,11 +16,16 @@ event loop; none of the thread-count results apply there.
 
 ## Contents
 
-- ExecutionContext.global for CPU-bound futures
-- blocking inside ExecutionContext.global
-- Dedicated ExecutionContext for blocking I/O
-- ExecutionContext.parasitic for cheap callbacks
-- Parallel collections with .par
+- [ExecutionContext.global for CPU-bound futures][toc-1]
+- [blocking inside ExecutionContext.global][toc-2]
+- [Dedicated ExecutionContext for blocking I/O][toc-3]
+- [ExecutionContext.parasitic for cheap callbacks][toc-4]
+- [Parallel collections with .par](#parallel-collections-with-par)
+
+[toc-1]: #executioncontextglobal-for-cpu-bound-futures
+[toc-2]: #blocking-inside-executioncontextglobal
+[toc-3]: #dedicated-executioncontext-for-blocking-io
+[toc-4]: #executioncontextparasitic-for-cheap-callbacks
 
 ## ExecutionContext.global for CPU-bound futures
 

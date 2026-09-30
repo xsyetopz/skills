@@ -9,15 +9,17 @@ proves the step happened. Sources: the [debugger guide][debugger], the
 
 ## Contents
 
-- Debugger layouts and breakpoints
-- Debugger expressions
-- Symbol import and .sym files
-- Function stubbing
-- No GDB stub
-- GS renderer choice with the software renderer as oracle
-- GS dump capture
-- GS dump replay comparison
-- lldb on host crashes
+- [Debugger layouts and breakpoints](#debugger-layouts-and-breakpoints)
+- [Debugger expressions](#debugger-expressions)
+- [Symbol import and .sym files](#symbol-import-and-sym-files)
+- [Function stubbing](#function-stubbing)
+- [No GDB stub](#no-gdb-stub)
+- [GS renderer choice with the software renderer as oracle][toc-1]
+- [GS dump capture](#gs-dump-capture)
+- [GS dump replay comparison](#gs-dump-replay-comparison)
+- [lldb on host crashes](#lldb-on-host-crashes)
+
+[toc-1]: #gs-renderer-choice-with-the-software-renderer-as-oracle
 
 ## Debugger layouts and breakpoints
 

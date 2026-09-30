@@ -6,10 +6,13 @@ here in a throwaway repository.
 
 ## Contents
 
-- Release range from tags
-- Drafting entries from Conventional Commits
-- Verifying an entry against its commit
-- Changelog audit
+- [Release range from tags](#release-range-from-tags)
+- [Drafting entries from Conventional Commits][toc-1]
+- [Verifying an entry against its commit][toc-2]
+- [Changelog audit](#changelog-audit)
+
+[toc-1]: #drafting-entries-from-conventional-commits
+[toc-2]: #verifying-an-entry-against-its-commit
 
 ## Release range from tags
 

@@ -8,15 +8,18 @@ Guidance adapted from the [Command Line Interface Guidelines][clig]
 
 ## Contents
 
-- Parse with a library
-- Exit codes
-- Data on stdout, messages on stderr
-- Terminal detection
-- Color
-- Machine-readable output: --json and --plain
-- Success output and --quiet
-- Report state changes and next commands
-- Pager for long output
+- [Parse with a library](#parse-with-a-library)
+- [Exit codes](#exit-codes)
+- [Data on stdout, messages on stderr](#data-on-stdout-messages-on-stderr)
+- [Terminal detection](#terminal-detection)
+- [Color](#color)
+- [Machine-readable output: --json and --plain][toc-1]
+- [Success output and --quiet](#success-output-and---quiet)
+- [Report state changes and next commands][toc-2]
+- [Pager for long output](#pager-for-long-output)
+
+[toc-1]: #machine-readable-output---json-and---plain
+[toc-2]: #report-state-changes-and-next-commands
 
 ## Parse with a library
 

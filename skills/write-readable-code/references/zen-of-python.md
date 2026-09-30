@@ -16,20 +16,26 @@ rustc 1.98.1; macOS arm64). Python code can be scanned first with
 
 ## Contents
 
-- Aphorism map
-- Explicit is better than implicit
-- Simple is better than complex
-- Complex is better than complicated
-- Readability counts
-- Special cases aren't special enough to break the rules
-- Although practicality beats purity
-- Unless explicitly silenced
-- Refuse the temptation to guess
-- There should be one obvious way to do it
-- Now is better than never
-- Although never is often better than right now
-- If the implementation is hard to explain
-- Namespaces are one honking great idea
+- [Aphorism map](#aphorism-map)
+- [Explicit is better than implicit](#explicit-is-better-than-implicit)
+- [Simple is better than complex](#simple-is-better-than-complex)
+- [Complex is better than complicated](#complex-is-better-than-complicated)
+- [Readability counts](#readability-counts)
+- [Special cases aren't special enough to break the rules][toc-1]
+- [Although practicality beats purity](#although-practicality-beats-purity)
+- [Unless explicitly silenced](#unless-explicitly-silenced)
+- [Refuse the temptation to guess](#refuse-the-temptation-to-guess)
+- [There should be one obvious way to do it][toc-2]
+- [Now is better than never](#now-is-better-than-never)
+- [Although never is often better than right now][toc-3]
+- [If the implementation is hard to explain][toc-4]
+- [Namespaces are one honking great idea][toc-5]
+
+[toc-1]: #special-cases-arent-special-enough-to-break-the-rules
+[toc-2]: #there-should-be-one-obvious-way-to-do-it
+[toc-3]: #although-never-is-often-better-than-right-now
+[toc-4]: #if-the-implementation-is-hard-to-explain
+[toc-5]: #namespaces-are-one-honking-great-idea
 
 ## Aphorism map
 

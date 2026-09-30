@@ -6,14 +6,16 @@ recipes, and runs with the intended arguments and exit status.
 
 ## Contents
 
-- Format check
-- Listing and inspection
-- Dry run
-- Evaluate variables
-- Machine-readable dump
-- Argument probe
-- Exit-status check
-- Batch format check across a repository
+- [Format check](#format-check)
+- [Listing and inspection](#listing-and-inspection)
+- [Dry run](#dry-run)
+- [Evaluate variables](#evaluate-variables)
+- [Machine-readable dump](#machine-readable-dump)
+- [Argument probe](#argument-probe)
+- [Exit-status check](#exit-status-check)
+- [Batch format check across a repository][toc-1]
+
+[toc-1]: #batch-format-check-across-a-repository
 
 ## Format check
 

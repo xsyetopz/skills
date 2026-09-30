@@ -5,15 +5,15 @@ Integrating, undoing, and recovering work. Scenarios are in
 
 ## Contents
 
-- Recovery ref before a rewrite
-- Stash with untracked files and index
-- Merge policies
-- Rebase and conflict sides
-- Cherry-pick with provenance
-- Revert, including merges
-- Reset and restore transitions
-- Reflog recovery
-- Worktrees
+- [Recovery ref before a rewrite](#recovery-ref-before-a-rewrite)
+- [Stash with untracked files and index](#stash-with-untracked-files-and-index)
+- [Merge policies](#merge-policies)
+- [Rebase and conflict sides](#rebase-and-conflict-sides)
+- [Cherry-pick with provenance](#cherry-pick-with-provenance)
+- [Revert, including merges](#revert-including-merges)
+- [Reset and restore transitions](#reset-and-restore-transitions)
+- [Reflog recovery](#reflog-recovery)
+- [Worktrees](#worktrees)
 
 ## Recovery ref before a rewrite
 

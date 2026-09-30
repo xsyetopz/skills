@@ -9,21 +9,28 @@ wall time with a warm Maven cache (machine-specific).
 
 ## Contents
 
-- [Versions: Eclipse release and Tycho][toc-versions]
+- [Versions: Eclipse release and Tycho](#versions-eclipse-release-and-tycho)
 - [Tycho reactor parent POM](#tycho-reactor-parent-pom)
-- [Target platform from a .target file][toc-target]
-- [Target platform from p2 repositories in the POM][toc-repos]
+- [Target platform from a .target file](#target-platform-from-a-target-file)
+- [Target platform from p2 repositories in the POM][toc-1]
 - [Target environments](#target-environments)
-- [eclipse-plugin packaging and JAR inspection][toc-jar]
-- [Plug-in tests with plugin-test and the UI harness][toc-uitest]
-- [Standalone test bundle with the test goal][toc-testgoal]
-- [UI tests on macOS and on headless Linux][toc-headless]
+- [eclipse-plugin packaging and JAR inspection][toc-2]
+- [Plug-in tests with plugin-test and the UI harness][toc-3]
+- [Standalone test bundle with the test goal][toc-4]
+- [UI tests on macOS and on headless Linux][toc-5]
 - [Plain JVM tests for pure logic](#plain-jvm-tests-for-pure-logic)
 - [eclipse-feature](#eclipse-feature)
-- [eclipse-repository with category.xml][toc-repo]
-- [Clean install with the Tycho p2 director][toc-director]
+- [eclipse-repository with category.xml](#eclipse-repository-with-categoryxml)
+- [Clean install with the Tycho p2 director][toc-6]
 - [OSGi console diagnosis](#osgi-console-diagnosis)
-- [Launcher JVM selection in eclipse.ini][toc-vm]
+- [Launcher JVM selection in eclipse.ini](#launcher-jvm-selection-in-eclipseini)
+
+[toc-1]: #target-platform-from-p2-repositories-in-the-pom
+[toc-2]: #eclipse-plugin-packaging-and-jar-inspection
+[toc-3]: #plug-in-tests-with-plugin-test-and-the-ui-harness
+[toc-4]: #standalone-test-bundle-with-the-test-goal
+[toc-5]: #ui-tests-on-macos-and-on-headless-linux
+[toc-6]: #clean-install-with-the-tycho-p2-director
 
 ## Versions: Eclipse release and Tycho
 
@@ -690,13 +697,3 @@ executed here (the example runs the launcher JAR with `java -jar`).
 [simrel]: https://download.eclipse.org/releases/2026-09/
 [swt-faq]: https://eclipse.dev/eclipse/swt/faq.html
 [launcher]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/misc/launcher_ini.html
-[toc-versions]: #versions-eclipse-release-and-tycho
-[toc-target]: #target-platform-from-a-target-file
-[toc-repos]: #target-platform-from-p2-repositories-in-the-pom
-[toc-jar]: #eclipse-plugin-packaging-and-jar-inspection
-[toc-uitest]: #plug-in-tests-with-plugin-test-and-the-ui-harness
-[toc-testgoal]: #standalone-test-bundle-with-the-test-goal
-[toc-headless]: #ui-tests-on-macos-and-on-headless-linux
-[toc-repo]: #eclipse-repository-with-categoryxml
-[toc-director]: #clean-install-with-the-tycho-p2-director
-[toc-vm]: #launcher-jvm-selection-in-eclipseini

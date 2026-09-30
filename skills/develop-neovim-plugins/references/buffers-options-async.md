@@ -13,17 +13,20 @@ from those runs; absolute paths are shortened.
 
 ## Contents
 
-- Option scopes
-- Buffer handle instead of 0
-- nvim_buf_set_lines
-- nvim_buf_set_text
-- Namespaces for extmarks and diagnostics
-- Undo blocks
-- Scratch buffer and split window
-- vim.schedule and fast events
-- vim.system process
-- Freshness check before applying a result
-- Cancel superseded work
+- [Option scopes](#option-scopes)
+- [Buffer handle instead of 0](#buffer-handle-instead-of-0)
+- [nvim_buf_set_lines](#nvim_buf_set_lines)
+- [nvim_buf_set_text](#nvim_buf_set_text)
+- [Namespaces for extmarks and diagnostics][toc-1]
+- [Undo blocks](#undo-blocks)
+- [Scratch buffer and split window](#scratch-buffer-and-split-window)
+- [vim.schedule and fast events](#vimschedule-and-fast-events)
+- [vim.system process](#vimsystem-process)
+- [Freshness check before applying a result][toc-2]
+- [Cancel superseded work](#cancel-superseded-work)
+
+[toc-1]: #namespaces-for-extmarks-and-diagnostics
+[toc-2]: #freshness-check-before-applying-a-result
 
 ## Option scopes
 

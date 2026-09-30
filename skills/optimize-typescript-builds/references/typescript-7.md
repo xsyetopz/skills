@@ -17,12 +17,15 @@ parallel builders (smoke run only, no timing) and tsc6 (not runnable here).
 
 ## Contents
 
-- Identify the compiler and removed options
-- New defaults from TypeScript 6.0
-- Parallel type checkers
-- Parallel project builders
-- Single-threaded mode for comparable counters
-- Side-by-side tsc6 for API consumers
+- [Identify the compiler and removed options][toc-1]
+- [New defaults from TypeScript 6.0](#new-defaults-from-typescript-60)
+- [Parallel type checkers](#parallel-type-checkers)
+- [Parallel project builders](#parallel-project-builders)
+- [Single-threaded mode for comparable counters][toc-2]
+- [Side-by-side tsc6 for API consumers](#side-by-side-tsc6-for-api-consumers)
+
+[toc-1]: #identify-the-compiler-and-removed-options
+[toc-2]: #single-threaded-mode-for-comparable-counters
 
 ## Identify the compiler and removed options
 

@@ -1,10 +1,9 @@
 ---
 name: migrate-js-tooling-to-bun
 description: >-
-  Moves JavaScript or TypeScript tooling from npm, Yarn, or pnpm to Bun:
-  installs, lockfile migration, lifecycle scripts, workspaces, bun test, and
-  bun build. Use when asked to adopt Bun as package manager, test runner, or
-  bundler. Not for tuning app performance.
+  Moves JavaScript or TypeScript tooling from npm, Yarn, or pnpm to Bun,
+  covering installs, lockfile, workspaces, and bun test. Use when adopting Bun
+  as package manager. Not for app speed.
 ---
 
 # Migrate JS Tooling to Bun

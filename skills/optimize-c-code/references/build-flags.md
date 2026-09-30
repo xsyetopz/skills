@@ -12,17 +12,17 @@ toolchain, hyperfine 1.20.0, shared machine.
 
 ## Contents
 
-- Optimization level O3
-- Target CPU native
-- Full LTO
-- ThinLTO
-- IR PGO
-- Front-end PGO
-- Fast math
-- Scoped reassociation pragma
-- Hidden visibility
-- Static internal linkage
-- Static inline functions in headers
+- [Optimization level O3](#optimization-level-o3)
+- [Target CPU native](#target-cpu-native)
+- [Full LTO](#full-lto)
+- [ThinLTO](#thinlto)
+- [IR PGO](#ir-pgo)
+- [Front-end PGO](#front-end-pgo)
+- [Fast math](#fast-math)
+- [Scoped reassociation pragma](#scoped-reassociation-pragma)
+- [Hidden visibility](#hidden-visibility)
+- [Static internal linkage](#static-internal-linkage)
+- [Static inline functions in headers](#static-inline-functions-in-headers)
 
 ## Optimization level O3
 

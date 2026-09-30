@@ -6,11 +6,11 @@ the paired protocol, and failure classification.
 
 ## Contents
 
-- evals.json
-- Assertions that can be checked
-- Paired evaluation protocol
-- Failure classification
-- Content sufficiency test
+- [evals.json](#evalsjson)
+- [Assertions that can be checked](#assertions-that-can-be-checked)
+- [Paired evaluation protocol](#paired-evaluation-protocol)
+- [Failure classification](#failure-classification)
+- [Content sufficiency test](#content-sufficiency-test)
 
 ## evals.json
 

@@ -5,12 +5,12 @@ proving that nothing supported broke.
 
 ## Contents
 
-- Support policy
-- Consumer tracing
-- Classification
-- Complete removal
-- Version impact
-- Proof after removal
+- [Support policy](#support-policy)
+- [Consumer tracing](#consumer-tracing)
+- [Classification](#classification)
+- [Complete removal](#complete-removal)
+- [Version impact](#version-impact)
+- [Proof after removal](#proof-after-removal)
 
 ## Support policy
 

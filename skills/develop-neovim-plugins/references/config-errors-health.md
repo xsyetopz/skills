@@ -11,12 +11,12 @@ arm64 release build on an Apple M1 Max, macOS 27.0, LuaJIT 2.1.1774638290) via
 
 ## Contents
 
-- Configuration through vim.g
-- setup that only stores options
-- vim.validate
-- Unknown option detection
-- vim.notify versus error
-- Health check module
+- [Configuration through vim.g](#configuration-through-vimg)
+- [setup that only stores options](#setup-that-only-stores-options)
+- [vim.validate](#vimvalidate)
+- [Unknown option detection](#unknown-option-detection)
+- [vim.notify versus error](#vimnotify-versus-error)
+- [Health check module](#health-check-module)
 
 ## Configuration through vim.g
 

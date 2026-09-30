@@ -7,13 +7,15 @@ closes each one. Parallel work happens only inside a phase.
 
 ## Contents
 
-- Phase 1: requirements baseline
-- Phase 2: design baseline with ownership
-- Phase 3: implementation by work item
-- Phase 4: integration and verification
-- Phase 5: release preparation
-- Gate decision from evidence
-- Baseline change request
+- [Phase 1: requirements baseline](#phase-1-requirements-baseline)
+- [Phase 2: design baseline with ownership][toc-1]
+- [Phase 3: implementation by work item](#phase-3-implementation-by-work-item)
+- [Phase 4: integration and verification](#phase-4-integration-and-verification)
+- [Phase 5: release preparation](#phase-5-release-preparation)
+- [Gate decision from evidence](#gate-decision-from-evidence)
+- [Baseline change request](#baseline-change-request)
+
+[toc-1]: #phase-2-design-baseline-with-ownership
 
 ## Phase 1: requirements baseline
 

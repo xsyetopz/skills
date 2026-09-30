@@ -10,16 +10,16 @@ command.
 
 ## Contents
 
-- Goal and acceptance
-- Out of scope and scope creep
-- Task line format
-- Verify command per task
-- Done condition per task
-- Dependencies in executable order
-- Tests before the change they protect
-- Vertical slices
-- Spikes with a decision rule
-- Evidence tag per task
+- [Goal and acceptance](#goal-and-acceptance)
+- [Out of scope and scope creep](#out-of-scope-and-scope-creep)
+- [Task line format](#task-line-format)
+- [Verify command per task](#verify-command-per-task)
+- [Done condition per task](#done-condition-per-task)
+- [Dependencies in executable order](#dependencies-in-executable-order)
+- [Tests before the change they protect](#tests-before-the-change-they-protect)
+- [Vertical slices](#vertical-slices)
+- [Spikes with a decision rule](#spikes-with-a-decision-rule)
+- [Evidence tag per task](#evidence-tag-per-task)
 
 ## Goal and acceptance
 

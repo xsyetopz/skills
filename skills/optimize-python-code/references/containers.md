@@ -24,18 +24,22 @@ every key has the same hash.
 
 ## Contents
 
-- set or dict membership instead of list membership
-- collections.deque for FIFO queues
-- collections.Counter instead of list.count per element
-- bisect on a sorted list
-- heapq.nsmallest and nlargest for top-k
-- heapq.merge for sorted streams
-- \_\_slots\_\_
-- dataclass(slots=True)
-- array.array for homogeneous numbers
-- memoryview slices
-- bytearray accumulation
-- struct.Struct precompiled formats
+- [set or dict membership instead of list membership][toc-1]
+- [collections.deque for FIFO queues](#collectionsdeque-for-fifo-queues)
+- [collections.Counter instead of list.count per element][toc-2]
+- [bisect on a sorted list](#bisect-on-a-sorted-list)
+- [heapq.nsmallest and nlargest for top-k][toc-3]
+- [heapq.merge for sorted streams](#heapqmerge-for-sorted-streams)
+- [\_\_slots\_\_](#__slots__)
+- [dataclass(slots=True)](#dataclassslotstrue)
+- [array.array for homogeneous numbers](#arrayarray-for-homogeneous-numbers)
+- [memoryview slices](#memoryview-slices)
+- [bytearray accumulation](#bytearray-accumulation)
+- [struct.Struct precompiled formats](#structstruct-precompiled-formats)
+
+[toc-1]: #set-or-dict-membership-instead-of-list-membership
+[toc-2]: #collectionscounter-instead-of-listcount-per-element
+[toc-3]: #heapqnsmallest-and-nlargest-for-top-k
 
 ## set or dict membership instead of list membership
 

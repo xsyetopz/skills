@@ -10,17 +10,20 @@ Runnable sources:
 
 ## Contents
 
-- [IWorkspaceRunnable with AVOID_UPDATE][toc-run]
+- [IWorkspaceRunnable with AVOID_UPDATE](#iworkspacerunnable-with-avoid_update)
 - [WorkspaceJob](#workspacejob)
-- [POST_CHANGE resource change listener][toc-listener]
+- [POST_CHANGE resource change listener](#post_change-resource-change-listener)
 - [Custom marker type](#custom-marker-type)
 - [Creating and replacing markers](#creating-and-replacing-markers)
 - [Querying markers with subtypes](#querying-markers-with-subtypes)
-- [Default preferences through an initializer][toc-default]
+- [Default preferences through an initializer][toc-1]
 - [Instance scope write and flush](#instance-scope-write-and-flush)
-- [Preference lookup through IPreferencesService][toc-lookup]
+- [Preference lookup through IPreferencesService][toc-2]
 - [Project scope preferences](#project-scope-preferences)
 - [Plug-in log with ILog](#plug-in-log-with-ilog)
+
+[toc-1]: #default-preferences-through-an-initializer
+[toc-2]: #preference-lookup-through-ipreferencesservice
 
 ## IWorkspaceRunnable with AVOID_UPDATE
 
@@ -507,7 +510,3 @@ wrote `!ENTRY org.acme.todos.tests 2` with the message to
 [ilog]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/ILog.html
 [secure]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/equinox/security/storage/SecurePreferencesFactory.html
 [platform]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/Platform.html
-[toc-run]: #iworkspacerunnable-with-avoid_update
-[toc-listener]: #post_change-resource-change-listener
-[toc-default]: #default-preferences-through-an-initializer
-[toc-lookup]: #preference-lookup-through-ipreferencesservice

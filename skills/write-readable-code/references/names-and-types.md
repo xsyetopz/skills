@@ -8,13 +8,13 @@ Rust and TypeScript equivalents are in
 
 ## Contents
 
-- One concept, one term
-- Units in names or types
-- Distinct identifier types
-- Illegal states unrepresentable
-- Predicate names
-- No dumping-ground modules
-- Name length follows scope
+- [One concept, one term](#one-concept-one-term)
+- [Units in names or types](#units-in-names-or-types)
+- [Distinct identifier types](#distinct-identifier-types)
+- [Illegal states unrepresentable](#illegal-states-unrepresentable)
+- [Predicate names](#predicate-names)
+- [No dumping-ground modules](#no-dumping-ground-modules)
+- [Name length follows scope](#name-length-follows-scope)
 
 ## One concept, one term
 
@@ -260,15 +260,29 @@ means.
 
 **Definition.** Modules are named after what they contain (`invoice_parse`,
 `retry_policy`), never `utils`, `helpers`, `misc`, `common`, or `stuff`.
+The same holds for repository-wide category files that group code by
+kind rather than concern: `types`, `constants`, `models`, `enums`,
+`interfaces`. Go: "Packages named util, common, or misc provide clients
+with no sense of what the package contains" ([Go blog][go-names]);
+Google's Go style lists "util, utility, common, helper, model,
+testhelper" as uninformative ([Google Go][google-go]). Kotlin: "avoid
+using meaningless words such as Util in file names" ([Kotlin][kotlin]).
+Angular: "Avoid overly generic file names like helpers.ts, utils.ts, or
+common.ts" ([Angular][angular]).
 
 **Use when.**
 
 - You are about to add to a `utils` module or create one.
+- You are about to add a feature's types or constants to a shared
+  `types.ts` or `constants.py` that other, unrelated features import.
 
 **Do not use when.**
 
 - The repository already has a `utils` convention you were not asked to
   change: add to the most specific existing module and report the issue.
+- The category file is scoped to one feature (`invoices/types.ts` holds
+  only invoice types), or the framework names it (a Django app's
+  `models.py`, a Rust crate's `lib.rs`).
 
 **Example.** Move `format_money`, `retry_request`, and `slugify` out of
 `utils.py` into `money.py`, `http_retry.py`, and `text.py`, next to their
@@ -336,6 +350,8 @@ def slugify(title: str) -> str:
 
 1. `fd -t f '(utils|helpers|misc|common)\.' src/` must not list a new file
    in your diff.
+1. To audit an existing tree for these names, run `$find-code-smells`'
+   layout scan; it reports them as `generic-name`.
 
 ## Name length follows scope
 
@@ -370,3 +386,8 @@ remaining_bytes = content_length - bytes_read  # used 40 lines later
 1. List new identifiers of one to three characters with
    `git diff -U0 | rg '^\+.*\b[a-z]{1,3}\s*='` and confirm each has a
    small scope.
+
+[go-names]: https://go.dev/blog/package-names
+[google-go]: https://google.github.io/styleguide/go/decisions
+[kotlin]: https://kotlinlang.org/docs/coding-conventions.html
+[angular]: https://angular.dev/style-guide

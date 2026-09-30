@@ -12,12 +12,12 @@ support), which needs Sublime Text.
 
 ## Contents
 
-- add_regions with annotations
-- PhantomSet
-- show_popup from on_hover
-- set_status
-- show_quick_panel
-- Escaping text for minihtml
+- [add_regions with annotations](#add_regions-with-annotations)
+- [PhantomSet](#phantomset)
+- [show_popup from on_hover](#show_popup-from-on_hover)
+- [set_status](#set_status)
+- [show_quick_panel](#show_quick_panel)
+- [Escaping text for minihtml](#escaping-text-for-minihtml)
 
 ## add_regions with annotations
 

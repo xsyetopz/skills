@@ -5,9 +5,11 @@ for bisecting a regression over release builds or source commits.
 
 ## Contents
 
-- Build failure versus guest behaviour
-- Bisecting over release builds
-- Bisecting source commits with git bisect
+- [Build failure versus guest behaviour](#build-failure-versus-guest-behaviour)
+- [Bisecting over release builds](#bisecting-over-release-builds)
+- [Bisecting source commits with git bisect][toc-1]
+
+[toc-1]: #bisecting-source-commits-with-git-bisect
 
 ## Build failure versus guest behaviour
 

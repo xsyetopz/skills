@@ -7,13 +7,16 @@ where the expected result comes from. The input techniques follow the
 
 ## Contents
 
-- Test boundary selection
-- Independent expected result
-- Equivalence classes and boundary values
-- Decision table
-- State transition coverage
-- Standard vectors, not round trips
-- Golden output with narrow normalization
+- [Test boundary selection](#test-boundary-selection)
+- [Independent expected result](#independent-expected-result)
+- [Equivalence classes and boundary values][toc-1]
+- [Decision table](#decision-table)
+- [State transition coverage](#state-transition-coverage)
+- [Standard vectors, not round trips](#standard-vectors-not-round-trips)
+- [Golden output with narrow normalization][toc-2]
+
+[toc-1]: #equivalence-classes-and-boundary-values
+[toc-2]: #golden-output-with-narrow-normalization
 
 ## Test boundary selection
 

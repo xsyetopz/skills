@@ -19,6 +19,8 @@ network`. `Executed (unit)` means `bun test` in the offline mode.
 - [Language feature providers](#language-feature-providers)
 - [LogOutputChannel](#logoutputchannel)
 
+[toc-1]: #pre-save-edits-with-onwillsavetextdocument
+
 ## TextDocument version and dirty state
 
 **Definition.** `TextDocument.version` strictly increases after each
@@ -486,4 +488,3 @@ absent at the default Info level.
 [dts]: https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.d.ts
 [langfeat]: https://code.visualstudio.com/api/language-extensions/programmatic-language-features
 [virtual]: https://code.visualstudio.com/api/extension-guides/virtual-workspaces
-[toc-1]: #pre-save-edits-with-onwillsavetextdocument

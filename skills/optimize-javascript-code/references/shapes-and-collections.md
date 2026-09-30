@@ -10,14 +10,17 @@ its own process) or from `verify` output lines.
 
 ## Contents
 
-- Initialize every field in the constructor
-- Assign undefined instead of delete
-- Monomorphic call sites
-- Packed arrays instead of holey arrays
-- One elements kind per array
-- Typed arrays for numeric records
-- Map for dynamic keys
-- Set for repeated membership tests
+- [Initialize every field in the constructor][toc-1]
+- [Assign undefined instead of delete](#assign-undefined-instead-of-delete)
+- [Monomorphic call sites](#monomorphic-call-sites)
+- [Packed arrays instead of holey arrays][toc-2]
+- [One elements kind per array](#one-elements-kind-per-array)
+- [Typed arrays for numeric records](#typed-arrays-for-numeric-records)
+- [Map for dynamic keys](#map-for-dynamic-keys)
+- [Set for repeated membership tests](#set-for-repeated-membership-tests)
+
+[toc-1]: #initialize-every-field-in-the-constructor
+[toc-2]: #packed-arrays-instead-of-holey-arrays
 
 ## Initialize every field in the constructor
 

@@ -16,15 +16,21 @@ Tier: Executed. `verify representation`, `noea`, `bytecode`,
 
 ## Contents
 
-- Value class used as its own type
-- Value class boxing at generic, nullable, and interface boundaries
-- Primitive arrays instead of List of Int and Array of Int
-- Non-null primitive locals instead of Int?
-- const val instead of val
-- JvmField on properties read by Java or across classes
-- JvmStatic on companion functions
-- Local accumulators instead of data class copy in a loop
-- Explicit equals order for hot keys
+- [Value class used as its own type](#value-class-used-as-its-own-type)
+- [Value class boxing at generic, nullable, and interface boundaries][toc-1]
+- [Primitive arrays instead of List of Int and Array of Int][toc-2]
+- [Non-null primitive locals instead of Int?][toc-3]
+- [const val instead of val](#const-val-instead-of-val)
+- [JvmField on properties read by Java or across classes][toc-4]
+- [JvmStatic on companion functions](#jvmstatic-on-companion-functions)
+- [Local accumulators instead of data class copy in a loop][toc-5]
+- [Explicit equals order for hot keys](#explicit-equals-order-for-hot-keys)
+
+[toc-1]: #value-class-boxing-at-generic-nullable-and-interface-boundaries
+[toc-2]: #primitive-arrays-instead-of-list-of-int-and-array-of-int
+[toc-3]: #non-null-primitive-locals-instead-of-int
+[toc-4]: #jvmfield-on-properties-read-by-java-or-across-classes
+[toc-5]: #local-accumulators-instead-of-data-class-copy-in-a-loop
 
 ## Value class used as its own type
 

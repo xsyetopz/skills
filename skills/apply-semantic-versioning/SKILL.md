@@ -1,11 +1,9 @@
 ---
 name: apply-semantic-versioning
 description: >-
-  Applies Semantic Versioning 2.0.0: public API, next major, minor, or
-  patch, 0.y.z, pre-releases, build metadata, precedence, and whether
-  SemVer fits the product or ecosystem (npm, Cargo, Go, PyPI, app stores).
-  Use when choosing or checking a version. Not for writing changelog
-  entries.
+  Applies Semantic Versioning 2.0.0 to choose the next major, minor, patch,
+  pre-release, or 0.y.z version. Use when choosing or checking a version
+  number. Not for changelog entries.
 ---
 
 # Apply Semantic Versioning

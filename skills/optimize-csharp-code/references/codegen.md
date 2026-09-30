@@ -14,16 +14,18 @@ Measured on an Apple M1 Max, .NET 10.0.11 Arm64, BenchmarkDotNet 0.15.8
 
 ## Contents
 
-- Sealed classes
-- Bounds-check elimination by slicing
-- Vectorized BCL primitives
-- Portable SIMD with Vector of T
-- Struct generic specialization
-- AggressiveInlining
-- SkipLocalsInit
-- GeneratedRegex
-- Enum.HasFlag semantics
-- Span parameters instead of IEnumerable
+- [Sealed classes](#sealed-classes)
+- [Bounds-check elimination by slicing](#bounds-check-elimination-by-slicing)
+- [Vectorized BCL primitives](#vectorized-bcl-primitives)
+- [Portable SIMD with Vector of T](#portable-simd-with-vector-of-t)
+- [Struct generic specialization](#struct-generic-specialization)
+- [AggressiveInlining](#aggressiveinlining)
+- [SkipLocalsInit](#skiplocalsinit)
+- [GeneratedRegex](#generatedregex)
+- [Enum.HasFlag semantics](#enumhasflag-semantics)
+- [Span parameters instead of IEnumerable][toc-1]
+
+[toc-1]: #span-parameters-instead-of-ienumerable
 
 ## Sealed classes
 

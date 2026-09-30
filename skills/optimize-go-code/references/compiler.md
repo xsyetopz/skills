@@ -13,14 +13,20 @@ Local numbers come from one machine: Apple M1 Max, macOS 27.0,
 
 ## Contents
 
-- Escape analysis report with -gcflags=-m
-- Inlining budget with -gcflags=-m=2
-- Cold-path outlining to fit the inlining budget
-- Bounds-check elimination with a length guard
-- Profile-guided optimization with default.pgo
-- Pointer receivers for large structs
-- Extract the loop body so defer runs per iteration
-- Keep defer in small hot functions
+- [Escape analysis report with -gcflags=-m][toc-1]
+- [Inlining budget with -gcflags=-m=2](#inlining-budget-with--gcflags-m2)
+- [Cold-path outlining to fit the inlining budget][toc-2]
+- [Bounds-check elimination with a length guard][toc-3]
+- [Profile-guided optimization with default.pgo][toc-4]
+- [Pointer receivers for large structs](#pointer-receivers-for-large-structs)
+- [Extract the loop body so defer runs per iteration][toc-5]
+- [Keep defer in small hot functions](#keep-defer-in-small-hot-functions)
+
+[toc-1]: #escape-analysis-report-with--gcflags-m
+[toc-2]: #cold-path-outlining-to-fit-the-inlining-budget
+[toc-3]: #bounds-check-elimination-with-a-length-guard
+[toc-4]: #profile-guided-optimization-with-defaultpgo
+[toc-5]: #extract-the-loop-body-so-defer-runs-per-iteration
 
 ## Escape analysis report with -gcflags=-m
 

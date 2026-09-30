@@ -13,17 +13,22 @@ Plugin 2.19.0, Kotlin 2.4.0, JBR 25.0.4.
 
 ## Contents
 
-- Light application service
-- Light project service
-- Registered service with an interface
-- Service constructor and retrieval rules
-- Coroutine scope injected into a service
-- SerializablePersistentStateComponent
-- SimplePersistentStateComponent
-- Java PersistentStateComponent
-- Settings page: BoundConfigurable with Kotlin UI DSL
-- Notification group: BALLOON
-- Notification group: STICKY_BALLOON suggestion
+- [Light application service](#light-application-service)
+- [Light project service](#light-project-service)
+- [Registered service with an interface](#registered-service-with-an-interface)
+- [Service constructor and retrieval rules][toc-1]
+- [Coroutine scope injected into a service][toc-2]
+- [SerializablePersistentStateComponent](#serializablepersistentstatecomponent)
+- [SimplePersistentStateComponent](#simplepersistentstatecomponent)
+- [Java PersistentStateComponent](#java-persistentstatecomponent)
+- [Settings page: BoundConfigurable with Kotlin UI DSL][toc-3]
+- [Notification group: BALLOON](#notification-group-balloon)
+- [Notification group: STICKY_BALLOON suggestion][toc-4]
+
+[toc-1]: #service-constructor-and-retrieval-rules
+[toc-2]: #coroutine-scope-injected-into-a-service
+[toc-3]: #settings-page-boundconfigurable-with-kotlin-ui-dsl
+[toc-4]: #notification-group-sticky_balloon-suggestion
 
 ## Light application service
 

@@ -9,17 +9,19 @@ checks it and runs its commands.
 
 ## Contents
 
-- Evidence for every claim
-- Project structure tree
-- Diagram that matches the components
-- Core components
-- Data flow and data stores
-- Integrations, deployment, and security
-- Development commands that run
-- Invariants and boundaries
-- Decisions, debt, and roadmap
-- Project identification and glossary
-- Optional sections from the prompt
+- [Evidence for every claim](#evidence-for-every-claim)
+- [Project structure tree](#project-structure-tree)
+- [Diagram that matches the components](#diagram-that-matches-the-components)
+- [Core components](#core-components)
+- [Data flow and data stores](#data-flow-and-data-stores)
+- [Integrations, deployment, and security][toc-1]
+- [Development commands that run](#development-commands-that-run)
+- [Invariants and boundaries](#invariants-and-boundaries)
+- [Decisions, debt, and roadmap](#decisions-debt-and-roadmap)
+- [Project identification and glossary](#project-identification-and-glossary)
+- [Optional sections from the prompt](#optional-sections-from-the-prompt)
+
+[toc-1]: #integrations-deployment-and-security
 
 ## Evidence for every claim
 

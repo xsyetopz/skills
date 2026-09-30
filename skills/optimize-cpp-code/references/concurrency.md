@@ -20,12 +20,19 @@ These cards cover the C++ memory model API.
 
 ## Contents
 
-- memory_order_relaxed for event counters
-- Acquire and release instead of seq_cst for publication
-- Padding per-thread data against false sharing
-- hardware_destructive_interference_size
-- Per-thread accumulation instead of a shared atomic
-- Parallel algorithms with std::execution::par
+- [memory_order_relaxed for event counters][toc-1]
+- [Acquire and release instead of seq_cst for publication][toc-2]
+- [Padding per-thread data against false sharing][toc-3]
+- [hardware_destructive_interference_size][toc-4]
+- [Per-thread accumulation instead of a shared atomic][toc-5]
+- [Parallel algorithms with std::execution::par][toc-6]
+
+[toc-1]: #memory_order_relaxed-for-event-counters
+[toc-2]: #acquire-and-release-instead-of-seq_cst-for-publication
+[toc-3]: #padding-per-thread-data-against-false-sharing
+[toc-4]: #hardware_destructive_interference_size
+[toc-5]: #per-thread-accumulation-instead-of-a-shared-atomic
+[toc-6]: #parallel-algorithms-with-stdexecutionpar
 
 ## memory_order_relaxed for event counters
 

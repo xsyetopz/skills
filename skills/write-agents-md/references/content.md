@@ -9,16 +9,16 @@ generic phrases, and extracts commands.
 
 ## Contents
 
-- Commands that run
-- Project map
-- Non-default conventions
-- Boundaries with reasons
-- Definition of done
-- Evidence for each rule
-- Revising rules instead of appending
-- What to leave out
-- Size budget
-- Example files never named AGENTS.md
+- [Commands that run](#commands-that-run)
+- [Project map](#project-map)
+- [Non-default conventions](#non-default-conventions)
+- [Boundaries with reasons](#boundaries-with-reasons)
+- [Definition of done](#definition-of-done)
+- [Evidence for each rule](#evidence-for-each-rule)
+- [Revising rules instead of appending](#revising-rules-instead-of-appending)
+- [What to leave out](#what-to-leave-out)
+- [Size budget](#size-budget)
+- [Example files never named AGENTS.md](#example-files-never-named-agentsmd)
 
 ## Commands that run
 

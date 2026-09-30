@@ -10,16 +10,21 @@ Maven 3.9.16, Tycho 5.0.4, and the Eclipse 4.41 repository
 ## Contents
 
 - [MANIFEST.MF line format](#manifestmf-line-format)
-- [Bundle-SymbolicName with singleton:=true][toc-singleton]
+- [Bundle-SymbolicName with singleton:=true][toc-1]
 - [Bundle-Version and the qualifier](#bundle-version-and-the-qualifier)
 - [Require-Bundle](#require-bundle)
 - [Import-Package](#import-package)
-- [Export-Package and x-internal packages][toc-export]
-- [Bundle-RequiredExecutionEnvironment and osgi.ee][toc-ee]
-- [Bundle-Activator with Bundle-ActivationPolicy: lazy][toc-lazy]
+- [Export-Package and x-internal packages][toc-2]
+- [Bundle-RequiredExecutionEnvironment and osgi.ee][toc-3]
+- [Bundle-Activator with Bundle-ActivationPolicy: lazy][toc-4]
 - [build.properties bin.includes](#buildproperties-binincludes)
 - [plugin.xml extensions](#pluginxml-extensions)
 - [Bundle checker](#bundle-checker)
+
+[toc-1]: #bundle-symbolicname-with-singletontrue
+[toc-2]: #export-package-and-x-internal-packages
+[toc-3]: #bundle-requiredexecutionenvironment-and-osgiee
+[toc-4]: #bundle-activator-with-bundle-activationpolicy-lazy
 
 ## MANIFEST.MF line format
 
@@ -529,7 +534,3 @@ mutation per rule.
 [pde-editor]: https://help.eclipse.org/latest/topic/org.eclipse.pde.doc.user/guide/tools/editors/manifest_editor/runtime.htm
 [ilog]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/ILog.html
 [drop]: https://download.eclipse.org/eclipse/downloads/drops4/R-4.41-202608281142/
-[toc-singleton]: #bundle-symbolicname-with-singletontrue
-[toc-export]: #export-package-and-x-internal-packages
-[toc-ee]: #bundle-requiredexecutionenvironment-and-osgiee
-[toc-lazy]: #bundle-activator-with-bundle-activationpolicy-lazy

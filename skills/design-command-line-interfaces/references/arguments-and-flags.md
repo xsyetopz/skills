@@ -8,15 +8,21 @@ Arguments and flags and Interactivity, and from the
 
 ## Contents
 
-- Flags over positional arguments
-- Long names for every flag, short names for common ones
-- Standard flag names
-- Flags that work before and after the subcommand
-- `-` for stdin and stdout, `--` to end options
-- Optional values need a keyword
-- Secrets never in flags or environment variables
-- Prompts only on a terminal, and --no-input
-- Confirmation scaled to danger
+- [Flags over positional arguments](#flags-over-positional-arguments)
+- [Long names for every flag, short names for common ones][toc-1]
+- [Standard flag names](#standard-flag-names)
+- [Flags that work before and after the subcommand][toc-2]
+- [`-` for stdin and stdout, `--` to end options][toc-3]
+- [Optional values need a keyword](#optional-values-need-a-keyword)
+- [Secrets never in flags or environment variables][toc-4]
+- [Prompts only on a terminal, and --no-input][toc-5]
+- [Confirmation scaled to danger](#confirmation-scaled-to-danger)
+
+[toc-1]: #long-names-for-every-flag-short-names-for-common-ones
+[toc-2]: #flags-that-work-before-and-after-the-subcommand
+[toc-3]: #--for-stdin-and-stdout----to-end-options
+[toc-4]: #secrets-never-in-flags-or-environment-variables
+[toc-5]: #prompts-only-on-a-terminal-and---no-input
 
 ## Flags over positional arguments
 

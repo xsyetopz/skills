@@ -14,16 +14,16 @@ Timings are machine-specific.
 
 ## Contents
 
-- G1 default collector
-- Generational ZGC
-- Parallel GC for throughput
-- AppCDS dynamic archive
-- AOT cache
-- AOT method profiles
-- Compact object headers
-- FFM downcalls instead of JNI
-- Critical FFM downcalls
-- Arena-scoped native memory
+- [G1 default collector](#g1-default-collector)
+- [Generational ZGC](#generational-zgc)
+- [Parallel GC for throughput](#parallel-gc-for-throughput)
+- [AppCDS dynamic archive](#appcds-dynamic-archive)
+- [AOT cache](#aot-cache)
+- [AOT method profiles](#aot-method-profiles)
+- [Compact object headers](#compact-object-headers)
+- [FFM downcalls instead of JNI](#ffm-downcalls-instead-of-jni)
+- [Critical FFM downcalls](#critical-ffm-downcalls)
+- [Arena-scoped native memory](#arena-scoped-native-memory)
 
 ## G1 default collector
 

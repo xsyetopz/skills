@@ -15,19 +15,26 @@ locally for every card in this file.
 
 ## Contents
 
-- Dispatchers.IO for blocking calls
-- limitedParallelism for a bounded resource
-- Structured concurrency instead of GlobalScope
-- async and awaitAll for independent calls
-- Suspend calls instead of runBlocking in hot paths
-- Flow buffer
-- Flow conflate
-- flowOn for upstream context
-- Mutex for critical sections that suspend
-- Atomics or synchronized for critical sections that do not suspend
-- Channel capacity
-- Rethrow CancellationException
-- ensureActive in CPU-bound loops
+- [Dispatchers.IO for blocking calls](#dispatchersio-for-blocking-calls)
+- [limitedParallelism for a bounded resource][toc-1]
+- [Structured concurrency instead of GlobalScope][toc-2]
+- [async and awaitAll for independent calls][toc-3]
+- [Suspend calls instead of runBlocking in hot paths][toc-4]
+- [Flow buffer](#flow-buffer)
+- [Flow conflate](#flow-conflate)
+- [flowOn for upstream context](#flowon-for-upstream-context)
+- [Mutex for critical sections that suspend][toc-5]
+- [Atomics or synchronized for critical sections that do not suspend][toc-6]
+- [Channel capacity](#channel-capacity)
+- [Rethrow CancellationException](#rethrow-cancellationexception)
+- [ensureActive in CPU-bound loops](#ensureactive-in-cpu-bound-loops)
+
+[toc-1]: #limitedparallelism-for-a-bounded-resource
+[toc-2]: #structured-concurrency-instead-of-globalscope
+[toc-3]: #async-and-awaitall-for-independent-calls
+[toc-4]: #suspend-calls-instead-of-runblocking-in-hot-paths
+[toc-5]: #mutex-for-critical-sections-that-suspend
+[toc-6]: #atomics-or-synchronized-for-critical-sections-that-do-not-suspend
 
 ## Dispatchers.IO for blocking calls
 

@@ -7,13 +7,13 @@ crashes of the emulator process itself. Observations come from release
 
 ## Contents
 
-- Log to file
-- Console logging and early console
-- CPU debugger window
-- GDB server
-- lldb attach to a running release
-- lldb launch of a release
-- macOS crash report
+- [Log to file](#log-to-file)
+- [Console logging and early console](#console-logging-and-early-console)
+- [CPU debugger window](#cpu-debugger-window)
+- [GDB server](#gdb-server)
+- [lldb attach to a running release](#lldb-attach-to-a-running-release)
+- [lldb launch of a release](#lldb-launch-of-a-release)
+- [macOS crash report](#macos-crash-report)
 
 ## Log to file
 

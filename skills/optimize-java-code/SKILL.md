@@ -2,8 +2,8 @@
 name: optimize-java-code
 description: >-
   Profiles and optimizes Java CPU time, allocation, latency, and startup with
-  JMH, JFR, and GC and JIT logs. Use when a Java benchmark or profile shows
-  the cost. Not for Kotlin or Scala code.
+  JMH, JFR, and GC logs. Use when a Java benchmark or profile shows the cost.
+  Not for Kotlin or Scala code.
 ---
 
 # Optimize Java Code

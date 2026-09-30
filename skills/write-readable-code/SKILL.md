@@ -1,10 +1,9 @@
 ---
 name: write-readable-code
 description: >-
-  Restructures code so people and agents follow it without guessing and
-  reviews it against the Zen of Python (PEP 20) in any language. Use when code
-  is hard to follow, files grow too long, or for a clarity, Pythonic, or Zen
-  of Python review. Not for performance or PEP 8 formatting.
+  Restructures and fixes hard-to-follow code, and reviews it against the Zen of
+  Python. Use when code is tangled, too long, or needs a Pythonic review. Not
+  for report-only smell audits.
 ---
 
 # Write Readable Code
@@ -87,6 +86,7 @@ through the [aphorism map][zen-map] of all 19 aphorisms.
 | `from x import *`, glob `use`, same name from two modules | [Namespaces][namespaces] |
 | File over 300 code lines (test file over 500), or unrelated types in one file | [File length](references/file-layout.md#file-length) |
 | New file, or `public`/`pub`/`export` added | [File layout](references/file-layout.md#the-decision-order), then the language card |
+| Asked to audit a codebase for smells, prefix-named files, co-changing files | `$find-code-smells` reports them; fix here |
 | Reviewing an agent's diff, formatter noise | [Agent failure modes](references/agent-failure-modes.md) |
 | Zen of Python, PEP 20, or "Pythonic" design review | [Aphorism map][zen-map] |
 

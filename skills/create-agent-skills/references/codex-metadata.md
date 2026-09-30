@@ -10,10 +10,10 @@ installed Codex version.
 
 ## Contents
 
-- Interface fields
-- Invocation policy
-- MCP dependencies
-- Loader behavior on bad metadata
+- [Interface fields](#interface-fields)
+- [Invocation policy](#invocation-policy)
+- [MCP dependencies](#mcp-dependencies)
+- [Loader behavior on bad metadata](#loader-behavior-on-bad-metadata)
 
 ## Interface fields
 

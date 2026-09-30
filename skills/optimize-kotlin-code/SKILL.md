@@ -1,9 +1,9 @@
 ---
 name: optimize-kotlin-code
 description: >-
-  Profiles and optimizes Kotlin/JVM CPU time, allocations, and coroutine
-  latency with JMH, JFR, and bytecode checks. Use when a Kotlin benchmark or
-  profile shows the cost. Not for Kotlin/Native or Kotlin/JS.
+  Profiles and optimizes Kotlin on the JVM for CPU time, allocations, and
+  coroutine latency with JMH and JFR. Use when a Kotlin benchmark or profile
+  shows the cost. Not for Kotlin Native or Kotlin JS.
 ---
 
 # Optimize Kotlin Code

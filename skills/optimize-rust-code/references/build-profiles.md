@@ -42,15 +42,17 @@ done
 
 ## Contents
 
-- opt-level
-- codegen-units = 1
-- Thin LTO
-- Fat LTO
-- panic = "abort"
-- Debug line tables for profiling
-- target-cpu=native
-- target_feature with runtime detection
-- Profile-guided optimization
+- [opt-level](#opt-level)
+- [codegen-units = 1](#codegen-units--1)
+- [Thin LTO](#thin-lto)
+- [Fat LTO](#fat-lto)
+- [panic = "abort"](#panic--abort)
+- [Debug line tables for profiling](#debug-line-tables-for-profiling)
+- [target-cpu=native](#target-cpunative)
+- [target_feature with runtime detection][toc-1]
+- [Profile-guided optimization](#profile-guided-optimization)
+
+[toc-1]: #target_feature-with-runtime-detection
 
 ## opt-level
 

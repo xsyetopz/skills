@@ -1,10 +1,9 @@
 ---
 name: build-and-debug-pcsx2
 description: >-
-  Builds PCSX2 (PS2 emulator) at a pinned commit and debugs it and its games
-  with isolated data, logs, breakpoints, and bisection. Use for PCSX2 build
-  failures, crashes, or rendering bugs. Not for DuckStation or obtaining BIOS
-  or games.
+  Builds and debugs the PCSX2 PS2 emulator with isolated data, logs, and
+  breakpoints. Use for PCSX2 build failures, crashes, or rendering bugs. Not
+  for DuckStation or obtaining BIOS or games.
 ---
 
 # Build and Debug PCSX2

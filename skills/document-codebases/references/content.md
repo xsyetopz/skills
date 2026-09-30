@@ -7,14 +7,18 @@ commands are executed by `scripts/check_doc_commands.py` in
 
 ## Contents
 
-- README lead and quick start
-- Prerequisites from the manifests
-- Commands with stated directory and expected output
-- CONTRIBUTING around the change path
-- Match the page to the reader's task
-- API reference from the source of truth
-- Decision records only for real decisions
-- Scope boundaries
+- [README lead and quick start](#readme-lead-and-quick-start)
+- [Prerequisites from the manifests](#prerequisites-from-the-manifests)
+- [Commands with stated directory and expected output][toc-1]
+- [CONTRIBUTING around the change path](#contributing-around-the-change-path)
+- [Match the page to the reader's task](#match-the-page-to-the-readers-task)
+- [API reference from the source of truth][toc-2]
+- [Decision records only for real decisions][toc-3]
+- [Scope boundaries](#scope-boundaries)
+
+[toc-1]: #commands-with-stated-directory-and-expected-output
+[toc-2]: #api-reference-from-the-source-of-truth
+[toc-3]: #decision-records-only-for-real-decisions
 
 ## README lead and quick start
 

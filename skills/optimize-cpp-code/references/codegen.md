@@ -16,21 +16,26 @@ findings, not harness failures.
 
 ## Contents
 
-- Templates instead of virtual dispatch
-- CRTP for static polymorphism
-- std::variant with std::visit
-- std::variant with get_if
-- final for devirtualization
-- Template callable instead of std::function
-- constexpr lookup table
-- consteval for guaranteed compile-time values
-- likely and unlikely attributes
-- std::expected for frequent failures
-- Exceptions for rare failures
-- libc++ hardening mode
-- std::sort instead of std::stable_sort
-- partial_sort for top-k
-- Lazy ranges views instead of intermediate containers
+- [Templates instead of virtual dispatch][toc-1]
+- [CRTP for static polymorphism](#crtp-for-static-polymorphism)
+- [std::variant with std::visit](#stdvariant-with-stdvisit)
+- [std::variant with get_if](#stdvariant-with-get_if)
+- [final for devirtualization](#final-for-devirtualization)
+- [Template callable instead of std::function][toc-2]
+- [constexpr lookup table](#constexpr-lookup-table)
+- [consteval for guaranteed compile-time values][toc-3]
+- [likely and unlikely attributes](#likely-and-unlikely-attributes)
+- [std::expected for frequent failures](#stdexpected-for-frequent-failures)
+- [Exceptions for rare failures](#exceptions-for-rare-failures)
+- [libc++ hardening mode](#libc-hardening-mode)
+- [std::sort instead of std::stable_sort](#stdsort-instead-of-stdstable_sort)
+- [partial_sort for top-k](#partial_sort-for-top-k)
+- [Lazy ranges views instead of intermediate containers][toc-4]
+
+[toc-1]: #templates-instead-of-virtual-dispatch
+[toc-2]: #template-callable-instead-of-stdfunction
+[toc-3]: #consteval-for-guaranteed-compile-time-values
+[toc-4]: #lazy-ranges-views-instead-of-intermediate-containers
 
 ## Templates instead of virtual dispatch
 

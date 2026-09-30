@@ -1,10 +1,9 @@
 ---
 name: write-agents-md
 description: >-
-  Writes and audits AGENTS.md and CLAUDE.md repository instructions for Codex,
-  Claude Code, and other agents: verified commands, conventions, boundaries,
-  nesting, imports. Use when creating or fixing agent instruction files. Not
-  for skills or hooks.
+  Writes and audits AGENTS.md and CLAUDE.md repository instructions with
+  verified commands and conventions. Use when creating or fixing agent
+  instruction files. Not for skills or hooks.
 ---
 
 # Write AGENTS.md

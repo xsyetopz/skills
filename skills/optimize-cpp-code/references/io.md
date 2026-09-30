@@ -14,13 +14,16 @@ Apple clang 21.0.0, libc++ 21.1, `-std=c++23 -O2`, output to a pipe
 
 ## Contents
 
-- Newline instead of std::endl
-- sync_with_stdio(false) and cin.tie(nullptr)
-- Build text in a buffer and write once
-- std::print
-- std::format_to into a reused buffer
-- std::to_chars for numbers to text
-- std::from_chars for text to numbers
+- [Newline instead of std::endl](#newline-instead-of-stdendl)
+- [sync_with_stdio(false) and cin.tie(nullptr)][toc-1]
+- [Build text in a buffer and write once][toc-2]
+- [std::print](#stdprint)
+- [std::format_to into a reused buffer](#stdformat_to-into-a-reused-buffer)
+- [std::to_chars for numbers to text](#stdto_chars-for-numbers-to-text)
+- [std::from_chars for text to numbers](#stdfrom_chars-for-text-to-numbers)
+
+[toc-1]: #sync_with_stdiofalse-and-cintienullptr
+[toc-2]: #build-text-in-a-buffer-and-write-once
 
 ## Newline instead of std::endl
 

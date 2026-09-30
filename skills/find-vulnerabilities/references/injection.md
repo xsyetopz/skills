@@ -11,15 +11,17 @@ Jinja2 3.1.6 ran through `uv run --with jinja2==3.1.6`.
 
 ## Contents
 
-- SQL value parameters
-- SQL identifier allowlist
-- Argument vector instead of a shell
-- End-of-options marker
-- HTML text escaping
-- Quoted attribute escaping
-- URL scheme allowlist for links
-- Template autoescape
-- User text as template data, not template source
+- [SQL value parameters](#sql-value-parameters)
+- [SQL identifier allowlist](#sql-identifier-allowlist)
+- [Argument vector instead of a shell](#argument-vector-instead-of-a-shell)
+- [End-of-options marker](#end-of-options-marker)
+- [HTML text escaping](#html-text-escaping)
+- [Quoted attribute escaping](#quoted-attribute-escaping)
+- [URL scheme allowlist for links](#url-scheme-allowlist-for-links)
+- [Template autoescape](#template-autoescape)
+- [User text as template data, not template source][toc-1]
+
+[toc-1]: #user-text-as-template-data-not-template-source
 
 ## SQL value parameters
 

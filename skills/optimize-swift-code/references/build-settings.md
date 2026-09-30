@@ -11,12 +11,14 @@ the same line for the project before changing flags.
 
 ## Contents
 
-- Release builds with -O
-- -Osize
-- -Ounchecked
-- Whole-module optimization
-- Cross-module optimization and library evolution
-- -enforce-exclusivity=unchecked
+- [Release builds with -O](#release-builds-with--o)
+- [-Osize](#-osize)
+- [-Ounchecked](#-ounchecked)
+- [Whole-module optimization](#whole-module-optimization)
+- [Cross-module optimization and library evolution][toc-1]
+- [-enforce-exclusivity=unchecked](#-enforce-exclusivityunchecked)
+
+[toc-1]: #cross-module-optimization-and-library-evolution
 
 ## Release builds with -O
 

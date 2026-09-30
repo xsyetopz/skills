@@ -6,10 +6,10 @@ lease rejection against a local bare remote (git 2.55.0).
 
 ## Contents
 
-- Annotated release tags
-- Pushing a branch
-- Force-with-lease
-- Publishing tags
+- [Annotated release tags](#annotated-release-tags)
+- [Pushing a branch](#pushing-a-branch)
+- [Force-with-lease](#force-with-lease)
+- [Publishing tags](#publishing-tags)
 
 ## Annotated release tags
 

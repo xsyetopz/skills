@@ -13,14 +13,14 @@ taken while other agents shared the machine.
 
 ## Contents
 
-- secrets module for tokens
-- scrypt password hashing
-- Argon2id password hashing
-- Constant-time digest comparison
-- gitleaks secret scan
-- Regex fallback secret scan
-- trufflehog without verification
-- Log redaction
+- [secrets module for tokens](#secrets-module-for-tokens)
+- [scrypt password hashing](#scrypt-password-hashing)
+- [Argon2id password hashing](#argon2id-password-hashing)
+- [Constant-time digest comparison](#constant-time-digest-comparison)
+- [gitleaks secret scan](#gitleaks-secret-scan)
+- [Regex fallback secret scan](#regex-fallback-secret-scan)
+- [trufflehog without verification](#trufflehog-without-verification)
+- [Log redaction](#log-redaction)
 
 ## secrets module for tokens
 

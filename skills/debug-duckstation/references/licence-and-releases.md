@@ -6,9 +6,11 @@ not do with the DuckStation source. Observations below come from release
 
 ## Contents
 
-- Licence and AI-assistant policy
-- Pinned official release
-- Regression comparison across official releases
+- [Licence and AI-assistant policy](#licence-and-ai-assistant-policy)
+- [Pinned official release](#pinned-official-release)
+- [Regression comparison across official releases][toc-1]
+
+[toc-1]: #regression-comparison-across-official-releases
 
 ## Licence and AI-assistant policy
 

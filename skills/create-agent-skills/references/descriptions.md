@@ -6,12 +6,13 @@ description and testing its selection.
 
 ## Contents
 
-- Overlap check before creating
-- Description structure
-- Trigger vocabulary
-- Boundary clause
-- Length budget across a catalog
-- Triggering evaluation
+- [Overlap check before creating](#overlap-check-before-creating)
+- [Description structure](#description-structure)
+- [Plain wording](#plain-wording)
+- [Trigger vocabulary](#trigger-vocabulary)
+- [Boundary clause](#boundary-clause)
+- [Length budget across a catalog](#length-budget-across-a-catalog)
+- [Triggering evaluation](#triggering-evaluation)
 
 ## Overlap check before creating
 
@@ -73,13 +74,12 @@ problems ([best practices][anthropic-bp]).
 
 ```yaml
 description: >-
-  Profiles and optimizes C#/.NET CPU time, latency, and allocations with
-  BenchmarkDotNet, dotnet-counters, dotnet-trace, and JIT disassembly. Use
-  when a .NET benchmark or profile shows the cost. Not for framework
-  upgrades alone.
+  Profiles and optimizes C# and .NET CPU time, latency, and allocations
+  with BenchmarkDotNet and dotnet-trace. Use when a .NET benchmark or
+  profile shows the cost. Not for upgrades.
 ```
 
-The first 100 characters ("Profiles and optimizes C#/.NET CPU time,
+The first 100 characters ("Profiles and optimizes C# and .NET CPU time,
 latency, and allocations with BenchmarkDotNet") carry the verb, the
 object, and the tool name users type.
 
@@ -93,6 +93,42 @@ activations (false positives).
 1. Cut the description at 100 characters; the verb, object, and main
    trigger words are still there.
 1. Run the triggering evaluation below.
+
+## Plain wording
+
+**Definition.** Required for every description in this catalog: plain
+words and commas, periods, apostrophes, and hyphens only. No colon,
+semicolon, double quote, backtick, slash, parenthesis, bracket, `$`, or
+`|`. Product and file names keep their own spelling (C++, C#, .NET,
+plugin.xml). An unquoted YAML value containing a colon and a space is not
+valid YAML, and the other symbols are Markdown or shell syntax that
+reads as markup instead of routing words.
+
+**Use when.** Writing or revising any description or
+`short_description`.
+
+**Do not use when.** Never; wrap a list in a sentence instead of
+reaching for a symbol.
+
+**Example.** Not `Builds Neovim plugins: commands, autocommands, lazy
+loading.` Write `Builds Neovim plugins with commands, autocommands, and
+lazy loading.` For `/goal`, write "the Claude Code goal command"; for
+Rust/WASM, "Rust compiled to WASM"; for a list in parentheses, "such as".
+
+**Cost removed.** Frontmatter that a YAML parser rejects or misreads, and
+descriptions whose meaning depends on markup.
+
+**Verify.**
+
+1. This prints nothing (it reads only the description lines of each
+   frontmatter):
+
+   ```sh
+   awk 'FNR==1{n=0} /^---$/{n++; next}
+        n==1 && /^description:/{d=1; next}
+        n==1 && /^[a-z_-]+:/{d=0} n==1 && d' skills/*/SKILL.md |
+     rg '[:;"`$/()\[\]|]'
+   ```
 
 ## Trigger vocabulary
 
@@ -159,8 +195,9 @@ and says so in the list
 **Do not use when.** Shortening would remove trigger words; cut
 adjectives and duplicated scope first.
 
-**Example.** This catalog's 44 descriptions total about 10,400
-characters, above Codex's 8,000-character fallback. Each puts the key use
+**Example.** This catalog's 51 descriptions total about 9,700
+characters (at most 200 each), still above Codex's 8,000-character
+fallback. Each puts the key use
 case first, so a shortened or dropped description loses the least.
 
 **Cost removed.** Truncated descriptions that lose their trigger words.

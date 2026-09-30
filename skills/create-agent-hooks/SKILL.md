@@ -1,10 +1,9 @@
 ---
 name: create-agent-hooks
 description: >-
-  Creates, debugs, and audits coding-agent hooks for Claude Code, Codex,
-  Gemini CLI, Cursor, Copilot, VS Code, and OpenCode: events, decision output,
-  exit codes, Stop gates. Use when a hook should block, allow, or add context.
-  Not for Git hooks.
+  Creates, debugs, and audits coding-agent hooks for Claude Code, Codex, Gemini
+  CLI, Cursor, Copilot, and OpenCode. Use when a hook should block, allow, or
+  add context. Not for Git hooks.
 ---
 
 # Create Agent Hooks

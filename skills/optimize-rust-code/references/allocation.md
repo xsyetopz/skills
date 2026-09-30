@@ -14,17 +14,22 @@ and `realloc`). Times are medians from `sh assets/examples/verify.sh time`
 
 ## Contents
 
-- Vec::with_capacity
-- reserve before extend_from_slice
-- Reuse a buffer with clear
-- Borrowed parameters instead of owned ones
-- clone_from into an existing value
-- Cow for conditional modification
-- push_str into a presized String
-- write! into a String instead of per-item format
-- Fixed-size stack array instead of a scratch Vec
-- Borrow instead of cloning an Arc
-- Rc instead of Arc for single-threaded sharing
+- [Vec::with_capacity](#vecwith_capacity)
+- [reserve before extend_from_slice](#reserve-before-extend_from_slice)
+- [Reuse a buffer with clear](#reuse-a-buffer-with-clear)
+- [Borrowed parameters instead of owned ones][toc-1]
+- [clone_from into an existing value](#clone_from-into-an-existing-value)
+- [Cow for conditional modification](#cow-for-conditional-modification)
+- [push_str into a presized String](#push_str-into-a-presized-string)
+- [write! into a String instead of per-item format][toc-2]
+- [Fixed-size stack array instead of a scratch Vec][toc-3]
+- [Borrow instead of cloning an Arc](#borrow-instead-of-cloning-an-arc)
+- [Rc instead of Arc for single-threaded sharing][toc-4]
+
+[toc-1]: #borrowed-parameters-instead-of-owned-ones
+[toc-2]: #write-into-a-string-instead-of-per-item-format
+[toc-3]: #fixed-size-stack-array-instead-of-a-scratch-vec
+[toc-4]: #rc-instead-of-arc-for-single-threaded-sharing
 
 ## Vec::with_capacity
 

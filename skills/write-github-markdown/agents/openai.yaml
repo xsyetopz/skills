@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write GitHub Markdown"
+  short_description: "Write GitHub Markdown with working anchors and linked contents"
+  default_prompt: "Use $write-github-markdown to write or fix this Markdown so it renders on GitHub and reads raw, with linked Contents lists, labeled fences, valid tables, and checked anchors."

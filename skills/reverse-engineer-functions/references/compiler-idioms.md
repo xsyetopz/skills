@@ -1,5 +1,13 @@
 # Compiler idioms
 
+Compilers add code that the source did not spell out, and remove or move
+code that it did. Name each idiom in the report and leave it out of the
+description of the function's logic.
+
+Exact instruction shapes change with the compiler, its version, the target,
+and the flags. This file describes each idiom by its effect. When the shape
+in the binary is uncertain, use the [confirmation method](#confirm-a-shape).
+
 ## Contents
 
 - [Stack cookies](#stack-cookies)
@@ -10,14 +18,6 @@
 - [Reordered and split blocks](#reordered-and-split-blocks)
 - [Confirm a shape](#confirm-a-shape)
 - [Sources](#sources)
-
-Compilers add code that the source did not spell out, and remove or move
-code that it did. Name each idiom in the report and leave it out of the
-description of the function's logic.
-
-Exact instruction shapes change with the compiler, its version, the target,
-and the flags. This file describes each idiom by its effect. When the shape
-in the binary is uncertain, use the [confirmation method](#confirm-a-shape).
 
 ## Stack cookies
 

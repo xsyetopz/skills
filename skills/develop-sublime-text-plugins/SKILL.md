@@ -1,10 +1,9 @@
 ---
 name: develop-sublime-text-plugins
 description: >-
-  Builds and tests Sublime Text plugins: commands, event listeners, async
-  work, settings, key bindings and menus, regions, popups, and packaging. Use
-  when writing or fixing a Sublime Text plugin. Not for generic Python apps or
-  user settings.
+  Builds and tests Sublime Text plugins with commands, event listeners,
+  settings, key bindings, and packaging. Use when writing or fixing a Sublime
+  Text plugin. Not for generic Python apps.
 ---
 
 # Develop Sublime Text Plugins

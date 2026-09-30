@@ -15,16 +15,18 @@ runs.
 
 ## Contents
 
-- restrict pointers
-- Hoist strlen out of the loop condition
-- Branchless selection
-- Unconditional store with select
-- Branch probability hints
-- Narrow element types
-- NEON intrinsics
-- x86 runtime dispatch
-- Signed overflow and wraparound types
-- Checked arithmetic with ckd_add
+- [restrict pointers](#restrict-pointers)
+- [Hoist strlen out of the loop condition][toc-1]
+- [Branchless selection](#branchless-selection)
+- [Unconditional store with select](#unconditional-store-with-select)
+- [Branch probability hints](#branch-probability-hints)
+- [Narrow element types](#narrow-element-types)
+- [NEON intrinsics](#neon-intrinsics)
+- [x86 runtime dispatch](#x86-runtime-dispatch)
+- [Signed overflow and wraparound types](#signed-overflow-and-wraparound-types)
+- [Checked arithmetic with ckd_add](#checked-arithmetic-with-ckd_add)
+
+[toc-1]: #hoist-strlen-out-of-the-loop-condition
 
 ## restrict pointers
 

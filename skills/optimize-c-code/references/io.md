@@ -12,9 +12,9 @@ clang 21.0.0, `-std=c17 -O2`, hyperfine 1.20.0, shared machine.
 
 ## Contents
 
-- Full buffering with setvbuf
-- Line buffering
-- Batched write calls
+- [Full buffering with setvbuf](#full-buffering-with-setvbuf)
+- [Line buffering](#line-buffering)
+- [Batched write calls](#batched-write-calls)
 
 ## Full buffering with setvbuf
 

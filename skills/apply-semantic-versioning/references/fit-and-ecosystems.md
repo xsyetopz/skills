@@ -7,14 +7,18 @@ source before relying on a rule for a new tool version.
 
 ## Contents
 
-- Does SemVer fit this product
-- End-user apps: marketing version and build number
-- Calendar versioning
-- npm and Cargo: 0.x ranges and pre-releases
-- Go modules: v prefix and major version suffix
-- Python: PEP 440 is not SemVer
-- Maven and Gradle ordering
-- Container image tags
+- [Does SemVer fit this product](#does-semver-fit-this-product)
+- [End-user apps: marketing version and build number][toc-1]
+- [Calendar versioning](#calendar-versioning)
+- [npm and Cargo: 0.x ranges and pre-releases][toc-2]
+- [Go modules: v prefix and major version suffix][toc-3]
+- [Python: PEP 440 is not SemVer](#python-pep-440-is-not-semver)
+- [Maven and Gradle ordering](#maven-and-gradle-ordering)
+- [Container image tags](#container-image-tags)
+
+[toc-1]: #end-user-apps-marketing-version-and-build-number
+[toc-2]: #npm-and-cargo-0x-ranges-and-pre-releases
+[toc-3]: #go-modules-v-prefix-and-major-version-suffix
 
 ## Does SemVer fit this product
 

@@ -2,8 +2,8 @@
 name: optimize-go-code
 description: >-
   Profiles and optimizes Go CPU time, latency, and allocations with testing.B,
-  benchstat, pprof, and compiler diagnostics. Use when a Go benchmark or
-  profile shows the cost. Not for style edits.
+  benchstat, and pprof. Use when a Go benchmark or profile shows the cost. Not
+  for style edits.
 ---
 
 # Optimize Go Code

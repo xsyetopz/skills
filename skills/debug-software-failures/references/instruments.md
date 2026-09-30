@@ -7,13 +7,15 @@ against a program with a known fault (measured on macOS arm64: Python
 
 ## Contents
 
-- Python stack dumps with faulthandler
-- Go deadlock detection and goroutine dumps
-- JVM thread dump with jcmd
-- Native crash backtrace with lldb
-- System call tracing
-- Verbose and clean builds
-- Resource limits and open files
+- [Python stack dumps with faulthandler](#python-stack-dumps-with-faulthandler)
+- [Go deadlock detection and goroutine dumps][toc-1]
+- [JVM thread dump with jcmd](#jvm-thread-dump-with-jcmd)
+- [Native crash backtrace with lldb](#native-crash-backtrace-with-lldb)
+- [System call tracing](#system-call-tracing)
+- [Verbose and clean builds](#verbose-and-clean-builds)
+- [Resource limits and open files](#resource-limits-and-open-files)
+
+[toc-1]: #go-deadlock-detection-and-goroutine-dumps
 
 ## Python stack dumps with faulthandler
 

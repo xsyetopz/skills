@@ -15,14 +15,20 @@ shared machine; numbers are machine-specific.
 
 ## Contents
 
-- final classes and members
-- Access control that lets WMO infer final
-- Avoiding @objc dynamic
-- Generic specialization instead of any P parameters
-- Generic stored property instead of a stored existential
-- Enum instead of an array of existentials
-- @inlinable, @usableFromInline, and @frozen across modules
-- Class-constrained protocols
+- [final classes and members](#final-classes-and-members)
+- [Access control that lets WMO infer final][toc-1]
+- [Avoiding @objc dynamic](#avoiding-objc-dynamic)
+- [Generic specialization instead of any P parameters][toc-2]
+- [Generic stored property instead of a stored existential][toc-3]
+- [Enum instead of an array of existentials][toc-4]
+- [@inlinable, @usableFromInline, and @frozen across modules][toc-5]
+- [Class-constrained protocols](#class-constrained-protocols)
+
+[toc-1]: #access-control-that-lets-wmo-infer-final
+[toc-2]: #generic-specialization-instead-of-any-p-parameters
+[toc-3]: #generic-stored-property-instead-of-a-stored-existential
+[toc-4]: #enum-instead-of-an-array-of-existentials
+[toc-5]: #inlinable-usablefrominline-and-frozen-across-modules
 
 ## final classes and members
 

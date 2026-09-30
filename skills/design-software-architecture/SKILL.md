@@ -1,11 +1,9 @@
 ---
 name: design-software-architecture
 description: >-
-  Designs and reviews system boundaries: modules, ports, or services, state
-  ownership, dependency rules, idempotent operations, and API and protocol
-  contracts. Use for architecture decisions, service splits, or layering
-  problems. Not for requirement wording or for documenting an existing
-  codebase's architecture in ARCHITECTURE.md.
+  Designs and reviews system boundaries, such as modules, services, state
+  ownership, dependency rules, and API contracts. Use for architecture,
+  service splits, or layering. Not for ARCHITECTURE.md.
 ---
 
 # Design Software Architecture
@@ -49,6 +47,7 @@ layer rules plus a planted violation, and LSP framing.
 | Who owns this data? | [Source-of-truth map][truth] |
 | Swap storage or mock it | [Ports and adapters][ports], [contract tests][contracts] |
 | Keep layers clean | [Dependency direction][direction] |
+| Split or merge packages; which way should they depend? | [Package cohesion][cohesion], [stable dependencies][stable] |
 | Thread or connection errors in an adapter | [Adapter owns concurrency][concurrency] |
 | Uniqueness/FK/required field checked only in code | [Database constraints][invariant] |
 | Duplicates on retry | [Operation identity][idem] |
@@ -128,6 +127,8 @@ layer rules plus a planted violation, and LSP framing.
 [ports]: references/boundaries.md#ports-and-adapters
 [contracts]: references/boundaries.md#contract-tests-shared-by-adapters
 [direction]: references/boundaries.md#dependency-direction-check
+[cohesion]: references/boundaries.md#package-cohesion-what-goes-in-one-package
+[stable]: references/boundaries.md#stable-dependencies-which-way-packages-depend
 [concurrency]: references/boundaries.md#adapter-owns-its-resources-concurrency
 [invariant]: references/boundaries.md#invariants-enforced-by-database-constraints
 [idem]: references/boundaries.md#operation-identity-for-retries

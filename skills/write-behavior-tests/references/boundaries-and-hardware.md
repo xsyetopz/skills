@@ -7,10 +7,13 @@ and which it does not.
 
 ## Contents
 
-- Installed package test
-- Host-dependent behavior
-- HDL testbench with a faulty alternative
-- Evidence layers for firmware and devices
+- [Installed package test](#installed-package-test)
+- [Host-dependent behavior](#host-dependent-behavior)
+- [HDL testbench with a faulty alternative][toc-1]
+- [Evidence layers for firmware and devices][toc-2]
+
+[toc-1]: #hdl-testbench-with-a-faulty-alternative
+[toc-2]: #evidence-layers-for-firmware-and-devices
 
 ## Installed package test
 

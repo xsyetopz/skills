@@ -9,20 +9,20 @@ TypeScript, Lua, Ruby, Swift type-check via `xcrun swiftc`).
 
 ## Contents
 
-- The decision order
-- File length
-- Python
-- Rust
-- Go
-- C
-- C++
-- C# and F#
-- Java, Kotlin, Scala
-- JavaScript and TypeScript
-- Swift
-- Ruby
-- Lua
-- Adding a language
+- [The decision order](#the-decision-order)
+- [File length](#file-length)
+- [Python](#python)
+- [Rust](#rust)
+- [Go](#go)
+- [C](#c)
+- [C++](#c-1)
+- [C# and F#](#c-and-f)
+- [Java, Kotlin, Scala](#java-kotlin-scala)
+- [JavaScript and TypeScript](#javascript-and-typescript)
+- [Swift](#swift)
+- [Ruby](#ruby)
+- [Lua](#lua)
+- [Adding a language](#adding-a-language)
 
 ## The decision order
 
@@ -83,9 +83,12 @@ a test file. Both are this skill's policy, not a standard, and the
 repository's configured limit wins. For comparison, ESLint
 [`max-lines`][eslint-max-lines] defaults to 300 physical lines (blank
 and comment lines count unless `skipBlankLines`/`skipComments` are set),
-Pylint [`max-module-lines`][pylint-options] to 1000, and Checkstyle
-[`FileLength`][checkstyle-filelength] to 2000; none of them sets a
-separate test-file limit.
+Pylint [`max-module-lines`][pylint-options] to 1000, Checkstyle
+[`FileLength`][checkstyle-filelength] to 2000, and SwiftLint
+[`file_length`][swiftlint-file-length] warns at 400 and errors at 1000.
+RuboCop [`Metrics/ClassLength`][rubocop-default] (100) and detekt
+[`LargeClass`][detekt-default] (600) limit a class rather than a file.
+None of them sets a separate test-file limit.
 
 Test files get more room because a readable test repeats its setup and
 states its inputs inline (see [tests as documentation][tests-as-docs])
@@ -1006,3 +1009,6 @@ toolchain is missing, otherwise load the template and assert one call.
 [eslint-max-lines]: https://eslint.org/docs/latest/rules/max-lines
 [pylint-options]: https://pylint.readthedocs.io/en/stable/user_guide/configuration/all-options.html
 [checkstyle-filelength]: https://checkstyle.sourceforge.io/checks/sizes/filelength.html
+[swiftlint-file-length]: https://realm.github.io/SwiftLint/file_length.html
+[rubocop-default]: https://github.com/rubocop/rubocop/blob/master/config/default.yml
+[detekt-default]: https://github.com/detekt/detekt/blob/main/detekt-core/src/main/resources/default-detekt-config.yml

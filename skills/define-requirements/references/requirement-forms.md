@@ -7,19 +7,21 @@ is [`export-cancellation-spec.md`][spec] (0 defects);
 
 ## Contents
 
-- Requirement line format
-- EARS ubiquitous
-- EARS event-driven
-- EARS state-driven
-- EARS unwanted behavior
-- EARS optional feature
-- EARS complex
-- One response per requirement
-- Normative keywords
-- Measurable quality requirements
-- Vague terms
-- Sources and traceability
-- Open decisions and out-of-scope items
+- [Requirement line format](#requirement-line-format)
+- [EARS ubiquitous](#ears-ubiquitous)
+- [EARS event-driven](#ears-event-driven)
+- [EARS state-driven](#ears-state-driven)
+- [EARS unwanted behavior](#ears-unwanted-behavior)
+- [EARS optional feature](#ears-optional-feature)
+- [EARS complex](#ears-complex)
+- [One response per requirement](#one-response-per-requirement)
+- [Normative keywords](#normative-keywords)
+- [Measurable quality requirements](#measurable-quality-requirements)
+- [Vague terms](#vague-terms)
+- [Sources and traceability](#sources-and-traceability)
+- [Open decisions and out-of-scope items][toc-1]
+
+[toc-1]: #open-decisions-and-out-of-scope-items
 
 ## Requirement line format
 

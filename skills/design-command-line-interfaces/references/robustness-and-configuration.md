@@ -8,15 +8,17 @@ and Analytics.
 
 ## Contents
 
-- Validate early
-- Responsive before fast; progress for long work
-- Timeouts and recoverable runs
-- Ctrl-C and crash-only design
-- Configuration precedence
-- Where configuration lives
-- Environment variables
-- Distribution and uninstall
-- Analytics only with consent
+- [Validate early](#validate-early)
+- [Responsive before fast; progress for long work][toc-1]
+- [Timeouts and recoverable runs](#timeouts-and-recoverable-runs)
+- [Ctrl-C and crash-only design](#ctrl-c-and-crash-only-design)
+- [Configuration precedence](#configuration-precedence)
+- [Where configuration lives](#where-configuration-lives)
+- [Environment variables](#environment-variables)
+- [Distribution and uninstall](#distribution-and-uninstall)
+- [Analytics only with consent](#analytics-only-with-consent)
+
+[toc-1]: #responsive-before-fast-progress-for-long-work
 
 ## Validate early
 

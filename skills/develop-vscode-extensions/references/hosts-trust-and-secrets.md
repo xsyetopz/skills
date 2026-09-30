@@ -15,6 +15,9 @@ come from `sh assets/examples/verify.sh network` (VS Code 1.139.1 and
 - [extensionKind placement](#extensionkind-placement)
 - [SecretStorage](#secretstorage)
 
+[toc-1]: #virtualworkspaces-capability-and-uri-handling
+[toc-2]: #separate-node-browser-and-common-modules
+
 ## untrustedWorkspaces capability
 
 **Definition.** `capabilities.untrustedWorkspaces.supported` in
@@ -420,5 +423,3 @@ failed).
 [host]: https://code.visualstudio.com/api/advanced-topics/extension-host
 [storage]: https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 [argv]: https://github.com/microsoft/vscode/blob/main/src/vs/platform/environment/node/argv.ts
-[toc-1]: #virtualworkspaces-capability-and-uri-handling
-[toc-2]: #separate-node-browser-and-common-modules

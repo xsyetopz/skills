@@ -14,21 +14,27 @@ machine.
 
 ## Contents
 
-- vector::reserve
-- shrink_to_fit
-- clear() to reuse a buffer
-- Short string optimization capacity
-- string_view for substrings
-- string_view for read-only text parameters
-- span for read-only sequence parameters
-- unordered_map::reserve
-- try_emplace for a single lookup
-- Heterogeneous lookup with a transparent hash
-- Hash map instead of an ordered map for point lookups
-- Sorted vector with lower_bound
-- std::flat_map
-- pmr::monotonic_buffer_resource
-- std::erase_if instead of erase in a loop
+- [vector::reserve](#vectorreserve)
+- [shrink_to_fit](#shrink_to_fit)
+- [clear() to reuse a buffer](#clear-to-reuse-a-buffer)
+- [Short string optimization capacity](#short-string-optimization-capacity)
+- [string_view for substrings](#string_view-for-substrings)
+- [string_view for read-only text parameters][toc-1]
+- [span for read-only sequence parameters][toc-2]
+- [unordered_map::reserve](#unordered_mapreserve)
+- [try_emplace for a single lookup](#try_emplace-for-a-single-lookup)
+- [Heterogeneous lookup with a transparent hash][toc-3]
+- [Hash map instead of an ordered map for point lookups][toc-4]
+- [Sorted vector with lower_bound](#sorted-vector-with-lower_bound)
+- [std::flat_map](#stdflat_map)
+- [pmr::monotonic_buffer_resource](#pmrmonotonic_buffer_resource)
+- [std::erase_if instead of erase in a loop][toc-5]
+
+[toc-1]: #string_view-for-read-only-text-parameters
+[toc-2]: #span-for-read-only-sequence-parameters
+[toc-3]: #heterogeneous-lookup-with-a-transparent-hash
+[toc-4]: #hash-map-instead-of-an-ordered-map-for-point-lookups
+[toc-5]: #stderase_if-instead-of-erase-in-a-loop
 
 ## vector::reserve
 

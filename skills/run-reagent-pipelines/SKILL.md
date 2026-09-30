@@ -1,14 +1,9 @@
 ---
 name: run-reagent-pipelines
 description: >-
-  Runs Reagent (`re-agent`, PyPI `auto-re-agent`) from a coding agent as a
-  budgeted batch job: `doctor`, `estimate`, `plan`, then a small `reverse`
-  run, with provider and `re-agent.yaml` setup, a measured usage check for
-  `claude-cli`, background execution, and review of the parity and acceptance
-  results as candidates. Use when asked to run re-agent or Reagent, or to
-  auto-reverse a class or many functions from a binary the user may analyze.
-  Not for single-function questions, the method of reversing a function, the
-  Ghidra export itself, or licence, DRM, or anti-cheat bypass.
+  Runs Reagent, the re-agent CLI, as a budgeted batch job to auto-reverse a
+  class or many functions, then reviews the candidates. Use when asked to run
+  re-agent. Not for single functions or DRM bypass.
 ---
 
 # Run Reagent Pipelines

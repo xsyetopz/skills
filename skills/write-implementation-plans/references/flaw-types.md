@@ -20,14 +20,18 @@ Five flaw classes live on the card for the construct that prevents them:
 
 ## Contents
 
-- Lost update between read and write
-- Destructive failure ordering
-- Non-idempotent retry
-- Contradiction with a stated constraint
-- Claims that do not match the repository
-- Unsupported decision or invented number
-- Missing failure and boundary cases
-- Unremoved marker left across slices
+- [Lost update between read and write](#lost-update-between-read-and-write)
+- [Destructive failure ordering](#destructive-failure-ordering)
+- [Non-idempotent retry](#non-idempotent-retry)
+- [Contradiction with a stated constraint][toc-1]
+- [Claims that do not match the repository][toc-2]
+- [Unsupported decision or invented number][toc-3]
+- [Missing failure and boundary cases](#missing-failure-and-boundary-cases)
+- [Unremoved marker left across slices](#unremoved-marker-left-across-slices)
+
+[toc-1]: #contradiction-with-a-stated-constraint
+[toc-2]: #claims-that-do-not-match-the-repository
+[toc-3]: #unsupported-decision-or-invented-number
 
 ## Lost update between read and write
 

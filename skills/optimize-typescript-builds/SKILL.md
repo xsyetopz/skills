@@ -1,10 +1,9 @@
 ---
 name: optimize-typescript-builds
 description: >-
-  Speeds up TypeScript type-checking, builds, and emit: tsc diagnostics and
-  traces, incremental builds, project references, skipLibCheck, emit targets,
-  type stripping. Use when tsc or a TypeScript build is slow. Not for
-  JavaScript runtime speed.
+  Speeds up slow TypeScript type-checking, builds, and emit with tsc
+  diagnostics, incremental builds, and project references. Use when tsc is
+  slow. Not for JavaScript runtime speed.
 ---
 
 # Optimize TypeScript Builds

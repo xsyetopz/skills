@@ -10,11 +10,13 @@ Techniques that find inputs or code changes that example tests miss.
 
 ## Contents
 
-- Property-based test
-- Stateful model test
-- Coverage-guided fuzzing and corpus regression
-- Sanitizer run
-- Mutation testing
+- [Property-based test](#property-based-test)
+- [Stateful model test](#stateful-model-test)
+- [Coverage-guided fuzzing and corpus regression][toc-1]
+- [Sanitizer run](#sanitizer-run)
+- [Mutation testing](#mutation-testing)
+
+[toc-1]: #coverage-guided-fuzzing-and-corpus-regression
 
 ## Property-based test
 

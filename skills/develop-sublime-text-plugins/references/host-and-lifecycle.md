@@ -13,12 +13,14 @@ inside Sublime Text: no editor is installed on this machine.
 
 ## Contents
 
-- Plugin host selection with .python-version
-- Python 3.8 compatibility check
-- plugin_loaded and plugin_unloaded
-- API calls at import time
-- Load state owned by one plugin load
-- Pure core and host adapter split
+- [Plugin host selection with .python-version][toc-1]
+- [Python 3.8 compatibility check](#python-38-compatibility-check)
+- [plugin_loaded and plugin_unloaded](#plugin_loaded-and-plugin_unloaded)
+- [API calls at import time](#api-calls-at-import-time)
+- [Load state owned by one plugin load](#load-state-owned-by-one-plugin-load)
+- [Pure core and host adapter split](#pure-core-and-host-adapter-split)
+
+[toc-1]: #plugin-host-selection-with-python-version
 
 ## Plugin host selection with .python-version
 

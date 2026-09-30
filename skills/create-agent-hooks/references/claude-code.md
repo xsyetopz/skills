@@ -7,17 +7,20 @@ such as "v2.1.214 or later", matter on older builds; check with
 
 ## Contents
 
-- Locations and merging
-- Matcher rules
-- Handler types and exec form
-- Exit codes and JSON output
-- PreToolUse decision
-- Stop and SubagentStop decision
-- SessionStart context
-- StopFailure, TaskCompleted, and SubagentStart
-- Refusal detection
-- Inspecting, disabling, and managed hooks
-- Sources
+- [Locations and merging](#locations-and-merging)
+- [Matcher rules](#matcher-rules)
+- [Handler types and exec form](#handler-types-and-exec-form)
+- [Exit codes and JSON output](#exit-codes-and-json-output)
+- [PreToolUse decision](#pretooluse-decision)
+- [Stop and SubagentStop decision](#stop-and-subagentstop-decision)
+- [SessionStart context](#sessionstart-context)
+- [StopFailure, TaskCompleted, and SubagentStart][toc-1]
+- [Refusal detection](#refusal-detection)
+- [Inspecting, disabling, and managed hooks][toc-2]
+- [Sources](#sources)
+
+[toc-1]: #stopfailure-taskcompleted-and-subagentstart
+[toc-2]: #inspecting-disabling-and-managed-hooks
 
 ## Locations and merging
 

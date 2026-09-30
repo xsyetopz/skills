@@ -17,10 +17,10 @@ The other agent failures have their own cards:
 
 ## Contents
 
-- Unrequested churn
-- Treating passing tests as proof
-- Copying a defect as a convention
-- Review order
+- [Unrequested churn](#unrequested-churn)
+- [Treating passing tests as proof](#treating-passing-tests-as-proof)
+- [Copying a defect as a convention](#copying-a-defect-as-a-convention)
+- [Review order](#review-order)
 
 ## Unrequested churn
 

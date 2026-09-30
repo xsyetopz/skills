@@ -13,18 +13,22 @@ Valgrind are not available on macOS.
 
 ## Contents
 
-- std::hint::black_box
-- Std-only Instant harness
-- Criterion benchmark
-- Criterion saved baselines
-- Criterion iter_batched for per-iteration setup
-- hyperfine for whole-process comparisons
-- Counting global allocator
-- Counting wrappers for calls that are not allocations
-- Assembly inspection with --emit asm
-- samply
-- cargo flamegraph
-- Instruments and xctrace
+- [std::hint::black_box](#stdhintblack_box)
+- [Std-only Instant harness](#std-only-instant-harness)
+- [Criterion benchmark](#criterion-benchmark)
+- [Criterion saved baselines](#criterion-saved-baselines)
+- [Criterion iter_batched for per-iteration setup][toc-1]
+- [hyperfine for whole-process comparisons][toc-2]
+- [Counting global allocator](#counting-global-allocator)
+- [Counting wrappers for calls that are not allocations][toc-3]
+- [Assembly inspection with --emit asm](#assembly-inspection-with---emit-asm)
+- [samply](#samply)
+- [cargo flamegraph](#cargo-flamegraph)
+- [Instruments and xctrace](#instruments-and-xctrace)
+
+[toc-1]: #criterion-iter_batched-for-per-iteration-setup
+[toc-2]: #hyperfine-for-whole-process-comparisons
+[toc-3]: #counting-wrappers-for-calls-that-are-not-allocations
 
 ## std::hint::black_box
 

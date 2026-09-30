@@ -8,16 +8,20 @@ APIs were checked against the cobra, pflag, and clap sources and Python
 
 ## Contents
 
-- Inventory the interface before changing it
-- Consistent subcommand structure
-- No ambiguous or near-duplicate names
-- Naming the program and its commands
-- Additive changes
-- Renaming a command or flag
-- Removing or changing behavior
-- Human output may change; script output may not
-- No catch-all subcommand, no implicit abbreviations
-- No time bombs
+- [Inventory the interface before changing it][toc-1]
+- [Consistent subcommand structure](#consistent-subcommand-structure)
+- [No ambiguous or near-duplicate names](#no-ambiguous-or-near-duplicate-names)
+- [Naming the program and its commands](#naming-the-program-and-its-commands)
+- [Additive changes](#additive-changes)
+- [Renaming a command or flag](#renaming-a-command-or-flag)
+- [Removing or changing behavior](#removing-or-changing-behavior)
+- [Human output may change; script output may not][toc-2]
+- [No catch-all subcommand, no implicit abbreviations][toc-3]
+- [No time bombs](#no-time-bombs)
+
+[toc-1]: #inventory-the-interface-before-changing-it
+[toc-2]: #human-output-may-change-script-output-may-not
+[toc-3]: #no-catch-all-subcommand-no-implicit-abbreviations
 
 ## Inventory the interface before changing it
 
@@ -134,7 +138,12 @@ it only in a documented later major version.
 key that has shipped.
 
 **Do not use when.** The old name was never released (rename directly), or
-it is a documented permanent alias (keep it visible and silent).
+it is a documented permanent alias (keep it visible and silent). Also skip
+the alias when the project's policy or its maintainer allows breaking
+changes in this release, such as a pre-1.0 or pre-release line with no
+compatibility promise: rename directly and list each old name with its
+replacement in the changelog. An alias kept against that policy is code
+nobody asked to maintain.
 
 **Example.** `todo rm` became `todo remove`:
 
@@ -183,7 +192,9 @@ the user has changed (for example, passes the new flag), stop warning.
 machine output.
 
 **Do not use when.** Fixing behavior that contradicted the documentation;
-call it a bug fix in the changelog instead.
+call it a bug fix in the changelog instead. Or when the project's policy or
+its maintainer allows breaking changes in this release: make the change
+directly and describe it in the changelog.
 
 **Example.** Release N: `--legacy-format` still works and warns
 `--legacy-format will be removed in 3.0; pass --format=v2`. Release 3.0:

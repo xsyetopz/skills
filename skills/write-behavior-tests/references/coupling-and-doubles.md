@@ -8,14 +8,17 @@ both against conforming alternatives (`alt_*`) and faults (`bug_*`).
 
 ## Contents
 
-- Public consequence, not private helper
-- Value, not representation
-- Program effect, not doc wording
-- Architecture rule, not frozen declarations
-- Test double roles
-- Outcome, not call choreography
-- Required and forbidden effects
-- Real engine for engine semantics
+- [Public consequence, not private helper][toc-1]
+- [Value, not representation](#value-not-representation)
+- [Program effect, not doc wording](#program-effect-not-doc-wording)
+- [Architecture rule, not frozen declarations][toc-2]
+- [Test double roles](#test-double-roles)
+- [Outcome, not call choreography](#outcome-not-call-choreography)
+- [Required and forbidden effects](#required-and-forbidden-effects)
+- [Real engine for engine semantics](#real-engine-for-engine-semantics)
+
+[toc-1]: #public-consequence-not-private-helper
+[toc-2]: #architecture-rule-not-frozen-declarations
 
 ## Public consequence, not private helper
 

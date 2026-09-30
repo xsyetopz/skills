@@ -1,10 +1,9 @@
 ---
 name: document-codebases
 description: >-
-  Writes and fixes repository documentation (README, CONTRIBUTING, guides, API
-  reference, ADRs), runs every documented command, and checks links. Use when
-  docs are missing, wrong, or out of date. Not for changelogs, agent
-  instruction files, or ARCHITECTURE.md.
+  Writes and fixes repository docs such as README, CONTRIBUTING, API
+  reference, and ADRs, and runs documented commands. Use when docs are
+  missing, wrong, or out of date. Not for changelogs or AGENTS.md.
 ---
 
 # Document Codebases
@@ -46,9 +45,7 @@ version, flag, and output as the project actually has it.
 | Record a design decision | [ADR][adr] |
 | Moved or renamed files, broken anchors | [Links and anchors][links] |
 | Accessibility of links and images | [Link text and alt text][alt] |
-| Code blocks | [Fenced code][fences] |
-| Tables, alerts, details, task lists | [GFM features][gfm] |
-| Diagrams | [Mermaid][mermaid] |
+| Fences, tables, alerts, details, diagrams, Contents lists | `$write-github-markdown` |
 | "Just fix the formatting" | [Formatting-only edits][formatting] |
 | Lint | [Markdown lint][lint] |
 | Changelog, AGENTS.md, code comments | [Scope boundaries][scope] |
@@ -123,8 +120,5 @@ version, flag, and output as the project actually has it.
 [scope]: references/content.md#scope-boundaries
 [links]: references/markdown-and-checks.md#relative-links-and-heading-anchors
 [alt]: references/markdown-and-checks.md#link-text-and-image-alt-text
-[fences]: references/markdown-and-checks.md#fenced-code-with-language-tags
-[gfm]: references/markdown-and-checks.md#tables-task-lists-alerts-and-details
-[mermaid]: references/markdown-and-checks.md#mermaid-diagrams
 [formatting]: references/markdown-and-checks.md#formatting-only-edits
 [lint]: references/markdown-and-checks.md#markdown-lint-with-the-repositorys-config

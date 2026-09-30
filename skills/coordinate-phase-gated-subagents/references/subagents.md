@@ -7,14 +7,14 @@ and the results workers return. The host facts come from the
 
 ## Contents
 
-- Host capabilities
-- Work-item brief
-- Worker result contract
-- Cross-checking reports
-- Parallel waves from ownership
-- Worktree isolation
-- Independent review
-- Coordination failure diagnosis
+- [Host capabilities](#host-capabilities)
+- [Work-item brief](#work-item-brief)
+- [Worker result contract](#worker-result-contract)
+- [Cross-checking reports](#cross-checking-reports)
+- [Parallel waves from ownership](#parallel-waves-from-ownership)
+- [Worktree isolation](#worktree-isolation)
+- [Independent review](#independent-review)
+- [Coordination failure diagnosis](#coordination-failure-diagnosis)
 
 ## Host capabilities
 

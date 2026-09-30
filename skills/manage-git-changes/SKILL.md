@@ -1,10 +1,9 @@
 ---
 name: manage-git-changes
 description: >-
-  Performs local Git operations without losing work: exact staging, commits
-  and fixups, rebase and conflicts, cherry-pick, revert, reset, reflog
-  recovery, worktrees, force-with-lease. Use when changing Git history or
-  state. Not for hosted pull requests.
+  Performs local Git operations without losing work, such as staging, rebase,
+  conflicts, cherry-pick, reset, reflog recovery, and worktrees. Use when
+  changing Git history. Not for hosted pull requests.
 ---
 
 # Manage Git Changes

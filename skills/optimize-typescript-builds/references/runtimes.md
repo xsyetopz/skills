@@ -13,11 +13,14 @@ decorator path, which is cited from the Bun release notes and not run.
 
 ## Contents
 
-- Node type stripping
-- erasableSyntaxOnly as the stripping gate
-- Type stripping does not type-check
-- Bun native TypeScript
-- Bun bundling for cross-file const enums
+- [Node type stripping](#node-type-stripping)
+- [erasableSyntaxOnly as the stripping gate][toc-1]
+- [Type stripping does not type-check](#type-stripping-does-not-type-check)
+- [Bun native TypeScript](#bun-native-typescript)
+- [Bun bundling for cross-file const enums][toc-2]
+
+[toc-1]: #erasablesyntaxonly-as-the-stripping-gate
+[toc-2]: #bun-bundling-for-cross-file-const-enums
 
 ## Node type stripping
 

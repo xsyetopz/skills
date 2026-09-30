@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Code Smells"
+  short_description: "Report evidenced code, layout, and change-coupling smells"
+  default_prompt: "Use $find-code-smells to scan the code, folder layout, and Git history, name each smell from a cited catalog with measured evidence, and report fixes without editing."

@@ -14,14 +14,14 @@ stub proves order and arguments, not host scheduling.
 
 ## Contents
 
-- ViewEventListener with is_applicable
-- EventListener
-- Async event handlers
-- set_timeout and set_timeout_async
-- Debounce with generation tokens
-- Change-count freshness guard
-- change_id and transform_region_from
-- on_query_context
+- [ViewEventListener with is_applicable](#vieweventlistener-with-is_applicable)
+- [EventListener](#eventlistener)
+- [Async event handlers](#async-event-handlers)
+- [set_timeout and set_timeout_async](#set_timeout-and-set_timeout_async)
+- [Debounce with generation tokens](#debounce-with-generation-tokens)
+- [Change-count freshness guard](#change-count-freshness-guard)
+- [change_id and transform_region_from](#change_id-and-transform_region_from)
+- [on_query_context](#on_query_context)
 
 ## ViewEventListener with is_applicable
 

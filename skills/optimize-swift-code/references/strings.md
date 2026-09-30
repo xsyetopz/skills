@@ -10,11 +10,13 @@ time` (shared Apple M1 Max, Swift 6.3.3, `-O -wmo`; machine-specific).
 
 ## Contents
 
-- UTF-8 view instead of Character iteration
-- Substring instead of String copies
-- Iteration instead of index offsetBy
-- String reserveCapacity
-- Small strings
+- [UTF-8 view instead of Character iteration][toc-1]
+- [Substring instead of String copies](#substring-instead-of-string-copies)
+- [Iteration instead of index offsetBy](#iteration-instead-of-index-offsetby)
+- [String reserveCapacity](#string-reservecapacity)
+- [Small strings](#small-strings)
+
+[toc-1]: #utf-8-view-instead-of-character-iteration
 
 ## UTF-8 view instead of Character iteration
 

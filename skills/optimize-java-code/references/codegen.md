@@ -14,10 +14,14 @@ baseline, or the machine was too noisy to tell.
 
 ## Contents
 
-- Final classes and class hierarchy analysis
-- Pattern switch over a sealed hierarchy
-- Array intrinsics in java.util.Arrays
-- Vector API for floating-point reductions
+- [Final classes and class hierarchy analysis][toc-1]
+- [Pattern switch over a sealed hierarchy][toc-2]
+- [Array intrinsics in java.util.Arrays](#array-intrinsics-in-javautilarrays)
+- [Vector API for floating-point reductions][toc-3]
+
+[toc-1]: #final-classes-and-class-hierarchy-analysis
+[toc-2]: #pattern-switch-over-a-sealed-hierarchy
+[toc-3]: #vector-api-for-floating-point-reductions
 
 ## Final classes and class hierarchy analysis
 

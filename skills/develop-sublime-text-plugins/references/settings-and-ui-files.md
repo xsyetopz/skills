@@ -13,13 +13,15 @@ across files, key dispatch, palette and menu display in the editor.
 
 ## Contents
 
-- load_settings with a package settings file
-- add_on_change and clear_on_change
-- View settings as per-view switches
-- load_resource instead of file paths
-- Key bindings with a plugin context
-- Command Palette entries
-- Menu entries with a checkbox
+- [load_settings with a package settings file][toc-1]
+- [add_on_change and clear_on_change](#add_on_change-and-clear_on_change)
+- [View settings as per-view switches](#view-settings-as-per-view-switches)
+- [load_resource instead of file paths](#load_resource-instead-of-file-paths)
+- [Key bindings with a plugin context](#key-bindings-with-a-plugin-context)
+- [Command Palette entries](#command-palette-entries)
+- [Menu entries with a checkbox](#menu-entries-with-a-checkbox)
+
+[toc-1]: #load_settings-with-a-package-settings-file
 
 ## load_settings with a package settings file
 

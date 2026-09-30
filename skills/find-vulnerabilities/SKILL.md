@@ -1,10 +1,9 @@
 ---
 name: find-vulnerabilities
 description: >-
-  Finds exploitable vulnerabilities in code, configuration, and dependencies
-  (injection, XSS, path traversal, SSRF, authorization, secrets, weak crypto)
-  and proves each with a local test. Use for security reviews and audits. Not
-  for probing live systems.
+  Finds exploitable vulnerabilities in code, configuration, and dependencies,
+  such as injection, XSS, SSRF, and secrets, and proves each with a local
+  test. Use for security review. Not for live systems.
 ---
 
 # Find Vulnerabilities

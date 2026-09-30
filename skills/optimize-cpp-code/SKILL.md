@@ -1,10 +1,9 @@
 ---
 name: optimize-cpp-code
 description: >-
-  Optimizes measured C++ hot paths: allocations, copies and moves,
-  string_view, containers, devirtualization, atomics, false sharing, checked
-  with counters and assembly. Use when a C++ benchmark or profile shows the
-  cost. Not for C-only code.
+  Profiles and optimizes C++ hot paths such as allocations, copies,
+  containers, virtual calls, and atomics with perf and assembly. Use when a
+  C++ benchmark or profile shows the cost. Not for C code.
 ---
 
 # Optimize C++ Code

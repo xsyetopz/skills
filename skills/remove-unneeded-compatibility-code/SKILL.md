@@ -1,10 +1,9 @@
 ---
 name: remove-unneeded-compatibility-code
 description: >-
-  Removes compatibility code proven unneeded: dead version branches, import
-  fallbacks, deprecated aliases, polyfills, rolled-out flags. Checks support
-  policy, callers, and stored data first. Use after dropping old versions. Not
-  for code that only looks old.
+  Removes compatibility code proven unneeded, such as old version branches,
+  import fallbacks, deprecated aliases, polyfills, and stale flags. Use after
+  dropping old versions. Not for merely old code.
 ---
 
 # Remove Unneeded Compatibility Code

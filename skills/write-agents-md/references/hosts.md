@@ -8,19 +8,21 @@ installed versions.
 
 ## Contents
 
-- AGENTS.md format
-- Symlinked instruction files
-- Codex discovery chain
-- Codex override files
-- Codex fallback file names
-- Claude Code: CLAUDE.md or AGENTS.md
-- Claude Code: sharing one file with @AGENTS.md
-- Claude Code: CLAUDE.local.md
-- Claude Code: path-scoped rules
-- Claude Code: compact instructions
-- Claude Code: imports
-- Nested files in monorepos
-- Confirming what loaded
+- [AGENTS.md format](#agentsmd-format)
+- [Symlinked instruction files](#symlinked-instruction-files)
+- [Codex discovery chain](#codex-discovery-chain)
+- [Codex override files](#codex-override-files)
+- [Codex fallback file names](#codex-fallback-file-names)
+- [Claude Code: CLAUDE.md or AGENTS.md](#claude-code-claudemd-or-agentsmd)
+- [Claude Code: sharing one file with @AGENTS.md][toc-1]
+- [Claude Code: CLAUDE.local.md](#claude-code-claudelocalmd)
+- [Claude Code: path-scoped rules](#claude-code-path-scoped-rules)
+- [Claude Code: compact instructions](#claude-code-compact-instructions)
+- [Claude Code: imports](#claude-code-imports)
+- [Nested files in monorepos](#nested-files-in-monorepos)
+- [Confirming what loaded](#confirming-what-loaded)
+
+[toc-1]: #claude-code-sharing-one-file-with-agentsmd
 
 ## AGENTS.md format
 

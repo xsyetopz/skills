@@ -19,6 +19,9 @@ network` (@vscode/test-cli 0.0.15, @vscode/test-electron 3.1.0).
 - [Manifest rule check](#manifest-rule-check)
 - [Publishing prerequisites](#publishing-prerequisites)
 
+[toc-1]: #extension-host-tests-with-vscodetest-cli
+[toc-2]: #pre-release-and-platform-specific-packages
+
 ## Unit tests for pure logic
 
 **Definition.** Code that does not import `vscode` runs in any
@@ -461,5 +464,3 @@ Not runnable here: the fixture has no publisher or credentials, and
 [pub-package]: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions
 [pub-pre]: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#prerelease-extensions
 [pub-auth]: https://code.visualstudio.com/api/working-with-extensions/publishing-extension#publishing-extensions
-[toc-1]: #extension-host-tests-with-vscodetest-cli
-[toc-2]: #pre-release-and-platform-specific-packages

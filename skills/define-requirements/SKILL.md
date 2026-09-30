@@ -1,10 +1,9 @@
 ---
 name: define-requirements
 description: >-
-  Writes testable requirements: EARS statements, state and decision tables,
-  measurable quality targets, and Given/When/Then acceptance criteria, checked
-  by a bundled linter. Use when a change needs a spec or acceptance criteria.
-  Not for architecture choices.
+  Writes testable requirements as EARS statements, decision tables, and Given
+  When Then acceptance criteria. Use when a change needs a spec or acceptance
+  criteria. Not for architecture choices.
 ---
 
 # Define Requirements

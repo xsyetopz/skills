@@ -9,13 +9,16 @@ the scenarios are in
 
 ## Contents
 
-- Exit-code mapping oracle
-- Oracle outside the checkout
-- Majority vote for flaky tests
-- Threshold oracle for performance regressions
-- Historical build environment
-- Culprit verification: parent, culprit, revert
-- Merge culprits
+- [Exit-code mapping oracle](#exit-code-mapping-oracle)
+- [Oracle outside the checkout](#oracle-outside-the-checkout)
+- [Majority vote for flaky tests](#majority-vote-for-flaky-tests)
+- [Threshold oracle for performance regressions][toc-1]
+- [Historical build environment](#historical-build-environment)
+- [Culprit verification: parent, culprit, revert][toc-2]
+- [Merge culprits](#merge-culprits)
+
+[toc-1]: #threshold-oracle-for-performance-regressions
+[toc-2]: #culprit-verification-parent-culprit-revert
 
 ## Exit-code mapping oracle
 

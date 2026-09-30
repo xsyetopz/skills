@@ -15,18 +15,22 @@ publishing.
 
 ## Contents
 
-- Pure-core unittest
-- Call-shape stub of the host modules
-- Mutant matrix
-- UnitTesting host tests
-- UnitTesting headless container runner
-- UnitTesting in GitHub Actions
-- Syntax test files
-- Safe mode test session
-- Package checker
-- sublime-package archive and loose overrides
-- Package Control channel entry
-- ChannelRepositoryTools before a pull request
+- [Pure-core unittest](#pure-core-unittest)
+- [Call-shape stub of the host modules](#call-shape-stub-of-the-host-modules)
+- [Mutant matrix](#mutant-matrix)
+- [UnitTesting host tests](#unittesting-host-tests)
+- [UnitTesting headless container runner][toc-1]
+- [UnitTesting in GitHub Actions](#unittesting-in-github-actions)
+- [Syntax test files](#syntax-test-files)
+- [Safe mode test session](#safe-mode-test-session)
+- [Package checker](#package-checker)
+- [sublime-package archive and loose overrides][toc-2]
+- [Package Control channel entry](#package-control-channel-entry)
+- [ChannelRepositoryTools before a pull request][toc-3]
+
+[toc-1]: #unittesting-headless-container-runner
+[toc-2]: #sublime-package-archive-and-loose-overrides
+[toc-3]: #channelrepositorytools-before-a-pull-request
 
 ## Pure-core unittest
 

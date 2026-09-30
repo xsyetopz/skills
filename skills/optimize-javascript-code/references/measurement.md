@@ -12,20 +12,27 @@ machines, runtimes, or inputs.
 
 ## Contents
 
-- Timing harness with warmup and a result sink
-- One process per variant
-- Event-loop delay with monitorEventLoopDelay
-- performance.now in browsers
-- mitata
-- CPU profile with --cpu-prof
-- Live-heap profile with --heap-prof
-- Sampling allocation profile including collected objects
-- Heap snapshots
-- Allocation oracle with --expose-gc and heapUsed
-- GC trace with --trace-gc
-- Optimization and deoptimization trace
-- V8 natives with --allow-natives-syntax (test-only)
-- JavaScriptCore probes with bun:jsc
+- [Timing harness with warmup and a result sink][toc-1]
+- [One process per variant](#one-process-per-variant)
+- [Event-loop delay with monitorEventLoopDelay][toc-2]
+- [performance.now in browsers](#performancenow-in-browsers)
+- [mitata](#mitata)
+- [CPU profile with --cpu-prof](#cpu-profile-with---cpu-prof)
+- [Live-heap profile with --heap-prof](#live-heap-profile-with---heap-prof)
+- [Sampling allocation profile including collected objects][toc-3]
+- [Heap snapshots](#heap-snapshots)
+- [Allocation oracle with --expose-gc and heapUsed][toc-4]
+- [GC trace with --trace-gc](#gc-trace-with---trace-gc)
+- [Optimization and deoptimization trace][toc-5]
+- [V8 natives with --allow-natives-syntax (test-only)][toc-6]
+- [JavaScriptCore probes with bun:jsc](#javascriptcore-probes-with-bunjsc)
+
+[toc-1]: #timing-harness-with-warmup-and-a-result-sink
+[toc-2]: #event-loop-delay-with-monitoreventloopdelay
+[toc-3]: #sampling-allocation-profile-including-collected-objects
+[toc-4]: #allocation-oracle-with---expose-gc-and-heapused
+[toc-5]: #optimization-and-deoptimization-trace
+[toc-6]: #v8-natives-with---allow-natives-syntax-test-only
 
 ## Timing harness with warmup and a result sink
 

@@ -5,12 +5,12 @@ as construct cards without losing what was real.
 
 ## Contents
 
-- Templated boilerplate
-- Thin card detection
-- Trigger collisions
-- Salvage before delete
-- Patterns not to copy
-- Catalog coverage record
+- [Templated boilerplate](#templated-boilerplate)
+- [Thin card detection](#thin-card-detection)
+- [Trigger collisions](#trigger-collisions)
+- [Salvage before delete](#salvage-before-delete)
+- [Patterns not to copy](#patterns-not-to-copy)
+- [Catalog coverage record](#catalog-coverage-record)
 
 ## Templated boilerplate
 

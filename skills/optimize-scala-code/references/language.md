@@ -16,23 +16,34 @@ transfer to Scala.js or Scala Native.
 
 ## Contents
 
-- Primitive overload instead of a generic Numeric method
-- Inline def for a generic numeric helper
-- @specialized (Scala 2.13 only)
-- Function1 specialization instead of a custom generic SAM
-- Opaque type instead of a value class for arrays
-- Value class (extends AnyVal)
-- Inline parameter for a disabled log message
-- By-name parameter for a disabled log message
-- @tailrec loop instead of non-tail recursion
-- @switch on an Int match
-- Sealed trait match
-- Hoist a lazy val read out of a loop
-- @threadUnsafe lazy val
-- Extension method instead of an implicit class
-- Implicit class extending AnyVal
-- IArray instead of a Seq view of an Array
-- s interpolator instead of f for plain values
+- [Primitive overload instead of a generic Numeric method][toc-1]
+- [Inline def for a generic numeric helper][toc-2]
+- [@specialized (Scala 2.13 only)](#specialized-scala-213-only)
+- [Function1 specialization instead of a custom generic SAM][toc-3]
+- [Opaque type instead of a value class for arrays][toc-4]
+- [Value class (extends AnyVal)](#value-class-extends-anyval)
+- [Inline parameter for a disabled log message][toc-5]
+- [By-name parameter for a disabled log message][toc-6]
+- [@tailrec loop instead of non-tail recursion][toc-7]
+- [@switch on an Int match](#switch-on-an-int-match)
+- [Sealed trait match](#sealed-trait-match)
+- [Hoist a lazy val read out of a loop](#hoist-a-lazy-val-read-out-of-a-loop)
+- [@threadUnsafe lazy val](#threadunsafe-lazy-val)
+- [Extension method instead of an implicit class][toc-8]
+- [Implicit class extending AnyVal](#implicit-class-extending-anyval)
+- [IArray instead of a Seq view of an Array][toc-9]
+- [s interpolator instead of f for plain values][toc-10]
+
+[toc-1]: #primitive-overload-instead-of-a-generic-numeric-method
+[toc-2]: #inline-def-for-a-generic-numeric-helper
+[toc-3]: #function1-specialization-instead-of-a-custom-generic-sam
+[toc-4]: #opaque-type-instead-of-a-value-class-for-arrays
+[toc-5]: #inline-parameter-for-a-disabled-log-message
+[toc-6]: #by-name-parameter-for-a-disabled-log-message
+[toc-7]: #tailrec-loop-instead-of-non-tail-recursion
+[toc-8]: #extension-method-instead-of-an-implicit-class
+[toc-9]: #iarray-instead-of-a-seq-view-of-an-array
+[toc-10]: #s-interpolator-instead-of-f-for-plain-values
 
 ## Primitive overload instead of a generic Numeric method
 

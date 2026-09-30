@@ -1,10 +1,9 @@
 ---
 name: develop-neovim-plugins
 description: >-
-  Builds and tests Neovim Lua plugins: layout, lazy loading, user commands,
-  Plug mappings, autocommands, buffer edits, async jobs, health checks,
-  headless tests. Use when writing or fixing a Neovim plugin. Not for init.lua
-  tweaks or Vim plugins.
+  Builds and tests Neovim Lua plugins with commands, autocommands, lazy
+  loading, health checks, and headless tests. Use when writing or fixing a
+  Neovim plugin. Not for init.lua tweaks or Vim plugins.
 ---
 
 # Develop Neovim Plugins

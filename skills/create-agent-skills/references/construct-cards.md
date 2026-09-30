@@ -8,14 +8,14 @@ removes, and the steps that prove it worked. The template is
 
 ## Contents
 
-- Card structure
-- Choosing constructs
-- Variants
-- Examples that run
-- Cost removed and measurement
-- Verification tiers
-- Grounding and numbers
-- Non-code skills
+- [Card structure](#card-structure)
+- [Choosing constructs](#choosing-constructs)
+- [Variants](#variants)
+- [Examples that run](#examples-that-run)
+- [Cost removed and measurement](#cost-removed-and-measurement)
+- [Verification tiers](#verification-tiers)
+- [Grounding and numbers](#grounding-and-numbers)
+- [Non-code skills](#non-code-skills)
 
 ## Card structure
 

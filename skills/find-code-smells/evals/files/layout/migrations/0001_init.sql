@@ -1,0 +1,1 @@
+CREATE TABLE invoices (number TEXT PRIMARY KEY);

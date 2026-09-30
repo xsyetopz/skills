@@ -1,10 +1,9 @@
 ---
 name: optimize-csharp-code
 description: >-
-  Profiles and optimizes C#/.NET CPU time, latency, and allocations with
-  BenchmarkDotNet, dotnet-counters, dotnet-trace, and JIT disassembly. Use
-  when a .NET benchmark or profile shows the cost. Not for framework upgrades
-  alone.
+  Profiles and optimizes C# and .NET CPU time, latency, and allocations with
+  BenchmarkDotNet and dotnet-trace. Use when a .NET benchmark or profile shows
+  the cost. Not for upgrades.
 ---
 
 # Optimize C# Code

@@ -12,15 +12,18 @@ Tier: Executed. `verify control`, `noea`, `bytecode`, `benchmark`, and
 
 ## Contents
 
-- Range loops the compiler lowers to counted loops
-- Range objects from step, reversed, and forEach
-- when over sealed types
-- when over enum entries
-- when over String constants
-- lazy with SYNCHRONIZED (default)
-- lazy with PUBLICATION
-- lazy with NONE
-- Eager val instead of lazy
+- [Range loops the compiler lowers to counted loops][toc-1]
+- [Range objects from step, reversed, and forEach][toc-2]
+- [when over sealed types](#when-over-sealed-types)
+- [when over enum entries](#when-over-enum-entries)
+- [when over String constants](#when-over-string-constants)
+- [lazy with SYNCHRONIZED (default)](#lazy-with-synchronized-default)
+- [lazy with PUBLICATION](#lazy-with-publication)
+- [lazy with NONE](#lazy-with-none)
+- [Eager val instead of lazy](#eager-val-instead-of-lazy)
+
+[toc-1]: #range-loops-the-compiler-lowers-to-counted-loops
+[toc-2]: #range-objects-from-step-reversed-and-foreach
 
 ## Range loops the compiler lowers to counted loops
 

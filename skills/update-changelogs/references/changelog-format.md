@@ -7,16 +7,16 @@ Format rules are from [Keep a Changelog 2.0.0][kac].
 
 ## Contents
 
-- File layout
-- Unreleased section
-- Release heading
-- Change types
-- Fixed versus Changed
-- Security entries
-- User-visible entries
-- Breaking changes and migration
-- Yanked releases
-- Comparison links
+- [File layout](#file-layout)
+- [Unreleased section](#unreleased-section)
+- [Release heading](#release-heading)
+- [Change types](#change-types)
+- [Fixed versus Changed](#fixed-versus-changed)
+- [Security entries](#security-entries)
+- [User-visible entries](#user-visible-entries)
+- [Breaking changes and migration](#breaking-changes-and-migration)
+- [Yanked releases](#yanked-releases)
+- [Comparison links](#comparison-links)
 
 ## File layout
 

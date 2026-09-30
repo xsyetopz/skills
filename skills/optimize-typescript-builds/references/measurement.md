@@ -14,12 +14,12 @@ traces in `about://tracing` and profiles in SpeedScope.
 
 ## Contents
 
-- Compiler counters
-- Check-phase trace
-- Go pprof profiles
-- File inclusion diagnostics
-- Emitted JavaScript diff
-- Runtime timing of emitted code
+- [Compiler counters](#compiler-counters)
+- [Check-phase trace](#check-phase-trace)
+- [Go pprof profiles](#go-pprof-profiles)
+- [File inclusion diagnostics](#file-inclusion-diagnostics)
+- [Emitted JavaScript diff](#emitted-javascript-diff)
+- [Runtime timing of emitted code](#runtime-timing-of-emitted-code)
 
 ## Compiler counters
 

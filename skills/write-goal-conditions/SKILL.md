@@ -1,11 +1,9 @@
 ---
 name: write-goal-conditions
 description: >-
-  Writes and repairs Claude Code `/goal` completion conditions that the
-  transcript-only evaluator can judge: an end state the output shows, the exact
-  check command, and a turn bound. Use when setting `/goal`, when asked to keep
-  going until something holds, or when a goal never ends or ends too early. Not
-  for plan task done conditions, `/loop` schedules, or writing Stop hooks.
+  Writes and repairs completion conditions for the Claude Code goal command,
+  with a visible end state, a check command, and a turn bound. Use when
+  setting a goal or one never ends. Not for Stop hooks.
 ---
 
 # Write goal conditions

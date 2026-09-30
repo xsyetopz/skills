@@ -8,12 +8,12 @@ write to a hosted repository; the PR read ran against `cli/cli`.
 
 ## Contents
 
-- Create a pull request
-- Review bound to a commit
-- Merge only the reviewed head
-- Mergeability and required checks
-- Auto-merge
-- GitLab approvals
+- [Create a pull request](#create-a-pull-request)
+- [Review bound to a commit](#review-bound-to-a-commit)
+- [Merge only the reviewed head](#merge-only-the-reviewed-head)
+- [Mergeability and required checks](#mergeability-and-required-checks)
+- [Auto-merge](#auto-merge)
+- [GitLab approvals](#gitlab-approvals)
 
 ## Create a pull request
 

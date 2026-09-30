@@ -7,10 +7,12 @@ arm64 with no BIOS and no game image.
 
 ## Contents
 
-- Layer triage
-- Software renderer as an oracle
-- Per-game settings file
-- Save states are not a regression oracle
+- [Layer triage](#layer-triage)
+- [Software renderer as an oracle](#software-renderer-as-an-oracle)
+- [Per-game settings file](#per-game-settings-file)
+- [Save states are not a regression oracle][toc-1]
+
+[toc-1]: #save-states-are-not-a-regression-oracle
 
 ## Layer triage
 

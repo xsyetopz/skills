@@ -9,15 +9,15 @@ version.
 
 ## Contents
 
-- Directory layout
-- SKILL.md frontmatter
-- Name
-- Progressive disclosure budget
-- References one level deep
-- Scripts: execute or read
-- Assets
-- Host discovery and invocation
-- Claude Code frontmatter extensions
+- [Directory layout](#directory-layout)
+- [SKILL.md frontmatter](#skillmd-frontmatter)
+- [Name](#name)
+- [Progressive disclosure budget](#progressive-disclosure-budget)
+- [References one level deep](#references-one-level-deep)
+- [Scripts: execute or read](#scripts-execute-or-read)
+- [Assets](#assets)
+- [Host discovery and invocation](#host-discovery-and-invocation)
+- [Claude Code frontmatter extensions](#claude-code-frontmatter-extensions)
 
 ## Directory layout
 
@@ -208,7 +208,9 @@ and listing truncation that drops trigger words.
 may preview a file reached through another reference (for example with
 `head -100`) instead of reading it whole, so nested chains lose content
 ([best practices][anthropic-bp]). References over 100 lines start with a
-table of contents, so a partial read still shows the scope. Every
+`## Contents` list of links to their `##` headings, so a partial read
+still shows the scope and each entry opens its section on GitHub; write
+it with `$write-github-markdown`'s `markdown_toc.py`, not by hand. Every
 reference also needs a load condition: when to open it, which is "more
 useful than a generic 'see references/ for details'"
 ([best practices][agentskills-bp]). A routing-table row or a workflow
@@ -238,7 +240,8 @@ for the wrong task.
 **Verify.**
 
 1. `python3 scripts/check_reference_structure.py <skill-dir>` reports
-   unlinked references and missing `## Contents` sections.
+   unlinked references, missing `## Contents` sections, and Contents
+   entries that are not links or miss a `##` heading.
 1. Each reference file appears in at least one routing row or workflow
    step: `rg -o 'references/[a-z-]+\.md' SKILL.md | sort | uniq -c`.
 

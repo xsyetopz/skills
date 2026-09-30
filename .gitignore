@@ -122,3 +122,7 @@ target/
 /skills/*/evals/files/**/.build/
 /skills/*/evals/files/**/.gradle/
 /skills/*/evals/files/**/node_modules/
+
+# Private reports from other agents
+letters/
+.claude/handoff.md

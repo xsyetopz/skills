@@ -19,18 +19,18 @@ and prints the `SDKROOT` it used.
 
 ## Contents
 
-- Monotonic clock timing loop
-- Optimization barrier and result sink
-- hyperfine for whole programs
-- Sanitizer oracle build
-- Counting allocation wrappers
-- Optimization remarks
-- Saved optimization records
-- Assembly inspection
-- sample
-- xctrace Time Profiler
-- leaks at exit
-- Linux perf
+- [Monotonic clock timing loop](#monotonic-clock-timing-loop)
+- [Optimization barrier and result sink](#optimization-barrier-and-result-sink)
+- [hyperfine for whole programs](#hyperfine-for-whole-programs)
+- [Sanitizer oracle build](#sanitizer-oracle-build)
+- [Counting allocation wrappers](#counting-allocation-wrappers)
+- [Optimization remarks](#optimization-remarks)
+- [Saved optimization records](#saved-optimization-records)
+- [Assembly inspection](#assembly-inspection)
+- [sample](#sample)
+- [xctrace Time Profiler](#xctrace-time-profiler)
+- [leaks at exit](#leaks-at-exit)
+- [Linux perf](#linux-perf)
 
 ## Monotonic clock timing loop
 

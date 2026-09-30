@@ -10,17 +10,23 @@ bun 1.4.2, from `TIME`, `TICKS`, `RENDERS`, and `PEAK` lines of
 
 ## Contents
 
-- Promise.all for independent awaits
-- for...of with await instead of forEach(async)
-- Bounded concurrency
-- Drop redundant async wrappers and then chains
-- return await inside try
-- Coalesce notifications into one microtask
-- Yield inside long synchronous loops
-- worker_threads for CPU-bound work
-- Transfer ArrayBuffers instead of copying
-- stream.pipeline for backpressure
-- Bun.file and Bun.write for file copies
+- [Promise.all for independent awaits](#promiseall-for-independent-awaits)
+- [for...of with await instead of forEach(async)][toc-1]
+- [Bounded concurrency](#bounded-concurrency)
+- [Drop redundant async wrappers and then chains][toc-2]
+- [return await inside try](#return-await-inside-try)
+- [Coalesce notifications into one microtask][toc-3]
+- [Yield inside long synchronous loops](#yield-inside-long-synchronous-loops)
+- [worker_threads for CPU-bound work](#worker_threads-for-cpu-bound-work)
+- [Transfer ArrayBuffers instead of copying][toc-4]
+- [stream.pipeline for backpressure](#streampipeline-for-backpressure)
+- [Bun.file and Bun.write for file copies][toc-5]
+
+[toc-1]: #forof-with-await-instead-of-foreachasync
+[toc-2]: #drop-redundant-async-wrappers-and-then-chains
+[toc-3]: #coalesce-notifications-into-one-microtask
+[toc-4]: #transfer-arraybuffers-instead-of-copying
+[toc-5]: #bunfile-and-bunwrite-for-file-copies
 
 ## Promise.all for independent awaits
 

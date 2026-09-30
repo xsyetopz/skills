@@ -28,17 +28,24 @@ micro-optimizations ([programming FAQ][faq-perf]); check
 
 ## Contents
 
-- Local binding of module attributes
-- Hoisting a bound method
-- List comprehension instead of an append loop
-- C-implemented methods instead of Python loops
-- Generator expression instead of a temporary list
-- itertools.chain.from_iterable instead of sum(lists, [])
-- str.join instead of repeated concatenation
-- io.StringIO for incremental writers
-- operator.itemgetter and attrgetter keys
-- Precompiled regular expressions
-- functools.cache and lru_cache
+- [Local binding of module attributes](#local-binding-of-module-attributes)
+- [Hoisting a bound method](#hoisting-a-bound-method)
+- [List comprehension instead of an append loop][toc-1]
+- [C-implemented methods instead of Python loops][toc-2]
+- [Generator expression instead of a temporary list][toc-3]
+- [itertools.chain.from_iterable instead of sum(lists, [])][toc-4]
+- [str.join instead of repeated concatenation][toc-5]
+- [io.StringIO for incremental writers](#iostringio-for-incremental-writers)
+- [operator.itemgetter and attrgetter keys][toc-6]
+- [Precompiled regular expressions](#precompiled-regular-expressions)
+- [functools.cache and lru_cache](#functoolscache-and-lru_cache)
+
+[toc-1]: #list-comprehension-instead-of-an-append-loop
+[toc-2]: #c-implemented-methods-instead-of-python-loops
+[toc-3]: #generator-expression-instead-of-a-temporary-list
+[toc-4]: #itertoolschainfrom_iterable-instead-of-sumlists-
+[toc-5]: #strjoin-instead-of-repeated-concatenation
+[toc-6]: #operatoritemgetter-and-attrgetter-keys
 
 ## Local binding of module attributes
 

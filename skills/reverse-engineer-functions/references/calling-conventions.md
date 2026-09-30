@@ -1,5 +1,9 @@
 # Calling conventions
 
+Use these tables to read a prototype from the code. They describe the
+documented conventions. A function that is only called from inside the
+binary may not follow them, so confirm each one with the checks below.
+
 ## Contents
 
 - [Checks that work on every platform](#checks-that-work-on-every-platform)
@@ -8,10 +12,6 @@
 - [SysV x86-64 (Linux, BSD, macOS)](#sysv-x86-64-linux-bsd-macos)
 - [AArch64 (AAPCS64)](#aarch64-aapcs64)
 - [Sources](#sources)
-
-Use these tables to read a prototype from the code. They describe the
-documented conventions. A function that is only called from inside the
-binary may not follow them, so confirm each one with the checks below.
 
 ## Checks that work on every platform
 

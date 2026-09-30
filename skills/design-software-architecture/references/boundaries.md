@@ -13,15 +13,23 @@ plants a violation.
 
 ## Contents
 
-- Source-of-truth map
-- Ports and adapters
-- Contract tests shared by adapters
-- Dependency direction check
-- Adapter owns its resource's concurrency
-- Invariants enforced by database constraints
-- Operation identity for retries
-- HTTP contract with problem details
-- Parallel change for two-sided contracts
+- [Source-of-truth map](#source-of-truth-map)
+- [Ports and adapters](#ports-and-adapters)
+- [Contract tests shared by adapters](#contract-tests-shared-by-adapters)
+- [Dependency direction check](#dependency-direction-check)
+- [Package cohesion: what goes in one package][toc-1]
+- [Stable dependencies: which way packages depend][toc-2]
+- [Adapter owns its resource's concurrency][toc-3]
+- [Invariants enforced by database constraints][toc-4]
+- [Operation identity for retries](#operation-identity-for-retries)
+- [HTTP contract with problem details](#http-contract-with-problem-details)
+- [Parallel change for two-sided contracts][toc-5]
+
+[toc-1]: #package-cohesion-what-goes-in-one-package
+[toc-2]: #stable-dependencies-which-way-packages-depend
+[toc-3]: #adapter-owns-its-resources-concurrency
+[toc-4]: #invariants-enforced-by-database-constraints
+[toc-5]: #parallel-change-for-two-sided-contracts
 
 ## Source-of-truth map
 
@@ -149,6 +157,108 @@ catches late or never.
 **Verify.**
 
 1. `check_layers.py layers.json` reports `0 violation(s)` in CI.
+
+## Package cohesion: what goes in one package
+
+**Definition.** Robert C. Martin's three package cohesion principles
+([Granularity][granularity]):
+
+- REP, reuse/release equivalence: "THE GRANULE OF REUSE IS THE GRANULE
+  OF RELEASE."
+- CCP, common closure: "THE CLASSES IN A PACKAGE SHOULD BE CLOSED
+  TOGETHER AGAINST THE SAME KINDS OF CHANGES. A CHANGE THAT AFFECTS A
+  PACKAGE AFFECTS ALL THE CLASSES IN THAT PACKAGE."
+- CRP, common reuse: "THE CLASSES IN A PACKAGE ARE REUSED TOGETHER. IF
+  YOU REUSE ONE OF THE CLASSES IN A PACKAGE, YOU REUSE THEM ALL."
+
+CCP pulls code that changes together into one package; CRP pushes apart
+code that is not used together. They pull in opposite directions, so a
+package boundary is a trade-off between them, not a rule to satisfy.
+
+**Use when.**
+
+- Deciding whether to split a package or merge two.
+- `$find-code-smells` reports files in different packages that change
+  together (CCP broken), or a package whose users each import a
+  different part of it (CRP broken).
+
+**Do not use when.**
+
+- The package is not released or reused separately; REP then says
+  nothing, and CCP alone decides.
+- The history is too short to show what changes together.
+
+**Example.** In the orders example, adding an order field would edit the
+domain's `Order`, the port that stores it, and the service that builds
+it with `new_order`, so the three share the `orders` package (CCP). The
+SQLite and HTTP adapters are separate modules under `orders/adapters/`,
+so a user of the memory adapter does not import `sqlite3` code it never
+calls (CRP).
+
+**Cost removed.** Releases forced by code a user does not use, and a
+change that must edit several packages at once.
+
+**Verify.**
+
+1. For a proposed split, the change-coupling scan shows the new
+   packages' files changing mostly with files in the same package.
+
+## Stable dependencies: which way packages depend
+
+**Definition.** Martin's package coupling principles
+([Granularity][granularity], [Stability][stability]):
+
+- ADP, acyclic dependencies: "THE DEPENDENCY STRUCTURE BETWEEN PACKAGES
+  MUST BE A DIRECTED ACYCLIC GRAPH (DAG)."
+- SDP, stable dependencies: "THE DEPENDENCIES BETWEEN PACKAGES IN A
+  DESIGN SHOULD BE IN THE DIRECTION OF THE STABILITY OF THE PACKAGES."
+- SAP, stable abstractions: "PACKAGES THAT ARE MAXIMALLY STABLE SHOULD
+  BE MAXIMALLY ABSTRACT. INSTABLE PACKAGES SHOULD BE CONCRETE."
+
+The metrics come from the same paper. Ca (afferent) is the number of
+classes outside the package that depend on classes inside it. Ce
+(efferent) is the number of classes inside that depend on classes
+outside. Instability is I = Ce ÷ (Ca + Ce), from 0 (maximally stable)
+to 1. Abstractness is A = abstract classes ÷ total classes, and the
+distance from the main sequence is D = |A + I − 1| ÷ √2.
+
+**Use when.**
+
+- The dependency direction check reports a cycle (ADP).
+- A package many others depend on keeps changing, and each change breaks
+  its dependents (SDP).
+
+**Do not use when.**
+
+- The code has one package; the metrics need several to compare.
+- A stable package is concrete on purpose, such as a value-type or
+  standard-library package that is not expected to change. SAP's
+  pressure to abstract does not apply to it.
+
+**Example.** The orders layers, counting modules as the paper counts
+classes, measured from the example's `from orders.` imports:
+
+| Layer | Ca | Ce | I |
+| --- | --- | --- | --- |
+| `domain` | 5 | 0 | 0 |
+| `ports` | 2 | 1 | 0.33 |
+| `service` | 1 | 1 | 0.5 |
+| `adapters` | 0 | 3 | 1 |
+
+Every import goes from a higher I to a lower one, so SDP holds, and
+`check_layers.py` reports no cycle, so ADP holds. `ports` holds the
+abstract `OrderStore` and is more stable than the adapters that
+implement it (SAP).
+
+**Cost removed.** Changes to a volatile package that ripple into the
+packages that should be stable, and cycles that force two packages to
+be released together.
+
+**Verify.**
+
+1. `check_layers.py` reports no import cycle.
+1. For each dependency between packages, I of the importer is higher
+   than I of the imported package; list any exception with its reason.
 
 ## Adapter owns its resource's concurrency
 
@@ -308,3 +418,5 @@ one commit; change them together.
 [idem]: https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/
 [rfc9457]: https://www.rfc-editor.org/rfc/rfc9457
 [parallel]: https://martinfowler.com/bliki/ParallelChange.html
+[granularity]: http://web.archive.org/web/2011id_/http://www.objectmentor.com/resources/articles/granularity.pdf
+[stability]: http://web.archive.org/web/2011id_/http://www.objectmentor.com/resources/articles/stability.pdf

@@ -1,10 +1,9 @@
 ---
 name: coordinate-phase-gated-subagents
 description: >-
-  Runs a Waterfall delivery with subagents: requirements, design,
-  implementation, verification, and release phases with evidence-based gates
-  and parallel worktree waves. Use only when the user explicitly asks for
-  phase-gated or Waterfall coordination.
+  Runs a Waterfall delivery with subagents through requirements, design,
+  implementation, verification, and release gates. Use only when the user
+  explicitly asks for phase-gated or Waterfall work.
 ---
 
 # Coordinate Phase-Gated Subagents

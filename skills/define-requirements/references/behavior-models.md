@@ -7,13 +7,13 @@ concurrency and retries. The worked state table is in
 
 ## Contents
 
-- Glossary with identity and lifetime
-- Units and domains
-- State transition table
-- Decision table
-- Linearization point for races
-- Retry and idempotency semantics
-- Abuse cases
+- [Glossary with identity and lifetime](#glossary-with-identity-and-lifetime)
+- [Units and domains](#units-and-domains)
+- [State transition table](#state-transition-table)
+- [Decision table](#decision-table)
+- [Linearization point for races](#linearization-point-for-races)
+- [Retry and idempotency semantics](#retry-and-idempotency-semantics)
+- [Abuse cases](#abuse-cases)
 
 ## Glossary with identity and lifetime
 

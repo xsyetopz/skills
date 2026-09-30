@@ -1,4 +1,4 @@
 interface:
   display_name: "Manage Git Hosting"
-  short_description: "Safe GitHub/GitLab/Bitbucket operations"
+  short_description: "Safe GitHub, GitLab, and Bitbucket operations"
   default_prompt: "Use $manage-git-hosting to perform the requested hosted operation on the exact repository and resource, reading before writing, guarding merges with the reviewed head SHA, and reading back the result."

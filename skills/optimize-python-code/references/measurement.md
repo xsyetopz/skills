@@ -17,18 +17,20 @@ carry over to other machines.
 
 ## Contents
 
-- Differential equivalence oracle
-- timeit with the minimum of repeats
-- pyperf Runner.bench_func
-- pyperf timeit command
-- pyperf compare_to
-- cProfile and pstats
-- tracemalloc peak as an allocation oracle
-- tracemalloc snapshot diff
-- sys.monitoring call counter
-- Executed-instruction counting
-- python -X importtime
-- Linux perf trampoline
+- [Differential equivalence oracle](#differential-equivalence-oracle)
+- [timeit with the minimum of repeats](#timeit-with-the-minimum-of-repeats)
+- [pyperf Runner.bench_func](#pyperf-runnerbench_func)
+- [pyperf timeit command](#pyperf-timeit-command)
+- [pyperf compare_to](#pyperf-compare_to)
+- [cProfile and pstats](#cprofile-and-pstats)
+- [tracemalloc peak as an allocation oracle][toc-1]
+- [tracemalloc snapshot diff](#tracemalloc-snapshot-diff)
+- [sys.monitoring call counter](#sysmonitoring-call-counter)
+- [Executed-instruction counting](#executed-instruction-counting)
+- [python -X importtime](#python--x-importtime)
+- [Linux perf trampoline](#linux-perf-trampoline)
+
+[toc-1]: #tracemalloc-peak-as-an-allocation-oracle
 
 ## Differential equivalence oracle
 

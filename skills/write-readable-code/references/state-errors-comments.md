@@ -10,11 +10,13 @@ in [the Zen of Python cards](zen-of-python.md).
 
 ## Contents
 
-- Explicit dependencies instead of ambient state
-- Pure core, side effects at the edge
-- Specific error handling with context
-- Comments that state why
-- Tests as executable documentation
+- [Explicit dependencies instead of ambient state][toc-1]
+- [Pure core, side effects at the edge](#pure-core-side-effects-at-the-edge)
+- [Specific error handling with context](#specific-error-handling-with-context)
+- [Comments that state why](#comments-that-state-why)
+- [Tests as executable documentation](#tests-as-executable-documentation)
+
+[toc-1]: #explicit-dependencies-instead-of-ambient-state
 
 ## Explicit dependencies instead of ambient state
 

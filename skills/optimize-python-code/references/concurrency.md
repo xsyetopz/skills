@@ -16,12 +16,16 @@ least 0.5 s in sequence, and the candidate must finish in under half that.
 
 ## Contents
 
-- ProcessPoolExecutor for CPU-bound work
-- ThreadPoolExecutor for blocking I/O
-- asyncio.TaskGroup for concurrent awaits
-- asyncio.to_thread for blocking calls in async code
-- InterpreterPoolExecutor
-- Threads on a free-threaded build
+- [ProcessPoolExecutor for CPU-bound work][toc-1]
+- [ThreadPoolExecutor for blocking I/O](#threadpoolexecutor-for-blocking-io)
+- [asyncio.TaskGroup for concurrent awaits][toc-2]
+- [asyncio.to_thread for blocking calls in async code][toc-3]
+- [InterpreterPoolExecutor](#interpreterpoolexecutor)
+- [Threads on a free-threaded build](#threads-on-a-free-threaded-build)
+
+[toc-1]: #processpoolexecutor-for-cpu-bound-work
+[toc-2]: #asynciotaskgroup-for-concurrent-awaits
+[toc-3]: #asyncioto_thread-for-blocking-calls-in-async-code
 
 ## ProcessPoolExecutor for CPU-bound work
 

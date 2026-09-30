@@ -2,9 +2,8 @@
 name: debug-software-failures
 description: >-
   Finds root causes of crashes, hangs, wrong results, flaky tests, and
-  regressions via repro oracles, reduction, git bisect, and hypotheses tested
-  with debuggers. Use when something fails for an unknown reason. Not for
-  known fixes or history browsing.
+  regressions. Use when something fails for an unknown reason. Not for known
+  fixes or history browsing.
 ---
 
 # Debug Software Failures

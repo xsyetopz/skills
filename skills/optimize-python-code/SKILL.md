@@ -1,9 +1,9 @@
 ---
 name: optimize-python-code
 description: >-
-  Profiles and optimizes CPython time and memory with pyperf, cProfile,
-  tracemalloc, and import timing. Use when a Python benchmark or profile shows
-  the cost. Not for readability-only refactors.
+  Profiles and optimizes CPython time and memory with pyperf, cProfile, and
+  tracemalloc. Use when a Python benchmark or profile shows the cost. Not for
+  readability-only refactors.
 ---
 
 # Optimize Python Code

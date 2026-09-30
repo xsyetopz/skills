@@ -10,15 +10,15 @@ CMake 4.4.3, Ninja, Xcode 26.6 without the Metal Toolchain, no `nasm`, no
 
 ## Contents
 
-- Licence and AI-assistant policy
-- Pinned source checkout
-- Linux dependency script
-- macOS dependency script
-- Windows dependency pack
-- CMake configure and build types
-- ccache compiler launcher
-- Unit tests target
-- GS runner target
+- [Licence and AI-assistant policy](#licence-and-ai-assistant-policy)
+- [Pinned source checkout](#pinned-source-checkout)
+- [Linux dependency script](#linux-dependency-script)
+- [macOS dependency script](#macos-dependency-script)
+- [Windows dependency pack](#windows-dependency-pack)
+- [CMake configure and build types](#cmake-configure-and-build-types)
+- [ccache compiler launcher](#ccache-compiler-launcher)
+- [Unit tests target](#unit-tests-target)
+- [GS runner target](#gs-runner-target)
 
 ## Licence and AI-assistant policy
 

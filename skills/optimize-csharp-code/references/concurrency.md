@@ -9,12 +9,14 @@ lock rows are single-threaded (uncontended).
 
 ## Contents
 
-- System.Threading.Lock
-- Interlocked instead of a lock
-- Parallel.For with thread-local state
-- Bounded Channel of T
-- Async all the way instead of sync-over-async
-- ConfigureAwait(false) in library code
+- [System.Threading.Lock](#systemthreadinglock)
+- [Interlocked instead of a lock](#interlocked-instead-of-a-lock)
+- [Parallel.For with thread-local state](#parallelfor-with-thread-local-state)
+- [Bounded Channel of T](#bounded-channel-of-t)
+- [Async all the way instead of sync-over-async][toc-1]
+- [ConfigureAwait(false) in library code](#configureawaitfalse-in-library-code)
+
+[toc-1]: #async-all-the-way-instead-of-sync-over-async
 
 ## System.Threading.Lock
 

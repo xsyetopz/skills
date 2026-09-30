@@ -10,14 +10,19 @@ Gradle plugin 2.19.0, macOS arm64). All example sources also compiled in
 
 ## Contents
 
-- AnAction with update on a background thread
-- AnAction with update on the EDT
-- Registering actions and groups
-- DumbAwareAction
-- EditorAction with EditorWriteActionHandler
-- Walking PSI with PsiRecursiveElementWalkingVisitor
-- From VirtualFile to PsiFile and Document
-- Document modification rules
+- [AnAction with update on a background thread][toc-1]
+- [AnAction with update on the EDT](#anaction-with-update-on-the-edt)
+- [Registering actions and groups](#registering-actions-and-groups)
+- [DumbAwareAction](#dumbawareaction)
+- [EditorAction with EditorWriteActionHandler][toc-2]
+- [Walking PSI with PsiRecursiveElementWalkingVisitor][toc-3]
+- [From VirtualFile to PsiFile and Document][toc-4]
+- [Document modification rules](#document-modification-rules)
+
+[toc-1]: #anaction-with-update-on-a-background-thread
+[toc-2]: #editoraction-with-editorwriteactionhandler
+[toc-3]: #walking-psi-with-psirecursiveelementwalkingvisitor
+[toc-4]: #from-virtualfile-to-psifile-and-document
 
 ## AnAction with update on a background thread
 

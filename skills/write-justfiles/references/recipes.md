@@ -6,20 +6,22 @@ in [`assets/examples/justfile`](../assets/examples/justfile);
 
 ## Contents
 
-- Wrapping a canonical command
-- Prior dependencies
-- Subsequent dependencies
-- Dependencies with arguments
-- Parallel dependencies
-- Line recipes run one shell per line
-- Script recipes
-- Failure stops the recipe
-- The ignore-error prefix
-- Confirmation for destructive recipes
-- Platform attributes
-- Working directory
-- Default, private, grouped, and documented recipes
-- Modules
+- [Wrapping a canonical command](#wrapping-a-canonical-command)
+- [Prior dependencies](#prior-dependencies)
+- [Subsequent dependencies](#subsequent-dependencies)
+- [Dependencies with arguments](#dependencies-with-arguments)
+- [Parallel dependencies](#parallel-dependencies)
+- [Line recipes run one shell per line](#line-recipes-run-one-shell-per-line)
+- [Script recipes](#script-recipes)
+- [Failure stops the recipe](#failure-stops-the-recipe)
+- [The ignore-error prefix](#the-ignore-error-prefix)
+- [Confirmation for destructive recipes](#confirmation-for-destructive-recipes)
+- [Platform attributes](#platform-attributes)
+- [Working directory](#working-directory)
+- [Default, private, grouped, and documented recipes][toc-1]
+- [Modules](#modules)
+
+[toc-1]: #default-private-grouped-and-documented-recipes
 
 ## Wrapping a canonical command
 

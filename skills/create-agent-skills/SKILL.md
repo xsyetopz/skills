@@ -1,10 +1,9 @@
 ---
 name: create-agent-skills
 description: >-
-  Creates, rewrites, and audits Agent Skills (SKILL.md) for Claude Code and
-  Codex: descriptions, progressive disclosure, scripts, evals, and
-  agents/openai.yaml. Use when writing or improving a skill. Not for AGENTS.md
-  or for doing the task a skill describes.
+  Creates, rewrites, and audits Agent Skills and SKILL.md files for Claude
+  Code and Codex, including descriptions and evals. Use when writing or
+  improving a skill. Not for AGENTS.md.
 ---
 
 # Create Agent Skills
@@ -49,7 +48,11 @@ verification steps. Runnable examples and helper scripts prove the claims.
    ([disclosure budget][budget]).
 1. Write the description last, from the evals
    ([descriptions](references/descriptions.md)): third person, what the
-   skill does and then when to use it, key use case first. Claude Code cuts
+   skill does and then when to use it, key use case first. Required: plain
+   words only, with no colon, semicolon, quote, backtick, slash,
+   parenthesis, bracket, `$`, or `|`; product names such as C++ and C#
+   stay as written ([plain wording](references/descriptions.md#plain-wording)).
+   Claude Code cuts
    each listing entry at 1,536 characters and budgets the whole listing at
    1% of the context window; Codex budgets 2% of the context window, or
    8,000 characters when the window is unknown. Then write `agents/openai.yaml`
@@ -110,7 +113,8 @@ with neighbors, then follow the workflow.
   useless changes.
 - Link every reference directly from `SKILL.md`, because agents may only
   preview a file reached through another reference; give references over
-  100 lines a `## Contents` section so a partial read still shows the scope.
+  100 lines a `## Contents` list of heading links so a partial read still
+  shows the scope; `$write-github-markdown` writes the list.
 - Runnable assets build and run in a disposable copy; no build output in
   the skill directory.
 - A rename breaks invocations of the old name: retire it in the changelog
@@ -127,8 +131,9 @@ with neighbors, then follow the workflow.
 ## Bundled tools
 
 - `scripts/check_reference_structure.py SKILL_DIR...`: checks that every
-  reference is linked from `SKILL.md`, long references have contents,
-  relative links and anchors resolve, and name and description are valid;
+  reference is linked from `SKILL.md`, long references have linked
+  contents, relative links and anchors resolve, and name and description
+  are valid;
   exit 0 clean, 1 problems, 2 bad input.
 - `assets/SKILL.template.md` and `assets/card.template.md`: starting
   points for the entry file and for each card.

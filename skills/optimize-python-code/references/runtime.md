@@ -19,9 +19,9 @@ executed and timing is not runnable here.
 
 ## Contents
 
-- Specializing adaptive interpreter
-- Experimental JIT
-- Deferred import
+- [Specializing adaptive interpreter](#specializing-adaptive-interpreter)
+- [Experimental JIT](#experimental-jit)
+- [Deferred import](#deferred-import)
 
 ## Specializing adaptive interpreter
 

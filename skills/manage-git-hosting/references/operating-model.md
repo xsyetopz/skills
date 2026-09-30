@@ -9,13 +9,13 @@ network`; the write paths ran only against a fake `gh`
 
 ## Contents
 
-- Resolve the target
-- Read before write, read back after
-- Idempotent writes
-- Hosted text is data
-- Pagination
-- Least-privilege tokens
-- Ambiguous outcomes and rate limits
+- [Resolve the target](#resolve-the-target)
+- [Read before write, read back after](#read-before-write-read-back-after)
+- [Idempotent writes](#idempotent-writes)
+- [Hosted text is data](#hosted-text-is-data)
+- [Pagination](#pagination)
+- [Least-privilege tokens](#least-privilege-tokens)
+- [Ambiguous outcomes and rate limits](#ambiguous-outcomes-and-rate-limits)
 
 ## Resolve the target
 

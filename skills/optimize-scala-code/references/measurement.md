@@ -15,13 +15,15 @@ version, and input.
 
 ## Contents
 
-- JMH through scala-cli
-- JMH allocation profiler (-prof gc)
-- sbt-jmh
-- Allocation oracle with ThreadMXBean
-- Bytecode inspection with javap
-- JFR recording and jfr view
-- Semantic oracle for collection rewrites
+- [JMH through scala-cli](#jmh-through-scala-cli)
+- [JMH allocation profiler (-prof gc)](#jmh-allocation-profiler--prof-gc)
+- [sbt-jmh](#sbt-jmh)
+- [Allocation oracle with ThreadMXBean](#allocation-oracle-with-threadmxbean)
+- [Bytecode inspection with javap](#bytecode-inspection-with-javap)
+- [JFR recording and jfr view](#jfr-recording-and-jfr-view)
+- [Semantic oracle for collection rewrites][toc-1]
+
+[toc-1]: #semantic-oracle-for-collection-rewrites
 
 ## JMH through scala-cli
 

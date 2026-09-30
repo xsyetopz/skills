@@ -1,10 +1,9 @@
 ---
 name: develop-eclipse-ide-plugins
 description: >-
-  Builds and tests Eclipse IDE plug-ins: plugin.xml contributions, commands
-  and handlers, Jobs, SWT threading, markers, preferences, Tycho tests, and p2
-  update sites. Use when writing or fixing an Eclipse plug-in. Not for generic
-  Java apps or Eclipse settings.
+  Builds and tests Eclipse IDE plug-ins with plugin.xml, handlers, Jobs, SWT
+  threading, Tycho, and p2. Use when writing or fixing an Eclipse plug-in. Not
+  for generic Java apps or Eclipse settings.
 ---
 
 # Develop Eclipse IDE Plugins

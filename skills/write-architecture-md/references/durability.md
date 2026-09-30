@@ -8,11 +8,13 @@ failures; the rest is checked by reading.
 
 ## Contents
 
-- Name files and symbols, do not link them
-- Self-contained
-- Durable facts only
-- Updating an existing ARCHITECTURE.md
-- Placement and neighboring documents
+- [Name files and symbols, do not link them][toc-1]
+- [Self-contained](#self-contained)
+- [Durable facts only](#durable-facts-only)
+- [Updating an existing ARCHITECTURE.md](#updating-an-existing-architecturemd)
+- [Placement and neighboring documents](#placement-and-neighboring-documents)
+
+[toc-1]: #name-files-and-symbols-do-not-link-them
 
 ## Name files and symbols, do not link them
 

@@ -16,13 +16,16 @@ Tier, per part (Apple M1 Max, macOS, Python 3.14.7):
 
 ## Contents
 
-- Host allowlist and resolved-address check
-- Re-check every redirect hop
-- Connect to the checked address
-- Pinned HTTPS with hostname verification
-- Object-level authorization
-- Function-level authorization
-- Token validation at the boundary
+- [Host allowlist and resolved-address check][toc-1]
+- [Re-check every redirect hop](#re-check-every-redirect-hop)
+- [Connect to the checked address](#connect-to-the-checked-address)
+- [Pinned HTTPS with hostname verification][toc-2]
+- [Object-level authorization](#object-level-authorization)
+- [Function-level authorization](#function-level-authorization)
+- [Token validation at the boundary](#token-validation-at-the-boundary)
+
+[toc-1]: #host-allowlist-and-resolved-address-check
+[toc-2]: #pinned-https-with-hostname-verification
 
 ## Host allowlist and resolved-address check
 

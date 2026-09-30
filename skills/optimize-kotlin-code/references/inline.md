@@ -15,11 +15,11 @@ Tier: Executed. `verify inline`, `noea`, `bytecode`, `benchmark`, and
 
 ## Contents
 
-- Inline higher-order function
-- Captured var in a non-inline lambda
-- Reified type parameter
-- noinline parameter
-- crossinline parameter
+- [Inline higher-order function](#inline-higher-order-function)
+- [Captured var in a non-inline lambda](#captured-var-in-a-non-inline-lambda)
+- [Reified type parameter](#reified-type-parameter)
+- [noinline parameter](#noinline-parameter)
+- [crossinline parameter](#crossinline-parameter)
 
 ## Inline higher-order function
 

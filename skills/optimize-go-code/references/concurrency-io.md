@@ -12,13 +12,16 @@ Local numbers come from one machine: Apple M1 Max (10 cores, so
 
 ## Contents
 
-- Bounded worker pool
-- Batching channel sends
-- Buffered channel between producer and consumer
-- atomic.Int64 instead of a mutex-guarded counter
-- Per-worker aggregation
-- bufio.Writer for many small writes
-- bufio.Scanner for line input
+- [Bounded worker pool](#bounded-worker-pool)
+- [Batching channel sends](#batching-channel-sends)
+- [Buffered channel between producer and consumer][toc-1]
+- [atomic.Int64 instead of a mutex-guarded counter][toc-2]
+- [Per-worker aggregation](#per-worker-aggregation)
+- [bufio.Writer for many small writes](#bufiowriter-for-many-small-writes)
+- [bufio.Scanner for line input](#bufioscanner-for-line-input)
+
+[toc-1]: #buffered-channel-between-producer-and-consumer
+[toc-2]: #atomicint64-instead-of-a-mutex-guarded-counter
 
 ## Bounded worker pool
 

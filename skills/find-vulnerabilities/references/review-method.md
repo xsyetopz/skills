@@ -7,18 +7,18 @@ runs from the skill root.
 
 ## Contents
 
-- Scope and rules of engagement
-- Trust-boundary map
-- Source-to-sink trace
-- Semgrep taint rule
-- Evidence classes
-- Local exploit-condition test
-- Finding format
-- CWE selection
-- CVSS v3.1 base vector
-- CVSS v4.0 base vector
-- Reporting without weaponized detail
-- Agent tool boundary
+- [Scope and rules of engagement](#scope-and-rules-of-engagement)
+- [Trust-boundary map](#trust-boundary-map)
+- [Source-to-sink trace](#source-to-sink-trace)
+- [Semgrep taint rule](#semgrep-taint-rule)
+- [Evidence classes](#evidence-classes)
+- [Local exploit-condition test](#local-exploit-condition-test)
+- [Finding format](#finding-format)
+- [CWE selection](#cwe-selection)
+- [CVSS v3.1 base vector](#cvss-v31-base-vector)
+- [CVSS v4.0 base vector](#cvss-v40-base-vector)
+- [Reporting without weaponized detail](#reporting-without-weaponized-detail)
+- [Agent tool boundary](#agent-tool-boundary)
 
 ## Scope and rules of engagement
 

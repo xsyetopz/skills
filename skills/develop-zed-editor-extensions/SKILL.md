@@ -1,10 +1,9 @@
 ---
 name: develop-zed-editor-extensions
 description: >-
-  Builds and publishes Zed editor extensions: extension.toml, Rust/WASM code,
-  language servers, Tree-sitter queries, themes, snippets, MCP servers, debug
-  adapters. Use when writing or fixing a Zed extension. Not for Zed user
-  settings.
+  Builds and publishes Zed editor extensions with extension.toml, Rust
+  compiled to WASM, language servers, themes, and Tree-sitter. Use when
+  writing or fixing a Zed extension. Not for Zed user settings.
 ---
 
 # Develop Zed Editor Extensions

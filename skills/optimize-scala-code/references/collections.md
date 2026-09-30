@@ -16,22 +16,36 @@ other builds; they show direction, not portable speedups.
 
 ## Contents
 
-- Sequence choice by the performance table
-- Indexed access: IndexedSeq instead of List.apply
-- Primitive storage: ArraySeq of Int instead of List of Int
-- ListBuffer instead of repeated List append
-- Iterator chain instead of a strict chain
-- View chain before a single materialization
-- Array with a while loop instead of map and sum
-- ArrayBuffer with sizeHint
-- Array.newBuilder instead of ArrayBuffer for primitives
-- Array.newBuilder with an exact sizeHint
-- StringBuilder instead of string concatenation in a fold
-- mutable.HashMap instead of folding an immutable Map
-- java.util.HashMap.merge for counting
-- Slot array for counters keyed by a small set
-- groupMapReduce instead of groupBy and mapValues
-- Set for repeated membership tests
+- [Sequence choice by the performance table][toc-1]
+- [Indexed access: IndexedSeq instead of List.apply][toc-2]
+- [Primitive storage: ArraySeq of Int instead of List of Int][toc-3]
+- [ListBuffer instead of repeated List append][toc-4]
+- [Iterator chain instead of a strict chain][toc-5]
+- [View chain before a single materialization][toc-6]
+- [Array with a while loop instead of map and sum][toc-7]
+- [ArrayBuffer with sizeHint](#arraybuffer-with-sizehint)
+- [Array.newBuilder instead of ArrayBuffer for primitives][toc-8]
+- [Array.newBuilder with an exact sizeHint][toc-9]
+- [StringBuilder instead of string concatenation in a fold][toc-10]
+- [mutable.HashMap instead of folding an immutable Map][toc-11]
+- [java.util.HashMap.merge for counting](#javautilhashmapmerge-for-counting)
+- [Slot array for counters keyed by a small set][toc-12]
+- [groupMapReduce instead of groupBy and mapValues][toc-13]
+- [Set for repeated membership tests](#set-for-repeated-membership-tests)
+
+[toc-1]: #sequence-choice-by-the-performance-table
+[toc-2]: #indexed-access-indexedseq-instead-of-listapply
+[toc-3]: #primitive-storage-arrayseq-of-int-instead-of-list-of-int
+[toc-4]: #listbuffer-instead-of-repeated-list-append
+[toc-5]: #iterator-chain-instead-of-a-strict-chain
+[toc-6]: #view-chain-before-a-single-materialization
+[toc-7]: #array-with-a-while-loop-instead-of-map-and-sum
+[toc-8]: #arraynewbuilder-instead-of-arraybuffer-for-primitives
+[toc-9]: #arraynewbuilder-with-an-exact-sizehint
+[toc-10]: #stringbuilder-instead-of-string-concatenation-in-a-fold
+[toc-11]: #mutablehashmap-instead-of-folding-an-immutable-map
+[toc-12]: #slot-array-for-counters-keyed-by-a-small-set
+[toc-13]: #groupmapreduce-instead-of-groupby-and-mapvalues
 
 ## Sequence choice by the performance table
 

@@ -12,15 +12,15 @@ operation are deterministic for a given JDK and input.
 
 ## Contents
 
-- JMH benchmark anatomy
-- Consuming results in JMH
-- JMH GC profiler and alloc rate norm
-- Comparing JMH JSON results
-- JDK Flight Recorder
-- jcmd on a live JVM
-- async-profiler
-- Unified GC logging
-- JIT compilation and inlining logs
+- [JMH benchmark anatomy](#jmh-benchmark-anatomy)
+- [Consuming results in JMH](#consuming-results-in-jmh)
+- [JMH GC profiler and alloc rate norm](#jmh-gc-profiler-and-alloc-rate-norm)
+- [Comparing JMH JSON results](#comparing-jmh-json-results)
+- [JDK Flight Recorder](#jdk-flight-recorder)
+- [jcmd on a live JVM](#jcmd-on-a-live-jvm)
+- [async-profiler](#async-profiler)
+- [Unified GC logging](#unified-gc-logging)
+- [JIT compilation and inlining logs](#jit-compilation-and-inlining-logs)
 
 ## JMH benchmark anatomy
 

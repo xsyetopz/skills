@@ -20,6 +20,10 @@ the host suite in VS Code 1.139.1 and 1.74.0, downloaded by
 - [Configuration contribution](#configuration-contribution)
 - [Reading and updating settings](#reading-and-updating-settings)
 
+[toc-1]: #implicit-activation-from-contributions
+[toc-2]: #activate-deactivate-and-contextsubscriptions
+[toc-3]: #commands-registration-and-contribution
+
 ## Extension manifest
 
 **Definition.** `package.json` at the extension root. `name`, `version`,
@@ -540,6 +544,3 @@ relinting open documents`.
 [when]: https://code.visualstudio.com/api/references/when-clause-contexts
 [config]: https://code.visualstudio.com/api/references/contribution-points#contributes.configuration
 [dts]: https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.d.ts
-[toc-1]: #implicit-activation-from-contributions
-[toc-2]: #activate-deactivate-and-contextsubscriptions
-[toc-3]: #commands-registration-and-contribution

@@ -1,0 +1,59 @@
+{
+	"skill_name": "write-github-markdown",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "guide.md looks broken on GitHub and the table of contents isn't clickable. Fix the Markdown without changing what the guide says.",
+			"expected_output": "guide.md with a Contents list of links to #install, #configuration--secrets, and #usage; both fences labeled with a language such as sh; the table delimiter row fixed to three columns; the bold 'Environment variables' line made a heading or plain text; the 'here' link replaced with descriptive text pointing at #configuration--secrets; the commands unchanged; and a reply that lists the checks run.",
+			"files": ["evals/files/guide.md"],
+			"assertions": [
+				{
+					"text": "The Contents entries are links to the GitHub anchors of every section.",
+					"check": "grep -qF -- '- [Install](#install)' guide.md && grep -qF -- '- [Configuration & secrets](#configuration--secrets)' guide.md && grep -qF -- '- [Usage](#usage)' guide.md"
+				},
+				{
+					"text": "No link points at the wrong anchor #configuration-secrets.",
+					"check": "! grep -qF '(#configuration-secrets)' guide.md"
+				},
+				{
+					"text": "Every opening fence names a language.",
+					"check": "test \"$(grep -c '^```[a-z]' guide.md)\" -ge 2 && test \"$(grep -c '^```$' guide.md)\" -eq \"$(grep -c '^```[a-z]' guide.md)\""
+				},
+				{
+					"text": "The table delimiter row has three columns.",
+					"check": "grep -Eq '^\\| *:?-{3,}:? *\\| *:?-{3,}:? *\\| *:?-{3,}:? *\\|$' guide.md"
+				},
+				{
+					"text": "The documented commands are unchanged.",
+					"check": "grep -qF 'curl -fsSL https://example.com/install.sh | sh' guide.md && grep -qF 'example-app sync --all' guide.md"
+				},
+				"The bold 'Environment variables' line is a heading or plain text, not bold standing in for a heading.",
+				"The link text 'here' is replaced with text that says where the link goes.",
+				"The reply names the checks it ran, such as a Markdown linter or markdown_toc.py --check, with their result, or says none could run."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Review the Markdown in CONTRIBUTING.md for anything that won't render or link right on GitHub. Report only, don't edit.",
+			"expected_output": "A report, with no edit, that flags the absolute blob URL to docs/setup.md (use a relative link), the anchor #tables-&-lists (GitHub's anchor is #tables--lists), the bold Note quote that is not a GitHub alert (use > [!NOTE]), the image with empty alt text, and the list that follows 'Steps:' without a blank line.",
+			"files": ["evals/files/CONTRIBUTING.md", "evals/files/docs/setup.md"],
+			"assertions": [
+				{
+					"text": "CONTRIBUTING.md was not edited.",
+					"check": "shasum -a 256 CONTRIBUTING.md | grep -q '^cfc019a5ba682b9a6f93dffc7f1662a0672ee23da40f661bb473ce9db9bcdfff '"
+				},
+				{
+					"text": "The reply gives the correct anchor #tables--lists.",
+					"check": "grep -qF 'tables--lists' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "The reply gives the alert syntax [!NOTE].",
+					"check": "grep -qF '[!NOTE]' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says the setup guide link should be the relative path docs/setup.md instead of a github.com blob URL.",
+				"The reply flags the image with empty alt text and asks for text that describes the image.",
+				"The reply flags the list after 'Steps:' that has no blank line before it."
+			]
+		}
+	]
+}

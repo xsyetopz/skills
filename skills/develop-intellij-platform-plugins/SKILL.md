@@ -1,10 +1,9 @@
 ---
 name: develop-intellij-platform-plugins
 description: >-
-  Builds and verifies IntelliJ Platform plugins: plugin.xml, extensions,
-  services, actions, read and write actions, PSI, tests, Gradle plugin 2.x,
-  Plugin Verifier. Use when writing or fixing a JetBrains IDE plugin. Not for
-  standalone Kotlin or Java apps.
+  Builds and verifies IntelliJ Platform plugins with plugin.xml, extensions,
+  actions, PSI, and Plugin Verifier. Use when writing or fixing a JetBrains
+  IDE plugin. Not for standalone Kotlin or Java apps.
 ---
 
 # Develop IntelliJ Platform Plugins

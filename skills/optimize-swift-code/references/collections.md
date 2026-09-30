@@ -11,19 +11,26 @@ each card names. Counts are exact. Times are medians of 31 samples from
 
 ## Contents
 
-- Array reserveCapacity
-- reduce(into:) instead of reduce with array concatenation
-- ContiguousArray for class elements
-- withUnsafeBufferPointer on a monotonic loop
-- withUnsafeMutableBufferPointer for data-dependent indices
-- withContiguousStorageIfAvailable fast path
-- Span parameters
-- RawSpan loads
-- Dictionary minimumCapacity
-- Dictionary subscript with default
-- lazy sequences
-- Copy a slice at an ownership boundary
-- Queue with popFirst instead of removeFirst
+- [Array reserveCapacity](#array-reservecapacity)
+- [reduce(into:) instead of reduce with array concatenation][toc-1]
+- [ContiguousArray for class elements](#contiguousarray-for-class-elements)
+- [withUnsafeBufferPointer on a monotonic loop][toc-2]
+- [withUnsafeMutableBufferPointer for data-dependent indices][toc-3]
+- [withContiguousStorageIfAvailable fast path][toc-4]
+- [Span parameters](#span-parameters)
+- [RawSpan loads](#rawspan-loads)
+- [Dictionary minimumCapacity](#dictionary-minimumcapacity)
+- [Dictionary subscript with default](#dictionary-subscript-with-default)
+- [lazy sequences](#lazy-sequences)
+- [Copy a slice at an ownership boundary][toc-5]
+- [Queue with popFirst instead of removeFirst][toc-6]
+
+[toc-1]: #reduceinto-instead-of-reduce-with-array-concatenation
+[toc-2]: #withunsafebufferpointer-on-a-monotonic-loop
+[toc-3]: #withunsafemutablebufferpointer-for-data-dependent-indices
+[toc-4]: #withcontiguousstorageifavailable-fast-path
+[toc-5]: #copy-a-slice-at-an-ownership-boundary
+[toc-6]: #queue-with-popfirst-instead-of-removefirst
 
 ## Array reserveCapacity
 

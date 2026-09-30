@@ -9,12 +9,14 @@ x86-64 under Rosetta) ran on this machine through
 
 ## Contents
 
-- Isolated data root with -datapath
-- Portable mode
-- First-run wizard flag
-- Launch arguments for an ELF or disc image
-- Exit status is not a boot oracle
-- Logging to a file
+- [Isolated data root with -datapath](#isolated-data-root-with--datapath)
+- [Portable mode](#portable-mode)
+- [First-run wizard flag](#first-run-wizard-flag)
+- [Launch arguments for an ELF or disc image][toc-1]
+- [Exit status is not a boot oracle](#exit-status-is-not-a-boot-oracle)
+- [Logging to a file](#logging-to-a-file)
+
+[toc-1]: #launch-arguments-for-an-elf-or-disc-image
 
 ## Isolated data root with -datapath
 

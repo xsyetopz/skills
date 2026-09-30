@@ -8,18 +8,21 @@ fetched on 2026-09-25. Examples are in `assets/examples/github/`:
 
 ## Contents
 
-- Event selection and the tested commit
-- pull_request_target and workflow_run
-- Least-privilege token permissions
-- Expression injection
-- Action pinning to commit SHAs
-- Credential persistence after checkout
-- Runner shell and pipefail
-- Required-check aggregator
-- Concurrency groups
-- Artifacts between jobs
-- Timeouts and matrix fail-fast
-- OIDC deployment job
+- [Event selection and the tested commit][toc-1]
+- [pull_request_target and workflow_run](#pull_request_target-and-workflow_run)
+- [Least-privilege token permissions](#least-privilege-token-permissions)
+- [Expression injection](#expression-injection)
+- [Action pinning to commit SHAs](#action-pinning-to-commit-shas)
+- [Credential persistence after checkout][toc-2]
+- [Runner shell and pipefail](#runner-shell-and-pipefail)
+- [Required-check aggregator](#required-check-aggregator)
+- [Concurrency groups](#concurrency-groups)
+- [Artifacts between jobs](#artifacts-between-jobs)
+- [Timeouts and matrix fail-fast](#timeouts-and-matrix-fail-fast)
+- [OIDC deployment job](#oidc-deployment-job)
+
+[toc-1]: #event-selection-and-the-tested-commit
+[toc-2]: #credential-persistence-after-checkout
 
 ## Event selection and the tested commit
 

@@ -1,13 +1,9 @@
 ---
 name: choose-claude-model-and-effort
 description: >-
-  Chooses the Claude model and effort level for a Claude Code main session, a
-  subagent, a headless `claude -p` or Agent SDK run, or an API call, from
-  token prices, cache economics, plan-limit use, and task shape; sets
-  `effort`, `model`, and prompt cache TTL in the right place. Use when asked
-  "Opus or Sonnet", "which model should this agent use", how to set effort,
-  when writing subagent frontmatter, or when a usage limit runs out fast. Not
-  for writing API integration code or prompts.
+  Chooses the Claude model, effort, and cache TTL for a session, subagent,
+  claude -p run, or API call. Use when picking Opus or Sonnet, setting effort
+  or subagent frontmatter, or on usage limits.
 ---
 
 # Choose Claude Model and Effort

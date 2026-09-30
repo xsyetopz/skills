@@ -6,13 +6,16 @@ checks them, and `scripts/check_stats.py` checks reported statistics.
 
 ## Contents
 
-- Evidence level
-- Claim to location
-- Statistical consistency check
-- Effect size and uncertainty over significance
-- Study design appraisal
-- Conflicting studies without vote counting
-- Applicability to the question
+- [Evidence level](#evidence-level)
+- [Claim to location](#claim-to-location)
+- [Statistical consistency check](#statistical-consistency-check)
+- [Effect size and uncertainty over significance][toc-1]
+- [Study design appraisal](#study-design-appraisal)
+- [Conflicting studies without vote counting][toc-2]
+- [Applicability to the question](#applicability-to-the-question)
+
+[toc-1]: #effect-size-and-uncertainty-over-significance
+[toc-2]: #conflicting-studies-without-vote-counting
 
 ## Evidence level
 

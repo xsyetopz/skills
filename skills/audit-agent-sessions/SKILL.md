@@ -1,15 +1,9 @@
 ---
 name: audit-agent-sessions
 description: >-
-  Audits Claude Code session transcripts in `~/.claude/projects` for wasted
-  turns, tokens, and user attention: token use and estimated cost by model and
-  by main conversation or subagent, repeated reads and commands, turn limits,
-  compaction points, unverified "done" claims, and turns that stop after
-  announcing a next step. Turns each finding into one rule, hook, or prompt
-  fix. Use when asked why usage is high, what burns a plan limit, to audit
-  sessions or review a transcript, or at the end of a long session. Not for
-  debugging the program under work, choosing a model, or writing the fix
-  itself.
+  Audits Claude Code session transcripts for wasted turns, tokens, and cost,
+  turning findings into rules or hooks. Use when asked why usage is high, what
+  burns a plan limit, or to review a transcript.
 ---
 
 # Audit agent sessions

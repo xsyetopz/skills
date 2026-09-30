@@ -17,13 +17,13 @@ runs with it.
 
 ## Contents
 
-- Tiered compilation and quick JIT
-- Tiered PGO
-- ReadyToRun
-- Native AOT
-- Server GC
-- DATAS
-- Conserve memory
+- [Tiered compilation and quick JIT](#tiered-compilation-and-quick-jit)
+- [Tiered PGO](#tiered-pgo)
+- [ReadyToRun](#readytorun)
+- [Native AOT](#native-aot)
+- [Server GC](#server-gc)
+- [DATAS](#datas)
+- [Conserve memory](#conserve-memory)
 
 ## Tiered compilation and quick JIT
 

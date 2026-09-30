@@ -21,9 +21,11 @@ Performance panel on a real display.
 
 ## Contents
 
-- Batch DOM reads before writes
-- requestAnimationFrame for visual updates
-- scheduler.yield in long tasks
+- [Batch DOM reads before writes](#batch-dom-reads-before-writes)
+- [requestAnimationFrame for visual updates][toc-1]
+- [scheduler.yield in long tasks](#scheduleryield-in-long-tasks)
+
+[toc-1]: #requestanimationframe-for-visual-updates
 
 ## Batch DOM reads before writes
 

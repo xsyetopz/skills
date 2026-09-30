@@ -8,14 +8,14 @@ build provenance fit. `scripts/semver.py bump` computes each result and
 
 ## Contents
 
-- Declaring the public API
-- Patch, minor, and major increments
-- Initial development and 1.0.0
-- Deprecation before removal
-- Dependency updates
-- An accidental breaking release
-- Pre-release trains
-- Build provenance with metadata
+- [Declaring the public API](#declaring-the-public-api)
+- [Patch, minor, and major increments](#patch-minor-and-major-increments)
+- [Initial development and 1.0.0](#initial-development-and-100)
+- [Deprecation before removal](#deprecation-before-removal)
+- [Dependency updates](#dependency-updates)
+- [An accidental breaking release](#an-accidental-breaking-release)
+- [Pre-release trains](#pre-release-trains)
+- [Build provenance with metadata](#build-provenance-with-metadata)
 
 ## Declaring the public API
 

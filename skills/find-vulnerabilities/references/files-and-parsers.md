@@ -15,18 +15,20 @@ OK. The POSIX-only tests skip where `os.O_NOFOLLOW` is missing.
 
 ## Contents
 
-- Resolved path containment
-- Tar extraction data filter
-- No-follow open, then check the descriptor
-- Exclusive create
-- JSON instead of pickle
-- Restricted unpickler
-- YAML safe loader
-- SAX external entities left off
-- Reject DOCTYPE in stdlib expat
-- Java disallow-doctype-decl
-- Expat amplification limit
-- defusedxml
+- [Resolved path containment](#resolved-path-containment)
+- [Tar extraction data filter](#tar-extraction-data-filter)
+- [No-follow open, then check the descriptor][toc-1]
+- [Exclusive create](#exclusive-create)
+- [JSON instead of pickle](#json-instead-of-pickle)
+- [Restricted unpickler](#restricted-unpickler)
+- [YAML safe loader](#yaml-safe-loader)
+- [SAX external entities left off](#sax-external-entities-left-off)
+- [Reject DOCTYPE in stdlib expat](#reject-doctype-in-stdlib-expat)
+- [Java disallow-doctype-decl](#java-disallow-doctype-decl)
+- [Expat amplification limit](#expat-amplification-limit)
+- [defusedxml](#defusedxml)
+
+[toc-1]: #no-follow-open-then-check-the-descriptor
 
 ## Resolved path containment
 

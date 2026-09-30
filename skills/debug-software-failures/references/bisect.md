@@ -9,15 +9,17 @@ Command semantics come from the [git-bisect manual][git-bisect].
 
 ## Contents
 
-- Verified endpoints
-- git bisect run
-- Skipping untestable commits
-- Ambiguity when skipped commits remain
-- Custom terms
-- First-parent search
-- Path-limited search
-- Bisect log and replay
-- Pickaxe search instead of bisect
+- [Verified endpoints](#verified-endpoints)
+- [git bisect run](#git-bisect-run)
+- [Skipping untestable commits](#skipping-untestable-commits)
+- [Ambiguity when skipped commits remain][toc-1]
+- [Custom terms](#custom-terms)
+- [First-parent search](#first-parent-search)
+- [Path-limited search](#path-limited-search)
+- [Bisect log and replay](#bisect-log-and-replay)
+- [Pickaxe search instead of bisect](#pickaxe-search-instead-of-bisect)
+
+[toc-1]: #ambiguity-when-skipped-commits-remain
 
 ## Verified endpoints
 

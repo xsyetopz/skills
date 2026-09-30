@@ -1,10 +1,9 @@
 ---
 name: analyze-scientific-papers
 description: >-
-  Finds, reads, and weighs scientific papers for a research question, checking
-  versions, retractions, and reported statistics. Use when asked what the
-  literature says or whether a paper's claims hold. Not for citation
-  formatting.
+  Finds, reads, and weighs scientific papers, checking versions, retractions,
+  and statistics. Use when asked what the literature says or whether a paper's
+  claims hold. Not for citation formatting.
 ---
 
 # Analyze Scientific Papers

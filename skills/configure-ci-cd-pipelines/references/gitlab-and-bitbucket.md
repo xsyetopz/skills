@@ -9,15 +9,19 @@ No pipeline ran on either service.
 
 ## Contents
 
-- GitLab: one pipeline per change with workflow rules
-- GitLab: needs and artifacts
-- GitLab: manual jobs and allow_failure
-- GitLab: deployment with id_tokens and resource_group
-- GitLab: interruptible and auto-cancel
-- Bitbucket: start conditions
-- Bitbucket: step isolation, artifacts, and anchors
-- Bitbucket: manual OIDC deployment
-- Schema validation and its limits
+- [GitLab: one pipeline per change with workflow rules][toc-1]
+- [GitLab: needs and artifacts](#gitlab-needs-and-artifacts)
+- [GitLab: manual jobs and allow_failure](#gitlab-manual-jobs-and-allow_failure)
+- [GitLab: deployment with id_tokens and resource_group][toc-2]
+- [GitLab: interruptible and auto-cancel](#gitlab-interruptible-and-auto-cancel)
+- [Bitbucket: start conditions](#bitbucket-start-conditions)
+- [Bitbucket: step isolation, artifacts, and anchors][toc-3]
+- [Bitbucket: manual OIDC deployment](#bitbucket-manual-oidc-deployment)
+- [Schema validation and its limits](#schema-validation-and-its-limits)
+
+[toc-1]: #gitlab-one-pipeline-per-change-with-workflow-rules
+[toc-2]: #gitlab-deployment-with-id_tokens-and-resource_group
+[toc-3]: #bitbucket-step-isolation-artifacts-and-anchors
 
 ## GitLab: one pipeline per change with workflow rules
 

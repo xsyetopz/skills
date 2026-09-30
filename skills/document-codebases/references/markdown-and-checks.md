@@ -1,19 +1,20 @@
 # Markdown and checks
 
-GitHub Flavored Markdown ([GFM spec][gfm], [GitHub writing syntax][gh])
-and the checks that catch broken docs. The tools are in `scripts/`.
+Links, alt text, formatting-only edits, and the checks that catch broken
+docs. Markdown syntax itself (fences, tables, alerts, collapsed sections,
+diagrams, and Contents lists) is in `$write-github-markdown`. The tools
+are in `scripts/`.
 `assets/verify.sh` runs them on the example project and runs
 markdownlint through `bunx` with `assets/.markdownlint-cli2.jsonc`.
 
 ## Contents
 
-- Relative links and heading anchors
-- Link text and image alt text
-- Fenced code with language tags
-- Tables, task lists, alerts, and details
-- Mermaid diagrams
-- Formatting-only edits
-- Markdown lint with the repository's config
+- [Relative links and heading anchors](#relative-links-and-heading-anchors)
+- [Link text and image alt text](#link-text-and-image-alt-text)
+- [Formatting-only edits](#formatting-only-edits)
+- [Markdown lint with the repository's config][toc-1]
+
+[toc-1]: #markdown-lint-with-the-repositorys-config
 
 ## Relative links and heading anchors
 
@@ -68,92 +69,6 @@ use.
 
 1. `check_links.py` reports no warnings for changed lines.
 
-## Fenced code with language tags
-
-**Definition.** Commands and source code go in fenced blocks with a
-language tag (`sh`, `python`, `text`). To show a nested fence, use a
-longer outer fence (four backticks). Identifiers and file names go in
-inline code.
-
-**Use when.** Any code, command, or output.
-
-**Do not use when.** Wrapping a long command to fit the line width would
-change the command. Use `\` continuations only where the shell accepts
-them.
-
-**Example.** The quick-start card in `content.md` shows a README inside
-a four-backtick fence, because the README itself contains three-backtick
-fences.
-
-**Cost removed.** Commands copied with prose attached, and fences that
-end too early.
-
-**Verify.**
-
-1. markdownlint MD040 (fenced code language) and MD046 (fenced style)
-   pass with the bundled config.
-
-## Tables, task lists, alerts, and details
-
-**Definition.** GFM tables suit data with the same columns in every
-row. Task lists (`- [ ]`) are for pending work only. GitHub alerts
-(`> [!NOTE]`, `[!WARNING]`) and `<details>` render on GitHub, but
-not in every Markdown viewer.
-
-**Use when.** The content has that shape, and the docs are read on
-GitHub.
-
-**Do not use when.**
-
-- Putting multi-step procedures or code in table cells.
-- Turning a plain list into checkboxes.
-- Using alerts in docs that are published elsewhere.
-
-**Example.**
-
-```markdown
-> [!WARNING]
-> `--prune` deletes labels that are not in the file.
-```
-
-**Cost removed.** Content that renders as raw syntax on the target
-site.
-
-**Verify.**
-
-1. Preview the page on the publishing target, or on GitHub for READMEs.
-   Report it if you cannot.
-
-## Mermaid diagrams
-
-**Definition.** GitHub renders fenced `mermaid` blocks. GitHub's
-Mermaid version determines which syntax works
-([GitHub diagrams][diagrams]).
-
-**Use when.** A flow or dependency graph is easier to see than to read.
-
-**Do not use when.**
-
-- A two-item list says the same thing.
-- The target site does not render Mermaid.
-
-**Example.**
-
-```mermaid
-flowchart LR
-    Files --> Count[top_words] --> Print[print count and word]
-```
-
-Unverified: the Mermaid CLI was not installed. Give the diagram a
-one-sentence prose summary.
-
-**Cost removed.** Hand-drawn ASCII diagrams that drift and do not wrap.
-
-**Verify.**
-
-1. Preview on GitHub, and confirm the prose summary states the same
-   relationship.
-
 ## Formatting-only edits
 
 **Definition.** A formatting request changes layout only (wrapping, list
@@ -202,7 +117,3 @@ only, not that the instructions work.
 
 1. The linter exits 0 for the changed files, and the report names the
    config used.
-
-[gfm]: https://github.github.com/gfm/
-[gh]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
-[diagrams]: https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams

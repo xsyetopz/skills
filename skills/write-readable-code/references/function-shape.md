@@ -11,15 +11,18 @@ The C and TypeScript examples run under
 
 ## Contents
 
-- Function metrics and limits
-- Guard clauses
-- Phases: validate, prepare, execute
-- Lookup table instead of nested conditional expressions
-- Parameter object
-- Dispatch table instead of an if/elif chain
-- Explaining variables
-- Split boolean flag arguments
-- When not to extract a function
+- [Function metrics and limits](#function-metrics-and-limits)
+- [Guard clauses](#guard-clauses)
+- [Phases: validate, prepare, execute](#phases-validate-prepare-execute)
+- [Lookup table instead of nested conditional expressions][toc-1]
+- [Parameter object](#parameter-object)
+- [Dispatch table instead of an if/elif chain][toc-2]
+- [Explaining variables](#explaining-variables)
+- [Split boolean flag arguments](#split-boolean-flag-arguments)
+- [When not to extract a function](#when-not-to-extract-a-function)
+
+[toc-1]: #lookup-table-instead-of-nested-conditional-expressions
+[toc-2]: #dispatch-table-instead-of-an-ifelif-chain
 
 ## Function metrics and limits
 

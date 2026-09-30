@@ -9,10 +9,10 @@ Everything was executed with Python 3.14.7 on macOS arm64.
 
 ## Contents
 
-- One behavior per test
-- Visible action: Arrange, Act, Assert
-- Kept history for sequence rules
-- Observed red, then green
+- [One behavior per test](#one-behavior-per-test)
+- [Visible action: Arrange, Act, Assert](#visible-action-arrange-act-assert)
+- [Kept history for sequence rules](#kept-history-for-sequence-rules)
+- [Observed red, then green](#observed-red-then-green)
 
 ## One behavior per test
 

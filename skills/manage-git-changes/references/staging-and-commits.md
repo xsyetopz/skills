@@ -7,18 +7,18 @@ measured with git 2.55.0 in disposable repositories);
 
 ## Contents
 
-- Inspect the three states
-- Stage exact paths
-- Stage one hunk without a prompt
-- The commit --only trap
-- Snapshot identity with write-tree
-- Existing hooks
-- Hooks that change the snapshot
-- Commit slices by behavior
-- Commit message policy
-- Agent commit attribution
-- Fixup commits and autosquash
-- Amend
+- [Inspect the three states](#inspect-the-three-states)
+- [Stage exact paths](#stage-exact-paths)
+- [Stage one hunk without a prompt](#stage-one-hunk-without-a-prompt)
+- [The commit --only trap](#the-commit---only-trap)
+- [Snapshot identity with write-tree](#snapshot-identity-with-write-tree)
+- [Existing hooks](#existing-hooks)
+- [Hooks that change the snapshot](#hooks-that-change-the-snapshot)
+- [Commit slices by behavior](#commit-slices-by-behavior)
+- [Commit message policy](#commit-message-policy)
+- [Agent commit attribution](#agent-commit-attribution)
+- [Fixup commits and autosquash](#fixup-commits-and-autosquash)
+- [Amend](#amend)
 
 ## Inspect the three states
 

@@ -6,15 +6,18 @@ apart. The hypothesis log template is
 
 ## Contents
 
-- Failure signature and first error
-- Hypothesis log with predictions
-- Discriminating experiment
-- Differential diagnosis
-- Effective settings before blaming the tool
-- New session for a repeated agent refusal
-- Bisecting the execution path
-- Worktree isolation
-- Root cause at the owning boundary
+- [Failure signature and first error](#failure-signature-and-first-error)
+- [Hypothesis log with predictions](#hypothesis-log-with-predictions)
+- [Discriminating experiment](#discriminating-experiment)
+- [Differential diagnosis](#differential-diagnosis)
+- [Effective settings before blaming the tool][toc-1]
+- [New session for a repeated agent refusal][toc-2]
+- [Bisecting the execution path](#bisecting-the-execution-path)
+- [Worktree isolation](#worktree-isolation)
+- [Root cause at the owning boundary](#root-cause-at-the-owning-boundary)
+
+[toc-1]: #effective-settings-before-blaming-the-tool
+[toc-2]: #new-session-for-a-repeated-agent-refusal
 
 ## Failure signature and first error
 

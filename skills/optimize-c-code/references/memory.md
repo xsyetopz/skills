@@ -16,18 +16,18 @@ runs. `ALLOC` counts come from
 
 ## Contents
 
-- Struct member ordering
-- Struct of arrays
-- Row-major loop order
-- memcpy for non-overlapping copies
-- memmove for overlapping ranges
-- memset for zeroing
-- End offset instead of strcat
-- Single-pass compaction
-- Direct-indexed counting table
-- Arena allocator
-- Free list of fixed-size slots
-- Geometric growth with realloc
+- [Struct member ordering](#struct-member-ordering)
+- [Struct of arrays](#struct-of-arrays)
+- [Row-major loop order](#row-major-loop-order)
+- [memcpy for non-overlapping copies](#memcpy-for-non-overlapping-copies)
+- [memmove for overlapping ranges](#memmove-for-overlapping-ranges)
+- [memset for zeroing](#memset-for-zeroing)
+- [End offset instead of strcat](#end-offset-instead-of-strcat)
+- [Single-pass compaction](#single-pass-compaction)
+- [Direct-indexed counting table](#direct-indexed-counting-table)
+- [Arena allocator](#arena-allocator)
+- [Free list of fixed-size slots](#free-list-of-fixed-size-slots)
+- [Geometric growth with realloc](#geometric-growth-with-realloc)
 
 ## Struct member ordering
 

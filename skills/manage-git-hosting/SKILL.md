@@ -1,10 +1,9 @@
 ---
 name: manage-git-hosting
 description: >-
-  Operates GitHub, GitLab, and Bitbucket through gh, glab, or REST: issues,
-  labels, comments, pull or merge requests, reviews, merges, releases, branch
-  rules, CI status. Use for hosted repository actions. Not for local Git
-  history.
+  Operates GitHub, GitLab, and Bitbucket via gh, glab, or REST for issues,
+  pull or merge requests, reviews, releases, and CI status. Use for hosted
+  repository actions. Not for local Git history.
 ---
 
 # Manage Git Hosting

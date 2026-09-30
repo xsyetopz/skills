@@ -10,12 +10,12 @@ its tests and fixtures run in `assets/examples/verify.sh` (Executed).
 
 ## Contents
 
-- PNACH file placement and naming
-- patch command
-- RAW extended codes
-- dpatch dynamic patch
-- Texture dump and replacement
-- Save-state version caveats
+- [PNACH file placement and naming](#pnach-file-placement-and-naming)
+- [patch command](#patch-command)
+- [RAW extended codes](#raw-extended-codes)
+- [dpatch dynamic patch](#dpatch-dynamic-patch)
+- [Texture dump and replacement](#texture-dump-and-replacement)
+- [Save-state version caveats](#save-state-version-caveats)
 
 ## PNACH file placement and naming
 

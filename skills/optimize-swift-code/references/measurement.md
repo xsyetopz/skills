@@ -13,14 +13,16 @@ xctrace 16.0. Other build jobs shared the machine (load average 9 to
 
 ## Contents
 
-- ContinuousClock harness
-- package-benchmark
-- Malloc-zone counting hook
-- ARC counting through runtime hooks
-- SIL inspection with -emit-sil
-- Assembly inspection with -emit-assembly
-- xctrace Time Profiler
-- xctrace Allocations
+- [ContinuousClock harness](#continuousclock-harness)
+- [package-benchmark](#package-benchmark)
+- [Malloc-zone counting hook](#malloc-zone-counting-hook)
+- [ARC counting through runtime hooks](#arc-counting-through-runtime-hooks)
+- [SIL inspection with -emit-sil](#sil-inspection-with--emit-sil)
+- [Assembly inspection with -emit-assembly][toc-1]
+- [xctrace Time Profiler](#xctrace-time-profiler)
+- [xctrace Allocations](#xctrace-allocations)
+
+[toc-1]: #assembly-inspection-with--emit-assembly
 
 ## ContinuousClock harness
 

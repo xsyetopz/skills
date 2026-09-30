@@ -20,7 +20,9 @@ no released versions yet.
 - `design-command-line-interfaces` designs, changes, renames, and reviews
   an application's CLI commands from the Command Line Interface Guidelines
   (clig.dev): streams, exit codes, help, errors, flags, prompts, config, and
-  deprecated aliases for renamed commands. `scripts/check_cli.py` probes a
+  deprecated aliases for renamed commands under a compatibility promise, or
+  direct renames with a changelog entry when the project allows breaking
+  changes. `scripts/check_cli.py` probes a
   built CLI for help, unknown-flag, color, stack-trace, and hang defects.
 - `write-implementation-plans` writes implementation plans and reviews
   existing plans for flaws with one set of cards and both bundled checkers.
@@ -66,6 +68,21 @@ no released versions yet.
 - `write-goal-conditions` writes and repairs `/goal` conditions that a
   transcript-only evaluator can judge: an end state the output shows, the
   check command, and a turn bound.
+- `find-code-smells` reports code smells with evidence and routes each to
+  the refactoring that removes it: the 24 smells of *Refactoring* (2nd
+  ed.), folder-layout smells from published style guides (folders by kind,
+  name prefixes standing in for a directory, numbered copies, dumping-ground
+  and category files, stutter), change coupling from Git history, and the
+  default size and complexity limits of common linters.
+  `scripts/layout_smells.py` scans a tree for layout smells, and
+  `scripts/change_coupling.py` computes code-maat's logical coupling from
+  `git log`.
+- `write-github-markdown` writes and fixes GitHub Flavored Markdown that
+  also reads well as raw text: heading anchors, linked Contents lists,
+  relative and reference-style links, fences, tables, lists, alerts,
+  footnotes, collapsed sections, Mermaid, math, and a markdownlint rule
+  map. `scripts/markdown_toc.py` writes or checks the linked list under a
+  `## Contents` heading.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.
@@ -88,6 +105,23 @@ no released versions yet.
 
 - Skill descriptions state what the skill does, then when to use it, then
   what it is not for, in the third person.
+- Every skill description is at most 200 characters and puts the task and
+  its trigger words first.
+- Skill descriptions use plain words without colons, slashes, parentheses,
+  or other symbols, and `create-agent-skills` requires this for new skills.
+- Every `## Contents` section in skill references is a list of links to
+  heading anchors, written by `markdown_toc.py`, and
+  `check_reference_structure.py` fails a Contents entry that is not a link
+  or a `##` heading the list does not link.
+- `document-codebases` routes Markdown syntax (fences, tables, alerts,
+  collapsed sections, diagrams, Contents lists) to `write-github-markdown`
+  instead of repeating it.
+- `write-readable-code` treats repository-wide category files (`types`,
+  `constants`, `models`) as dumping grounds and lists SwiftLint, RuboCop,
+  and detekt size defaults next to its file-length limits.
+- `design-software-architecture` adds package cohesion (REP, CCP, CRP) and
+  stable-dependency (ADP, SDP, SAP) cards with Martin's instability and
+  abstractness metrics.
 - `SKILL.md` bodies and reference cards use plain, direct prose, and every
   code-skill card has a fenced example.
 - Renamed `build-and-debug-duckstation` to `debug-duckstation`,

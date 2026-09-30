@@ -1,10 +1,9 @@
 ---
 name: update-changelogs
 description: >-
-  Adds and corrects changelog entries from verified changes in a Git range:
-  Keep a Changelog sections, user-facing wording, breaking-change notes,
-  release sections. Use when preparing release notes or a CHANGELOG. Not
-  for publishing releases or SemVer rules on their own.
+  Adds and corrects CHANGELOG entries from verified changes in a Git range, in
+  Keep a Changelog form. Use when preparing release notes or a changelog. Not
+  for publishing releases or SemVer rules.
 ---
 
 # Update Changelogs

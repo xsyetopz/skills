@@ -12,7 +12,7 @@ machine-specific, taken while other builds ran.
 
 - [Job with a progress monitor](#job-with-a-progress-monitor)
 - [Job.create with a lambda](#jobcreate-with-a-lambda)
-- [SubMonitor split and cancellation][toc-split]
+- [SubMonitor split and cancellation](#submonitor-split-and-cancellation)
 - [Cancelling and joining a job](#cancelling-and-joining-a-job)
 - [Resource as a scheduling rule](#resource-as-a-scheduling-rule)
 - [MultiRule.combine](#multirulecombine)
@@ -21,8 +21,10 @@ machine-specific, taken while other builds ran.
 - [Job families and bundle shutdown](#job-families-and-bundle-shutdown)
 - [System and user jobs](#system-and-user-jobs)
 - [SWT UI thread ownership](#swt-ui-thread-ownership)
-- [Display.asyncExec with a disposed check][toc-async]
+- [Display.asyncExec with a disposed check][toc-1]
 - [Display.syncExec](#displaysyncexec)
+
+[toc-1]: #displayasyncexec-with-a-disposed-check
 
 ## Job with a progress monitor
 
@@ -565,5 +567,3 @@ Tier: not in the example tests.
 [rulefactory]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/resources/IResourceRuleFactory.html
 [display]: https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/swt/widgets/Display.html
 [worker]: https://github.com/eclipse-platform/eclipse.platform/blob/cf70d8b4698e3246254c8fed687562c84b5dbfeb/runtime/bundles/org.eclipse.core.jobs/src/org/eclipse/core/internal/jobs/Worker.java
-[toc-split]: #submonitor-split-and-cancellation
-[toc-async]: #displayasyncexec-with-a-disposed-check

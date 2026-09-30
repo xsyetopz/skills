@@ -13,15 +13,15 @@ rayon 1.12.0, criterion 0.8.2.
 
 ## Contents
 
-- HashMap entry API
-- HashMap::with_capacity
-- FxHashMap for trusted keys
-- BufWriter around many small writes
-- BufReader around many small reads
-- read_line into a reused String
-- Lock stdout once
-- Buffered stdout
-- rayon parallel iterators
+- [HashMap entry API](#hashmap-entry-api)
+- [HashMap::with_capacity](#hashmapwith_capacity)
+- [FxHashMap for trusted keys](#fxhashmap-for-trusted-keys)
+- [BufWriter around many small writes](#bufwriter-around-many-small-writes)
+- [BufReader around many small reads](#bufreader-around-many-small-reads)
+- [read_line into a reused String](#read_line-into-a-reused-string)
+- [Lock stdout once](#lock-stdout-once)
+- [Buffered stdout](#buffered-stdout)
+- [rayon parallel iterators](#rayon-parallel-iterators)
 
 ## HashMap entry API
 

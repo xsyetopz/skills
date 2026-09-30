@@ -7,13 +7,13 @@ counterparts in `weak_examples.py`.
 
 ## Contents
 
-- Regression reproducer
-- Persisted effects after failure
-- Deterministic interleaving
-- Injected clock and bounded waits
-- Test isolation from shared state
-- Flaky test diagnosis
-- Test retirement decision
+- [Regression reproducer](#regression-reproducer)
+- [Persisted effects after failure](#persisted-effects-after-failure)
+- [Deterministic interleaving](#deterministic-interleaving)
+- [Injected clock and bounded waits](#injected-clock-and-bounded-waits)
+- [Test isolation from shared state](#test-isolation-from-shared-state)
+- [Flaky test diagnosis](#flaky-test-diagnosis)
+- [Test retirement decision](#test-retirement-decision)
 
 ## Regression reproducer
 

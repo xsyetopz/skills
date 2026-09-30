@@ -1,5 +1,9 @@
 # Types, vtables, and RTTI
 
+Recover a type from how the code uses memory, then check it against every
+place that touches it. Record each field with the address of the access
+that shows it.
+
 ## Contents
 
 - [Field recovery](#field-recovery)
@@ -9,10 +13,6 @@
 - [MSVC RTTI](#msvc-rtti)
 - [Map virtual slots to methods](#map-virtual-slots-to-methods)
 - [Sources](#sources)
-
-Recover a type from how the code uses memory, then check it against every
-place that touches it. Record each field with the address of the access
-that shows it.
 
 ## Field recovery
 

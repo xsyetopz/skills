@@ -8,12 +8,12 @@ arXiv, OpenAlex, and Crossref on 2026-09-25.
 
 ## Contents
 
-- Provider and native query
-- Version identity
-- Disconfirming search
-- Corrections and retractions lookup
-- Rate limits and credentials
-- Zero results are not absence
+- [Provider and native query](#provider-and-native-query)
+- [Version identity](#version-identity)
+- [Disconfirming search](#disconfirming-search)
+- [Corrections and retractions lookup](#corrections-and-retractions-lookup)
+- [Rate limits and credentials](#rate-limits-and-credentials)
+- [Zero results are not absence](#zero-results-are-not-absence)
 
 ## Provider and native query
 

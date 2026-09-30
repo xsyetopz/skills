@@ -15,13 +15,13 @@ Max running macOS 27.0. The LuaRocks card is **structure-checked only**
 
 ## Contents
 
-- Runtimepath plugin layout
-- Lazy loading from plugin/
-- Load guard variable
-- Filetype plugin
-- Lua 5.1 and LuaJIT compatibility
-- vim.loader byte-code cache
-- LuaRocks rockspec
+- [Runtimepath plugin layout](#runtimepath-plugin-layout)
+- [Lazy loading from plugin/](#lazy-loading-from-plugin)
+- [Load guard variable](#load-guard-variable)
+- [Filetype plugin](#filetype-plugin)
+- [Lua 5.1 and LuaJIT compatibility](#lua-51-and-luajit-compatibility)
+- [vim.loader byte-code cache](#vimloader-byte-code-cache)
+- [LuaRocks rockspec](#luarocks-rockspec)
 
 ## Runtimepath plugin layout
 

@@ -2,9 +2,8 @@
 name: optimize-javascript-code
 description: >-
   Profiles and optimizes JavaScript CPU time, allocations, and event-loop
-  latency on Node, Bun, and browsers with CPU profiles and deopt traces. Use
-  when a JavaScript benchmark or profile shows the cost. Not for runtime
-  migration or type-check speed.
+  latency on Node, Bun, and browsers. Use when a JavaScript benchmark or
+  profile shows the cost. Not for type-check speed.
 ---
 
 # Optimize JavaScript Code

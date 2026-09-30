@@ -12,13 +12,13 @@ arm64 release build on an Apple M1 Max, macOS 27.0, LuaJIT
 
 ## Contents
 
-- Headless test runner
-- Isolated editor state
-- Waiting for async results
-- Mutant runs
-- Pure Lua tests under two runtimes
-- LuaCATS annotations
-- Help file and helptags
+- [Headless test runner](#headless-test-runner)
+- [Isolated editor state](#isolated-editor-state)
+- [Waiting for async results](#waiting-for-async-results)
+- [Mutant runs](#mutant-runs)
+- [Pure Lua tests under two runtimes](#pure-lua-tests-under-two-runtimes)
+- [LuaCATS annotations](#luacats-annotations)
+- [Help file and helptags](#help-file-and-helptags)
 
 ## Headless test runner
 

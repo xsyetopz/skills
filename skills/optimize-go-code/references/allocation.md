@@ -15,22 +15,30 @@ by benchstat `-col /impl` (median, `vs base` with p-value).
 
 ## Contents
 
-- Preallocated slice capacity
-- Map size hint
-- strings.Builder with Grow
-- strconv append functions instead of fmt
-- bytes.Buffer reused with Reset
-- string(b) in map lookups and comparisons
-- sync.Pool of pointer-shaped objects
-- sync.Pool element type: pointer, not slice
-- clear to reuse a map
-- Struct map keys instead of concatenated strings
-- slices.Sort instead of sort.Slice
-- Sorted map keys with a presized slice
-- Copying a small sub-slice out of a large buffer
-- Return small structs by value
-- Generic functions instead of interface slices
-- Struct field order and padding
+- [Preallocated slice capacity](#preallocated-slice-capacity)
+- [Map size hint](#map-size-hint)
+- [strings.Builder with Grow](#stringsbuilder-with-grow)
+- [strconv append functions instead of fmt][toc-1]
+- [bytes.Buffer reused with Reset](#bytesbuffer-reused-with-reset)
+- [string(b) in map lookups and comparisons][toc-2]
+- [sync.Pool of pointer-shaped objects](#syncpool-of-pointer-shaped-objects)
+- [sync.Pool element type: pointer, not slice][toc-3]
+- [clear to reuse a map](#clear-to-reuse-a-map)
+- [Struct map keys instead of concatenated strings][toc-4]
+- [slices.Sort instead of sort.Slice](#slicessort-instead-of-sortslice)
+- [Sorted map keys with a presized slice][toc-5]
+- [Copying a small sub-slice out of a large buffer][toc-6]
+- [Return small structs by value](#return-small-structs-by-value)
+- [Generic functions instead of interface slices][toc-7]
+- [Struct field order and padding](#struct-field-order-and-padding)
+
+[toc-1]: #strconv-append-functions-instead-of-fmt
+[toc-2]: #stringb-in-map-lookups-and-comparisons
+[toc-3]: #syncpool-element-type-pointer-not-slice
+[toc-4]: #struct-map-keys-instead-of-concatenated-strings
+[toc-5]: #sorted-map-keys-with-a-presized-slice
+[toc-6]: #copying-a-small-sub-slice-out-of-a-large-buffer
+[toc-7]: #generic-functions-instead-of-interface-slices
 
 ## Preallocated slice capacity
 

@@ -13,15 +13,23 @@ Tier: Executed. `verify collections`, `noea`, `bytecode`, `benchmark`,
 
 ## Contents
 
-- Sequence for a multi-step chain that stops early
-- Sequence versus Iterable for short chains
-- Materialize a Sequence that is consumed more than once
-- sumOf instead of map then sum
-- buildList with capacity instead of list plus element
-- buildString instead of string += in a loop
-- String templates
-- groupingBy eachCount instead of groupBy mapValues
-- associateWith instead of associate with Pair
+- [Sequence for a multi-step chain that stops early][toc-1]
+- [Sequence versus Iterable for short chains][toc-2]
+- [Materialize a Sequence that is consumed more than once][toc-3]
+- [sumOf instead of map then sum](#sumof-instead-of-map-then-sum)
+- [buildList with capacity instead of list plus element][toc-4]
+- [buildString instead of string += in a loop][toc-5]
+- [String templates](#string-templates)
+- [groupingBy eachCount instead of groupBy mapValues][toc-6]
+- [associateWith instead of associate with Pair][toc-7]
+
+[toc-1]: #sequence-for-a-multi-step-chain-that-stops-early
+[toc-2]: #sequence-versus-iterable-for-short-chains
+[toc-3]: #materialize-a-sequence-that-is-consumed-more-than-once
+[toc-4]: #buildlist-with-capacity-instead-of-list-plus-element
+[toc-5]: #buildstring-instead-of-string--in-a-loop
+[toc-6]: #groupingby-eachcount-instead-of-groupby-mapvalues
+[toc-7]: #associatewith-instead-of-associate-with-pair
 
 ## Sequence for a multi-step chain that stops early
 

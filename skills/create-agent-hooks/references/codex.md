@@ -8,13 +8,15 @@ ahead of a release, so use the schemas for the installed release.
 
 ## Contents
 
-- Locations and trust review
-- Config shape and TOML form
-- Matcher support per event
-- PreToolUse decision
-- Stop continuation
-- SessionStart context
-- Validating against the generated schemas
+- [Locations and trust review](#locations-and-trust-review)
+- [Config shape and TOML form](#config-shape-and-toml-form)
+- [Matcher support per event](#matcher-support-per-event)
+- [PreToolUse decision](#pretooluse-decision)
+- [Stop continuation](#stop-continuation)
+- [SessionStart context](#sessionstart-context)
+- [Validating against the generated schemas][toc-1]
+
+[toc-1]: #validating-against-the-generated-schemas
 
 ## Locations and trust review
 

@@ -12,17 +12,23 @@ from `sh assets/examples/verify.sh measure`.
 
 ## Contents
 
-- Fuse map/filter/reduce chains into one loop
-- Hoist closures out of hot calls
-- Indexed for loop instead of forEach
-- push instead of concat in a loop
-- String += instead of array join
-- Hoist regular-expression literals
-- Cache RegExp objects built from strings
-- Sticky regex for positional tokenizing
-- Copy the changed path instead of deep cloning
-- structuredClone instead of a JSON round trip
-- try/catch inside hot functions
+- [Fuse map/filter/reduce chains into one loop][toc-1]
+- [Hoist closures out of hot calls](#hoist-closures-out-of-hot-calls)
+- [Indexed for loop instead of forEach](#indexed-for-loop-instead-of-foreach)
+- [push instead of concat in a loop](#push-instead-of-concat-in-a-loop)
+- [String += instead of array join](#string--instead-of-array-join)
+- [Hoist regular-expression literals](#hoist-regular-expression-literals)
+- [Cache RegExp objects built from strings][toc-2]
+- [Sticky regex for positional tokenizing][toc-3]
+- [Copy the changed path instead of deep cloning][toc-4]
+- [structuredClone instead of a JSON round trip][toc-5]
+- [try/catch inside hot functions](#trycatch-inside-hot-functions)
+
+[toc-1]: #fuse-mapfilterreduce-chains-into-one-loop
+[toc-2]: #cache-regexp-objects-built-from-strings
+[toc-3]: #sticky-regex-for-positional-tokenizing
+[toc-4]: #copy-the-changed-path-instead-of-deep-cloning
+[toc-5]: #structuredclone-instead-of-a-json-round-trip
 
 ## Fuse map/filter/reduce chains into one loop
 

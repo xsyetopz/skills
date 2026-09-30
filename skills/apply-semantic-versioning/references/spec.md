@@ -7,12 +7,14 @@ Cards for the grammar and ordering rules of [Semantic Versioning
 
 ## Contents
 
-- Version syntax
-- Released versions are immutable
-- Pre-release versions
-- Build metadata
-- Precedence
-- The v prefix is not part of the version
+- [Version syntax](#version-syntax)
+- [Released versions are immutable](#released-versions-are-immutable)
+- [Pre-release versions](#pre-release-versions)
+- [Build metadata](#build-metadata)
+- [Precedence](#precedence)
+- [The v prefix is not part of the version][toc-1]
+
+[toc-1]: #the-v-prefix-is-not-part-of-the-version
 
 ## Version syntax
 

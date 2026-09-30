@@ -18,19 +18,21 @@ runs (timings) with tsc 7.0.2, Node 26.8.2, and Bun 1.4.2.
 
 ## Contents
 
-- Const enum
-- Const enum under isolatedModules
-- As const object instead of enum
-- Explicit fields instead of parameter properties
-- Declare for redeclared fields
-- ES module instead of namespace
-- Native async functions from ES2017
-- Native private fields from ES2022
-- Native object spread from ES2018
-- importHelpers with tslib
-- Standard decorators and the target
-- Decorator metadata retains imports
-- Top-level import type
+- [Const enum](#const-enum)
+- [Const enum under isolatedModules](#const-enum-under-isolatedmodules)
+- [As const object instead of enum](#as-const-object-instead-of-enum)
+- [Explicit fields instead of parameter properties][toc-1]
+- [Declare for redeclared fields](#declare-for-redeclared-fields)
+- [ES module instead of namespace](#es-module-instead-of-namespace)
+- [Native async functions from ES2017](#native-async-functions-from-es2017)
+- [Native private fields from ES2022](#native-private-fields-from-es2022)
+- [Native object spread from ES2018](#native-object-spread-from-es2018)
+- [importHelpers with tslib](#importhelpers-with-tslib)
+- [Standard decorators and the target](#standard-decorators-and-the-target)
+- [Decorator metadata retains imports](#decorator-metadata-retains-imports)
+- [Top-level import type](#top-level-import-type)
+
+[toc-1]: #explicit-fields-instead-of-parameter-properties
 
 ## Const enum
 

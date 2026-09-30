@@ -6,15 +6,15 @@ review.
 
 ## Contents
 
-- Expand and contract migration
-- Feature flag with removal task
-- Rollback per irreversible step
-- Estimates from analogies with ranges
-- Critical path and elapsed time
-- Risk as if-then with trigger
-- Updating the plan from actuals
-- Change classification
-- Process choice
+- [Expand and contract migration](#expand-and-contract-migration)
+- [Feature flag with removal task](#feature-flag-with-removal-task)
+- [Rollback per irreversible step](#rollback-per-irreversible-step)
+- [Estimates from analogies with ranges](#estimates-from-analogies-with-ranges)
+- [Critical path and elapsed time](#critical-path-and-elapsed-time)
+- [Risk as if-then with trigger](#risk-as-if-then-with-trigger)
+- [Updating the plan from actuals](#updating-the-plan-from-actuals)
+- [Change classification](#change-classification)
+- [Process choice](#process-choice)
 
 ## Expand and contract migration
 

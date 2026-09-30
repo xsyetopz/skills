@@ -10,12 +10,14 @@ show that the tests catch it.
 
 ## Contents
 
-- Given/When/Then criterion
-- Criterion to test mapping
-- Controlled interleavings
-- Boundary values
-- Observations, not implementation details
-- Discrimination check
+- [Given/When/Then criterion](#givenwhenthen-criterion)
+- [Criterion to test mapping](#criterion-to-test-mapping)
+- [Controlled interleavings](#controlled-interleavings)
+- [Boundary values](#boundary-values)
+- [Observations, not implementation details][toc-1]
+- [Discrimination check](#discrimination-check)
+
+[toc-1]: #observations-not-implementation-details
 
 ## Given/When/Then criterion
 

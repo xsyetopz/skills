@@ -7,14 +7,20 @@ Apple M1 Max, .NET 10.0.11 Arm64, BenchmarkDotNet 0.15.8 `--job short`.
 
 ## Contents
 
-- LibraryImport source-generated P/Invoke
-- UTF-8 string literals for native calls
-- Function pointers and UnmanagedCallersOnly
-- SafeHandle for owned native resources
-- Pinned object heap arrays
-- Blittable structs
-- Callback lifetime and rooting
-- Native-library workloads: SDL3, fonts, images, BASS
+- [LibraryImport source-generated P/Invoke][toc-1]
+- [UTF-8 string literals for native calls][toc-2]
+- [Function pointers and UnmanagedCallersOnly][toc-3]
+- [SafeHandle for owned native resources][toc-4]
+- [Pinned object heap arrays](#pinned-object-heap-arrays)
+- [Blittable structs](#blittable-structs)
+- [Callback lifetime and rooting](#callback-lifetime-and-rooting)
+- [Native-library workloads: SDL3, fonts, images, BASS][toc-5]
+
+[toc-1]: #libraryimport-source-generated-pinvoke
+[toc-2]: #utf-8-string-literals-for-native-calls
+[toc-3]: #function-pointers-and-unmanagedcallersonly
+[toc-4]: #safehandle-for-owned-native-resources
+[toc-5]: #native-library-workloads-sdl3-fonts-images-bass
 
 ## LibraryImport source-generated P/Invoke
 

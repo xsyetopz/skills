@@ -1,16 +1,9 @@
 ---
 name: reverse-engineer-functions
 description: >-
-  Reverses one function in a compiled binary with any disassembler or
-  decompiler (Ghidra, IDA, Binary Ninja, radare2, rizin): evidence-cited
-  claims, calling conventions per platform (x86 cdecl, stdcall, fastcall,
-  thiscall, SysV x86-64, Win64, AArch64), compiler idioms, struct recovery
-  from field accesses, vtables and RTTI, name confidence, and a report with
-  open questions by address. Use when asked to reverse a function, recover a
-  struct, identify a vtable, or name a calling convention in a binary the
-  user may analyze. Not for driving Ghidra itself, byte-matching
-  decompilations, debugging programs with source, or licence, DRM, or
-  anti-cheat bypass.
+  Reverses a binary function from Ghidra, IDA, Binary Ninja, or radare2
+  output, recovering call conventions, structs, vtables, and names. Use to
+  decode a function. Not for byte-matching or DRM bypass.
 ---
 
 # Reverse Engineer Functions

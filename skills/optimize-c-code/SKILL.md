@@ -1,8 +1,8 @@
 ---
 name: optimize-c-code
 description: >-
-  Profiles and optimizes C CPU time, memory, and I/O with sanitizers, compiler
-  remarks, assembly, LTO, and PGO. Use when a C benchmark or profile shows the
+  Profiles and optimizes C CPU time, memory, and IO with perf, sanitizers,
+  compiler remarks, LTO, and PGO. Use when a C benchmark or profile shows the
   cost. Not for C++ code or style fixes.
 ---
 

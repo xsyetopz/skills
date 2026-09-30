@@ -11,10 +11,10 @@ machine-specific.
 
 ## Contents
 
-- Virtual threads for blocking tasks
-- Virtual thread pinning after JEP 491
-- ConcurrentHashMap computeIfAbsent
-- LongAdder for contended counters
+- [Virtual threads for blocking tasks](#virtual-threads-for-blocking-tasks)
+- [Virtual thread pinning after JEP 491](#virtual-thread-pinning-after-jep-491)
+- [ConcurrentHashMap computeIfAbsent](#concurrenthashmap-computeifabsent)
+- [LongAdder for contended counters](#longadder-for-contended-counters)
 
 ## Virtual threads for blocking tasks
 

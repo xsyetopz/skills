@@ -15,16 +15,20 @@ tests. Sources: SDK docs at commit `70e2ca2` of
 
 ## Contents
 
-- Plugin identity: id, name, vendor
-- Required depends on a module or plugin
-- Optional depends with a config file
-- since-build and the target platform
-- until-build and open-ended compatibility
-- strict-until-build
-- Declaring an interface extension point
-- Registering an extension
-- Dynamic plugin requirements
-- plugin.xml structural checker
+- [Plugin identity: id, name, vendor](#plugin-identity-id-name-vendor)
+- [Required depends on a module or plugin][toc-1]
+- [Optional depends with a config file](#optional-depends-with-a-config-file)
+- [since-build and the target platform](#since-build-and-the-target-platform)
+- [until-build and open-ended compatibility][toc-2]
+- [strict-until-build](#strict-until-build)
+- [Declaring an interface extension point][toc-3]
+- [Registering an extension](#registering-an-extension)
+- [Dynamic plugin requirements](#dynamic-plugin-requirements)
+- [plugin.xml structural checker](#pluginxml-structural-checker)
+
+[toc-1]: #required-depends-on-a-module-or-plugin
+[toc-2]: #until-build-and-open-ended-compatibility
+[toc-3]: #declaring-an-interface-extension-point
 
 ## Plugin identity: id, name, vendor
 

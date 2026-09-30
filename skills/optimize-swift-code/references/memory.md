@@ -12,17 +12,22 @@ M1 Max, Swift 6.3.3, `-O -wmo`; they are machine-specific.
 
 ## Contents
 
-- Structs instead of classes for plain data
-- Contiguous values instead of linked nodes
-- Copy-on-write with isKnownUniquelyReferenced
-- inout instead of copy and reassign
-- consuming parameters
-- The consume operator
-- borrowing parameters
-- Noncopyable types
-- Local accumulator instead of a class property
-- inout instead of a captured var
-- Wrapping arithmetic
+- [Structs instead of classes for plain data][toc-1]
+- [Contiguous values instead of linked nodes][toc-2]
+- [Copy-on-write with isKnownUniquelyReferenced][toc-3]
+- [inout instead of copy and reassign](#inout-instead-of-copy-and-reassign)
+- [consuming parameters](#consuming-parameters)
+- [The consume operator](#the-consume-operator)
+- [borrowing parameters](#borrowing-parameters)
+- [Noncopyable types](#noncopyable-types)
+- [Local accumulator instead of a class property][toc-4]
+- [inout instead of a captured var](#inout-instead-of-a-captured-var)
+- [Wrapping arithmetic](#wrapping-arithmetic)
+
+[toc-1]: #structs-instead-of-classes-for-plain-data
+[toc-2]: #contiguous-values-instead-of-linked-nodes
+[toc-3]: #copy-on-write-with-isknownuniquelyreferenced
+[toc-4]: #local-accumulator-instead-of-a-class-property
 
 ## Structs instead of classes for plain data
 

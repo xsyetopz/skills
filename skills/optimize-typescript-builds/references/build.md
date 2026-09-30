@@ -12,13 +12,13 @@ Tier: Executed (`verify.sh checker`).
 
 ## Contents
 
-- skipLibCheck
-- Scoped types array
-- Scoped include
-- Incremental builds with tsBuildInfo
-- Project references with tsc -b
-- Isolated declarations with noCheck
-- Emit without checking
+- [skipLibCheck](#skiplibcheck)
+- [Scoped types array](#scoped-types-array)
+- [Scoped include](#scoped-include)
+- [Incremental builds with tsBuildInfo](#incremental-builds-with-tsbuildinfo)
+- [Project references with tsc -b](#project-references-with-tsc--b)
+- [Isolated declarations with noCheck](#isolated-declarations-with-nocheck)
+- [Emit without checking](#emit-without-checking)
 
 ## skipLibCheck
 

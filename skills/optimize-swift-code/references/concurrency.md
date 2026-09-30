@@ -18,12 +18,12 @@ task (`hammerSync`), as synchronous callers use them.
 
 ## Contents
 
-- Actor-isolated state
-- Mutex from Synchronization
-- Atomic from Synchronization
-- OSAllocatedUnfairLock
-- Batching actor calls
-- TaskGroup for CPU-bound work
+- [Actor-isolated state](#actor-isolated-state)
+- [Mutex from Synchronization](#mutex-from-synchronization)
+- [Atomic from Synchronization](#atomic-from-synchronization)
+- [OSAllocatedUnfairLock](#osallocatedunfairlock)
+- [Batching actor calls](#batching-actor-calls)
+- [TaskGroup for CPU-bound work](#taskgroup-for-cpu-bound-work)
 
 ## Actor-isolated state
 

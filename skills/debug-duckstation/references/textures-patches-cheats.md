@@ -8,10 +8,10 @@ written by release `v0.1-11826`.
 
 ## Contents
 
-- Texture dumping
-- Texture replacement and aliases
-- Per-game texture options
-- Patches and cheats file
+- [Texture dumping](#texture-dumping)
+- [Texture replacement and aliases](#texture-replacement-and-aliases)
+- [Per-game texture options](#per-game-texture-options)
+- [Patches and cheats file](#patches-and-cheats-file)
 
 ## Texture dumping
 

@@ -8,16 +8,16 @@ list][readme].
 
 ## Contents
 
-- Variables and strings
-- env() with a default
-- Command-line variable overrides
-- Conditional expressions
-- Backticks and set lazy
-- Exporting to recipes
-- Dotenv loading
-- Shell setting
-- require() and which()
-- minimum-version
+- [Variables and strings](#variables-and-strings)
+- [env() with a default](#env-with-a-default)
+- [Command-line variable overrides](#command-line-variable-overrides)
+- [Conditional expressions](#conditional-expressions)
+- [Backticks and set lazy](#backticks-and-set-lazy)
+- [Exporting to recipes](#exporting-to-recipes)
+- [Dotenv loading](#dotenv-loading)
+- [Shell setting](#shell-setting)
+- [require() and which()](#require-and-which)
+- [minimum-version](#minimum-version)
 
 ## Variables and strings
 

@@ -45,7 +45,25 @@ def make_skill(root: Path, skill_md: str = SKILL) -> Path:
         ),
         encoding="utf-8",
     )
-    long_lines = ["# Long", "", "## Contents", ""] + ["line"] * 120
+    long_lines = [
+        "# Long",
+        "",
+        "## Contents",
+        "",
+        "- [Part one](#part-one)",
+        "- [Part two][toc-1]",
+        "",
+        "[toc-1]: #part-two",
+        "",
+        "## Part one",
+        "",
+        "```markdown",
+        "## Not a heading",
+        "```",
+        "",
+        "## Part two",
+        "",
+    ] + ["line"] * 120
     (skill / "references" / "long.md").write_text(
         "\n".join(long_lines) + "\n", encoding="utf-8"
     )
@@ -109,6 +127,41 @@ class CheckerTests(unittest.TestCase):
             status, output = run(skill)
             self.assertEqual(status, 1)
             self.assertIn("no '## Contents' section", output)
+
+    def test_plain_contents_entry_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = make_skill(Path(tmp))
+            long = skill / "references" / "long.md"
+            text = long.read_text().replace("- [Part one](#part-one)", "- Part one")
+            long.write_text(text)
+            status, output = run(skill)
+            self.assertEqual(status, 1)
+            self.assertIn(
+                "Contents entry is not a link to a heading: - Part one", output
+            )
+
+    def test_contents_missing_a_section_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = make_skill(Path(tmp))
+            long = skill / "references" / "long.md"
+            long.write_text(long.read_text() + "\n## Part three\n")
+            status, output = run(skill)
+            self.assertEqual(status, 1)
+            self.assertIn("Contents does not link '## Part three'", output)
+
+    def test_prose_in_contents_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = make_skill(Path(tmp))
+            long = skill / "references" / "long.md"
+            text = long.read_text().replace(
+                "[toc-1]: #part-two", "Read in order.\n\n[toc-1]: #part-two"
+            )
+            long.write_text(text)
+            status, output = run(skill)
+            self.assertEqual(status, 1)
+            self.assertIn(
+                "Contents entry is not a link to a heading: Read in order.", output
+            )
 
     def test_missing_anchor_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

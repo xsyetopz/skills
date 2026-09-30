@@ -1,10 +1,9 @@
 ---
 name: write-behavior-tests
 description: >-
-  Writes, reviews, and retires behavior tests: independent expected values,
-  boundaries, test doubles versus real dependencies, regressions seen failing
-  first, deterministic time and races, property and mutation testing. Use when
-  adding or judging tests.
+  Writes, reviews, and retires behavior tests with independent expected
+  values, boundaries, doubles, regressions, and property and mutation testing.
+  Use when adding or judging tests.
 ---
 
 # Write Behavior Tests

@@ -15,18 +15,25 @@ quoting it.
 
 ## Contents
 
-- Guaranteed copy elision of prvalues
-- Return a local by name (NRVO)
-- Implicit move on return
-- Non-const locals for values that will be moved
-- std::move at the last use
-- noexcept move constructor for vector growth
-- Pass by value and move for sink parameters
-- const reference for read-only parameters
-- emplace_back instead of push_back of a temporary
-- make_shared instead of shared_ptr from new
-- unique_ptr instead of shared_ptr
-- Pass shared_ptr by const reference
+- [Guaranteed copy elision of prvalues](#guaranteed-copy-elision-of-prvalues)
+- [Return a local by name (NRVO)](#return-a-local-by-name-nrvo)
+- [Implicit move on return](#implicit-move-on-return)
+- [Non-const locals for values that will be moved][toc-1]
+- [std::move at the last use](#stdmove-at-the-last-use)
+- [noexcept move constructor for vector growth][toc-2]
+- [Pass by value and move for sink parameters][toc-3]
+- [const reference for read-only parameters][toc-4]
+- [emplace_back instead of push_back of a temporary][toc-5]
+- [make_shared instead of shared_ptr from new][toc-6]
+- [unique_ptr instead of shared_ptr](#unique_ptr-instead-of-shared_ptr)
+- [Pass shared_ptr by const reference](#pass-shared_ptr-by-const-reference)
+
+[toc-1]: #non-const-locals-for-values-that-will-be-moved
+[toc-2]: #noexcept-move-constructor-for-vector-growth
+[toc-3]: #pass-by-value-and-move-for-sink-parameters
+[toc-4]: #const-reference-for-read-only-parameters
+[toc-5]: #emplace_back-instead-of-push_back-of-a-temporary
+[toc-6]: #make_shared-instead-of-shared_ptr-from-new
 
 ## Guaranteed copy elision of prvalues
 

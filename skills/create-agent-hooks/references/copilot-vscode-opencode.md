@@ -8,13 +8,16 @@ directly, and it is type-checked against `@opencode-ai/plugin@1.18.32`.
 
 ## Contents
 
-- Copilot: locations and file format
-- Copilot: payload shapes and matchers
-- Copilot: preToolUse decision and exit codes
-- Copilot cloud agent constraints
-- VS Code Local hooks and shared .github/hooks
-- OpenCode plugin hooks
-- OpenCode V2 plugin API
+- [Copilot: locations and file format](#copilot-locations-and-file-format)
+- [Copilot: payload shapes and matchers](#copilot-payload-shapes-and-matchers)
+- [Copilot: preToolUse decision and exit codes][toc-1]
+- [Copilot cloud agent constraints](#copilot-cloud-agent-constraints)
+- [VS Code Local hooks and shared .github/hooks][toc-2]
+- [OpenCode plugin hooks](#opencode-plugin-hooks)
+- [OpenCode V2 plugin API](#opencode-v2-plugin-api)
+
+[toc-1]: #copilot-pretooluse-decision-and-exit-codes
+[toc-2]: #vs-code-local-hooks-and-shared-githubhooks
 
 ## Copilot: locations and file format
 

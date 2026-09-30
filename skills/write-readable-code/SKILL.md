@@ -3,8 +3,8 @@ name: write-readable-code
 description: >-
   Restructures code so people and agents follow it without guessing and
   reviews it against the Zen of Python (PEP 20) in any language. Use when code
-  is hard to follow or for a clarity, Pythonic, or Zen of Python review. Not
-  for performance or PEP 8 formatting.
+  is hard to follow, files grow too long, or for a clarity, Pythonic, or Zen
+  of Python review. Not for performance or PEP 8 formatting.
 ---
 
 # Write Readable Code
@@ -85,6 +85,7 @@ through the [aphorism map][zen-map] of all 19 aphorisms.
 | New public helper or option without a caller | [Never right now][never] |
 | Bit trick or clever code without a stated reason | [Hard to explain][explain] |
 | `from x import *`, glob `use`, same name from two modules | [Namespaces][namespaces] |
+| File over 300 code lines (test file over 500), or unrelated types in one file | [File length](references/file-layout.md#file-length) |
 | New file, or `public`/`pub`/`export` added | [File layout](references/file-layout.md#the-decision-order), then the language card |
 | Reviewing an agent's diff, formatter noise | [Agent failure modes](references/agent-failure-modes.md) |
 | Zen of Python, PEP 20, or "Pythonic" design review | [Aphorism map][zen-map] |
@@ -103,7 +104,9 @@ through the [aphorism map][zen-map] of all 19 aphorisms.
 
 These are guardrails, not goals: a straight 45-line sequence can read
 better than a 15-line function with nested branches, so do not split to
-satisfy a count. The repository's linter limits win.
+satisfy a count. The repository's linter limits win. Files: at most 300
+code lines per source file and 500 per test file, without blank lines,
+comments, or docstrings; split by responsibility, never by count alone.
 
 ## Rules
 
@@ -138,6 +141,10 @@ satisfy a count. The repository's linter limits win.
 - `scripts/python_function_metrics.py PATH... [--max-nloc N] [--max-ccn N]
   [--max-nesting N] [--max-params N] [--json]`: per-function metrics for
   Python; exit 1 when a limit is exceeded.
+- `scripts/file_length.py PATH... [--max-code N] [--max-test N]
+  [--test-glob GLOB] [--exclude GLOB] [--all] [--json]`: code lines per
+  file for about 25 language families, test files separated; exit 1 when a
+  file is over its limit. Pass single files to count only them.
 - `scripts/term_report.py PATH... --group concept=canonical,alt,...`:
   counts competing terms across identifiers; exit 1 on drift.
 - `scripts/zen_scan.py PATH... [--json]`: AST scanner for
@@ -168,8 +175,8 @@ satisfy a count. The repository's linter limits win.
   Pythonic review; the aphorism map plus explicit defaults, silencing,
   guessing, abstraction, public surface, explainability, and namespaces.
 - [File layout and visibility](references/file-layout.md): read when
-  adding a file or widening visibility; decision order and one card per
-  language with its graph and template.
+  adding a file, splitting a long one, or widening visibility; decision
+  order, file length, and one card per language with its template.
 - [Agent failure modes](references/agent-failure-modes.md): read before
   reporting a diff; churn and formatting, tests as proof, copied defects,
   and the review order.

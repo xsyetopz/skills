@@ -87,6 +87,21 @@
 				},
 				"The reply configures or explains black in a pre-commit hook (.pre-commit-config.yaml) without restructuring code."
 			]
+		},
+		{
+			"id": 6,
+			"prompt": "Our team caps source files at 40 code lines and test files at 80 (blank lines and comments do not count). Check lengths/inventory.py and lengths/test_inventory.py against that and fix whatever is over.",
+			"expected_output": "Counts measured with the bundled file_length.py (--max-code 40 --max-test 80): inventory.py is over (about 50 code lines) and test_inventory.py is within its limit and not split. inventory.py is split by responsibility (for example parsing and checks versus the report and entry point), not into part1/part2 or a utils module; the test still passes, with imports updated if needed, and every resulting file is at or under 40 code lines.",
+			"files": [
+				"evals/files/lengths/inventory.py",
+				"evals/files/lengths/test_inventory.py"
+			],
+			"assertions": [
+				"The reply reports code-line counts for both files measured by a tool that excludes blank and comment lines, such as scripts/file_length.py with --max-code 40 --max-test 80.",
+				"inventory.py is split into modules named for responsibilities; no file is named part1, part2, utils, helpers, or common.",
+				"Every resulting source file has at most 40 code lines, and test_inventory.py is not split.",
+				"The reply shows test_inventory.py passing after the split, and the report text it checks is unchanged."
+			]
 		}
 	]
 }

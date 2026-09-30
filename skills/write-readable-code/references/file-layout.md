@@ -10,6 +10,7 @@ TypeScript, Lua, Ruby, Swift type-check via `xcrun swiftc`).
 ## Contents
 
 - The decision order
+- File length
 - Python
 - Rust
 - Go
@@ -73,6 +74,83 @@ second.
    themselves.
 1. In a real change, run the language card's visibility lint and confirm
    every widened item in the diff has a caller outside its scope.
+
+## File length
+
+**Definition.** Count a file's code lines without blank lines, comments,
+or docstrings. Default limits: 300 code lines for a source file, 500 for
+a test file. Both are this skill's policy, not a standard, and the
+repository's configured limit wins. For comparison, ESLint
+[`max-lines`][eslint-max-lines] defaults to 300 physical lines (blank
+and comment lines count unless `skipBlankLines`/`skipComments` are set),
+Pylint [`max-module-lines`][pylint-options] to 1000, and Checkstyle
+[`FileLength`][checkstyle-filelength] to 2000; none of them sets a
+separate test-file limit.
+
+Test files get more room because a readable test repeats its setup and
+states its inputs inline (see [tests as documentation][tests-as-docs])
+instead of hiding them in shared helpers to save lines. A test file over
+its limit usually tests a unit that is too large: split the tests along
+the same lines as the code they cover, one test file per unit.
+
+**Use when.**
+
+- A file you are adding to is over its limit, or your change pushes it
+  over.
+- Several unrelated types, or one type plus unrelated helpers, share a
+  file.
+- Reviewing a repository for files that are hard to navigate or that
+  collect merge conflicts.
+
+**Do not use when.**
+
+- The file is generated, vendored, a data table, or a fixture: exclude
+  it instead of splitting it.
+- The only way under the limit is a split that is not a responsibility:
+  `part1`/`part2` files, a `utils` module (see
+  [dumping grounds](names-and-types.md#no-dumping-ground-modules)), or
+  one-caller helpers moved to another file. Report the file as over the
+  limit with the reason.
+- The language or framework keeps one unit per file by design (a
+  single-file component, a Go package's `_test.go` next to its source);
+  split the unit, not its file.
+
+**Example.** Split by responsibility. A 380-line checker that parses its
+input, validates records, and formats a report becomes a parser module
+and a checker module that imports it; the command-line entry point stays
+with the checker. Keep a type and its behavior in one file, and move a
+helper only with the code that uses it.
+
+```sh
+# Report files over the limits; exits 1 when any file is over.
+python3 scripts/file_length.py src tests
+python3 scripts/file_length.py . --exclude 'gen/*' --test-glob 'qa/*'
+# Every file with its count, as JSON, for a before/after comparison.
+python3 scripts/file_length.py src --all --json > before.json
+```
+
+`file_length.py` lists a directory with `git ls-files`, so ignored files
+are skipped, and marks a file as a test by its path (`tests/`,
+`__tests__/`, `test_*.py`, `*_test.go`, `*.test.ts`, `*.spec.js`,
+`*_spec.rb`, `*Test.java`, `*Tests.cs`, and similar). Tests written inside
+a source file, such as a Rust `#[cfg(test)]` module, count as code.
+Pass single files to count only them. `scripts/line_count.py` does the
+counting: Python is tokenized exactly; other languages use a lexer that
+knows comment markers and string delimiters for about 25 language
+families. Its counts
+matched `tokei` 15.0.0 on this skill's 52 C, C++, C#, Go, Java, Kotlin,
+Lua, Python, Ruby, Rust, Swift, and TypeScript files, except that it
+does not count Python docstrings.
+
+**Cost removed.** Scrolling and searching a long file to find the part a
+change needs, and conflicts when several people edit the same large file.
+
+**Verify.**
+
+1. Run `file_length.py` on the touched paths before and after; each
+   touched file is within its limit or reported with its reason.
+1. The behavior tests pass after the split, and imports of moved names
+   still resolve (run the type checker or build).
 
 ## Python
 
@@ -924,3 +1002,7 @@ toolchain is missing, otherwise load the template and assert one call.
 [mdn-private-properties]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_properties
 [swift-access-control]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/accesscontrol/
 [ruby-modules-and-classes]: https://docs.ruby-lang.org/en/master/syntax/modules_and_classes_rdoc.html
+[tests-as-docs]: state-errors-comments.md#tests-as-executable-documentation
+[eslint-max-lines]: https://eslint.org/docs/latest/rules/max-lines
+[pylint-options]: https://pylint.readthedocs.io/en/stable/user_guide/configuration/all-options.html
+[checkstyle-filelength]: https://checkstyle.sourceforge.io/checks/sizes/filelength.html

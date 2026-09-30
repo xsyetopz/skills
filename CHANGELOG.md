@@ -34,7 +34,10 @@ no released versions yet.
   Go modules, PEP 440, Maven, OCI tags, and app stores. `scripts/semver.py`
   checks, compares, sorts, and bumps versions.
 - `write-readable-code` restructures code for readers and reviews it
-  against the Zen of Python (PEP 20) in any language.
+  against the Zen of Python (PEP 20) in any language. It limits source
+  files to 300 code lines and test files to 500, split by responsibility;
+  `scripts/file_length.py` counts code lines without comments or blank
+  lines in any common language and flags files over their limit.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

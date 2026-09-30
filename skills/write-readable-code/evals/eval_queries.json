@@ -25,7 +25,7 @@
 		"split": "train"
 	},
 	{
-		"query": "is this Pythonic? a PriceFormatter interface with one implementation plus a factory, and both NewConfig and MakeConfig exported",
+		"query": "orders.go is 900 lines with eight structs and every PR conflicts in it. Which of our files are over 300 lines not counting comments, and how should this one be split?",
 		"should_trigger": true,
 		"split": "train"
 	},
@@ -45,7 +45,7 @@
 		"split": "validation"
 	},
 	{
-		"query": "This TypeScript badge function is one giant chained ternary. Make it readable.",
+		"query": "What length limit should test files get compared with source files, and can you check ours without counting comments?",
 		"should_trigger": true,
 		"split": "validation"
 	},

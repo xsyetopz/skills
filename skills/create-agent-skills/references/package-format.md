@@ -339,6 +339,8 @@ and `${CLAUDE_SKILL_DIR}` in the body ([Claude Code skills][cc-skills]).
   must start (deploy, commit).
 - `paths` to limit automatic activation to matching files.
 - `${CLAUDE_SKILL_DIR}` to reference bundled scripts by absolute path.
+- `model` and `effort` when the skill needs a specific model or depth;
+  choose them with `$choose-claude-model-and-effort`.
 
 **Do not use when.** The skill must stay portable: claude.ai uploads and
 the Skills API accept only `name`, `description`, `license`,

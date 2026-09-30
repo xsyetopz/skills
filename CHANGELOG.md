@@ -151,6 +151,8 @@ no released versions yet.
   and links human docs from the project map.
 - `write-implementation-plans` tags each task's evidence as verified,
   reported, or inferred, and starts report-only tasks with a spike.
+- `create-agent-skills` routes agent `model` and `effort` choices to
+  `choose-claude-model-and-effort`.
 
 ### Removed
 

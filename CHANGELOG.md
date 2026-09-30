@@ -153,6 +153,8 @@ no released versions yet.
   reported, or inferred, and starts report-only tasks with a spike.
 - `create-agent-skills` routes agent `model` and `effort` choices to
   `choose-claude-model-and-effort`.
+- `find-vulnerabilities` routes compiled targets to
+  `analyze-binaries-with-ghidra` and `reverse-engineer-functions`.
 
 ### Removed
 

@@ -105,6 +105,9 @@ evidence class, severity vector, fix, and the test that proves the fix.
   [reporting](references/review-method.md#reporting-without-weaponized-detail).
 - A fix is done when the same test flips from exploit condition to
   blocked and a legitimate input still passes.
+- For a compiled target without source, use `$analyze-binaries-with-ghidra`
+  and `$reverse-engineer-functions`, only on binaries the user may
+  analyze; this scope and these rules still apply.
 
 ## Bundled tools
 

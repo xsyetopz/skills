@@ -10,6 +10,8 @@ apart. The hypothesis log template is
 - Hypothesis log with predictions
 - Discriminating experiment
 - Differential diagnosis
+- Effective settings before blaming the tool
+- New session for a repeated agent refusal
 - Bisecting the execution path
 - Worktree isolation
 - Root cause at the owning boundary
@@ -146,6 +148,70 @@ git diff good-sha bad-sha --stat
 
 1. Changing only the identified factor flips the outcome in both
    directions.
+
+## Effective settings before blaming the tool
+
+**Definition.** A limit or behavior that looks built into a tool often
+comes from a layer of configuration above it: an environment variable,
+a profile, a user or project settings file, or a wrapper script. Read the
+effective value and where it comes from before you report a tool bug.
+
+**Use when.** An error names a limit, cap, or mode that differs from the
+tool's documented default, or the user states that the tool is at fault.
+
+**Do not use when.** The value is already shown with its source, for
+example in the error message or a verbose log.
+
+**Example.** An agent tool fails with "limit reached" at 3 parallel
+tasks, while the tool's documentation gives a default of 20. Reading the
+effective settings finds a shared profile that sets the limit to 3; the
+fix is in the profile, not the tool.
+
+```sh
+env | rg -i 'limit|max|concurren'
+git config --list --show-origin | rg -i hookspath
+python3 -m pip config debug
+```
+
+**Cost removed.** Bug reports and workarounds aimed at a tool that is
+doing what its configuration says.
+
+**Verify.**
+
+1. The report names the effective value, the file or variable that sets
+   it, and the documented default.
+1. Changing that one setting changes the behavior.
+
+## New session for a repeated agent refusal
+
+**Definition.** Every turn of a coding agent re-reads its conversation,
+so a refusal or a wrong conclusion in that context can keep shaping
+later turns. A new session started from a short handoff drops it.
+
+**Use when.** An agent keeps refusing, or keeps returning to a cause the
+evidence ruled out, after you have corrected it once with that evidence.
+
+**Do not use when.** The refusal names a real limit on the request;
+change the request instead of restarting.
+
+**Example.** A handoff for the new session:
+
+```text
+Goal: find why export.py drops the last row.
+MRE: python3 export.py tests/data/three_rows.csv -> 2 rows, expected 3.
+Ruled out: CSV quoting (same result with a quote-free file).
+Next experiment: print the row count before and after the batch loop.
+```
+
+Leave the refused exchange out of the handoff.
+
+**Cost removed.** Turns spent arguing with context that keeps producing
+the same answer.
+
+**Verify.**
+
+1. The new session runs the next experiment from the handoff on its
+   first turns.
 
 ## Bisecting the execution path
 

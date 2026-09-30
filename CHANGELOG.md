@@ -140,6 +140,9 @@ no released versions yet.
 - `manage-git-changes` checks repository rules and harness settings for
   agent commit attribution (Claude Code, Aider, Copilot CLI, Cursor), and
   warns before staging binaries under analysis or tool exports.
+- `debug-software-failures` reads effective settings and profiles before
+  blaming a tool, and starts a new session with a handoff when an agent
+  keeps refusing.
 
 ### Removed
 

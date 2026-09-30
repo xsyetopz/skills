@@ -100,6 +100,8 @@ phases the failure needs.
 | Long log, unclear error | [First error](references/method.md#failure-signature-and-first-error) |
 | Several plausible causes | [Hypothesis log](references/method.md#hypothesis-log-with-predictions), [discriminating experiment](references/method.md#discriminating-experiment) |
 | Works on one machine, revision, or input | [Differential diagnosis](references/method.md#differential-diagnosis) |
+| Error names a limit or mode the tool does not default to | [Effective settings](references/method.md#effective-settings-before-blaming-the-tool) |
+| An agent keeps refusing or repeating a ruled-out cause | [New session](references/method.md#new-session-for-a-repeated-agent-refusal) |
 | Wrong output after a long pipeline | [Bisect the path](references/method.md#bisecting-the-execution-path) |
 | Python, Go, or JVM process hangs | [faulthandler](references/instruments.md#python-stack-dumps-with-faulthandler), [goroutine dumps](references/instruments.md#go-deadlock-detection-and-goroutine-dumps), [jcmd Thread.print](references/instruments.md#jvm-thread-dump-with-jcmd) |
 | Segfault or native crash | [lldb backtrace](references/instruments.md#native-crash-backtrace-with-lldb) |
@@ -163,8 +165,8 @@ phases the failure needs.
   the bisect oracle faces flaky tests, performance, or old builds, and
   before reporting a culprit.
 - [Diagnosis method](references/method.md): read when the first error
-  does not name the cause, before editing code to experiment, and before
-  naming the root cause.
+  does not name the cause, before editing code to experiment, before
+  blaming a tool for a configured limit, and before naming the root cause.
 - [Instruments][instruments]: read for hangs, native crashes, file,
   network, or build errors, and failures after running a while.
 

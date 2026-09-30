@@ -14,7 +14,10 @@ such as "v2.1.214 or later", matter on older builds; check with
 - PreToolUse decision
 - Stop and SubagentStop decision
 - SessionStart context
+- StopFailure, TaskCompleted, and SubagentStart
+- Refusal detection
 - Inspecting, disabling, and managed hooks
+- Sources
 
 ## Locations and merging
 
@@ -198,7 +201,9 @@ Python exception exits 1.
 **Definition.** `hookSpecificOutput` carries these fields:
 
 - `permissionDecision`: `allow`, `deny`, `ask`, or `defer`;
-- `permissionDecisionReason`: shown to Claude for `deny`;
+- `permissionDecisionReason`: shown to Claude for `deny`, shown to the
+  user but not Claude for `ask`, and written to the debug log only for
+  `allow` and `defer`;
 - `updatedInput`, which replaces the whole input;
 - `additionalContext`.
 
@@ -303,6 +308,84 @@ Changed files: 1
 
 1. `SessionContextTests` pass.
 
+## StopFailure, TaskCompleted, and SubagentStart
+
+**Definition.**
+
+- `StopFailure` runs instead of `Stop` when the turn ends on an API
+  error. Its matcher filters the `error` field, which is one of
+  `rate_limit`, `overloaded`, `authentication_failed`,
+  `oauth_org_not_allowed`, `account_on_hold`, `billing_error`,
+  `invalid_request`, `model_not_found`, `server_error`,
+  `max_output_tokens`, `cloud_credential_error`, or `unknown`. There is
+  no `refusal` value. Claude Code ignores the output and exit code,
+  except `terminalSequence`.
+- `TaskCompleted` has no matcher and fires on every occurrence. Exit 2
+  keeps the task from being marked completed, and stderr goes back to
+  the model as feedback.
+- `SubagentStart` receives `agent_id` and `agent_type`; the matcher
+  filters `agent_type`. It cannot block, and it can return
+  `additionalContext`. Messaging a running subagent with `SendMessage`
+  fires it again ([issue #80489][i80489]), so key injections by
+  `agent_id` ([repeated events][design-context]).
+
+**Use when.**
+
+- `StopFailure`: logging or alerting on API errors, or a desktop
+  notification through `terminalSequence`.
+- `TaskCompleted`: a task needs a check, such as tests, before it
+  counts as done.
+- `SubagentStart`: a subagent needs per-agent context.
+
+**Do not use when.** A `StopFailure` hook is meant to retry or keep the
+turn going. Its decision output is ignored.
+
+**Example.** A `TaskCompleted` gate in the docs' shape:
+
+```bash
+if ! npm test >/dev/null 2>&1; then
+  echo "Tests fail. Fix them before you mark the task done." >&2
+  exit 2
+fi
+```
+
+**Cost removed.** `StopFailure` hooks written to catch refusals, which
+never match, and subagent context injected again on each message.
+
+**Verify.**
+
+1. `check_hook_config.py` accepts the entry, and a `StopFailure`
+   matcher uses only the values listed above.
+
+## Refusal detection
+
+**Definition.** When the model declines to answer, the API response
+has `stop_reason` `refusal` ([stop reasons][stop-reasons]). This is not
+an API error, so `StopFailure` does not see it. The refused turn stays
+in the conversation, and users report that later turns in the same
+session can refuse again, even after a model switch.
+
+**Use when.** Sessions hit refusals on normal work, and the user keeps
+retrying in the same session.
+
+**Do not use when.** The goal is to get past the refusal. The hook only
+tells the user; it does not change the request.
+
+**Pattern.** A `Stop` hook reads the last assistant entry in
+`transcript_path`. When that entry records `stop_reason` `refusal`, it
+returns a `systemMessage` that tells the user to start a new session,
+and it does not block. The transcript line format is not documented;
+inspect the keys of a local transcript that holds a refusal before you
+match on them.
+
+**Cost removed.** Retries in a session whose context can keep causing
+the refusal.
+
+**Verify.**
+
+1. A fixture transcript whose last entry is a refusal gets the
+   message, and a normal ending gets no output.
+
 ## Inspecting, disabling, and managed hooks
 
 **Definition.**
@@ -335,5 +418,16 @@ claude --settings '{"disableAllHooks": true}'
 
 1. After `--remove`, `/hooks` no longer lists the entry. Not run here.
 
+## Sources
+
+The sources below were checked again on 2026-09-30.
+
+- [Claude Code hooks reference][ref]
+- [Claude API stop reasons][stop-reasons]
+- [anthropics/claude-code#80489][i80489] (open when fetched)
+
 [ref]: https://code.claude.com/docs/en/hooks
 [asset]: ../assets/config/claude/.claude/settings.json
+[i80489]: https://github.com/anthropics/claude-code/issues/80489
+[design-context]: hook-design.md#session-context-injection
+[stop-reasons]: https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons

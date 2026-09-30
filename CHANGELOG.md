@@ -133,6 +133,10 @@ no released versions yet.
   fakes instead of root stubs.
 - Shared Markdown lint rules live in `.markdownlint.jsonc`, which
   `.markdownlint-cli2.jsonc` extends.
+- `create-agent-hooks` covers choosing deny, ask, or warn, deny reasons
+  that name the next action, an ask budget, a verdict log without secrets,
+  shell-faithful path checks for writes through Bash, loop and waste
+  detectors, and refusal detection.
 
 ### Removed
 

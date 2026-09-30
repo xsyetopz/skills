@@ -10,14 +10,19 @@ to apply them. The host sections link the primary docs, fetched on
 - Guardrail, not enforcement boundary
 - Event authority: observe, modify, or block
 - Untrusted input parsing
+- Shell paths and write targets
 - Deny, allow, and no decision
+- Ask budget and ask memory
+- Verdict log
 - Fail open or fail closed
 - Stop gate with a loop guard
+- Loop and waste detectors
 - Session context injection
 - Script path resolution
 - Install and roll back one entry
 - Configuration check before the host loads it
 - Environment and secrets
+- Sources
 
 ## Guardrail, not enforcement boundary
 
@@ -146,6 +151,47 @@ def read_event() -> dict:
 1. `rg -n 'eval|exec\(|shell=True|os.system' assets/handlers/`
    finds nothing.
 
+## Shell paths and write targets
+
+**Definition.** Two rules for path-based policies on shell commands:
+
+- Resolve paths the way the shell does. In `cd ~/x && find .`, the `.`
+  is `~/x`, not the project directory. Expand a leading `~` in a `cd`
+  target to the home directory. When a `cd` target contains `$`, the
+  hook cannot know the path: report it as unknown and apply the rule's
+  unknown-path answer (ask or deny). Do not guess a value.
+- Shell writes bypass file-tool hooks. `cat > f <<EOF`, `tee f`,
+  `sed -i`, and `>` or `>>` redirects write files without the Edit or
+  Write tool. A path rule on Edit and Write also needs a check of the
+  shell command's write targets.
+
+**Use when.** A hook protects paths, such as "no writes outside the
+project" or "never edit `.env`".
+
+**Do not use when.** The requirement is a hard boundary. Use the
+host's sandbox or filesystem permissions; a parser of shell text
+misses forms such as `python -c` or a script that writes the file.
+
+**Pattern.** Split the command on `&&`, `;`, and `|`, and track the
+working directory through each `cd`. For each segment, collect the
+redirect targets and the file arguments of `tee` and `sed -i`, then
+resolve them against the tracked directory. Test with fixtures:
+
+| Command | Resolved target |
+| --- | --- |
+| `cd ~/x && find .` | `$HOME/x` |
+| `cd "$DIR" && rm -r build` | unknown |
+| `echo x > .env` | `.env` in the project |
+| `sed -i s/a/b/ ../y.txt` | `y.txt` in the parent directory |
+
+**Cost removed.** A path rule that the same agent passes with one
+shell command, and false denies on paths the agent never touches.
+
+**Verify.**
+
+1. Each fixture row above resolves as listed, and a write through
+   each shell form hits the same rule as the Edit tool.
+
 ## Deny, allow, and no decision
 
 **Definition.** A policy hook has three answers: deny, allow, and no
@@ -163,6 +209,40 @@ spells deny differently:
 "Allow" is not neutral. In Claude Code, `"allow"` skips the permission
 prompt. A guard that is not approving the call prints nothing (Claude
 Code, Codex).
+
+**Levels.** Give each rule one level:
+
+| Level | For | Output |
+| --- | --- | --- |
+| deny | a hard rule with no valid exception | the host's deny shape |
+| ask | a judgment call that the user can approve | Claude Code `ask` |
+| warn | a note the agent should see; the call continues | context only, such as `additionalContext` |
+
+Group the rules by reversibility, not by tool. An action that cannot be
+undone (force push, deleting untracked files, writing outside the
+project) is a deny or an ask. An action that `git` or a re-run can undo
+is a warn or no decision.
+
+When several hooks answer the same Claude Code `PreToolUse` call, the
+strongest answer wins: `deny`, then `defer`, then `ask`, then `allow`.
+One hook's `allow` cannot cancel another hook's `deny`, so split rules
+across hooks freely, but do not rely on an `allow` to open a path that
+another hook denies.
+
+**Reason text.** A deny reason is an instruction to the model. Claude
+Code shows the `deny` reason to Claude, and shows an `ask` reason to
+the user but not to Claude. Write each deny reason with the cause and
+the next action:
+
+```text
+Blocked: `npm run dev` does not exit and would hold the turn. Run it
+with `run_in_background`, then read its output with `Monitor`.
+```
+
+A reason with no next action, such as "Blocked by policy", tells the
+model only that this route failed. It then tries the same thing by
+another route, such as a different tool or a rewritten command. Test
+the reason text: the fixture output must name the action to take.
 
 **Use when.** Writing any PreToolUse-type hook.
 
@@ -203,6 +283,82 @@ Codex fails its schema with `unexpected property 'permission'`
    `test_allows_benign_command_without_a_decision` pass.
 1. For Codex, the output validates against
    `pre-tool-use.command.output.schema.json`.
+1. Each deny reason in the fixture output names a cause and a next
+   action.
+
+## Ask budget and ask memory
+
+**Definition.** Rules that keep `ask` prompts rare enough that the user
+reads them:
+
+- Budget: at most one ask for each turn, across all gates. Keep the
+  count in a session state file keyed by `session_id`. When the budget
+  is spent, answer later asks with no decision or a warn; a suppressed
+  ask comes back on the next turn if the action repeats.
+- Memory: when the user approves an ask, record the rule and target
+  for the session, and do not ask again for the same pair.
+- Never remember a deny. A deny is re-evaluated on every call.
+
+**Use when.** More than one hook can return `ask`, or one hook can ask
+about the same target many times.
+
+**Do not use when.** The rule is a hard rule. Make it a deny, which has
+no budget.
+
+**Pattern.** A hook sees the call, not the user's answer. Record the
+ask when you emit it. On Claude Code, the tool runs only after the
+user approves, so a `PostToolUse` hook that sees the same tool input
+can mark the pair as approved. Write state under the host's per-user
+data directory, not in the project.
+
+**Cost removed.** Prompt fatigue: a user who sees many asks approves
+them without reading.
+
+**Verify.**
+
+1. A test sends two asking calls in one turn and gets one ask.
+1. After an approved ask, the same call in the same session gets no
+   ask. After a deny, the same call gets the deny again.
+1. The same ask appears twice in one session only if the setup has a
+   bug, such as memory keyed by the wrong field. Treat a repeat in the
+   verdict log as a defect.
+
+## Verdict log
+
+**Definition.** One JSONL line for each deny, ask, and warn, with these
+fields: time, `session_id`, `agent_id` (empty on the main thread), rule
+name, level, and a short target.
+
+**Use when.** Any policy hook that the user relies on over many
+sessions.
+
+**Do not use when.** The hook only adds context and never decides.
+
+**Pattern.** Cut the target to a fixed length, such as 80 characters,
+and never log the environment, the full payload, or file contents.
+The target can hold a token that was on the command line.
+
+```python
+record = {
+    "time": datetime.now(timezone.utc).isoformat(),
+    "session": event.get("session_id"),
+    "agent": event.get("agent_id", ""),
+    "rule": rule, "level": level, "target": target[:80],
+}
+```
+
+**Cost removed.** Gates that fire too often without anyone noticing. A
+gate that fires on most calls is a bug: a wide pattern, a wrong path
+resolution, or a missing ask memory. Count lines by rule to find it:
+
+```sh
+jq -r '.rule + " " + .level' verdicts.jsonl | sort | uniq -c | sort -rn
+```
+
+**Verify.**
+
+1. A test writes one verdict and reads back exactly the listed
+   fields, with the target cut to the limit.
 
 ## Fail open or fail closed
 
@@ -296,10 +452,55 @@ prevents an endless continue loop:
 `test_stop_hook_active_prevents_a_loop` sends an active flag with a
 failing check and gets `{}`.
 
+**Ending checks.** A Stop gate can also block a turn whose final text
+announces work instead of doing it, such as a turn that ends with
+"Next I'll...". That gate must pass a turn that ended with a question
+tool call, such as Claude Code's `AskUserQuestion`: the agent is
+waiting for the user, not stopping early. Read the last assistant
+message from `transcript_path`, and pass when it holds a `tool_use`
+block for the question tool. The transcript line format is not
+documented; inspect the keys of a local transcript before you match
+on them.
+
 **Verify.**
 
 1. Four tests pass: failing check (block with output, valid against
    the Codex stop schema), passing check, active flag, and timeout.
+1. An ending-check gate has two more fixtures: a "Next I'll..."
+   ending blocks once, and the same text followed by a question tool
+   call passes.
+
+## Loop and waste detectors
+
+**Definition.** Hooks that notice an agent spending turns without
+progress, and answer with a warn or a deny whose reason names the next
+action:
+
+| Pattern | Signal | Pass case that must stay green |
+| --- | --- | --- |
+| Re-read of an unchanged file | a full read of a path whose size and mtime match the last read in this session | a read after the file changed, or a read of a line range |
+| Repeated status command | the same status command three times with the same output | the same command after a change, or with different output |
+| Foreground command that does not end | a dev server, a `--watch` flag, or `tail -f` run in the foreground | the same command in the background, or `tail -n` |
+
+**Use when.** Sessions show the pattern in the verdict log or the
+transcript.
+
+**Do not use when.** The pattern is rare. Each detector adds a check to
+every matching call, and a false positive costs a turn.
+
+**Pattern.** Keep per-session state keyed by `session_id` (and
+`agent_id` in subagents). A repeated-output detector needs the output,
+so it runs in `PostToolUse`; the foreground detector runs in
+`PreToolUse` and denies with the background form as the next action.
+
+**Cost removed.** Turns and context spent on reads and polls that
+return nothing new, and turns that hang on a process that never exits.
+
+**Verify.**
+
+1. Each detector has a fixture that fires and a fixture for its pass
+   case. Both run in the test suite, and the pass case stays green
+   after every change to the pattern.
 
 ## Session context injection
 
@@ -330,6 +531,22 @@ fails; the test caught that. From
         return 0  # not a repository: no context, no error
 ```
 
+**Repeated events.** An injection can fire more than once for the same
+agent. In Claude Code, `SubagentStart` fires again when a running
+subagent is messaged with `SendMessage` ([issue #80489][cc-80489]).
+Key each injection by `agent_id` in a session state file, and inject
+once for each agent.
+
+**Cache cost.** Context that changes between calls can change the
+cached prompt prefix. In Claude Code, changing `PreToolUse` or
+`PostToolUse` `additionalContext` can invalidate the prompt cache
+([issue #83913][cc-83913]). Before you add context that changes on
+each call, measure cache writes with and without the hook: run the
+same multi-tool task with `claude -p ... --output-format json` and
+compare `cache_creation_input_tokens` and `cache_read_input_tokens` in
+`usage` ([prompt caching][cc-cache]). Cache creation that stays high
+with the hook means it changes the prefix.
+
 **Cost removed.** The agent spending its first turn asking git the same
 questions.
 
@@ -338,6 +555,8 @@ questions.
 1. `test_reports_branch_and_changed_files` passes in a new repository,
    and the output matches the Codex `session-start` output schema.
 1. Outside a repository the hook prints nothing and exits 0.
+1. A repeated-event hook injects once when it gets the same `agent_id`
+   twice.
 
 ## Script path resolution
 
@@ -472,6 +691,21 @@ record = {k: event.get(k) for k in ("hook_event_name", "tool_name")}
    lists every environment read and network call, each with a
    reason.
 
+## Sources
+
+The sources below were checked again on 2026-09-30.
+
+- [Claude Code hooks reference][claude]
+- [Claude Code prompt caching][cc-cache]
+- [anthropics/claude-code#80489][cc-80489]: messaging a running
+  subagent re-fires `SubagentStart` hooks (open when fetched).
+- [anthropics/claude-code#83913][cc-83913]: prompt cache invalidated
+  when `PreToolUse`/`PostToolUse` `additionalContext` changes (open
+  when fetched).
+
 [claude]: https://code.claude.com/docs/en/hooks
 [codex]: https://developers.openai.com/codex/hooks
 [copilot]: https://docs.github.com/en/copilot/reference/hooks-reference
+[cc-cache]: https://code.claude.com/docs/en/prompt-caching
+[cc-80489]: https://github.com/anthropics/claude-code/issues/80489
+[cc-83913]: https://github.com/anthropics/claude-code/issues/83913

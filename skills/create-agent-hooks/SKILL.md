@@ -54,7 +54,12 @@ published 0.157.0 schemas.
 | Block dangerous shell commands | [Deny/allow][decision], host PreToolUse cards below |
 | "Hook doesn't fire" | [Config check][check], matcher cards per host |
 | "Hook fires but doesn't block" | [Authority][authority], [failure policy][failure] |
+| Pick deny, ask, or warn; write the reason | [Deny/allow][decision] |
+| Too many prompts, or a gate fires too often | [Ask budget][ask], [verdict log][log] |
+| Path rule passed by a shell write or `cd` | [Shell paths][shellpaths] |
 | Don't finish until tests pass | [Stop gate][stop] |
+| Agent re-reads, polls, or hangs on a server | [Loop detectors][loops] |
+| Session keeps refusing | [Refusal detection][refusal] |
 | Add branch or issue context at start | [Session context][context] |
 | Install into existing settings, or undo | [Install and roll back][install] |
 | Hook needs tokens or logs payloads | [Environment and secrets][secrets] |
@@ -146,6 +151,11 @@ published 0.157.0 schemas.
 [check]: references/hook-design.md#configuration-check-before-the-host-loads-it
 [stop]: references/hook-design.md#stop-gate-with-a-loop-guard
 [context]: references/hook-design.md#session-context-injection
+[ask]: references/hook-design.md#ask-budget-and-ask-memory
+[log]: references/hook-design.md#verdict-log
+[shellpaths]: references/hook-design.md#shell-paths-and-write-targets
+[loops]: references/hook-design.md#loop-and-waste-detectors
+[refusal]: references/claude-code.md#refusal-detection
 [install]: references/hook-design.md#install-and-roll-back-one-entry
 [secrets]: references/hook-design.md#environment-and-secrets
 [cvo]: references/copilot-vscode-opencode.md

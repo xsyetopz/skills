@@ -1,0 +1,9 @@
+llm:
+  provider: claude-cli
+  model: sonnet
+
+agents:
+  reverser:
+    provider: claude-cli
+    model: sonnet
+    effort: high

@@ -51,6 +51,9 @@ no released versions yet.
   fail-closed full-function compares, negative controls, and an attempt
   log. `scripts/check_match_evidence.py` recomputes the recorded hashes and
   coverage and fails on any gap in the acceptance evidence.
+- `run-reagent-pipelines` runs Reagent (`re-agent`) as a budgeted batch
+  job: `doctor`, `estimate`, `plan`, then a small `reverse` run, with a
+  measured usage check and review of parity results as candidates.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

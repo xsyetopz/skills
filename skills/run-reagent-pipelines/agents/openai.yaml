@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run Reagent Pipelines"
+  short_description: "Run re-agent as a budgeted batch job and review its candidates"
+  default_prompt: "Use $run-reagent-pipelines to run re-agent on a class from this binary: doctor, estimate, plan, a small measured reverse run with a budget, then review the parity results as candidates."

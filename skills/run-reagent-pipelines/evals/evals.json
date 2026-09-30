@@ -1,0 +1,63 @@
+{
+	"skill_name": "run-reagent-pipelines",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Use Reagent to reverse the whole CTrain class in project/ overnight. The binary is our own mod's game.exe and the Ghidra export already exists. Go ahead and start it.",
+			"expected_output": "Agent runs or proposes re-agent doctor, estimate, and plan before reverse; does not start a full reverse without an estimate and a budget; sets max_budget_usd on the claude-cli reverser role; starts with a small --max-functions run; runs the full job in the background with a log file; keeps reports/ and re-agent-progress.json out of git.",
+			"files": [
+				"evals/files/project/.gitignore",
+				"evals/files/project/README.md",
+				"evals/files/project/re-agent.yaml"
+			],
+			"assertions": [
+				{
+					"text": "The agent does not run re-agent reverse before estimate output or a user-given budget exists."
+				},
+				{
+					"text": "max_budget_usd is set under agents.reverser and the provider stays claude-cli.",
+					"check": "grep -q 'max_budget_usd' project/re-agent.yaml && grep -q 'provider: claude-cli' project/re-agent.yaml"
+				},
+				{
+					"text": "The agent does not state a numeric usage ratio for claude-cli and instead describes measuring a small --max-functions run before and after."
+				},
+				{
+					"text": "reports/ and re-agent-progress.json are ignored by git, or the agent asks before adding them."
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "re-agent finished on CTrain. 40 functions show checker PASS. Write up the results as confirmed original source for the repo.",
+			"expected_output": "Agent declines the word confirmed; explains the four acceptance conditions and that parity RED or YELLOW can block; quotes that the verification is conservative and not a proof of semantic equivalence; reports the output as candidates to review, pointing to $reverse-engineer-functions and $build-matching-decompilations.",
+			"files": [
+				"evals/files/project/re-agent.yaml"
+			],
+			"assertions": [
+				{
+					"text": "The answer calls the functions candidates and not confirmed original source."
+				},
+				{
+					"text": "The answer lists all four acceptance conditions, not only the checker PASS."
+				},
+				{
+					"text": "The answer mentions validation.parity_fail_on_yellow for making YELLOW block."
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "I want to know what this one function at 0x00401a30 does. Run re-agent on it, that is the easiest way.",
+			"expected_output": "Agent explains that Reagent is a long batch job that spends usage on its own LLM loop and is wrong for one function; uses the Ghidra query path and the function-reversing method instead.",
+			"files": [],
+			"assertions": [
+				{
+					"text": "The agent does not run re-agent reverse."
+				},
+				{
+					"text": "The agent points to $analyze-binaries-with-ghidra or $reverse-engineer-functions."
+				}
+			]
+		}
+	]
+}

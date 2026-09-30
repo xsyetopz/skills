@@ -63,6 +63,9 @@ no released versions yet.
   prompt fix. `scripts/session_stats.py` reports token use by model and
   agent, repeated reads and commands, and compaction points without
   printing message text.
+- `write-goal-conditions` writes and repairs `/goal` conditions that a
+  transcript-only evaluator can judge: an end state the output shows, the
+  check command, and a turn bound.
 - Every skill has trigger queries (`evals/eval_queries.json`, 20 per skill
   with a fixed train and validation split) and output evals
   (`evals/evals.json`) with fixtures and deterministic checks.

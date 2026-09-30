@@ -1,0 +1,7 @@
+check: lint test
+
+lint:
+    ruff check .
+
+test:
+    python3 -m unittest discover -s tests

@@ -1,0 +1,102 @@
+[
+	{
+		"query": "Set a /goal so Claude keeps going until the tests in this repo pass.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write a /goal condition for migrating every call site off the old client.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Loop until the tests pass -- how do I phrase that so /goal actually stops?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My /goal 'the code is clean' never finishes. Fix the condition.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Keep going until `just check` is green, and don't let it run forever.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Give me a /goal condition for clearing the triage issue backlog.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I cancel my active /goal and set a tighter one?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Why did my /goal end as met when the build was still red? Rewrite the condition.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write the done condition for task 3 in this implementation plan.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write a Stop hook that blocks finishing until pytest passes.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Run my test suite every 10 minutes with /loop.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Plan the migration to the new API as ordered tasks with verify commands.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write acceptance criteria in Given/When/Then for the export feature.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Why does the build fail on CI only?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write a justfile recipe named check that runs lint and tests.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Add a hook that formats files after each edit.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write an AGENTS.md with our test commands.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Set up a scheduled cloud routine for nightly triage.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Write behavior tests for the invoice parser.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Explain how auto mode approves tool calls.",
+		"should_trigger": false,
+		"split": "train"
+	}
+]

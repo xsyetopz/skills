@@ -1,0 +1,46 @@
+{
+	"skill_name": "write-goal-conditions",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Claude should keep going on invoices/ until the tests pass. Write the /goal command I should run. The repo check is in invoices/justfile.",
+			"expected_output": "A single /goal condition that names `just check` (the repo's real command), says it exits 0 or shows the passing summary in the transcript after the last edit, and ends with a turn bound such as 'or stop after 15 turns'. It is under 4,000 characters.",
+			"files": [
+				"evals/files/invoices/justfile",
+				"evals/files/invoices/README.md"
+			],
+			"assertions": [
+				"The condition names `just check`, not a generic phrase like 'tests pass'.",
+				"The condition requires the result to appear in the transcript (exit code or summary line).",
+				"The condition contains a turn or time bound.",
+				"The answer gives exactly one condition."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "I ran `/goal the code is clean and all bugs are fixed` and it has been looping for an hour. Explain what is wrong and give me the replacement steps.",
+			"expected_output": "Explains the evaluator reads only the transcript and runs nothing, so the condition has no observable end state, no check, and no bound. Says to run /goal clear (or set a new /goal, which replaces the old one) and gives a rewritten condition with a command, a result, and a turn bound.",
+			"files": [],
+			"assertions": [
+				"The answer says the evaluator judges only what the transcript shows and does not run commands or read files.",
+				"The answer names the missing check command and missing bound.",
+				"The answer tells the user to replace the goal or run /goal clear.",
+				"The rewritten condition includes a command and a turn bound."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Tighten this goal: `/goal tests pass, or stop after 10 turns`. Claude once met it by deleting the failing test. The repo uses `just test` and tests live in invoices/tests.",
+			"expected_output": "A condition that names `just test`, requires it to exit 0 after the last edit, adds a constraint shown by a command such as `git diff --stat -- invoices/tests` that shows no deleted or weakened tests, and keeps the turn bound.",
+			"files": [
+				"evals/files/invoices/justfile",
+				"evals/files/invoices/README.md"
+			],
+			"assertions": [
+				"The condition adds a constraint protecting the tests, tied to a command whose output shows it.",
+				"The condition keeps a turn bound.",
+				"The condition names `just test`."
+			]
+		}
+	]
+}

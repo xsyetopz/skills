@@ -147,6 +147,8 @@ no released versions yet.
   before planning a wave and gives each brief one behavior.
 - `write-behavior-tests` treats snapshot update commands as loosened
   assertions.
+- `write-agents-md` covers Claude Code's `# Compact instructions` section
+  and links human docs from the project map.
 
 ### Removed
 

@@ -17,6 +17,7 @@ installed versions.
 - Claude Code: sharing one file with @AGENTS.md
 - Claude Code: CLAUDE.local.md
 - Claude Code: path-scoped rules
+- Claude Code: compact instructions
 - Claude Code: imports
 - Nested files in monorepos
 - Confirming what loaded
@@ -246,6 +247,37 @@ paths:
 
 1. `/context` shows the rule only after Claude reads a matching file.
 
+## Claude Code: compact instructions
+
+**Definition.** A `# Compact instructions` section in `CLAUDE.md` tells
+Claude Code what its compaction summary keeps when a long conversation
+is compacted; `/compact <instructions>` does the same for one run
+([costs docs][cc-costs]).
+
+**Use when.** Sessions in the repository run long enough to compact, and
+work was lost in earlier summaries: a request reworded, a rejected
+approach retried, an exact error or path dropped.
+
+**Do not use when.** The project uses AGENTS.md alone and no one runs
+Claude Code, or sessions never compact.
+
+**Example.**
+
+```markdown
+# Compact instructions
+
+Keep the user's requests and constraints in their own words, decisions
+and rejected approaches with reasons, the current state, and open items.
+Keep exact paths, commands, errors, and numbers.
+```
+
+**Cost removed.** Work redone after a summary dropped a decision or the
+exact error it depended on.
+
+**Verify.**
+
+1. After `/compact`, the summary contains the items the section names.
+
 ## Claude Code: imports
 
 **Definition.** `@path` in a CLAUDE.md imports another file, resolved
@@ -318,3 +350,4 @@ codex --ask-for-approval never "Summarize the current instructions."
 [agents-md]: https://agents.md/
 [codex]: https://learn.chatgpt.com/docs/agent-configuration/agents-md
 [cc-memory]: https://code.claude.com/docs/en/memory
+[cc-costs]: https://code.claude.com/docs/en/costs

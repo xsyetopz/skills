@@ -51,6 +51,7 @@ target host loads it.
 | Codex users launch in subdirectories | [Codex chain](references/hosts.md#codex-discovery-chain), [overrides](references/hosts.md#codex-override-files), [fallback names](references/hosts.md#codex-fallback-file-names) |
 | Repository has AGENTS.md and Claude users | [CLAUDE.md or AGENTS.md](references/hosts.md#claude-code-claudemd-or-agentsmd), [sharing with @AGENTS.md](references/hosts.md#claude-code-sharing-one-file-with-agentsmd) |
 | Personal, uncommitted instructions | [CLAUDE.local.md](references/hosts.md#claude-code-claudelocalmd) |
+| Long sessions lose decisions at compaction | [Compact instructions](references/hosts.md#claude-code-compact-instructions) |
 | Reusing another file | [Imports](references/hosts.md#claude-code-imports) |
 | One file shared as CLAUDE.md, AGENTS.md, GEMINI.md | [Symlinked instruction files](references/hosts.md#symlinked-instruction-files) |
 | Monorepo packages | [Nested files](references/hosts.md#nested-files-in-monorepos) |
@@ -96,7 +97,8 @@ target host loads it.
   example file names.
 - [Host discovery](references/hosts.md): AGENTS.md format, Codex chain,
   overrides and fallbacks, Claude Code selection, imports, local files,
-  path-scoped rules, nesting, confirming what loaded.
+  path-scoped rules, compact instructions, nesting, confirming what
+  loaded.
 
 ## Completion evidence
 

@@ -60,7 +60,11 @@ does not use, or reporting "done" without the real checks.
 ## Project map
 
 **Definition.** A few lines on where the main parts live and what is
-generated, only where directory names do not already say so.
+generated, only where directory names do not already say so. Link the
+human docs that explain a part (architecture notes, module READMEs)
+instead of repeating them. When an agent had to read code to learn what
+those docs should have said, fix the docs: people and agents both read
+them.
 
 **Use when.** The layout has non-obvious locations (generated code,
 vendored code, a second package root).

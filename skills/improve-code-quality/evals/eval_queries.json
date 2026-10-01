@@ -1,0 +1,112 @@
+[
+	{
+		"query": "Find the code smells in orders.py and tell me what to change for each, report only",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This function is five levels of nested if/else; restructure it so it reads top to bottom without changing behavior",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Remove the try/except ImportError tomli fallback now that we require Python 3.11",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Audit this repo's folder layout and git history for files that always change together",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Clean up this module: rename the vague variables, drop comments that restate the code, and shrink the long function",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We dropped Node 16 support; delete the structuredClone polyfill and the deprecated alias exports",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review this class for readability: it has an interface with one implementation and a utils dump",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The v1 header parser says it is kept for old clients. Is it safe to delete it, and if so remove it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Simplify this chained ternary so a reviewer can follow it, output must stay identical",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Remove the feature flag that has been on everywhere for two releases, and its old code path",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Make this loop faster, it is the hot path in our profile",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-code-performance"
+	},
+	{
+		"query": "Find security bugs in the login handler",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "This test fails intermittently on CI and I do not know why, find the cause",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Write tests for the billing module covering the boundaries",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Plan a large refactor that splits the monolith into three services across teams",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "plan-software-changes"
+	},
+	{
+		"query": "Reduce memory allocations in the JSON parser using a benchmark",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-code-performance"
+	},
+	{
+		"query": "Check this endpoint for SQL injection and prove it with a test",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "find-vulnerabilities"
+	},
+	{
+		"query": "The app crashes on startup after the last deploy, bisect to find the commit",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-software-failures"
+	},
+	{
+		"query": "Add regression tests for the pagination bug we just fixed",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Write an ordered implementation plan for migrating the database schema",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "plan-software-changes"
+	}
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve Code Quality"
+  short_description: "Find smells, refactor, remove dead shims"
+  default_prompt: "Use $improve-code-quality to clean up this code: pin behavior with a test first, keep the diff narrow, and delete compatibility paths only with evidence."

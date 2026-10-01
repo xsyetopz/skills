@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Software Changes"
+  short_description: "Requirements, design, and checked plans"
+  default_prompt: "Use $plan-software-changes to plan this change: verify every file and command, record unstated numbers as open decisions, and keep tasks verifiable."

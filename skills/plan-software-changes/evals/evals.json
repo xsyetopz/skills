@@ -1,0 +1,102 @@
+{
+	"skill_name": "plan-software-changes",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "upload-api/docs/specs/upload-api.md is the whole spec we have for the upload API and QA says they can't test any of it. Rewrite that file in place so every line is testable, using the format in upload-api/docs/specs/README.md. We don't have numbers for any of the limits yet.",
+			"expected_output": "The vague spec replaced by sourced EARS requirements with acceptance criteria, including If/then requirements for error handling; no invented latency, size, or resume-window numbers; each missing number recorded as a DEC item.",
+			"files": [
+				"evals/files/upload-api/docs/specs/README.md",
+				"evals/files/upload-api/docs/specs/login-lockout.md",
+				"evals/files/upload-api/docs/specs/upload-api.md"
+			],
+			"assertions": [
+				{
+					"text": "No requirement or acceptance criterion contains an invented number with a time, size, or percentage unit.",
+					"check": "python3 - upload-api/docs/specs/upload-api.md <<'PY'\nimport re, sys\nt = open(sys.argv[1], encoding='utf-8').read()\nitems = re.findall(r'^\\s*[-*]\\s+((?:REQ|AC)-[A-Z0-9-]+\\b.*(?:\\n {2,}\\S.*)*)', t, re.M)\nbad = [i for i in items if re.search(r'\\b\\d+(\\.\\d+)?\\s*(ms|s|sec|secs|seconds?|mins?|minutes?|h|hrs?|hours?|[KMGT]i?B|bytes?|%)', i)]\nprint('\\n'.join(bad)); sys.exit(1 if bad else 0)\nPY"
+				},
+				{
+					"text": "At least three DEC items record the undecided values (latency target, maximum file size, resume behavior).",
+					"check": "python3 - upload-api/docs/specs/upload-api.md <<'PY'\nimport re, sys\nt = open(sys.argv[1], encoding='utf-8').read()\nn = len(re.findall(r'^\\s*[-*]\\s+DEC-[A-Z0-9-]+', t, re.M))\nprint(n); sys.exit(0 if n >= 3 else 1)\nPY"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Before anyone starts on it, review cart-service/PLAN.md against the repository in cart-service/ and write your findings to cart-service/REVIEW.md. Don't change the plan or the code.",
+			"expected_output": "A review ordered by severity: a lost update between read_cart and write_cart when two devices add items at once (with the interleaving), a non-idempotent retry of the whole handler that can add the item twice, and claims that do not match the repository (`just test-cart` recipe and `src/cart/api.py` do not exist); each finding with step, constraint, counterexample, a minimal correction, and how to verify it.",
+			"files": [
+				"evals/files/cart-service/PLAN.md",
+				"evals/files/cart-service/cart/__init__.py",
+				"evals/files/cart-service/cart/store.py",
+				"evals/files/cart-service/justfile",
+				"evals/files/cart-service/tests/__init__.py",
+				"evals/files/cart-service/tests/test_store.py"
+			],
+			"assertions": [
+				{
+					"text": "REVIEW.md exists and flags both repository mismatches: the `test-cart` recipe and the `src/cart/api.py` path.",
+					"check": "test -f cart-service/REVIEW.md && grep -q 'test-cart' cart-service/REVIEW.md && grep -q 'src/cart/api.py' cart-service/REVIEW.md"
+				},
+				{
+					"text": "PLAN.md and cart/store.py are unchanged.",
+					"check": "shasum -a 256 cart-service/PLAN.md | grep -q '^0a16a7a150a0506f2dc403194a3bbffdf7b14d62afe42f3224ae26d74aa6e59a ' && shasum -a 256 cart-service/cart/store.py | grep -q '^44f20ba8f926ff2fd1c8c4bb78f177e9f5fb861bee7ce8f5be401a6e1b7a0d9f '"
+				},
+				"REVIEW.md reports the lost update with a concrete interleaving of two devices (both read the same cart, both write, one added item disappears) and proposes an atomic or versioned write (for example WATCH/MULTI, a Lua script, a compare-and-set, or a Redis list/set append) instead of redesigning the service.",
+				"REVIEW.md reports that retrying the whole handler on any Redis error can add the item twice when the failed attempt's write actually succeeded, and proposes a bounded correction (retry only before the write, or make the add idempotent)."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "We need to rename the `qty` field in our public order events to `quantity`. Read order-events/README.md first. Make the change to order-events/producer/ that we can ship today, and write the full rollout, including when the old field can go away, to order-events/docs/qty-rename.md.",
+			"expected_output": "An expand step: the producer emits both qty and quantity with the same value, so the existing billing and shipping consumers keep working; a rollout doc with migrate (each consumer switches to quantity and deploys) and contract (remove qty) steps, where removal waits for evidence that every consumer reads quantity.",
+			"files": [
+				"evals/files/order-events/README.md",
+				"evals/files/order-events/consumers/__init__.py",
+				"evals/files/order-events/consumers/billing/__init__.py",
+				"evals/files/order-events/consumers/billing/handler.py",
+				"evals/files/order-events/consumers/shipping/__init__.py",
+				"evals/files/order-events/consumers/shipping/handler.py",
+				"evals/files/order-events/producer/__init__.py",
+				"evals/files/order-events/producer/events.py"
+			],
+			"assertions": [
+				{
+					"text": "The producer's event carries both qty and quantity with the same value.",
+					"check": "cd order-events && python3 - <<'PY'\nimport sys\nsys.path.insert(0, '.')\nfrom producer.events import order_line_added\ne = order_line_added('o-1', 'SKU-1', 3)\nprint(e)\nsys.exit(0 if e.get('qty') == 3 and e.get('quantity') == 3 else 1)\nPY"
+				},
+				{
+					"text": "The unchanged billing and shipping consumers still produce the same results from the new event.",
+					"check": "cd order-events && python3 - <<'PY'\nimport sys\nsys.path.insert(0, '.')\nfrom producer.events import order_line_added\nfrom consumers.billing.handler import handle as bill\nfrom consumers.shipping.handler import handle as ship\ne = order_line_added('o-1', 'SKU-1', 3)\nprint(bill(e), ship(e))\nsys.exit(0 if bill(e) == 750 and ship(e) == '3 x SKU-1' else 1)\nPY"
+				},
+				{
+					"text": "order-events/docs/qty-rename.md exists and describes removing qty as a later step.",
+					"check": "test -f order-events/docs/qty-rename.md && grep -Eiq '(remove|drop|delete).{0,60}qty|qty.{0,60}(remove|drop|delete)' order-events/docs/qty-rename.md"
+				},
+				"The rollout doc makes removing qty conditional on evidence that every consumer has deployed code reading quantity (for example confirmation from each team, consumer versions, or observed reads), not on a date alone."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "We want to replace the hand-rolled settings parser in config-tool/app/settings.py with the standard library's configparser, and nothing that reads config-tool/service.ini may notice. Write the plan to config-tool/PLAN.md following config-tool/docs/PLANS.md. Plan only; don't change any code yet.",
+			"expected_output": "A plan whose first task adds characterization tests that pass on the current parser and pin its quirks visible in service.ini (inline # comments, key case preserved, duplicate keys with last one winning, a literal % that configparser would try to interpolate), then the switch to configparser configured to match (or the quirks recorded as decisions), every task with depends, files, Verify, and Done when, Verify commands that exist, and a task that removes the old parser.",
+			"files": [
+				"evals/files/config-tool/README.md",
+				"evals/files/config-tool/app/__init__.py",
+				"evals/files/config-tool/app/cli.py",
+				"evals/files/config-tool/app/settings.py",
+				"evals/files/config-tool/docs/PLANS.md",
+				"evals/files/config-tool/service.ini",
+				"evals/files/config-tool/tests/__init__.py",
+				"evals/files/config-tool/tests/test_settings.py"
+			],
+			"assertions": [
+				{
+					"text": "Every file and command the plan names resolves in the repository, except files a task creates.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/plan-software-changes/scripts/audit_plan_claims.py\" ]; do [ \"$R\" = / ] && { echo \"audit_plan_claims.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; python3 \"$R/skills/plan-software-changes/scripts/audit_plan_claims.py\" config-tool/PLAN.md config-tool"
+				},
+				"The plan has a task that removes the hand-rolled parser code once configparser is in place, with a done condition that can be observed."
+			]
+		}
+	]
+}

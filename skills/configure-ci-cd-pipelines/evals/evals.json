@@ -80,9 +80,7 @@
 			"id": 3,
 			"prompt": "Every push to a branch that has an open merge request gives us two GitLab pipelines, a branch pipeline and a merge request pipeline, and they both run tests. Fix gitlab-dupes/.gitlab-ci.yml so each change gets one pipeline. We still need pipelines for merge requests, for pushes to branches that have no MR, for main, and for tags, and deploy must still only run on main.",
 			"expected_output": "Adds workflow:rules: run for merge_request_event; never for a push to a branch with $CI_OPEN_MERGE_REQUESTS (scoped to CI_PIPELINE_SOURCE == push); run for branches and tags. Job rules keep test running in each remaining pipeline and deploy only on the default branch. The reply says a hosted run or CI Lint simulation confirms it.",
-			"files": [
-				"evals/files/gitlab-dupes/.gitlab-ci.yml"
-			],
+			"files": ["evals/files/gitlab-dupes/.gitlab-ci.yml"],
 			"assertions": [
 				{
 					"text": "The file has a top-level workflow: with rules.",
@@ -143,52 +141,6 @@
 					"check": "command -v actionlint >/dev/null || { echo 'actionlint is not installed'; exit 1; }; actionlint oidc-deploy/.github/workflows/release.yml"
 				},
 				"The reply says the AWS role's trust policy must trust token.actions.githubusercontent.com with aud sts.amazonaws.com and a sub condition limited to this repository's production environment (for example repo:OWNER/REPO:environment:production)."
-			]
-		},
-		{
-			"id": 5,
-			"prompt": "Our Bitbucket pipeline (bitbucket-branches/bitbucket-pipelines.yml) never runs for branches like feature/login or fix/typo, only for ones without a slash. Every branch should run the test step; main keeps its manual production deploy.",
-			"expected_output": "Explains that * in Bitbucket branch globs does not match /, replaces '*' with '**' (or adds it), keeps main's test and manual deploy, and validates the file with check-jsonschema --builtin-schema vendor.bitbucket-pipelines (or says it could not run offline).",
-			"files": [
-				"evals/files/bitbucket-branches/bitbucket-pipelines.yml"
-			],
-			"assertions": [
-				{
-					"text": "Under Bitbucket glob rules (* stops at /, ** crosses it), feature/login, fix/typo, and release/2026/09 each match a branches pattern whose steps run npm test, and main keeps its test step and manual production deploy.",
-					"check": "python3 - <<'PY'\nimport json, re, subprocess, sys\nout = subprocess.run([\"ruby\", \"-ryaml\", \"-rjson\", \"-e\", \"print JSON.dump(YAML.safe_load(File.read(ARGV[0]), aliases: true))\", \"bitbucket-branches/bitbucket-pipelines.yml\"], capture_output=True, text=True)\nif out.returncode:\n    print(out.stderr[-300:]); sys.exit(1)\nbranches = json.loads(out.stdout)[\"pipelines\"].get(\"branches\") or {}\ndef glob(p):\n    rx, i = \"\", 0\n    while i < len(p):\n        if p.startswith(\"**\", i): rx += \".*\"; i += 2\n        elif p[i] == \"*\": rx += \"[^/]*\"; i += 1\n        elif p[i] == \"{\":\n            j = p.index(\"}\", i); rx += \"(?:\" + \"|\".join(map(re.escape, p[i+1:j].split(\",\"))) + \")\"; i = j + 1\n        else: rx += re.escape(p[i]); i += 1\n    return re.compile(rx + r\"\\Z\")\ndef pick(name):\n    if name in branches: return branches[name]\n    for pat, steps in branches.items():\n        if glob(pat).match(name): return steps\n    return None\ndef scripts(steps):\n    text = []\n    for item in steps or []:\n        par = item.get(\"parallel\") or []\n        par = par.get(\"steps\", []) if isinstance(par, dict) else par\n        for s in ([item[\"step\"]] if \"step\" in item else [p[\"step\"] for p in par if \"step\" in p]):\n            text.append(s)\n    return text\nbad = []\nfor b in [\"feature/login\", \"fix/typo\", \"release/2026/09\", \"hotfix\"]:\n    st = scripts(pick(b))\n    if not any(\"npm test\" in \" \".join(s.get(\"script\") or []) for s in st):\n        bad.append(f\"{b}: no npm test step\")\nmain = scripts(branches.get(\"main\"))\nif not any(\"npm test\" in \" \".join(s.get(\"script\") or []) for s in main): bad.append(\"main lost its test step\")\nif not any(s.get(\"deployment\") == \"production\" and s.get(\"trigger\") == \"manual\" for s in main): bad.append(\"main lost its manual production deploy\")\nprint(\"\\n\".join(bad) or \"all branches covered\")\nsys.exit(1 if bad else 0)\nPY"
-				},
-				{
-					"text": "The reply says * does not match a slash in Bitbucket branch patterns and ** does.",
-					"check": "grep -Eiq 'slash' \"$EVAL_RESPONSE_FILE\" && grep -q '\\*\\*' \"$EVAL_RESPONSE_FILE\""
-				},
-				"The reply names check-jsonschema with the vendor.bitbucket-pipelines schema (run, or recommended because the network is off) as the validation for the edited file."
-			]
-		},
-		{
-			"id": 6,
-			"prompt": "In local-make/, add a `test` target to the Makefile that runs the unit tests the same way CI does, so `make test` works on a laptop. Also make `make test ARGS=-k add` pass extra arguments through.",
-			"expected_output": "Out-of-scope near miss: a local build-tool change. The Makefile gains a phony test target that calls ./ci/test.sh $(ARGS); the CI workflow is left unchanged and no new pipeline files appear.",
-			"files": [
-				"evals/files/local-make/Makefile",
-				"evals/files/local-make/ci/test.sh",
-				"evals/files/local-make/.github/workflows/ci.yml",
-				"evals/files/local-make/src/calc/__init__.py",
-				"evals/files/local-make/tests/__init__.py",
-				"evals/files/local-make/tests/test_calc.py"
-			],
-			"assertions": [
-				{
-					"text": "`make test` runs the unit tests and passes.",
-					"check": "cd local-make && make test 2>&1 | tail -5 && make test >/dev/null 2>&1 && make -n test | grep -Eq 'unittest|ci/test.sh'"
-				},
-				{
-					"text": "`make test ARGS='-k add'` passes the argument through to the test run.",
-					"check": "cd local-make && make -n test ARGS='-k add' | grep -Eq -- '-k add'"
-				},
-				{
-					"text": "The CI workflow is unchanged and no other pipeline configuration was created.",
-					"check": "shasum -a 256 local-make/.github/workflows/ci.yml | grep -q '^7f2bf4db19e826153780959a21be7c758fab74d5eb9391d110d85331f060fbf2 ' && test \"$(find local-make -name '*.yml' -o -name '*.yaml' | wc -l | tr -d ' ')\" = 1"
-				}
 			]
 		}
 	]

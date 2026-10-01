@@ -59,13 +59,13 @@
 		"query": "CI is red on my PR, can you check which checks failed with gh and paste the failing job's log here?",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "manage-git-hosting"
+		"expected_skill": "manage-git"
 	},
 	{
 		"query": "Our test suite takes 14 minutes in CI and most of it is pytest itself; profile which tests are slow and speed up the slowest code paths.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-python-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "Add a PreToolUse hook so Claude can't run `git push --force` in this repo.",
@@ -93,7 +93,7 @@
 		"query": "Enable required reviews and a required status check named all-green on main via the API.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "manage-git-hosting"
+		"expected_skill": "manage-git"
 	},
 	{
 		"query": "Convert this Dockerfile to a multi-stage build so the final image doesn't ship gcc.",
@@ -104,6 +104,6 @@
 		"query": "Write the CHANGELOG entry for the release we're about to tag.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "update-changelogs"
+		"expected_skill": "manage-releases"
 	}
 ]

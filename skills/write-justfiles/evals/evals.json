@@ -73,7 +73,7 @@
 				},
 				{
 					"text": "`just deploy` succeeds, deploys 2.7.1 with an 18-character key, and never prints the key itself.",
-					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"lazy\", \"deploy\")\nprint(out.replace(\"sk-live-5f1c9e0b7a\", \"<LEAKED>\")[-300:])\nsys.exit(0 if rc == 0 and \"deploying 2.7.1 with a key of 18 characters\" in out and \"sk-live-5f1c9e0b7a\" not in out else 1)\nPY"
+					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"lazy\", \"deploy\")\nprint(out.replace(\"placeholder-key-18\", \"<LEAKED>\")[-300:])\nsys.exit(0 if rc == 0 and \"deploying 2.7.1 with a key of 18 characters\" in out and \"placeholder-key-18\" not in out else 1)\nPY"
 				},
 				{
 					"text": "`just --list` finishes in under 1 second.",

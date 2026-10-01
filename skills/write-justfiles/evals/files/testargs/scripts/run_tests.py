@@ -12,10 +12,55 @@ from pathlib import Path
 
 
 def matches(expr, name):
-    words = re.findall(r"\w+|\(|\)", expr)
-    py = " ".join(w if w in ("and", "or", "not", "(", ")") else repr(w in name) for w in words)
+    tokens = re.findall(r"\w+|\(|\)", expr)
+    if not tokens:
+        return True
+    pos = 0
+
+    def peek():
+        return tokens[pos] if pos < len(tokens) else None
+
+    def take(expected=None):
+        nonlocal pos
+        token = peek()
+        if token is None or (expected and token != expected):
+            raise SyntaxError(expr)
+        pos += 1
+        return token
+
+    def disjunction():
+        result = conjunction()
+        while peek() == "or":
+            take()
+            result = conjunction() or result
+        return result
+
+    def conjunction():
+        result = negation()
+        while peek() == "and":
+            take()
+            result = negation() and result
+        return result
+
+    def negation():
+        if peek() == "not":
+            take()
+            return not negation()
+        if peek() == "(":
+            take()
+            result = disjunction()
+            take(")")
+            return result
+        word = take()
+        if word in ("and", "or", ")"):
+            raise SyntaxError(expr)
+        return word in name
+
     try:
-        return eval(py or "True", {"__builtins__": {}})
+        result = disjunction()
+        if peek() is not None:
+            raise SyntaxError(expr)
+        return result
     except SyntaxError:
         return expr in name
 

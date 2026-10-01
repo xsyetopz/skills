@@ -4,7 +4,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "21.2.3",
 		"@commitlint/config-conventional": "21.2.3",
-		"lefthook": "2.1.14",
+		"lefthook": "2.1.15",
 		"markdownlint-cli2": "0.23.3",
 		"pyright": "1.1.414"
 	}

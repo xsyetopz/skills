@@ -23,7 +23,6 @@ SEMVER_RE = re.compile(
     r"(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$",
     re.ASCII,
 )
-KEEP_A_CHANGELOG_SPEC = "https://keepachangelog.com/en/2.0.0/"
 VALID_CATEGORIES = {"Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"}
 EPILOG = """\
 Exit status:
@@ -32,8 +31,8 @@ Exit status:
      error finding
 
 Output: "PASS: PATH" with the version count and latest version, or one
-"SEVERITY: rule (line N)" line plus an indented message per finding and
-an "N error(s), N warning(s)" summary. --json prints {path, findings:
+"SEVERITY: rule (line N): message" line per finding and an "N error(s),
+N warning(s)" summary. --json prints {path, findings:
 [{severity, rule, location, message}], versions}.
 
 Examples:
@@ -264,11 +263,9 @@ def main() -> int:
 
         for f in findings:
             loc = f" ({f['location']})" if f.get("location") else ""
-            print(f"{f['severity'].upper()}: {f['rule']}{loc}")
-            print(f"  {f['message']}")
+            print(f"{f['severity'].upper()}: {f['rule']}{loc}: {f['message']}")
 
         print(f"\n{len(errors)} error(s), {len(warnings)} warning(s)")
-        print(f"Profile based on: {KEEP_A_CHANGELOG_SPEC}")
 
         if errors:
             return 1

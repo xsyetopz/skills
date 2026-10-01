@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Releases"
+  short_description: "Pick SemVer bumps and write changelogs"
+  default_prompt: "Use $manage-releases to choose the next version from the API diff and write user-facing changelog entries."

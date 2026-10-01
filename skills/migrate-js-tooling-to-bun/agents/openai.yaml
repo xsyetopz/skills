@@ -1,4 +1,4 @@
 interface:
   display_name: "Migrate JS Tooling to Bun"
-  short_description: "Move selected JS tooling to Bun with proof"
-  default_prompt: "Use $migrate-js-tooling-to-bun to move only the requested package-manager, test, bundler, or runtime responsibility to Bun, compare the dependency graph, and prove each moved command."
+  short_description: "Move npm, Yarn, pnpm, and Jest to Bun"
+  default_prompt: "Use $migrate-js-tooling-to-bun to move the requested tooling to Bun, compare the lockfile, and run each moved command."

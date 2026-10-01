@@ -1,146 +1,95 @@
 ---
 name: migrate-js-tooling-to-bun
 description: >-
-  Moves JavaScript or TypeScript tooling from npm, Yarn, or pnpm to Bun,
-  covering installs, lockfile, workspaces, and bun test. Use when adopting Bun
-  as package manager. Not for app speed.
+  Moves JavaScript projects from npm, Yarn, pnpm, Node scripts, and Jest to
+  Bun, and checks lockfile and test parity. Use when adopting Bun in an
+  existing project.
 ---
 
 # Migrate JS Tooling to Bun
 
-Move only the named responsibilities to Bun. Keep the resolved dependency
-graph, lifecycle build output, registry access, runtime, test coverage,
-and build artifacts equal to the old ones unless the request changes them.
-
-## Workflow
-
-1. Fill the [responsibility inventory][inventory]: installation and
-   lockfile, the runtime each script really starts, test runner,
-   bundler, CI setup, and image. Mark which rows the request moves.
-1. Pin the Bun version the user named and print `bun --version` and
-   `bun --revision` wherever it runs ([version selection][version]).
-1. Run the current workflow once in a disposable copy and record the
-   test count, build outputs, and the runtime shown at startup.
-1. Package manager: run `bun install` with the old lockfile present so
-   [migration][migration] converts it. Then run
-   `scripts/compare_lockfiles.py` ([comparison][compare]) and explain
-   every changed line before you delete the old lockfile.
-1. Review blocked lifecycle scripts with `bun pm untrusted`. Trust only
-   packages whose script you read ([trust][trust]). Record the linker
-   and `configVersion` ([linker][linker]).
-1. Runtime, tests, or bundler: apply only the requested cards in
-   [runtime, tests, and bundling](references/runtime-test-build.md).
-1. Replace CI installs with `bun ci`. Also add the
-   [workspace edge check][ws-gap] for workspaces. Update each CI setup
-   step, image, and document that names the old tool, and leave the
-   rest unchanged.
-1. Run every moved command on the migrated tree. Report the results,
-   the rollback unit, and the remaining compatibility gaps.
-
-## Route the evidence to a card
-
-| Evidence or request | Card |
-| --- | --- |
-| "Switch to Bun", unclear scope | [Responsibility inventory][inventory] |
-| Pinning or upgrading Bun only | [Version selection][version] |
-| `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml` present | [Automatic migration][migration] |
-| Need to prove versions did not move | [Resolution comparison][compare] |
-| `bun.lockb` in the repository | [Binary lockfile conversion][lockb] |
-| CI install should fail on drift | [Frozen installs][frozen] |
-| Workspace repository, new internal dependency | [Workspace edge gap][ws-gap] |
-| `Blocked N postinstall`, missing native binary | [trustedDependencies][trust] |
-| Import works locally, fails when published | [Linker][linker] |
-| Private registry, scoped packages, tokens | [Registries][registries] |
-| Scripts must run on Bun, or must stay on Node | [bun run and --bun][run] |
-| "Run the server on Bun" | [Direct entry][entry], [Node boundary][compat] |
-| Jest or `node:test` suite to `bun test` | [Test runner][tests], [setup and coverage][coverage] |
-| esbuild, Rollup, or webpack to `bun build` | [Bundler target][bundler] |
-| Undo plan | [Rollback unit][rollback] |
+Move only the responsibilities the request names (package manager, script
+runtime, test runner, bundler) and keep the resolved dependency graph,
+build output, test coverage, and runtime equal unless it says otherwise.
 
 ## Rules
 
-- Moving the package manager does not move the runtime. `bun run`
-  keeps a script's `node` command on Node. Add `--bun` only when the
-  request moves the runtime.
-- Never run `bun update` or delete the old lockfile to get past an
-  install error. Only a comparison with an explained result lets a
-  version change in.
-- CI installs use `bun ci`, which is the same as
-  `bun install --frozen-lockfile`. In workspaces, also run
-  `bun install --lockfile-only` followed by `git diff --exit-code
-  bun.lock`, because frozen installs miss new `workspace:*` edges.
-- Put a package in `trustedDependencies` only after reading its install
-  script. A list replaces Bun's built-in trusted list. `file:`, `git:`,
-  and `link:` sources always need an explicit entry.
-- Keep registry tokens in environment variables. Never switch a private
-  scope to the public registry.
-- Keep type checking (`tsc --noEmit`) as its own step. Bun runs
-  TypeScript without checking types.
-- Do not run `bun test --update-snapshots` to make a suite pass. Review
-  each snapshot change.
-- A green install proves only that the install worked. Show a real run of
-  every moved command before claiming the migration works.
+- Moving the package manager does not move the runtime. `bun run` keeps a
+  script's `node` command on Node; add `--bun` only when the request moves
+  the runtime. Confirm the runtime once with
+  `bun -e 'console.log(process.versions.bun)'`, because a `--bun` in CI
+  silently switches production.
+- Run `bun install` with the old lockfile present so Bun converts it, then
+  `python3 scripts/compare_lockfiles.py package-lock.json bun.lock` and
+  explain every change before deleting the old lockfile. A fresh
+  resolution can move versions unnoticed, and `bun update` or deleting the
+  lockfile to get past an error hides that.
+- Replace CI installs with `bun ci` (`bun install --frozen-lockfile`).
+  In workspaces also run `bun install --lockfile-only` then
+  `git diff --exit-code bun.lock`, because `bun ci` misses a new
+  `workspace:*` edge and exits 0.
+- npm `lockfileVersion` 1 is not migrated and `bun.lockb` needs
+  `bun install --save-text-lockfile --frozen-lockfile --lockfile-only`
+  (after checking `bun --version` in each CI image and the user confirming
+  developers run Bun 1.2 or later). See
+  [Package manager](references/package-manager.md#lockfile-migration).
+- Bun skips untrusted lifecycle scripts (`Blocked N postinstall`). Read
+  the script: run `bun pm untrusted`, read each listed script, show the list
+  to the user, and stop and ask the user before `bun pm trust NAME`; it
+  runs that package's lifecycle scripts at once. Adding a
+  `trustedDependencies` list replaces Bun's built-in list, and `file:`,
+  `git:`, and `link:` sources always need an entry.
+- Print `bun --version` and `bun --revision` wherever Bun runs and match
+  the version the user named; `packageManager` alone proves nothing.
+- Record the linker and `configVersion`: migrating from npm or Yarn keeps
+  the hoisted layout, and isolated installs still expose undeclared
+  imports unless `hoist = false`.
+- Keep registry tokens in environment variables and never move a private
+  scope to the public registry to get past an auth error.
+- Keep `tsc --noEmit` as its own step, since Bun runs TypeScript without
+  checking it.
+- Before moving Jest to `bun test`, check for `moduleNameMapper`, custom
+  transforms, and `jsdom`, which have no direct equivalent. The test count
+  must match the old runner, the setup file moves to `[test] preload`, and
+  the coverage gate and report upload must point at the new files.
+  Never run `bun test --update-snapshots` to get green.
+- Check the Node APIs a runtime switch touches (`child_process`,
+  `worker_threads`, `node:vm`, native addons) against Bun's compatibility
+  page, and run their tests on both runtimes.
+- `bun build` needs an explicit `--target` for its consumer, and esbuild,
+  Rollup, or Vite plugins do not port; run the artifact on its consumer.
+- A green install proves only the install. Run every moved command on the
+  migrated tree before claiming success.
 
-## Bundled tools
+## Workflow
 
-- `scripts/compare_lockfiles.py OLD NEW [--json]` diffs the resolved
-  versions between `package-lock.json` (v2/v3) and `bun.lock`. It exits
-  0 when they are the same, 1 on a difference, and 2 on bad input or a
-  graph with nested versions (then diff `bun pm ls --all` instead).
-  `scripts/test_compare_lockfiles.py` holds its tests.
-- `assets/examples/npm-project/` is the npm workspace before the
-  migration, with `package-lock.json`. `assets/examples/fixture/` is
-  the same workspace written for Bun (`workspace:*`).
-- `sh assets/examples/verify.sh` exercises every card offline in a
-  temporary copy. `BUN`, `NODE`, and `PYTHON` override the executables.
+1. List each responsibility (install and lockfile, script runtime, test
+   runner, bundler, CI, image) and mark which rows the request moves.
+1. Run the current workflow once in a disposable copy and record the test
+   count, build outputs, and runtime.
+1. Migrate one row at a time, then run its moved commands and the
+   comparison.
+1. Report the rollback command (lockfile, `packageManager`, CI step, image,
+   `bunfig.toml` keys revert together) and the remaining gaps.
+
+Ask first when the request does not say whether the runtime moves and
+production runs the affected scripts, or when the comparison shows versions
+the user did not approve.
+
+## Scripts
+
+- `python3 scripts/compare_lockfiles.py OLD NEW [--json]` diffs resolved
+  versions between `package-lock.json` (v2/v3) and `bun.lock`. Exit 0 same, 1
+  different, 2 bad input or nested versions (diff the old tool's full list,
+  such as `npm ls --all`, against `bun pm ls --all` then). On Windows, use
+  `py -3` for `python3`.
 
 ## References
 
-- [Package manager](references/package-manager.md): inventory, version,
-  lockfile migration and comparison, `bun.lockb`, frozen installs, the
-  workspace gap, lifecycle trust, linker, and registries.
-- [Runtime, tests, and bundling](references/runtime-test-build.md):
-  `bun run` versus `--bun`, direct entry, the Node compatibility
-  boundary, `bun test`, preload, coverage and JUnit output, the
-  `bun build` target, and rollback.
-
-## Completion evidence
-
-- A responsibility table that lists each row as moved or kept, with the
-  command that proves it.
-- The Bun version and revision from every environment that runs it.
-- `compare_lockfiles.py` output or the `bun pm ls --all` diff, with
-  every change explained.
-- The `bun pm untrusted` result and the trusted packages, with a reason
-  for each.
-- Test counts before and after, build artifacts checked on their
-  consumer, and the runtime observed at startup.
-- The CI diff, the rollback command, and known gaps, each marked
-  Executed, Compiled, or Not runnable here.
-
-## Stop and ask
-
-- The request does not say whether the runtime moves, and production
-  runs the affected scripts.
-- The comparison shows changed versions that the user did not approve.
-- A registry needs credentials that are not available.
-- A required API, Jest feature, or bundler plugin is unsupported in the
-  selected Bun version.
-
-[inventory]: references/package-manager.md#responsibility-inventory
-[version]: references/package-manager.md#bun-version-selection
-[migration]: references/package-manager.md#automatic-lockfile-migration
-[compare]: references/package-manager.md#resolution-comparison
-[lockb]: references/package-manager.md#binary-lockfile-conversion
-[frozen]: references/package-manager.md#frozen-installs-in-ci
-[ws-gap]: references/package-manager.md#workspace-edge-gap
-[trust]: references/package-manager.md#lifecycle-script-trust
-[linker]: references/package-manager.md#linker-hoisted-or-isolated
-[registries]: references/package-manager.md#registries-scopes-and-credentials
-[run]: references/runtime-test-build.md#script-runtime-bun-run-and---bun
-[entry]: references/runtime-test-build.md#direct-entry-point-on-bun
-[compat]: references/runtime-test-build.md#node-compatibility-boundary
-[tests]: references/runtime-test-build.md#test-runner-switch
-[coverage]: references/runtime-test-build.md#test-setup-coverage-and-reports
-[bundler]: references/runtime-test-build.md#bundler-target
-[rollback]: references/runtime-test-build.md#rollback-unit
+- Read [Package manager](references/package-manager.md) when converting a
+  lockfile (including `bun.lockb` and npm v1), pinning Bun, setting up
+  frozen installs, trusting lifecycle scripts, choosing a linker, or
+  configuring private registries.
+- Read [Runtime, tests, and bundling](references/runtime-test-build.md)
+  when moving scripts or a server to Bun, Jest or `node:test` to
+  `bun test`, a bundler to `bun build`, or planning rollback.

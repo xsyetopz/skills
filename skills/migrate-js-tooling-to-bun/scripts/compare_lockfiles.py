@@ -65,7 +65,7 @@ def bun_packages(data: dict) -> dict[str, str]:
 
 
 def load(path: Path) -> dict[str, str]:
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     if path.name == "bun.lock":
         return bun_packages(load_json_with_trailing_commas(text))
     return npm_packages(json.loads(text))
@@ -83,8 +83,10 @@ Output: "same=N added=N removed=N changed=N", then "+ name version",
 {NAME: VERSION}, "removed": {...}, "changed": {NAME: [OLD, NEW]}, "same": N}.
 
 Examples:
-  git show HEAD:package-lock.json > /tmp/package-lock.json
-  python3 scripts/compare_lockfiles.py /tmp/package-lock.json bun.lock
+  git show HEAD:package-lock.json > old-package-lock.json
+  python3 scripts/compare_lockfiles.py old-package-lock.json bun.lock
+  (Windows PowerShell 5.1: git show HEAD:package-lock.json | Set-Content
+  -Encoding utf8 old-package-lock.json)
   python3 scripts/compare_lockfiles.py package-lock.json bun.lock --json \\
     | jq '.changed'
 """

@@ -77,6 +77,16 @@ class CompareTests(unittest.TestCase):
             },
         )
 
+    def test_utf8_bom_lockfile_is_read(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            npm_path = Path(tmp) / "old-package-lock.json"
+            bun_path = Path(tmp) / "bun.lock"
+            npm_path.write_bytes(b"\xef\xbb\xbf" + json.dumps(NPM).encode())
+            bun_path.write_text(BUN)
+            with contextlib.redirect_stdout(io.StringIO()):
+                status = cl.main([str(npm_path), str(bun_path)])
+        self.assertEqual(status, 0)
+
     def test_bad_json_is_input_error(self) -> None:
         status, output = run("{not json", BUN)
         self.assertEqual(status, 2)

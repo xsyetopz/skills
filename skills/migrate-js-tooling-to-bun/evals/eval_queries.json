@@ -53,7 +53,7 @@
 		"query": "Our Bun HTTP server's p99 latency doubled after last week's release; the CPU profile shows JSON.stringify of large responses. Speed it up.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-javascript-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "tsc --noEmit takes 4 minutes on our Bun monorepo. How do we make type-checking faster?",
@@ -93,13 +93,13 @@
 		"query": "Our VS Code extension is built with webpack; add a new command that formats the selected JSON and a test for it.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "develop-vscode-extensions"
+		"expected_skill": "develop-editor-plugins"
 	},
 	{
 		"query": "Now that every service is on Node 22, delete the node-fetch polyfill and the `if (!globalThis.fetch)` fallbacks.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "remove-unneeded-compatibility-code"
+		"expected_skill": "improve-code-quality"
 	},
 	{
 		"query": "Audit our package.json dependencies and postinstall scripts for supply-chain risks and known vulnerable versions.",

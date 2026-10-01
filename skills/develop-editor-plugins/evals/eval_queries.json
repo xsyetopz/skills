@@ -1,0 +1,104 @@
+[
+	{
+		"query": "our VS Code extension's palette command works locally but a user on 1.68 gets \"command 'acme.sort' not found\". engines is ^1.66.0 and activationEvents is []. what's going on",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add an IntelliJ plugin action that lists TODO comments in the project, registered in plugin.xml. Indexing is slow so it must not freeze the editor",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Eclipse plug-in's handler opens a dialog after a long scan and the workbench hangs. Move the scan into a Job and fix the SWT thread access",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "my Neovim plugin runs `vim.system({'fmt', file}):wait()` from a BufWritePre autocmd and the UI freezes; also the autocmds duplicate after :source. fix the plugin/ file",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a Sublime Text package with a TextCommand that uppercases each selection, plus a palette entry and a key binding in Default.sublime-keymap",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a Zed extension that starts a language server for Makefiles, with extension.toml, a Rust lib and a tree-sitter grammar pinned by rev",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "vsce package fails on my extension with a manifest error about the pre-release version and icon. How do I fix package.json so Marketplace accepts it",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our JetBrains plugin must load and unload without an IDE restart, but the Plugin Verifier says it is not dynamic. Fix the plugin.xml extension points",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "My Neovim plugin's setup() creates the user command, so people who skip it get nothing. Restructure so it works through plugin/ and vim.g config",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The Zed extension's highlights.scm queries fail after I bumped the grammar commit. Validate the query files and check the built .wasm api version",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I change the editor font and auto-save delay in VS Code settings.json? I only want to edit my own settings",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Help me write my personal Neovim init.lua: set relative numbers, a leader key and a colorscheme, nothing packaged for others",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Build a command-line tool with subcommands, --json output and exit codes that formats our config files",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
+	},
+	{
+		"query": "Switch our extension repo's scripts from npm and yarn to Bun, including the lockfile and bun test",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "migrate-js-tooling-to-bun"
+	},
+	{
+		"query": "Write a Language Server Protocol server in Rust with tower-lsp for our DSL; it must run standalone with any editor",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Create a Visual Studio 2022 VSIX in C# that adds a Tools menu command",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Tweak my Sublime Text user preferences: change the theme, font size and ignore patterns in Preferences.sublime-settings",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Configure Zed's user settings.json for vim mode and a custom keymap; I am not building an extension",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Set up IntelliJ IDEA code style and inspection profiles for my team's project; no plugin development",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Build a Chrome extension (Manifest V3) that highlights TODO comments on GitHub pull request pages",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

@@ -1,0 +1,118 @@
+{
+	"skill_name": "develop-editor-plugins",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Make acme-blame/ work in VS Code for the Web (vscode.dev, github.dev). Highlighting the lines listed in .acmeblame.json must work there too; the git blame command can stay desktop-only but must not crash or show up as broken on the web. Keep the desktop build working. The build is esbuild.mjs.",
+			"expected_output": "package.json gains a browser entry built by a second esbuild step with platform browser and vscode external; the config file is read with vscode.workspace.fs and a URI instead of fs/fsPath; child_process stays in a Node-only module; the blame command is hidden or reports it is unavailable on the web; the manifest check passes.",
+			"files": [
+				"evals/files/acme-blame/package.json",
+				"evals/files/acme-blame/esbuild.mjs",
+				"evals/files/acme-blame/src/extension.ts"
+			],
+			"assertions": [
+				{
+					"text": "package.json keeps main and adds a browser entry that points to a different file.",
+					"check": "python3 -c 'import json; m = json.load(open(\"acme-blame/package.json\")); assert m.get(\"main\") and m.get(\"browser\"), m; assert m[\"main\"] != m[\"browser\"], m'"
+				},
+				{
+					"text": "esbuild.mjs contains a build with platform \"browser\".",
+					"check": "grep -Eq \"platform:[[:space:]]*['\\\"]browser['\\\"]\" acme-blame/esbuild.mjs"
+				},
+				{
+					"text": "No source file reads the config with Node fs any more, and the sources use vscode.workspace.fs.",
+					"check": "! grep -rEq 'readFileSync|existsSync' acme-blame/src && grep -rq 'workspace.fs' acme-blame/src"
+				},
+				{
+					"text": "The manifest passes the bundled checker with --src.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-editor-plugins/scripts/check_vscode_manifest.mjs\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-editor-plugins/scripts/check_vscode_manifest.mjs\"; out=$(bun \"$t\" --src acme-blame/src acme-blame/package.json 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ]"
+				},
+				"The module used as the browser entry (and everything it imports) does not import child_process, fs, or path; quote the browser entry's imports.",
+				"The git blame command is hidden on the web (for example a when clause using isWeb) or reports that it is unavailable there, and the reply does not claim a browser run that the transcript does not show."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "lint-rules/ is our IntelliJ plugin. Two things: other plugins should be able to add their own LintRule implementations, and right now the plugin refuses to load when the Markdown plugin is disabled. It must work without Markdown and still use MarkdownHeadingRule when Markdown is installed. Plugins get installed and removed without restarts, so keep it dynamic.",
+			"expected_output": "plugin.xml declares a dynamic extensionPoint with interface org.acme.lint.LintRule and registers TrailingSpaceRule through it; the Markdown dependency becomes <depends optional=\"true\" config-file=\"org.acme.lint-markdown.xml\"> (named <pluginId>-<name>.xml) whose file registers MarkdownHeadingRule; LintService reads rules from ExtensionPointName instead of a hardcoded list.",
+			"files": [
+				"evals/files/lint-rules/src/main/resources/META-INF/plugin.xml",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/TrailingSpaceRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/MarkdownHeadingRule.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintService.kt",
+				"evals/files/lint-rules/src/main/kotlin/org/acme/lint/LintFileAction.kt"
+			],
+			"assertions": [
+				{
+					"text": "The descriptor and its optional config file pass the bundled checker with --src-root, and the config file follows the <pluginId>-<name>.xml naming.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-editor-plugins/scripts/check_intellij_plugin_xml.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-editor-plugins/scripts/check_intellij_plugin_xml.py\"; out=$(python3 \"$t\" --src-root lint-rules/src/main/kotlin lint-rules/src/main/resources/META-INF/plugin.xml 2>&1); rc=$?; printf \"%s\\n\" \"$out\"; [ \"$rc\" -eq 0 ] && ! printf \"%s\" \"$out\" | grep -q \"should be named\""
+				},
+				{
+					"text": "plugin.xml declares a dynamic extension point for org.acme.lint.LintRule and depends on Markdown only optionally, with a config file that exists and registers MarkdownHeadingRule.",
+					"check": "python3 -c 'import os, xml.etree.ElementTree as ET; p = \"lint-rules/src/main/resources/META-INF/plugin.xml\"; r = ET.parse(p).getroot(); eps = [e for e in r.iter(\"extensionPoint\") if e.get(\"interface\") == \"org.acme.lint.LintRule\"]; assert eps and all(e.get(\"dynamic\") == \"true\" for e in eps), [e.attrib for e in r.iter(\"extensionPoint\")]; md = [d for d in r.iter(\"depends\") if (d.text or \"\").strip() == \"org.intellij.plugins.markdown\"]; assert md and all(d.get(\"optional\") == \"true\" and d.get(\"config-file\") for d in md), [d.attrib for d in md]; cfg = os.path.join(os.path.dirname(p), md[0].get(\"config-file\")); assert \"MarkdownHeadingRule\" in open(cfg).read(), cfg; assert \"MarkdownHeadingRule\" not in open(p).read()'"
+				},
+				{
+					"text": "LintService no longer constructs MarkdownHeadingRule directly and reads rules from an ExtensionPointName.",
+					"check": "! grep -q 'MarkdownHeadingRule' lint-rules/src/main/kotlin/org/acme/lint/LintService.kt && grep -rq 'ExtensionPointName' lint-rules/src"
+				},
+				"The reply explains that a required <depends> on Markdown is why the plugin does not load without it, and that classes referencing Markdown APIs must be registered only from the optional config file."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "trail.nvim/ only works if users call require('trail').setup(): setup() creates the command and autocmds, so people who forget it get nothing, calling it twice duplicates the autocmds, and a typo like setup({ timout = 10 }) is silently ignored. Restructure the configuration so it works with no setup call at all, can also be configured through a global variable, and reports bad or unknown options. Keep Neovim 0.11 support.",
+			"expected_output": "A plugin/trail.lua defines :TrailStrip and the autocmds in a cleared augroup without requiring setup; setup() only stores and validates options; configuration merges defaults, vim.g.trail, and setup() options, resolved lazily; unknown keys produce a vim.notify warning naming the key; wrong types are reported.",
+			"files": [
+				"evals/files/trail.nvim/lua/trail/init.lua",
+				"evals/files/trail.nvim/README.md"
+			],
+			"assertions": [
+				{
+					"text": "A plugin/ file exists and :TrailStrip is available without calling setup() (checked in an isolated headless Neovim; needs nvim or $NVIM).",
+					"check": "test -f trail.nvim/plugin/trail.lua || { echo \"no plugin/trail.lua\"; exit 1; }; n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/trail.nvim\" -c 'lua local okc, err = pcall(function() ok = vim.fn.exists([[:TrailStrip]]) == 2 end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				{
+					"text": "Calling setup() twice does not add TextChanged autocmds, and setup({ timout = 10 }) is reported through vim.notify at WARN or above or through an error (isolated headless Neovim; needs nvim or $NVIM).",
+					"check": "n=\"${NVIM:-nvim}\"; command -v \"$n\" >/dev/null || { echo \"nvim not found (set NVIM)\"; exit 2; }; x=$(mktemp -d); XDG_CONFIG_HOME=\"$x/c\" XDG_DATA_HOME=\"$x/d\" XDG_STATE_HOME=\"$x/s\" XDG_CACHE_HOME=\"$x/k\" \"$n\" --clean --headless -i NONE --cmd \"set rtp^=$PWD/trail.nvim\" -c 'lua local okc, err = pcall(function() local seen = false; vim.notify = function(msg, lvl) if (lvl or 0) >= vim.log.levels.WARN then seen = true end end; local t = require([[trail]]); pcall(t.setup, {}); local a = #vim.api.nvim_get_autocmds({event = [[TextChanged]]}); pcall(t.setup, {}); local b = #vim.api.nvim_get_autocmds({event = [[TextChanged]]}); local okset = pcall(t.setup, {timout = 10}); if t.config then pcall(function() local _ = t.config.timeout end) end; ok = a == b and (seen or not okset) end); if not okc then io.stdout:write(tostring(err)) end; vim.cmd(okc and ok and [[qa!]] or [[cq]])'; rc=$?; rm -rf \"$x\"; exit $rc"
+				},
+				{
+					"text": "The configuration reads a vim.g.trail table.",
+					"check": "grep -rqF -e 'vim.g.trail' -e \"vim.g['trail\" -e 'vim.g[\"trail' trail.nvim"
+				},
+				"Unknown option keys are reported by name (for example 'trail: unknown option timout'), and type errors in known options are reported too; quote the code.",
+				"The README documents configuring without setup() (vim.g.trail) and that setup() is optional."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "In FixmeMarks/ add a key binding so ctrl+alt+d runs FixmeMarksResolveCommand, but only when the caret is on a line with FIXME; otherwise ctrl+alt+d must keep doing whatever it did before. Also make the command available in the Command Palette.",
+			"expected_output": "Default.sublime-keymap binds ctrl+alt+d to fixme_marks_resolve with a context key such as fixme_marks.on_fixme_line that an EventListener answers in on_query_context (returning None for other keys and honoring operator, operand, and match_all); Default.sublime-commands gets a palette entry; the checker resolves both.",
+			"files": [
+				"evals/files/FixmeMarks/.python-version",
+				"evals/files/FixmeMarks/fixme_marks.py",
+				"evals/files/FixmeMarks/Default.sublime-commands",
+				"evals/files/FixmeMarks/FixmeMarks.sublime-settings"
+			],
+			"assertions": [
+				{
+					"text": "The package passes the bundled checker (every command in the resource files resolves).",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\"; python3 \"$t\" FixmeMarks --external edit_settings"
+				},
+				{
+					"text": "A Default keymap binds ctrl+alt+d to fixme_marks_resolve with a context key prefixed by the package.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\"; T=\"$t\" python3 -c 'import glob, json, os, sys; sys.path.insert(0, os.path.dirname(os.environ[\"T\"])); from check_sublime_package import strip_json_extensions; res = lambda p: json.loads(strip_json_extensions(open(p).read())); b = [x for p in glob.glob(\"FixmeMarks/Default*.sublime-keymap\") for x in res(p)]; hit = [x for x in b if x.get(\"keys\") == [\"ctrl+alt+d\"] and x.get(\"command\") == \"fixme_marks_resolve\"]; assert hit, b; assert all(any(str(c.get(\"key\", \"\")).lower().replace(\"_\", \"\").startswith(\"fixmemarks\") for c in x.get(\"context\", [])) for x in hit), hit'"
+				},
+				{
+					"text": "Default.sublime-commands has a palette entry for fixme_marks_resolve.",
+					"check": "d=\"$EVAL_OUTPUTS_DIR\"; until [ -f \"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\" ] || [ \"$d\" = / ] || [ \"$d\" = . ]; do d=$(dirname \"$d\"); done; t=\"$d/skills/develop-editor-plugins/scripts/check_sublime_package.py\"; T=\"$t\" python3 -c 'import glob, json, os, sys; sys.path.insert(0, os.path.dirname(os.environ[\"T\"])); from check_sublime_package import strip_json_extensions; res = lambda p: json.loads(strip_json_extensions(open(p).read())); assert any(e.get(\"command\") == \"fixme_marks_resolve\" for e in res(\"FixmeMarks/Default.sublime-commands\"))'"
+				},
+				{
+					"text": "An on_query_context handler exists and returns None for keys it does not own.",
+					"check": "python3 -c 'import ast, glob; fs = [f for p in glob.glob(\"FixmeMarks/*.py\") for f in ast.walk(ast.parse(open(p).read())) if isinstance(f, ast.FunctionDef) and f.name == \"on_query_context\"]; assert fs, \"no on_query_context\"; assert any(isinstance(r, ast.Return) and (r.value is None or (isinstance(r.value, ast.Constant) and r.value.value is None)) for f in fs for r in ast.walk(f))'"
+				},
+				"The context evaluation honors operator (equal/not_equal), operand, and match_all over all selections rather than only the first caret; quote the code."
+			]
+		}
+	]
+}

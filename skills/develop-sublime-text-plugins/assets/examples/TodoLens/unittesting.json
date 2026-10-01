@@ -1,6 +1,0 @@
-{
-	"tests_dir": "tests",
-	"pattern": "host_*.py",
-	"deferred": true,
-	"reload_package_on_testing": true
-}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Editor Plugins"
+  short_description: "Build and test editor extensions and plugins"
+  default_prompt: "Use $develop-editor-plugins to implement this editor extension change, run the packaging check for its editor, test it in the real host, and report which claims were executed."

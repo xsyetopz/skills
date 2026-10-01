@@ -8,14 +8,17 @@ because of a Stop hook, so the gate lets it stop instead of looping.
 
 Usage: stop_gate.py --check "python3 -m unittest -q" [--timeout 120]
 Exit status: 0 always for a valid event (the JSON carries the decision);
-2 with a reason on stderr for an invalid event.
+2 with a reason on stderr for an invalid event, or a --check that is empty
+or has an unclosed quote.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import shlex
+import shutil
 import subprocess
 import sys
 
@@ -26,12 +29,26 @@ EPILOG = """\
 Exit status:
   0  always, for a valid Stop event (the JSON decision carries the
      check's outcome: block with a reason, or {} to let the agent stop)
-  2  stdin is not a Stop event object (reason on stderr)
+  2  stdin is not a Stop event object, or --check is empty or has an
+     unclosed quote (reason on stderr)
 
 Examples:
   python3 stop_gate.py --check "python3 -m unittest -q" < stop-event.json
   python3 stop_gate.py --check "just test" --timeout 300 < stop-event.json
 """
+
+
+def split_command(command: str, windows: bool = os.name == "nt") -> list[str]:
+    """Split --check into words; raise ValueError on an unclosed quote.
+
+    POSIX rules treat backslashes as escapes, which would turn
+    `C:\\Python\\python.exe` into `C:Pythonpython.exe`, so Windows keeps
+    backslashes and only strips the double quotes around a word.
+    """
+    if not windows:
+        return shlex.split(command)
+    words = shlex.split(command, posix=False)
+    return [w[1:-1] if len(w) > 1 and w[0] == w[-1] == '"' else w for w in words]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -43,6 +60,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", required=True, help="command, one string")
     parser.add_argument("--timeout", type=float, default=120.0)
     args = parser.parse_args(argv)
+    try:
+        command = split_command(args.check)
+    except ValueError as error:
+        command, problem = [], f"has an unclosed quote ({error})"
+    else:
+        problem = "is empty"
+    if not command:
+        print(f"stop_gate: --check {problem}", file=sys.stderr)
+        return 2
     raw = sys.stdin.buffer.read(LIMIT + 1)
     try:
         event = json.loads(raw.decode("utf-8")) if len(raw) <= LIMIT else None
@@ -54,12 +80,15 @@ def main(argv: list[str] | None = None) -> int:
     if event.get("stop_hook_active") is True:
         print("{}")  # already continued once: let the agent stop
         return 0
+    command[0] = shutil.which(command[0]) or command[0]  # finds npm.cmd on Windows
     try:
         result = subprocess.run(
-            shlex.split(args.check),
+            command,
             cwd=event.get("cwd") or None,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=args.timeout,
             check=False,
         )

@@ -47,7 +47,7 @@ changes nothing the second time; --remove with the same arguments undoes it.
 Examples:
   python3 scripts/merge_hooks.py .claude/settings.json --host claude \\
       --event PreToolUse --matcher Bash \\
-      --handler '{"type":"command","command":"python3 .agent-hooks/guard.py"}' \\
+      --handler '{"type":"command","command":"python3 \\"$CLAUDE_PROJECT_DIR/.agent-hooks/guard.py\\""}' \\
       --dry-run
   python3 scripts/merge_hooks.py .cursor/hooks.json --host cursor \\
       --event preToolUse --handler '{"command":"./hooks/guard.sh"}' --remove

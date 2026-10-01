@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Agent Hooks"
-  short_description: "Per-host agent hooks with tested handlers"
-  default_prompt: "Use $create-agent-hooks to write or fix a hook for the named agent host using its exact events and decision shape, test the handler on the host's documented payloads, and merge it without losing existing settings."
+  short_description: "Claude Code and Codex hooks and goals"
+  default_prompt: "Use $create-agent-hooks to write or fix this hook or goal condition: exact events and decision output, tested on sample payloads, merged without losing existing settings."

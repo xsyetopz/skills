@@ -1,160 +1,153 @@
 ---
 name: create-agent-hooks
 description: >-
-  Creates, debugs, and audits coding-agent hooks for Claude Code, Codex, Gemini
-  CLI, Cursor, Copilot, and OpenCode. Use when a hook should block, allow, or
-  add context. Not for Git hooks.
+  Writes Claude Code and Codex hooks, including shell guards, stop gates, and
+  goal conditions that check an end state. Use when adding, merging, or
+  debugging hooks.
 ---
 
 # Create Agent Hooks
 
-Write a hook for one host at a time, using that host's exact event
-name, payload fields, and decision shape. Parse the payload as
-untrusted input, and treat the hook as a guardrail behind the host's
-permission system. Every bundled handler runs on fixtures copied from
-the hosts' docs, and the Codex payloads and outputs validate against the
-published 0.157.0 schemas.
-
-## Workflow
-
-1. Identify the host and its version (`claude --version`,
-   `codex --version`, ...). Find the target file for the scope: user,
-   project, local, or managed. Read the existing file, and keep
-   everything in it.
-1. Pick the event by its authority: observe, add context, modify, or
-   block ([authority][authority]). If the requirement is a hard
-   boundary, put it in permissions or the sandbox first
-   ([guardrail][guardrail]).
-1. Write the handler:
-   - read stdin with a size limit, and use documented fields only;
-   - exit 2 on unreadable input when the hook is a policy
-     ([parsing][parsing], [failure policy][failure]);
-   - emit the host's own deny shape;
-   - print no decision when the hook has no opinion
-     ([deny and allow][decision]).
-1. Build a fixture from the host doc's example payload. Test deny,
-   no-decision, a non-matching tool, and malformed input. For Codex,
-   validate both the fixture and the output with
-   `scripts/validate_schema.py`.
-1. Reference scripts through the host's root variable
-   ([paths][paths]). Merge the one entry with `scripts/merge_hooks.py`,
-   then run `scripts/check_hook_config.py --project`.
-1. Test in the host if it is available and the user agrees to a model
-   session: `/hooks` lists the entry, and a triggering action shows the
-   decision. Otherwise report the host run as not run.
-1. Report: the file, the entry, the fixture results, the checker
-   output, the rollback command (`merge_hooks.py ... --remove`), and
-   what was not run.
-
-## Route the task to a card
-
-| Task | Card |
-| --- | --- |
-| Block dangerous shell commands | [Deny/allow][decision], host PreToolUse cards below |
-| "Hook doesn't fire" | [Config check][check], matcher cards per host |
-| "Hook fires but doesn't block" | [Authority][authority], [failure policy][failure] |
-| Pick deny, ask, or warn; write the reason | [Deny/allow][decision] |
-| Too many prompts, or a gate fires too often | [Ask budget][ask], [verdict log][log] |
-| Path rule passed by a shell write or `cd` | [Shell paths][shellpaths] |
-| Don't finish until tests pass | [Stop gate][stop] |
-| Agent re-reads, polls, or hangs on a server | [Loop detectors][loops] |
-| Session keeps refusing | [Refusal detection][refusal] |
-| Add branch or issue context at start | [Session context][context] |
-| Install into existing settings, or undo | [Install and roll back][install] |
-| Hook needs tokens or logs payloads | [Environment and secrets][secrets] |
-| Claude Code specifics | [Claude Code](references/claude-code.md) |
-| Codex specifics, schemas, trust | [Codex](references/codex.md) |
-| Gemini CLI or Cursor | [Gemini and Cursor](references/gemini-and-cursor.md) |
-| Copilot CLI/cloud, VS Code, OpenCode | [Copilot, VS Code, OpenCode][cvo] |
+A hook is a command the host runs on an event, with a JSON payload on
+stdin. Models guess event names, exit codes, and output shapes from one
+host and apply them to another. Read the host's reference first: [Claude
+Code][cc-ref], [Codex][codex-ref]. Both have a `/hooks` browser.
 
 ## Rules
 
-- Use only event names, fields, and outputs from the host's own
-  reference. Formats are not interchangeable: Cursor uses `preToolUse`,
-  Claude uses `PreToolUse`, and Gemini uses `BeforeTool`.
-- A hook is not the only control for a hard security requirement,
-  because a hook runs only on the paths where the host fires it. Pair it
-  with permission, sandbox, or policy settings.
-- Policy hooks exit 2 on bad input or crash paths. On Claude Code and
-  Gemini, exit 1 lets the action through.
-- A "no opinion" answer is no decision, never `allow`. `allow` skips
-  prompts on Claude Code.
-- Never execute payload text, never log the environment, and never
-  send the payload anywhere without an explicit requirement.
-- Merge one entry into existing files, and remove only that entry to
-  roll back. Do not overwrite settings or managed files.
-- Keep policy handlers fast and offline. Timeouts fail open on Claude
-  Code (`PreToolUse` command hooks) and on Copilot.
-- A static check and fixture tests do not show that the host loaded the
-  hook; report the host run as run or not run.
+- Use the event names, payload fields, and output shape of the one host
+  you write for. `PreToolUse` is Claude Code and Codex, `preToolUse` is
+  Cursor, `BeforeTool` is Gemini CLI. Formats are not interchangeable,
+  and this skill covers only Claude Code and Codex.
+- Read the payload as JSON from stdin, never from argv or environment
+  variables. Treat every field as untrusted input: never `eval`, never
+  interpolate a payload string into a shell line, and pass paths as
+  arguments rather than through `sh -c`. A branch or file name can hold
+  `$(...)`.
+- Exit 2 blocks on events that can block, and stderr is shown to the
+  model as the reason. Exit 1, including an uncaught Python exception,
+  is a non-blocking error and the action proceeds. A policy hook must
+  catch its own failures and exit 2 (`scripts/guard_shell.py` does).
+  Exit 2 output is not parsed as JSON: choose exit 2 with stderr, or
+  exit 0 with JSON, never both.
+- Emit the decision with the documented field. Claude Code and Codex
+  `PreToolUse`: `hookSpecificOutput.permissionDecision` (`deny`, plus
+  `allow`, `ask`, `defer` on Claude Code only) with
+  `permissionDecisionReason`. Stop: `{"decision": "block", "reason":
+  "..."}`. Codex ignores plain stdout on `PreToolUse` and rejects it on
+  `Stop`: print JSON, `{}` for no opinion.
+- Print no decision when the hook has no opinion. `allow` skips the
+  permission prompt on Claude Code, so a guard that prints `allow` for
+  everything it does not recognize removes the user's prompts.
+- Guard every Stop hook against its own loop: if `stop_hook_active` is
+  `true` the agent is already continuing because of a Stop hook, so
+  print `{}` and let it stop. Without this, a check that keeps failing
+  blocks forever. `scripts/stop_gate.py` does this; Claude Code also
+  caps continuations at 8.
+- Set `matcher` for the host's syntax. Claude Code: letters, digits,
+  `_`, `-`, `,`, and `|` are exact names, anything else is an
+  unanchored JS regex (`Edit.*` also matches `NotebookEdit`). Codex:
+  always a regex, ignored on `Stop` and `UserPromptSubmit`. The shell
+  tool is `Bash` on both. An unmatched matcher silently never fires.
+- `timeout` is in seconds (default 600). A timed-out Claude Code
+  command hook does not block the call, so keep policy hooks fast and
+  offline.
+- A hook is a guardrail, not a security boundary: it runs only on the
+  paths where the host fires it, and a regex over a shell string misses
+  `sh -c`, variable indirection, and scripts that run the command. For
+  a hard rule also add a permission deny rule or sandbox setting
+  ([Claude Code permissions][cc-perms]).
+- Hooks run with the user's permissions, with no sandbox. Never log the
+  environment or payload, send either anywhere, or fetch code to run.
+- Reference scripts by absolute path from the host's root: Claude Code
+  `${CLAUDE_PROJECT_DIR}` in exec form (`command` plus `args`), Codex
+  `$(git rev-parse --show-toplevel)`. A relative path breaks when the
+  session starts in a subdirectory.
+- Merge one entry into the existing settings file and keep everything
+  else; never rewrite the file from a template. Remove only that entry
+  to roll back. `scripts/merge_hooks.py` does both and is idempotent.
+- Codex does not run a new or edited hook until the user reviews it in
+  `/hooks`, and project hooks need a trusted project. Claude Code picks
+  up edits through its file watcher. Say which steps you could not run
+  in a host session.
 
-## Bundled tools
+## Workflow
 
-- `assets/handlers/guard_shell.py --host HOST [--deny REGEX]` is a
-  pre-tool guard with adapters for the `claude`, `codex`, `gemini`,
-  `cursor`, `copilot`, `copilot-pascal`, and `vscode` shapes.
-- `assets/handlers/stop_gate.py --check CMD` is a Stop gate for Claude
-  Code and Codex, with a loop guard.
-- `assets/handlers/session_context.py` adds the branch and changed
-  files at SessionStart.
-- `assets/opencode/guard.ts` is an OpenCode plugin (v1 API), with
-  `guard.test.ts`.
-- `assets/config/<host>/...` holds a wiring example for each host.
-  `assets/fixtures/` holds the payloads from each host's docs.
-- `assets/schemas/codex-0.157.0/` holds the Codex input and output
-  schemas.
-- `scripts/check_hook_config.py FILE --host H [--project DIR] [--json]`
-  checks events, handler types, matchers, timeout units, and script paths.
-- `scripts/merge_hooks.py FILE --host H --event E --handler JSON
-  [--matcher M] [--remove] [--dry-run] [--json]` installs or rolls back
-  one entry.
-- `scripts/validate_schema.py SCHEMA DOC [--json]` is a draft-07 subset
-  validator that refuses keywords it does not support.
-- `sh assets/verify.sh [network]` runs everything. The `network` mode
-  also type-checks the OpenCode plugin.
+1. Identify the host and version (`claude --version`, `codex
+   --version`) and the target file (Claude Code
+   `.claude/settings.local.json` unless the user wants it shared in
+   committed `.claude/settings.json`; Codex `.codex/hooks.json`). Read it.
+1. Write the handler. Test it with a payload copied from the host doc
+   for deny, no opinion, a non-matching tool, and malformed input.
+1. Preview the entry:
+   `python3 scripts/merge_hooks.py FILE --host claude --event PreToolUse
+   --matcher Bash --handler '{"type": "command", ...}' --dry-run`. Drop
+   `--dry-run` to write it.
+1. Run `python3 scripts/check_hook_config.py FILE --host claude
+   --project .`. Fix errors, explain warnings.
+1. Report the file, entry, test results, rollback (`merge_hooks.py ...
+   --remove`), and what was not run in the host.
+
+## Goal conditions
+
+`/goal <condition>` is Claude Code only: after every turn a small model
+reads the condition and the transcript and decides met, not yet met, or
+impossible. It runs nothing, so only what the conversation shows counts.
+Codex has no equivalent: use a Stop hook.
+
+- Name one end state that output shows: a test summary line, an exit
+  code, printed file contents, a count, an empty queue. "The code is
+  clean" and "tests pass" have none, so Claude's own claim decides.
+- Name the repository's own check command (`just check`) and require
+  its output after the last edit, not an earlier run.
+- End with a bound: `or stop after 15 turns`. There is no built-in cap,
+  so a check that cannot pass loops until limits end it.
+- Add a constraint that shows the check was not gamed, each with a
+  command: `git diff --stat -- tests` shows no changes. Otherwise
+  deleting the failing test meets the goal.
+- Read the wording as the evaluator: could a false claim in the
+  transcript satisfy it? If the goal becomes unreachable or stale,
+  replace it or `/goal clear`; never weaken the check to reach met.
+
+```text
+/goal `just check` exits 0 in the transcript after the last edit, `git
+diff --stat -- tests` shows no changes, or stop after 15 turns
+```
+
+## Scripts
+
+- `python3 scripts/guard_shell.py [--deny REGEX]` denies force push
+  (`--force`, `-f`, `+refspec`, or a lease without `:SHA`) and
+  `rm -rf /` or `~` for the `Bash` tool on Claude Code and Codex. Each
+  `--deny` adds a pattern to these defaults. Exit 0 (deny JSON or
+  nothing), 2 on bad input or an invalid pattern. On Windows, use `py -3`
+  for `python3`. Test: `test_guard_shell.py`.
+- `python3 scripts/stop_gate.py --check CMD [--timeout S]` blocks Stop with the
+  check's output tail until `CMD` exits 0, and lets the agent stop when
+  `stop_hook_active` is true. Exit 0, or 2 for a non-Stop event or an
+  empty or unclosed-quote `CMD`. Test:
+  `test_stop_gate.py`.
+- `python3 scripts/merge_hooks.py FILE --host H --event E --handler JSON
+  [--matcher M] [--remove] [--dry-run] [--json]` adds or removes one
+  entry. Exit 0 written or already present, 1 `--remove` found nothing,
+  2 bad input.
+- `python3 scripts/check_hook_config.py FILE --host H [--project DIR] [--json]`
+  checks events, handler types, matchers, timeout units, and script
+  paths, one finding per line. Exit 0 clean, 1 errors, 2 unreadable.
+  Both: `test_merge_and_check.py`.
 
 ## References
 
-- [Hook design across hosts](references/hook-design.md)
-- [Claude Code](references/claude-code.md)
-- [Codex](references/codex.md)
-- [Gemini CLI and Cursor](references/gemini-and-cursor.md)
-- [Copilot, VS Code, and OpenCode][cvo]
+- Read [`references/claude-code.md`](references/claude-code.md) when
+  writing Claude Code hooks: locations, matcher rules, handler types,
+  PreToolUse and Stop output, SubagentStart and StopFailure.
+- Read [`references/codex.md`](references/codex.md) when writing Codex
+  hooks: trust review, config shape, matcher support, unsupported
+  outputs.
+- Read [`references/goal-conditions.md`](references/goal-conditions.md)
+  when a `/goal` needs session behavior, more examples, or a repair for
+  a goal that never ends.
 
-## Completion evidence
-
-- Host, version, scope, and file. The merged entry, shown as the diff
-  from `merge_hooks.py --dry-run`.
-- Fixture results for deny, no-decision, a non-matching tool, and
-  malformed input. For Codex, the schema validation output.
-- `check_hook_config.py` output with 0 errors, and each warning
-  explained.
-- The rollback command, and the permission or sandbox rule that backs
-  any security claim.
-- Host runs marked done or not run, with the reason.
-
-## Stop and ask
-
-- The hook would change managed or policy files.
-- Running the host needs a model session or account the user has not
-  approved.
-- The host version predates a field the design needs, such as exec
-  form or `defer`.
-
-[authority]: references/hook-design.md#event-authority-observe-modify-or-block
-[guardrail]: references/hook-design.md#guardrail-not-enforcement-boundary
-[parsing]: references/hook-design.md#untrusted-input-parsing
-[failure]: references/hook-design.md#fail-open-or-fail-closed
-[decision]: references/hook-design.md#deny-allow-and-no-decision
-[paths]: references/hook-design.md#script-path-resolution
-[check]: references/hook-design.md#configuration-check-before-the-host-loads-it
-[stop]: references/hook-design.md#stop-gate-with-a-loop-guard
-[context]: references/hook-design.md#session-context-injection
-[ask]: references/hook-design.md#ask-budget-and-ask-memory
-[log]: references/hook-design.md#verdict-log
-[shellpaths]: references/hook-design.md#shell-paths-and-write-targets
-[loops]: references/hook-design.md#loop-and-waste-detectors
-[refusal]: references/claude-code.md#refusal-detection
-[install]: references/hook-design.md#install-and-roll-back-one-entry
-[secrets]: references/hook-design.md#environment-and-secrets
-[cvo]: references/copilot-vscode-opencode.md
+[cc-ref]: https://code.claude.com/docs/en/hooks
+[codex-ref]: https://developers.openai.com/codex/hooks
+[cc-perms]: https://code.claude.com/docs/en/permissions

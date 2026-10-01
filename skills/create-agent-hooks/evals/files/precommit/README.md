@@ -1,3 +1,0 @@
-# app
-
-A tiny app.

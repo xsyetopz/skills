@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 """Check an ARCHITECTURE.md against the repository it describes.
 
-The outline follows the architecture.md template
-(https://github.com/timajwilliams/architecture). The file's directory is
-the repository (or monorepo system) root it describes. Errors:
+The file's directory is the repository root it describes. Errors:
   - the file is not named ARCHITECTURE.md, or sits in a docs directory
     instead of the root;
-  - a template section is missing (project structure, diagram, core
-    components, data stores, integrations, deployment, security,
-    development, future, project identification, glossary);
-  - a section is empty (write "Not evident from the repository." instead);
-  - template text or placeholders remain (`[e.g., ...]`, `[Insert ...]`,
-    `{placeholder}`, the template's instruction sentences);
-  - the diagram section has no fenced diagram (Mermaid or text);
+  - a section has no content;
+  - a placeholder remains (`[Insert ...]`, `[e.g., ...]`, `{placeholder}`);
   - a path in a tree block, or a backticked path or file name, does not
     exist under the root;
   - a top-level directory of the root appears neither in a tree block nor as
     `dir/` or `` `dir` `` in the text.
 Warnings: relative links to local files (they go stale; name the file in
-backticks), `file:line` references, "see FILE.md" instead of the facts, and
-no YYYY-MM-DD date in the project identification section.
+backticks), `file:line` references, and "see FILE.md" instead of the facts.
 
 Usage: check_architecture.py FILE [--json | --commands]
   --commands  print only the commands in sh/bash/shell/console fences
@@ -36,33 +28,8 @@ import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-SECTIONS = {
-    "project structure": r"project structure",
-    "high-level system diagram": r"diagram",
-    "core components": r"core components",
-    "data stores": r"data stores?",
-    "external integrations": r"integrations|external (?:apis?|services)",
-    "deployment and infrastructure": r"deployment|infrastructure",
-    "security": r"security",
-    "development and testing": r"development|testing environment",
-    "future considerations": r"future|roadmap",
-    "project identification": r"project identification",
-    "glossary": r"glossary|acronyms",
-}
 PLACEHOLDERS = [
-    re.compile(
-        r"\[(?:(?:e\.g\.|insert |service name|data store type)[^\]]*"
-        r"|yyyy-mm-dd|project root|acronym|term|full definition"
-        r"|explanation)\]",
-        re.I,
-    ),
-    re.compile(
-        r"(?:briefly describe|\(repeat for each|list and (?:briefly )?"
-        r"describe|list any third-party|highlight any critical"
-        r"|briefly note any|define any project-specific"
-        r"|living template designed to)",
-        re.I,
-    ),
+    re.compile(r"\[(?:e\.g\.|insert |yyyy-mm-dd|project root)[^\]]*\]", re.I),
 ]
 BRACE_PLACEHOLDER = re.compile(r"\{[A-Za-z][^{}]*\}")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w-]*)")
@@ -131,7 +98,6 @@ SKIP_DIRS = {
     ".ruff_cache",
 }
 SHELL_LANGS = {"sh", "bash", "shell", "console", "zsh"}
-DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 
 
 @dataclass
@@ -293,29 +259,12 @@ def check(text: str, root: Path) -> list[Finding]:
     def add(level: str, line: int, message: str) -> None:
         findings.append(Finding(level, line, message))
 
-    titles = [(n, lvl, t.lower()) for n, lvl, t in heads]
-    section_at: dict[str, int] = {}
-    for name, pattern in SECTIONS.items():
-        hit = next(
-            (
-                i
-                for i, (_, lvl, t) in enumerate(titles)
-                if lvl >= 2 and re.search(pattern, t)
-            ),
-            None,
-        )
-        if hit is None:
-            add("error", 1, f"missing section: {name}")
-        else:
-            section_at[name] = hit
-
     for i, (number, _, title) in enumerate(heads):
         if not any(line.strip() for line in section_body(lines, heads, i)):
             add(
                 "error",
                 number,
-                f"section '{title}' is empty; state the "
-                "facts or 'Not evident from the repository.'",
+                f"section '{title}' is empty; state the facts or remove it",
             )
 
     for number, line in enumerate(lines, 1):
@@ -349,23 +298,6 @@ def check(text: str, root: Path) -> list[Finding]:
                 number,
                 "file:line reference goes stale; name the file and symbol",
             )
-
-    if "high-level system diagram" in section_at:
-        body_start = heads[section_at["high-level system diagram"]][0]
-        body_end = body_start + len(
-            section_body(lines, heads, section_at["high-level system diagram"])
-        )
-        if not any(body_start < b.start <= body_end for b in blocks):
-            add(
-                "error",
-                body_start,
-                "diagram section has no fenced Mermaid or text diagram",
-            )
-
-    if "project identification" in section_at:
-        idx = section_at["project identification"]
-        if not DATE.search("\n".join(section_body(lines, heads, idx))):
-            add("warning", heads[idx][0], "no YYYY-MM-DD date of last update")
 
     for block in blocks:
         for number, rel in tree_paths(block):

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Write ARCHITECTURE.md"
-  short_description: "Write and audit evidence-backed ARCHITECTURE.md files"
-  default_prompt: "Use $write-architecture-md to write or update this repository's ARCHITECTURE.md from the architecture.md template, with every path, command, and technology checked against the code and nothing invented."

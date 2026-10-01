@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Agent Skills"
-  short_description: "Write and audit dense, verifiable Agent Skills"
-  default_prompt: "Use $create-agent-skills to create or audit this skill: construct cards with runnable examples and verification, a routing SKILL.md, evals, and host metadata."
+  short_description: "Write, trim, and evaluate Agent Skills"
+  default_prompt: "Use $create-agent-skills to audit this skill: cut what the model already does, fix the description, and run trigger evals."

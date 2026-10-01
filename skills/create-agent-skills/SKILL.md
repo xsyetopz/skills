@@ -1,169 +1,127 @@
 ---
 name: create-agent-skills
 description: >-
-  Creates, rewrites, and audits Agent Skills and SKILL.md files for Claude
-  Code and Codex, including descriptions and evals. Use when writing or
-  improving a skill. Not for AGENTS.md.
+  Writes, trims, and evaluates Agent Skills and SKILL.md files, including
+  descriptions, references, scripts, and trigger evals. Use when creating
+  or auditing a skill. Not for AGENTS.md.
 ---
 
 # Create Agent Skills
 
-Build skills that give an agent what it lacks and leave it nothing to
-invent. A skill is a directory whose `SKILL.md` routes observed evidence to
-cards in `references/`. A card covers one construct that agents get wrong
-without the skill: a definition, when to use it and when not to, a complete
-working example, the cost it removes and how to observe that, and exact
-verification steps. Runnable examples and helper scripts prove the claims.
-
-## Workflow
-
-1. Before creating a skill, search installed and catalog skills for the same
-   trigger words and scope
-   ([overlap check](references/descriptions.md#overlap-check-before-creating)).
-   Extend an existing skill instead of adding a second one with the same
-   responsibility. When two skills must legitimately coexist, give each a
-   boundary clause naming the other
-   ([boundary clause](references/descriptions.md#boundary-clause)).
-1. Collect evidence before writing: real task prompts, the target hosts and
-   versions, primary documentation for the domain, and failures agents
-   make without the skill. Write `evals/evals.json` first
-   ([evaluation](references/evaluation.md#evalsjson)).
-1. List the constructs an expert would check for this task that agents
-   get wrong without help
-   ([choosing constructs](references/construct-cards.md#choosing-constructs)).
-   Give each variant its own card.
-1. For each construct, write the runnable example in `<skill>/assets/examples/`
-   first (baseline and candidate where the card transforms code), with an
-   oracle and a benefit assertion
-   ([executable resources](references/executable-resources.md)).
-1. Write the cards from
-   [`assets/card.template.md`](assets/card.template.md); every number cites
-   a source or a labeled local run; every example states its verification
-   tier ([grounding](references/construct-cards.md#grounding-and-numbers)).
-1. Write `SKILL.md` from
-   [`assets/SKILL.template.md`](assets/SKILL.template.md): workflow with
-   exact commands, a routing table from observed evidence to card anchors,
-   rules for known failures, bundled tools, references, completion
-   evidence. Keep the body within the host's and repository's limits
-   ([disclosure budget][budget]).
-1. Write the description last, from the evals
-   ([descriptions](references/descriptions.md)): third person, what the
-   skill does and then when to use it, key use case first. Required: plain
-   words only, with no colon, semicolon, quote, backtick, slash,
-   parenthesis, bracket, `$`, or `|`; product names such as C++ and C#
-   stay as written ([plain wording](references/descriptions.md#plain-wording)).
-   Claude Code cuts
-   each listing entry at 1,536 characters and budgets the whole listing at
-   1% of the context window; Codex budgets 2% of the context window, or
-   8,000 characters when the window is unknown. Then write `agents/openai.yaml`
-   for Codex ([Codex metadata](references/codex-metadata.md)).
-1. Validate: `skills-ref validate <dir>`, then
-   `python3 scripts/check_reference_structure.py <dir>`, then the
-   repository's Markdown, script, and asset checks, then every example
-   verifier.
-1. Run the evals on the target hosts with and without the skill
-   ([paired protocol](references/evaluation.md#paired-evaluation-protocol))
-   or state that trials were not run.
-
-For an existing skill, start with
-[audit and rewrite](references/audit-and-rewrite.md): detect templated
-text, find thin constructs, salvage real content, check
-[trigger collisions](references/audit-and-rewrite.md#trigger-collisions)
-with neighbors, then follow the workflow.
-
-## Route the task to a card
-
-| Task or symptom | Card |
-| --- | --- |
-| A new skill might duplicate an existing one's trigger or scope | [Overlap check](references/descriptions.md#overlap-check-before-creating) |
-| Starting a new skill directory | [Directory layout](references/package-format.md#directory-layout) |
-| Frontmatter fields and limits | [Frontmatter](references/package-format.md#skillmd-frontmatter) |
-| Choosing or changing a name, or sizing a skill's scope | [Name](references/package-format.md#name) |
-| Deciding what goes in body versus references | [Disclosure budget](references/package-format.md#progressive-disclosure-budget) |
-| Agent misses content in references | [One level deep](references/package-format.md#references-one-level-deep) |
-| Deciding between a script and instructions | [Scripts](references/package-format.md#scripts-execute-or-read), [Helper script](references/executable-resources.md#deterministic-helper-script) |
-| Claude Code-only fields, manual-only skills | [Claude Code extensions](references/package-format.md#claude-code-frontmatter-extensions) |
-| Install paths and invocation per host | [Discovery](references/package-format.md#host-discovery-and-invocation) |
-| Skill does not trigger, or triggers wrongly | [Description structure](references/descriptions.md#description-structure), [Triggering evaluation](references/descriptions.md#triggering-evaluation) |
-| Writing `evals/eval_queries.json` | [Triggering evaluation](references/descriptions.md#triggering-evaluation) |
-| Many skills, descriptions truncated | [Length budget](references/descriptions.md#length-budget-across-a-catalog) |
-| Writing a card | [Card structure](references/construct-cards.md#card-structure) |
-| Examples that might not compile | [Examples that run](references/construct-cards.md#examples-that-run) |
-| Claims without evidence | [Cost removed](references/construct-cards.md#cost-removed-and-measurement), [Grounding](references/construct-cards.md#grounding-and-numbers) |
-| Examples that need unavailable tools | [Verification tiers](references/construct-cards.md#verification-tiers), [SKIP vs FAIL](references/executable-resources.md#skip-versus-fail) |
-| Requirements, plans, reviews, other text artifacts | [Non-code skills](references/construct-cards.md#non-code-skills) |
-| Build output leaking into the skill | [Disposable-copy verifier](references/executable-resources.md#disposable-copy-verifier) |
-| Proving a transformation is safe and useful | [Oracle](references/executable-resources.md#equivalence-oracle-with-a-benefit-assertion) |
-| Batch or destructive operations | [Plan-validate-execute](references/executable-resources.md#plan-validate-execute) |
-| Codex UI, implicit invocation, MCP servers | [Codex metadata](references/codex-metadata.md) |
-| Writing evals and assertions | [evals.json](references/evaluation.md#evalsjson), [Assertions](references/evaluation.md#assertions-that-can-be-checked) |
-| A revision did not help | [Failure classification](references/evaluation.md#failure-classification) |
-| Is the skill complete? | [Content sufficiency](references/evaluation.md#content-sufficiency-test) |
-| Existing skill is generic or repetitive | [Templated boilerplate](references/audit-and-rewrite.md#templated-boilerplate), [Thin cards](references/audit-and-rewrite.md#thin-card-detection) |
+A skill changes agent behavior only where the model would otherwise get
+something wrong. Everything else in it costs context and dilutes the
+parts that matter. Curated compact skills help. Comprehensive
+textbook-style skills measured worse than no skill ([SkillsBench][bench]).
 
 ## Rules
 
-- Give every construct that agents get wrong a full card: definition, use
-  when, do not use when, working example, cost removed with its
-  instrument, verify steps. A bullet or a sentence is not a card.
-- No invented API names, flags, defaults, version boundaries, or numbers.
-  Cite primary sources; label local measurements with command, machine,
-  and toolchain; mark anything unexecuted as such.
-- Report measurements that show no benefit; they stop agents from making
-  useless changes.
-- Link every reference directly from `SKILL.md`, because agents may only
-  preview a file reached through another reference; give references over
-  100 lines a `## Contents` list of heading links so a partial read still
-  shows the scope; `$write-github-markdown` writes the list.
-- Runnable assets build and run in a disposable copy; no build output in
-  the skill directory.
-- A rename breaks invocations of the old name: retire it in the changelog
-  and update every reference in the same change.
-- Keep gotchas in the `SKILL.md` rules with their reasons, because a
-  reference may never be read and a bare MUST gives nothing to generalize.
-- Do not add a skill whose trigger and scope already belong to another
-  skill; extend the existing one, or add a boundary clause to both if they
-  must coexist.
-- Published skills must not link to internal maintenance records.
-- Static validation does not show that a skill changes agent behavior;
-  report evaluation trials separately, or say they were not run.
+- Include only what a capable model gets wrong without the skill. Write
+  each item as the mistake, the correct action, and a short reason, in
+  one to three lines. Delete anything the model already does reliably.
+  Test this by asking what an agent would do without the line.
+- Put the critical rules at the top of the body as specific checks, not
+  advice. "Run `tsc --extendedDiagnostics` before changing tsconfig" is
+  followable. "Measure first" is not. Claude Code re-attaches only the
+  first 5,000 tokens of an invoked skill after compaction.
+- Keep gotchas in the body. A reference may never be opened, so it holds
+  only material for one sub-case, such as one language or one tool.
+- Give each reference a load condition in the body, such as "Read the
+  Rust reference when the code is Rust", with a link to the file. A bare
+  index of files does not get read.
+- Keep references one level deep and linked directly from `SKILL.md`.
+  Agents may preview a file reached through another file with only its
+  first lines. A reference over 100 lines starts with a `## Contents`
+  list of heading links.
+- Leave out routing tables that repeat headings, "when to use" sections,
+  persona text, completion-report boilerplate, emoji, and horizontal
+  rules. The description already routes, and the rest carries no
+  instruction.
+- Write in a calm imperative with the reason attached. Reserve capitals
+  and "must" for real hard stops. Several model vendors report that
+  shouted rules cause overtriggering and rigid behavior.
+- Do not state model names, prices, versions, or benchmark numbers
+  without a source and date. They go stale and the agent repeats them as
+  fact.
+- Move deterministic, fragile, or repetitive work into a script. A model
+  recalling a number or rebuilding a parser each run is a bug. Do not
+  wrap a tool that already does the job, such as gitleaks or benchstat.
+- Label host- and OS-specific parts, such as "Claude Code only" or
+  "POSIX sh; Git Bash on Windows". Keep the frontmatter to portable
+  fields unless the skill targets one host.
+- A risky step (deploy, publish, push, delete, registry or issue writes)
+  names the action and its consequence and says to ask the user first. A
+  step that sends data out names the data and the service, and the local
+  alternative when one exists. Invoke Python scripts through `python3`,
+  not the shebang, and say once that Windows uses `py -3`.
+- Before adding a skill, search the catalog for its trigger words. Extend
+  the skill that owns the job. When two must coexist, give each a "Not
+  for" clause naming the other.
+- A catalog of many skills hurts selection. Merge variants of one job,
+  such as one skill per language, into one skill with a reference per
+  variant.
 
-## Bundled tools
+## Description
 
-- `scripts/check_reference_structure.py SKILL_DIR...`: checks that every
-  reference is linked from `SKILL.md`, long references have linked
-  contents, relative links and anchors resolve, and name and description
-  are valid;
-  exit 0 clean, 1 problems, 2 bad input.
-- `assets/SKILL.template.md` and `assets/card.template.md`: starting
-  points for the entry file and for each card.
+The description is the only text a host reads before choosing a skill.
 
-## References
+- Form: what it does with concrete verbs and objects and the trigger
+  words first, then "Use when" in the user's own words, then "Not for"
+  the nearest neighbor. Third person.
+- Aim for 140 to 230 characters. Codex shortens descriptions from the
+  end when the listing overflows. In this catalog every description
+  combined with its name and path stays within 8,000 characters.
+- Plain words only. No colon, semicolon, double quote, backtick, slash,
+  parenthesis, bracket, `$`, or `|`. Product names such as C++, C#, and
+  .NET stay as written. An unquoted colon breaks YAML, and the rest reads
+  as markup.
+- Name the tools and file types users type, such as `pytest` or
+  `justfile`, not categories such as "Python testing".
 
-- [Package format](references/package-format.md): layout, frontmatter,
-  names, disclosure budget, references, scripts, assets, host discovery,
-  Claude Code extensions.
-- [Descriptions](references/descriptions.md): structure, trigger words,
-  overlap check, boundary clause, catalog budget, triggering evaluation.
-- [Construct cards](references/construct-cards.md): card structure,
-  choosing constructs, variants, runnable examples, cost and measurement,
-  verification tiers, grounding, non-code skills.
-- [Executable resources](references/executable-resources.md): helper
-  scripts, exit codes, disposable-copy verifiers, oracles, SKIP versus
-  FAIL, plan-validate-execute.
-- [Evaluation](references/evaluation.md): evals.json, assertions, paired
-  protocol, failure classification, content sufficiency.
-- [Audit and rewrite](references/audit-and-rewrite.md): boilerplate and
-  thin-card detection, trigger collisions, salvage, patterns not to copy,
-  coverage records.
-- [Codex metadata](references/codex-metadata.md): interface fields,
-  invocation policy, MCP dependencies, loader behavior.
+Read [descriptions](references/descriptions.md) when a skill does not
+trigger, triggers on the wrong requests, or the catalog overflows its
+listing budget.
 
-## Completion evidence
+## Workflow
 
-The report lists: the evals written; the constructs and their cards; each
-example's verification tier with the command and result; validator output
-(`skills-ref`, the structure checker, repository checks); description
-length; and whether host trials ran, with results, or were not run.
+1. Collect evidence: real prompts, the failures agents make without the
+   skill, and primary documentation for the domain. Write
+   `evals/eval_queries.json` and `evals/evals.json` first.
+1. Draft the body in this order: one or two sentences of purpose,
+   `## Rules`, `## Workflow` only when the order of steps matters,
+   `## Scripts` with each script's usage, and the reference load
+   conditions. Start from
+   [`assets/SKILL.template.md`](assets/SKILL.template.md). A body of
+   about 150 lines is normal. This catalog allows 200.
+1. Write each script with `--help`, exit 0 clean, 1 findings, 2 usage
+   error, one finding per line, and a test next to it. Use `.py` with
+   the standard library or `.mjs` run by `bun`; use `.sh` only for a
+   POSIX-only task, labeled.
+1. Write the description last, from the evals.
+1. For Codex, write `agents/openai.yaml` with `display_name`,
+   `short_description` of 25 to 64 characters, and a `default_prompt`
+   containing `$<skill-name>`. Read
+   [host metadata](references/host-metadata.md) for invocation policy,
+   Claude Code frontmatter extensions, and install paths.
+1. Validate: `skills-ref validate <dir>` if installed (else report it
+   skipped), then
+   `python3 scripts/check_reference_structure.py <dir>`, then the
+   repository's own checks.
+1. Paired evals are paid runs that send prompts and fixtures to the
+   model API; ask before running them, else say that no trials ran.
+   Static checks do not show that a skill changes behavior. Read
+   [evaluation](references/evaluation.md) before writing evals or when a
+   revision did not help.
 
-[budget]: references/package-format.md#progressive-disclosure-budget
+To audit an existing skill, cut first: delete every line the model
+would follow anyway, then merge overlapping skills, then fix the
+description. Read the
+[audit checklist](references/evaluation.md#auditing-an-existing-skill).
+
+## Scripts
+
+- `python3 scripts/check_reference_structure.py SKILL_DIR...` checks that every
+  reference is linked from `SKILL.md`, long references have a linked
+  `## Contents`, relative links and anchors resolve, and the name and
+  description are valid. Exit 0 clean, 1 problems, 2 bad input.
+
+[bench]: https://arxiv.org/abs/2602.12670

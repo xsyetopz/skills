@@ -15,32 +15,19 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import check_architecture as ca
 
-SECTIONS = [
-    "Project Structure",
-    "High-Level System Diagram",
-    "Core Components",
-    "Data Stores",
-    "External Integrations / APIs",
-    "Deployment & Infrastructure",
-    "Security Considerations",
-    "Development & Testing Environment",
-    "Future Considerations / Roadmap",
-    "Project Identification",
-    "Glossary / Acronyms",
-]
-
 
 def document(**bodies: str) -> str:
-    """A complete document; keyword arguments replace a section's body."""
-    parts = ["# Architecture Overview", "", "A tool."]
-    for title in SECTIONS:
-        key = title.split()[-1 if title.endswith("Identification") else 0].lower()
-        default = {
-            "project": "```text\n├── app/\n│   └── main.py\n└── README.md\n```",
-            "high-level": "```mermaid\nflowchart LR\n  A --> B\n```",
-            "identification": "Date of last update: 2026-09-29",
-        }.get(key, "Not evident from the repository.")
-        parts += ["", f"## {title}", "", bodies.get(key, default)]
+    """A clean document; keyword arguments replace a section's body."""
+    sections = {
+        "map": "```text\n├── app/\n│   └── main.py\n└── README.md\n```",
+        "core": "`app/main.py` holds the entry point.",
+        "invariants": "Nothing under `app/` imports `README.md`.",
+    }
+    sections.update(bodies)
+    parts = ["# Architecture", "", "A tool."]
+    titles = {"map": "Code map", "core": "Modules", "invariants": "Invariants"}
+    for key, body in sections.items():
+        parts += ["", f"## {titles[key]}", "", body]
     return "\n".join(parts) + "\n"
 
 
@@ -71,27 +58,23 @@ class CheckTests(unittest.TestCase):
     def test_complete_document_is_clean(self) -> None:
         self.assertEqual(self.repo.check(document()), [])
 
-    def test_missing_section(self) -> None:
-        text = document().replace("## Glossary / Acronyms", "## Words")
-        self.assertIn("missing section: glossary", messages(self.repo.check(text)))
-
     def test_empty_section(self) -> None:
-        text = document(data="## Security Considerations\n\nTLS.")
+        text = document(core="")
         errors = messages(self.repo.check(text))
-        self.assertTrue(any("'Data Stores' is empty" in e for e in errors), errors)
+        self.assertTrue(any("'Modules' is empty" in e for e in errors), errors)
 
     def test_heading_with_subsections_is_not_empty(self) -> None:
-        text = document(core="### 3.1. App\n\nServes requests from `app/main.py`.")
+        text = document(core="### App\n\nServes requests from `app/main.py`.")
         self.assertEqual(self.repo.check(text), [])
 
     def test_nested_tree_path_that_does_not_exist(self) -> None:
         tree = "```text\n├── app/\n│   ├── main.py\n│   └── gone.py\n└── README.md\n```"
-        errors = messages(self.repo.check(document(project=tree)))
+        errors = messages(self.repo.check(document(map=tree)))
         self.assertEqual(errors, ["tree names 'app/gone.py', which does not exist"])
 
     def test_tree_comments_and_ellipsis_are_ignored(self) -> None:
         tree = "```text\nroot/\n├── app/   # code\n│   └── ...\n└── README.md\n```"
-        self.assertEqual(self.repo.check(document(project=tree)), [])
+        self.assertEqual(self.repo.check(document(map=tree)), [])
 
     def test_backticked_paths_and_bare_names(self) -> None:
         body = "`app/main.py`, `main.py`, `app/nope.py:3`, `missing.toml`."
@@ -109,13 +92,6 @@ class CheckTests(unittest.TestCase):
         errors = messages(self.repo.check(document(core=body)))
         self.assertEqual(len(errors), 2, errors)
 
-    def test_diagram_needs_a_fence(self) -> None:
-        text = document(**{"high-level": "[User] --> [App]"})
-        self.assertIn(
-            "diagram section has no fenced Mermaid or text diagram",
-            messages(self.repo.check(text)),
-        )
-
     def test_uncovered_top_level_directory(self) -> None:
         (self.repo.root / "worker").mkdir()
         (self.repo.root / "worker/run.py").write_text("")
@@ -129,11 +105,6 @@ class CheckTests(unittest.TestCase):
         findings = self.repo.check(document(core=body))
         self.assertEqual(messages(findings), [])
         self.assertEqual(len(messages(findings, "warning")), 3)
-
-    def test_missing_date_warns(self) -> None:
-        text = document().replace("Date of last update: 2026-09-29", "Owner: ops")
-        warnings = messages(self.repo.check(text), "warning")
-        self.assertEqual(warnings, ["no YYYY-MM-DD date of last update"])
 
 
 class MainTests(unittest.TestCase):

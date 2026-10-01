@@ -1,48 +1,35 @@
 ---
-name: {action-object, equal to the directory name}
+name: {verb-object, equal to the directory name}
 description: >-
-  {Third person. What it does with concrete verbs and objects, the trigger
-  terms users type, and one "Not for ..." clause naming the nearest
-  neighboring task. About 300 characters.}
+  {What it does, with concrete verbs, objects, and the tool names users
+  type, first. Use when {the request in the user's words}. Not for {the
+  nearest neighboring task}. Plain words, 140 to 230 characters.}
 ---
 
 # {Title}
 
-{One paragraph: the outcome, the objects handled, and the rule that every
-change is a construct card applied to observed evidence and verified.}
-
-## Workflow
-
-1. {Inspect: exact files and commands that establish the target's version
-   and configuration.}
-1. {Measure or reproduce: exact command and the metric or symptom.}
-1. {Choose a card from the routing table below.}
-1. {Pin behavior with a test or oracle before changing anything.}
-1. {Apply one card; run its Verify steps.}
-1. {Report with the evidence listed under Completion evidence.}
-
-## Route evidence to a card
-
-| Evidence | Card |
-| --- | --- |
-| {observable symptom} | [{card}](references/{file}.md#{anchor}) |
+{One or two sentences: the outcome and what the model gets wrong without
+this skill.}
 
 ## Rules
 
-- {Gotcha that causes a known failure in this domain, with the reason it
-  fails; not a bare MUST or NEVER.}
+- {Most important mistake. The correct action, as a specific check or
+  command. The reason, in one clause.}
+- {Next mistake, same form.}
 
-## Bundled tools
+## Workflow
 
-- `scripts/{name}.py ARGS`: {what it checks}; exit 0/1/2 meaning.
-- `assets/examples/verify.sh {modes}`: {what each mode proves}.
+{Only when the order of steps matters. Exact commands.}
+
+1. {Step.}
+1. {Step.}
+
+## Scripts
+
+- `python3 scripts/{name}.py ARGS` {what it checks}. Exit 0 clean, 1
+  findings, 2 usage error. On Windows, use `py -3` for `python3`.
 
 ## References
 
-- [{Domain}](references/{file}.md): {which cards it holds}.
-
-## Completion evidence
-
-The report contains: {version and configuration}, {evidence of the
-problem}, {cards applied}, {verification commands and results}, and
-{anything not run, stated as not verified}.
+- Read [`references/{variant}.md`](references/{variant}.md) when {the
+  condition that makes it relevant}.

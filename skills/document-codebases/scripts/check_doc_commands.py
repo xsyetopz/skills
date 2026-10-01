@@ -17,7 +17,7 @@ cannot change the real checkout. A block marked with the HTML comment
 
 Usage: check_doc_commands.py FILE.md [--cwd DIR] [--list] [--timeout S] [--json]
 Exit status: 0 every command passed, 1 a command failed or its output
-differed, 2 unreadable input.
+differed, 2 unreadable input or no `sh` on PATH.
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,12 +39,14 @@ EPILOG = """\
 Exit status:
   0  every command passed (or was skipped or only listed)
   1  a command failed, timed out, or printed other output than documented
-  2  unreadable input: FILE cannot be read or --cwd is not a directory
+  2  unreadable input: FILE cannot be read or --cwd is not a directory, or
+     no POSIX sh is on PATH (Git Bash or WSL on Windows)
 
 Output: one line per command, "ok", "FAIL" (with the reason on the next
-line), "skip", or "list", then "P/N documented commands passed". --json
-prints {"checks": [{file, line, command, status, output_checked,
-problem}], "passed": P, "total": N}.
+line), "skip", or "list", then "P passed, F failed, S skipped, L listed of
+N documented commands"; only "ok" counts as passed. --json prints
+{"checks": [{file, line, command, status, output_checked, problem}],
+"passed": P, "failed": F, "skipped": S, "listed": L, "total": N}.
 
 Examples:
   python3 scripts/check_doc_commands.py README.md
@@ -121,6 +124,8 @@ def run(check: Check, cwd: Path, timeout: float) -> str | None:
             cwd=cwd,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             check=False,
         )
@@ -173,6 +178,13 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+    if not args.list and shutil.which("sh") is None:
+        print(
+            "error: running documented commands needs a POSIX sh (Git Bash or WSL) "
+            "on PATH; use --list to only list them",
+            file=sys.stderr,
+        )
+        return 2
     results: list[dict] = []
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp) / "work"
@@ -194,13 +206,23 @@ def main(argv: list[str] | None = None) -> int:
             results.append(result)
             if not args.json:
                 print(describe(result))
-    passed = sum(result["status"] != "fail" for result in results)
+    counts = Counter(result["status"] for result in results)
     if args.json:
-        report = {"checks": results, "passed": passed, "total": len(found)}
+        report = {
+            "checks": results,
+            "passed": counts["ok"],
+            "failed": counts["fail"],
+            "skipped": counts["skip"],
+            "listed": counts["list"],
+            "total": len(found),
+        }
         print(json.dumps(report, indent=2))
     else:
-        print(f"{passed}/{len(found)} documented commands passed")
-    return 0 if passed == len(found) else 1
+        print(
+            f"{counts['ok']} passed, {counts['fail']} failed, {counts['skip']} "
+            f"skipped, {counts['list']} listed of {len(found)} documented commands"
+        )
+    return 1 if counts["fail"] else 0
 
 
 def describe(result: dict) -> str:

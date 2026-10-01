@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS invoices (
-    id INTEGER PRIMARY KEY,
-    customer TEXT NOT NULL,
-    cents INTEGER NOT NULL,
-    currency TEXT NOT NULL,
-    paid INTEGER NOT NULL DEFAULT 0
-);

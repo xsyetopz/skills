@@ -62,10 +62,10 @@
 		"expected_skill": "create-agent-hooks"
 	},
 	{
-		"query": "Use the optimize-go-code skill's approach to speed up our JSON encoder; benchmarks are in encoder_test.go.",
+		"query": "Use the optimize-code-performance skill's approach to speed up our JSON encoder; benchmarks are in encoder_test.go.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-go-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "What is the difference between an MCP server and a plugin?",
@@ -87,13 +87,13 @@
 		"query": "Write a requirements spec with acceptance criteria for the new export feature.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "define-requirements"
+		"expected_skill": "plan-software-changes"
 	},
 	{
 		"query": "Update the changelog for the skills we changed this week.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "update-changelogs"
+		"expected_skill": "manage-releases"
 	},
 	{
 		"query": "Our justfile's `validate` recipe should also run the markdown linter. Add it.",

@@ -7,7 +7,7 @@ Checks, for one skill directory:
   2. every reference longer than 100 lines has a "## Contents" section, and
      every Contents section is a list of links to headings ("[Title](#anchor)"
      or "[Title][label]" with "[label]: #anchor") that names every "##"
-     heading, as $write-github-markdown's markdown_toc.py writes it;
+     heading, as $document-codebases' markdown_toc.py writes it;
   3. every relative Markdown link in SKILL.md and references/ resolves to a
      file, and every "#anchor" resolves to a heading in the target file
      (GitHub-style slugs);

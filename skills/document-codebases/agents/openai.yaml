@@ -1,4 +1,4 @@
 interface:
   display_name: "Document Codebases"
-  short_description: "Docs whose commands run and links resolve"
-  default_prompt: "Use $document-codebases to write or fix this repository's documentation, running every documented command, checking links and anchors, and proving formatting-only edits kept every word."
+  short_description: "README, ARCHITECTURE.md, and GitHub docs"
+  default_prompt: "Use $document-codebases to write or fix this repository's docs: run every command before documenting it, check links and anchors, and keep ARCHITECTURE.md to modules and invariants."

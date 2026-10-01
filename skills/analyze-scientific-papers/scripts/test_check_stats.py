@@ -1,4 +1,4 @@
-"""Tests for check_stats.py and check_evidence_note.py (stdlib only)."""
+"""Tests for check_stats.py (stdlib only)."""
 
 from __future__ import annotations
 
@@ -7,15 +7,21 @@ import io
 import json
 import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import check_evidence_note as notes
 import check_stats as stats
 
-EXAMPLES = Path(__file__).resolve().parents[1] / "assets/examples"
+RESULTS = """\
+Participants in the intervention group scored higher, t(28) = 2.20, p = .036.
+The three-group comparison was significant, F(2, 57) = 3.40, p < .05.
+Completion rates differed, chi2(1) = 4.10, p = .043.
+The secondary outcome also differed, t(28) = 1.20, p = .03.
+Accuracy correlated with training time, r(48) = .30, p = .034.
+"""
 
 
 class PValueTests(unittest.TestCase):
@@ -69,15 +75,17 @@ class ReportTests(unittest.TestCase):
         self.assertIn("outside -1..1", result["detail"])
 
     def test_example_results_file_flags_one(self) -> None:
-        text = (EXAMPLES / "results-section.txt").read_text()
-        self.assertEqual(reports(text).count(False), 1)
+        self.assertEqual(reports(RESULTS).count(False), 1)
 
 
 class StatsCommandLineTests(unittest.TestCase):
     def test_json_report(self) -> None:
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
-            status = stats.main([str(EXAMPLES / "results-section.txt"), "--json"])
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "results.txt"
+            path.write_text(RESULTS)
+            with contextlib.redirect_stdout(out):
+                status = stats.main([str(path), "--json"])
         report = json.loads(out.getvalue())
         self.assertEqual(status, 1)
         self.assertEqual(report["count"], len(report["reports"]))
@@ -92,47 +100,6 @@ class StatsCommandLineTests(unittest.TestCase):
         self.assertFalse(result["consistent"])
         self.assertIsNone(result["computed_p"])
         self.assertEqual(result["detail"], "missing degrees of freedom")
-
-
-class EvidenceNoteCommandLineTests(unittest.TestCase):
-    def test_json_report(self) -> None:
-        good = str(EXAMPLES / "note-supported.md")
-        bad = str(EXAMPLES / "note-abstract-only.md")
-        out = io.StringIO()
-        with contextlib.redirect_stdout(out):
-            status = notes.main([good, bad, "--json"])
-        report = json.loads(out.getvalue())
-        self.assertEqual(status, 1)
-        self.assertEqual(report["failed"], 1)
-        self.assertEqual(report["notes"][0], {"file": good, "ok": True, "problems": []})
-        self.assertIn("missing field Updates", report["notes"][1]["problems"])
-
-    def test_usage_errors_return_2(self) -> None:
-        err = io.StringIO()
-        with contextlib.redirect_stderr(err):
-            self.assertEqual(notes.main([]), 2)
-            self.assertEqual(notes.main(["/nonexistent/note.md"]), 2)
-        self.assertIn("cannot read /nonexistent/note.md", err.getvalue())
-
-
-class EvidenceNoteTests(unittest.TestCase):
-    def test_full_text_note_passes(self) -> None:
-        self.assertEqual(notes.check((EXAMPLES / "note-supported.md").read_text()), [])
-
-    def test_abstract_only_support_is_rejected(self) -> None:
-        problems = notes.check((EXAMPLES / "note-abstract-only.md").read_text())
-        self.assertIn(
-            "supported from abstract only: read the full text first", problems
-        )
-        self.assertIn("missing field Updates", problems)
-
-    def test_unresolved_from_metadata_is_acceptable(self) -> None:
-        text = (EXAMPLES / "note-supported.md").read_text()
-        text = text.replace("Status: full text", "Status: metadata").replace(
-            "Conclusion: supported, for the benchmark setting only.",
-            "Conclusion: unresolved until the full text is read.",
-        )
-        self.assertEqual(notes.check(text), [])
 
 
 if __name__ == "__main__":

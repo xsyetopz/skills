@@ -9,6 +9,10 @@ released versions yet.
 
 ### Added
 
+- `document-codebases` ships `scripts/reflow_markdown.py`, which refills paragraph lines up to MD013
+  `line_length` from the nearest markdownlint config (100 without one) and leaves lists, tables,
+  code, HTML, and hard breaks intact, plus markdownlint config templates that it copies into a
+  repository without one and offers to replace an existing one.
 - `write-architecture-md` writes, updates, and audits ARCHITECTURE.md files from the architecture.md
   template, with matklad's durability rules. The file is always `ARCHITECTURE.md` at the repository
   root; one kept in `docs/` is moved there. `scripts/check_architecture.py` checks the document

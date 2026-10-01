@@ -33,7 +33,12 @@ statement matches the code as it is today.
 - Mark skipped blocks `<!-- doc-check: skip -->` and say in the reply they were not run.
 - After renaming a heading or moving a file, search for the old anchor and path and fix every link.
   Anchors and relative links break silently.
-- Keep the repository's Markdown linter and config. Do not loosen a rule to pass.
+- Keep the repository's Markdown linter and config, and never loosen a rule to pass. With no
+  markdownlint config, copy [`.markdownlint.jsonc`](assets/markdownlint/.markdownlint.jsonc) and
+  [`.markdownlint-cli2.jsonc`](assets/markdownlint/.markdownlint-cli2.jsonc) to the root. With one,
+  ask whether to replace it with these templates or keep it, and keep it until the user answers.
+- Wrap paragraphs with `scripts/reflow_markdown.py`, not by hand; it fills lines to the configured
+  width without breaking lists, tables, or code.
 - Leave changelogs, AGENTS.md, code comments, and SKILL.md files to their own skills.
 
 ## Workflow
@@ -65,6 +70,10 @@ Run these from the skill directory or by full path. On Windows, use `py -3` for 
 - `python3 scripts/markdown_toc.py [--check] [--max-level N] [--width N] FILE...` rebuilds the list
   under an existing `## Contents` heading with correct anchors. `--check` only reports a stale list.
   Exit 0 current, 1 stale under `--check`, 2 bad input.
+- `python3 scripts/reflow_markdown.py [--check] [--width N] FILE...` refills paragraph lines up to
+  MD013 `line_length` from the nearest markdownlint config (100 without one); other blocks and
+  paragraphs with hard breaks stay as written. Exit 0 current or rewritten, 1 needs reflow under
+  `--check`, 2 bad input or config.
 - Tests: `python3 -m unittest discover -s scripts`.
 
 ## References

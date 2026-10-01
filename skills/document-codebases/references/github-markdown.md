@@ -5,6 +5,7 @@
 - [Heading anchors](#heading-anchors)
 - [Links](#links)
 - [Contents lists](#contents-lists)
+- [Line length](#line-length)
 - [Code fences](#code-fences)
 - [Tables](#tables)
 - [Alerts](#alerts)
@@ -43,6 +44,12 @@ Add `## Contents` after the intro for files over about 100 lines or files agents
 entry links to a heading anchor. Generate it with `scripts/markdown_toc.py FILE.md` and verify with
 `scripts/markdown_toc.py --check FILE.md`, because hand-written lists go stale when headings change.
 Entries longer than the line limit become reference links so markdownlint MD013 does not fail.
+
+## Line length
+
+Hard-wrap prose at MD013 `line_length` with `scripts/reflow_markdown.py FILE.md`, which reads the
+width from the markdownlint config. Editor soft wrap does not satisfy MD013, and lines wrapped at
+another width leave ragged paragraphs in the diff.
 
 ## Code fences
 

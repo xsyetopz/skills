@@ -86,9 +86,7 @@
 			"id": 4,
 			"prompt": "Add a `clean-db` recipe to cleandb/justfile that drops the local development database with `dropdb app_dev`. Nobody should be able to run it by accident, but CI must be able to run it non-interactively. Don't drop anything while you work on this.",
 			"expected_output": "A documented clean-db recipe with [confirm] (or [confirm(\"...\")]) that runs `dropdb app_dev`; the reply says CI uses `just --yes clean-db`. Verification uses --dry-run or a stub dropdb, never the real one.",
-			"files": [
-				"evals/files/cleandb/justfile"
-			],
+			"files": ["evals/files/cleandb/justfile"],
 			"assertions": [
 				{
 					"text": "With a stub dropdb on PATH and no terminal input, `just clean-db` refuses and does not call dropdb.",
@@ -105,32 +103,6 @@
 				{
 					"text": "The reply tells CI to run it with --yes.",
 					"check": "grep -q -- '--yes' \"$EVAL_RESPONSE_FILE\""
-				}
-			]
-		},
-		{
-			"id": 5,
-			"prompt": "Reorganize modules/justfile so the frontend and backend each own their recipes: `just frontend::dev`, `just frontend::build`, and `just backend::test` should work from the repo root and run in their own directories. Drop the old flat recipes.",
-			"expected_output": "Root justfile with `mod frontend` and `mod backend`, recipes in frontend/justfile (or mod.just) and backend/justfile, running in the module directory; flat frontend-dev/backend-test removed; verified with just --list --list-submodules (or --summary) and real runs.",
-			"files": [
-				"evals/files/modules/backend/tests/__init__.py",
-				"evals/files/modules/backend/tests/test_ping.py",
-				"evals/files/modules/frontend/build.sh",
-				"evals/files/modules/frontend/dev.sh",
-				"evals/files/modules/justfile"
-			],
-			"assertions": [
-				{
-					"text": "`just frontend::dev` and `just frontend::build` run the scripts from inside frontend/.",
-					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nr1, o1 = just(\"modules\", \"frontend::dev\"); r2, o2 = just(\"modules\", \"frontend::build\")\nprint(o1.strip(), \"|\", o2.strip())\nsys.exit(0 if r1 == 0 and \"frontend dev server in frontend\" in o1 and r2 == 0 and \"frontend build in frontend\" in o2 else 1)\nPY"
-				},
-				{
-					"text": "`just backend::test` runs the backend tests and passes.",
-					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; python3 - <<'PY'\nimport json, os, shutil, subprocess, sys, tempfile, time\ndef just(project, *args, env=None, stdin=subprocess.DEVNULL):\n    d = subprocess.run([\"just\", *args], cwd=project, capture_output=True, text=True, timeout=60,\n                       env={**os.environ, **(env or {})}, stdin=stdin)\n    return d.returncode, d.stdout + d.stderr\n\nrc, out = just(\"modules\", \"backend::test\")\nprint(out[-300:])\nsys.exit(0 if rc == 0 and \"Ran 1 test\" in out else 1)\nPY"
-				},
-				{
-					"text": "The root justfile declares `mod frontend` and `mod backend`, and the flat frontend-dev and backend-test recipes are gone.",
-					"check": "command -v just >/dev/null || { echo 'just is not installed'; exit 1; }; cd modules && grep -Eq '^mod\\??[[:space:]]+frontend' justfile && grep -Eq '^mod\\??[[:space:]]+backend' justfile && ! just --summary | tr ' ' '\\n' | grep -Eqx 'frontend-dev|backend-test'"
 				}
 			]
 		},

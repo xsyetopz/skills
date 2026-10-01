@@ -1,113 +1,96 @@
 ---
 name: write-justfiles
 description: >-
-  Writes, debugs, and reviews justfiles for the just command runner, covering
-  recipes, parameters, dependencies, settings, and modules. Use when adding or
-  fixing just recipes. Not for build systems.
+  Writes and fixes justfiles with recipes, parameters, dependencies,
+  settings, and dotenv loading. Use when adding or debugging just recipes.
+  Not for Makefiles.
 ---
 
 # Write Justfiles
 
 Expose a project's existing commands as `just` recipes that pass arguments
-exactly, fail when the wrapped command fails, and document themselves in
-`just --list`. Every construct below is a recipe in
-`assets/examples/justfile` that `assets/examples/verify.sh` runs with
-exact expected output.
-
-## Workflow
-
-1. Record `just --version` and read the existing justfile, imports,
-   modules, and settings. Use only features the project's minimum version
-   supports; the cards give the version for each attribute and setting.
-1. Find the canonical command for each operation (package scripts, `cargo`,
-   `uv run`, a script under `scripts/`); the recipe calls it, it does not
-   re-implement it ([wrapping][wrapping]).
-1. Decide how arguments reach the command
-   ([arguments](references/arguments.md)). Anything user-supplied goes
-   through `[positional-arguments]` with `"$@"`, an exported
-   (dollar-prefixed) parameter, or `quote()`; never bare `{{ arg }}`.
-1. Add dependencies, attributes (`[group]`, `[private]`, `[confirm]`,
-   platform attributes), and settings only where the cards' **Use when**
-   applies.
-1. Run `just --fmt` then `just --fmt --check`, `just --list`, and
-   `just --dry-run RECIPE`.
-1. Run each new recipe for real: normal arguments, an argument with a
-   space and a `$`, a failing underlying command (check just's exit
-   status), and the confirm path for destructive recipes.
-1. Report the commands run and their output.
-
-## Route the task to a card
-
-| Task or symptom | Card |
-| --- | --- |
-| New recipe for an existing command | [Wrapping](references/recipes.md#wrapping-a-canonical-command) |
-| Arguments with spaces split or break | [Interpolation splits](references/arguments.md#interpolation-splits-arguments), [quote()](references/arguments.md#quote), [positional](references/arguments.md#positional-arguments), [exported](references/arguments.md#exported-parameters) |
-| Optional parameter | [Defaults](references/arguments.md#default-parameter-values) |
-| Forward a list of files or test filters | [Variadic](references/arguments.md#variadic-parameters) |
-| `--flag value` style options, value validation | [arg attribute](references/arguments.md#option-style-arguments-with-the-arg-attribute) |
-| Step A must run before B | [Prior dependencies](references/recipes.md#prior-dependencies) |
-| Step must run only after success | [Subsequent dependencies](references/recipes.md#subsequent-dependencies) |
-| Same recipe for several targets | [Dependency arguments](references/recipes.md#dependencies-with-arguments) |
-| Independent slow steps | [Parallel](references/recipes.md#parallel-dependencies) |
-| `cd` or variables lost between lines | [Line shells](references/recipes.md#line-recipes-run-one-shell-per-line), [Script recipes](references/recipes.md#script-recipes) |
-| Recipe reports success after a failure | [Failure stops](references/recipes.md#failure-stops-the-recipe), [ignore-error prefix](references/recipes.md#the-ignore-error-prefix) |
-| Deletes, deploys, publishes | [Confirm](references/recipes.md#confirmation-for-destructive-recipes) |
-| Different commands per OS | [Platform attributes](references/recipes.md#platform-attributes) |
-| Recipe runs in the wrong directory | [Working directory](references/recipes.md#working-directory) |
-| `just --list` is unclear | [Default, private, groups, docs](references/recipes.md#default-private-grouped-and-documented-recipes) |
-| Subproject recipes | [Modules](references/recipes.md#modules) |
-| Shared values, paths | [Variables](references/variables-settings.md#variables-and-strings), [env()](references/variables-settings.md#env-with-a-default), [overrides](references/variables-settings.md#command-line-variable-overrides) |
-| Value depends on CI or OS | [Conditionals](references/variables-settings.md#conditional-expressions) |
-| Every recipe is slow or fails on a missing tool | [Backticks and lazy](references/variables-settings.md#backticks-and-set-lazy), [require()](references/variables-settings.md#require-and-which) |
-| Tool reads environment variables | [Exporting](references/variables-settings.md#exporting-to-recipes), [Dotenv](references/variables-settings.md#dotenv-loading) |
-| Pipelines hide failures, Windows shell | [Shell setting](references/variables-settings.md#shell-setting) |
-| Contributors on old just | [minimum-version](references/variables-settings.md#minimum-version) |
-| Proving the justfile works | [Verification](references/verification.md) |
+exactly, fail when the wrapped command fails, and show up in `just --list`.
+Checked against just 1.58.0. Recipes run under `sh`, including on Windows
+(Git for Windows or Cygwin `sh` must be on `PATH`). To use another shell
+there, put the `[windows]` attribute on the line before
+`set shell := ["powershell.exe", "-NoLogo", "-Command"]`.
 
 ## Rules
 
-- A recipe calls the project's canonical command; it does not duplicate
-  build logic, and it does not replace a working build system.
-- User-supplied values never reach a shell through bare `{{ arg }}`.
-- A recipe's exit status is the wrapped command's: no `-` prefix,
-  `|| true`, or unchecked pipeline to make a failing check pass.
-- Destructive recipes carry `[confirm]`; CI passes `--yes` explicitly.
-- Use features only if the project's just version has them; state the
-  minimum (`set minimum-version`, 1.55.0+) when adding newer attributes.
-- Do not use the deprecated `env_var`, `env_var_or_default`,
-  `set windows-shell`, or `set windows-powershell` in new code.
-- `just --fmt --check` and `--dry-run` prove syntax and command text, not
-  behavior; run the recipe.
+- Each recipe line runs in its own shell, so `cd dir` on one line does not
+  affect the next and variables do not carry over. Put multi-line logic in a
+  shebang recipe (`#!/usr/bin/env bash`) or `[script("bash")]`, or join
+  lines with `&&` or `\`.
+- A shebang or `[script]` recipe does not stop at the first failing command:
+  `false` followed by `echo ok` exits 0. Start the body with `set -euo
+  pipefail`, because line recipes stop on failure and script bodies do not.
+- Never paste a user-supplied value with bare `{{ arg }}`: the shell splits
+  it (`just f 'a b'` passes two arguments) and runs `;` commands. Use a
+  parameter declared with a leading `$` (it is exported, so read `"${x}"`),
+  `{{ quote(arg) }}`, or
+  `set positional-arguments` with `"$@"`.
+- For a variadic (`*args` or `+args`), use `"$@"`, not `{{ quote(args) }}`.
+  just joins variadics into one string first, so `just test -k 'a b'` gives
+  pytest one argument `-k a b`, while `"$@"` gives `-k` and `a b`.
+- The exit status must be the wrapped command's. Do not add a `-` prefix,
+  `|| true`, or an unchecked pipeline to make a failing check pass; search
+  review diffs with `rg -n '^\s+-@?' justfile`.
+- `just --fmt --check` and `just --dry-run RECIPE` prove syntax and command
+  text, not behavior (dry-run exits 0 even when the first line is `exit 3`).
+  Run each new recipe: normal arguments, an argument with a space and a `$`,
+  and a failing command (read just's exit status). For deploy, publish,
+  push, or destructive recipes, show `just --dry-run RECIPE` and ask the
+  user instead of running them.
+- Call the project's canonical command (`uv run pytest`, `cargo test`, a
+  script under `scripts/`) instead of reimplementing it. Do not translate an
+  incremental Makefile build: just does not track file timestamps, so a
+  recipe that calls `make` keeps it.
+- `set dotenv-load` (or `dotenv-path`, `dotenv-filename`) loads `.env` into
+  recipes' environment, and the search walks up parent directories, so a
+  stray `.env` above the project is loaded. A missing file is silently
+  ignored unless `set dotenv-required` is also set, which then fails with
+  `dotenv file not found`. Dotenv values are environment variables, not
+  just variables: read secrets and dotenv values as `$FOO`, never
+  `{{ FOO }}` or `{{ env('FOO') }}`, because just echoes interpolated lines
+  and `--dry-run` prints them.
+- `set export` exports every just variable to recipes; a `$`-prefixed
+  parameter exports just that parameter; `[env("NAME", "VALUE")]` exports
+  for one recipe. Without one of these a just variable is text substitution
+  only, not an environment variable.
+- Every backtick assignment (``name := `cmd` ``) runs on every invocation,
+  even when the chosen recipe never uses it, so a slow or failing command
+  slows or breaks `just --list`. Add `set lazy`, or move the command into
+  the recipe.
+- Recipes run in the justfile's directory, not where you invoked just.
+  `[no-cd]` runs in the invocation directory (for recipes that take relative
+  paths from the user); `[working-directory('sub')]` runs elsewhere.
+- Destructive recipes carry `[confirm]`; without a terminal they fail with
+  `was not confirmed` unless CI passes `--yes`. Never pass `--yes`
+  yourself or put it in the recipe; ask the user to run it.
+- Attributes and settings newer than the project's minimum just version
+  fail to parse. Check `just --version` and the CI install, and state the
+  floor with `set minimum-version := "X.Y.Z"` when you add a newer one.
+- In a recipe body, write a literal `{{` as `{{{{`.
 
-## Bundled tools
+## Workflow
 
-- `assets/examples/verify.sh`: runs every example recipe in a temporary
-  copy and compares output and exit status; prints `SKIP` if just is
-  missing.
-- `scripts/check_justfiles.py PATH...`: runs `just --fmt --check` on every
-  justfile under the paths; exit 0 pass, 1 format failure, 2 bad input.
+1. Read the existing justfile, imports, modules, and settings, plus
+   `just --version`.
+1. Write the recipe: parameters with defaults (`build target='all':`),
+   dependencies, and `[private]` or `_name` for helpers.
+1. Run `just --fmt` then `just --fmt --check`, `just --list`, and
+   `just --dry-run RECIPE`.
+1. Run the recipe for real, except the recipes the rules above say to ask
+   about.
+
+## Scripts
+
+- `python3 scripts/check_justfiles.py PATH...` runs `just --fmt --check` on
+  every justfile under the paths (it never runs recipes). Exit 0 pass, 1
+  format failure, 2 bad input. On Windows, use `py -3` for `python3`.
 
 ## References
 
-- [Arguments](references/arguments.md): interpolation, `quote()`,
-  positional and exported arguments, defaults, variadics, `[arg]`.
-- [Recipes](references/recipes.md): wrapping, dependencies (prior,
-  subsequent, with arguments, parallel), line versus script recipes,
-  failure handling, confirm, platforms, working directory, listing,
-  modules.
-- [Variables and settings](references/variables-settings.md): strings,
-  `env()`, overrides, conditionals, backticks and `set lazy`, exports,
-  dotenv, shell, `require()`, `minimum-version`.
-- [Verification](references/verification.md): `--fmt --check`, listing,
-  `--dry-run`, `--evaluate`, JSON dump, argument probes, exit status,
-  batch checks.
-
-## Completion evidence
-
-The report includes `just --version`, the `just --fmt --check` result, the
-`just --list` output for new recipes, each new recipe's real run with an
-argument containing a space (output shown), a failing-command run with
-its exit status, and anything not run (for example a Windows-only
-recipe), stated as not verified.
-
-[wrapping]: references/recipes.md#wrapping-a-canonical-command
+- Read [recipe patterns](references/recipe-patterns.md) when you need
+  dependency ordering, parallel steps, dependencies with arguments,
+  platform-specific recipes, modules, imports, or conditionals.

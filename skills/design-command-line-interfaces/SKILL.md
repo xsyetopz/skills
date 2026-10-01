@@ -1,142 +1,118 @@
 ---
 name: design-command-line-interfaces
 description: >-
-  Designs and reviews command-line interfaces, including subcommands, flags,
-  help text, exit codes, stderr, JSON output, and renames. Use when changing
-  CLI commands. Not for justfiles or TUI.
+  Designs and reviews command line tools, including flags, subcommands, help
+  text, exit codes, output formats, and errors. Use when building or changing
+  a CLI.
 ---
 
 # Design Command-Line Interfaces
 
 Make every command usable by a person at a terminal and by a script in a
-pipe, and change existing commands without breaking either. The cards adapt
+pipe, and change shipped commands without breaking either. The rules adapt
 the [Command Line Interface Guidelines](https://clig.dev/) (CC BY-SA 4.0)
-and the POSIX utility conventions. `assets/examples/todo.py` implements
-them, `assets/examples/todo_bad.py` is the baseline, and
-`assets/examples/verify.sh` checks both.
-
-## Workflow
-
-1. Find the CLI's entry point and parser (`argparse`, Click, Typer, Cobra,
-   clap, picocli, oclif, commander). Extend that parser; never add a second
-   one or hand-parse `argv`.
-1. Record the current interface before editing: `CMD --help` and each
-   `CMD SUB --help`, environment variables read, exit codes, and
-   machine-readable formats
-   ([inventory][inventory]).
-   Find callers of what you will change: tests, docs, completions, CI
-   scripts, `rg -n 'CMD SUB'`.
-1. Run the checker on the current build to get a baseline:
-   `python3 scripts/check_cli.py --sub SUB ... -- CMD`.
-1. Classify the task and follow its cards:
-   - New command or flag: [arguments](references/arguments-and-flags.md),
-     [output](references/output-and-exit-codes.md),
-     [help](references/help-and-errors.md).
-   - Rename, removal, or behavior change: [evolution][evolution] first.
-   - Review: every row of the routing table.
-1. Implement with the project's existing parser, error type, and output
-   helpers. Add tests next to the existing CLI tests that assert streams,
-   exit codes, and the non-terminal path.
-1. Verify: rerun the checker (no new findings), run the tests, diff the new
-   help output against the recorded one, and run each changed command with
-   stdin from `/dev/null` and stdout piped.
-1. Report the interface changes (added, renamed, deprecated, removed), the
-   checker output before and after, and the commands run.
-
-## Route the task to a card
-
-| Task or symptom | Card |
-| --- | --- |
-| Hand-parsed `argv`, choosing a parser | [Parse with a library](references/output-and-exit-codes.md#parse-with-a-library) |
-| Failure exits 0, choosing exit codes | [Exit codes](references/output-and-exit-codes.md#exit-codes) |
-| Status text breaks `CMD \| jq`, errors lost in `> file` | [stdout and stderr](references/output-and-exit-codes.md#data-on-stdout-messages-on-stderr) |
-| Escape codes or spinners in logs and CI | [Terminal detection](references/output-and-exit-codes.md#terminal-detection), [Color](references/output-and-exit-codes.md#color) |
-| Scripts scrape tables | [`--json` and `--plain`](references/output-and-exit-codes.md#machine-readable-output---json-and---plain) |
-| Silent success, too much output | [Success output and --quiet](references/output-and-exit-codes.md#success-output-and---quiet), [State changes](references/output-and-exit-codes.md#report-state-changes-and-next-commands) |
-| Long output scrolls away | [Pager](references/output-and-exit-codes.md#pager-for-long-output) |
-| `-h` missing or runs the command | [Help flags](references/help-and-errors.md#help-flags-at-every-level) |
-| Bare command hangs or dumps every flag | [Concise usage](references/help-and-errors.md#concise-usage-when-run-bare), [Terminal stdin](references/help-and-errors.md#waiting-on-a-terminal-stdin) |
-| Writing or reordering `--help` | [Help text layout](references/help-and-errors.md#help-text-layout), [Documentation](references/help-and-errors.md#documentation-outside-the-help-text) |
-| Typo in a command name | [Suggest corrections](references/help-and-errors.md#suggest-corrections-do-not-run-them) |
-| Error messages, stack traces | [Expected errors](references/help-and-errors.md#rewrite-expected-errors-for-people), [Unexpected errors](references/help-and-errors.md#unexpected-errors-and-bug-reports) |
-| Adding an input | [Flags over arguments](references/arguments-and-flags.md#flags-over-positional-arguments), [Long and short names](references/arguments-and-flags.md#long-names-for-every-flag-short-names-for-common-ones), [Standard names](references/arguments-and-flags.md#standard-flag-names) |
-| Flag ignored after the subcommand | [Flag position](references/arguments-and-flags.md#flags-that-work-before-and-after-the-subcommand) |
-| File input or output, operands starting with `-` | [`-` and `--`](references/arguments-and-flags.md#--for-stdin-and-stdout----to-end-options), [Optional values](references/arguments-and-flags.md#optional-values-need-a-keyword) |
-| `--password`, tokens in env | [Secrets](references/arguments-and-flags.md#secrets-never-in-flags-or-environment-variables) |
-| Prompts, CI hangs, deletes | [Prompts and --no-input](references/arguments-and-flags.md#prompts-only-on-a-terminal-and---no-input), [Confirmation](references/arguments-and-flags.md#confirmation-scaled-to-danger) |
-| Adding or grouping subcommands | [Structure](references/subcommands-and-evolution.md#consistent-subcommand-structure), [Ambiguous names](references/subcommands-and-evolution.md#no-ambiguous-or-near-duplicate-names), [Catch-all](references/subcommands-and-evolution.md#no-catch-all-subcommand-no-implicit-abbreviations) |
-| Naming a program or command | [Naming](references/subcommands-and-evolution.md#naming-the-program-and-its-commands) |
-| Renaming a command, flag, or env var | [Renaming][evolution] |
-| Changing defaults, removing flags or output fields | [Additive changes](references/subcommands-and-evolution.md#additive-changes), [Removing](references/subcommands-and-evolution.md#removing-or-changing-behavior), [Output stability](references/subcommands-and-evolution.md#human-output-may-change-script-output-may-not) |
-| Update checks, phone-home calls | [Time bombs](references/subcommands-and-evolution.md#no-time-bombs), [Analytics](references/robustness-and-configuration.md#analytics-only-with-consent) |
-| Late failures, slow or hung commands | [Validate early](references/robustness-and-configuration.md#validate-early), [Progress](references/robustness-and-configuration.md#responsive-before-fast-progress-for-long-work), [Timeouts](references/robustness-and-configuration.md#timeouts-and-recoverable-runs) |
-| Ctrl-C ignored, corrupt state after interrupt | [Ctrl-C and crash-only](references/robustness-and-configuration.md#ctrl-c-and-crash-only-design) |
-| Settings from flags, env, and files | [Precedence](references/robustness-and-configuration.md#configuration-precedence), [Where config lives](references/robustness-and-configuration.md#where-configuration-lives), [Environment variables](references/robustness-and-configuration.md#environment-variables) |
-| Packaging the tool | [Distribution](references/robustness-and-configuration.md#distribution-and-uninstall) |
+and the [POSIX utility conventions][posix].
 
 ## Rules
 
-- Primary output and anything machine-readable go to stdout; everything
-  else goes to stderr. A pipe carries only stdout, so a status line on
-  stdout corrupts the next program's input.
-- A failure exits non-zero. Scripts, CI, and `set -e` see nothing else.
-- Never require a prompt. Without a terminal on stdin, or with `--no-input`,
-  fail at once and name the flag that supplies the value; a prompt in CI
-  hangs until the job times out.
-- Color, animation, and pagers only on a terminal, and never with
-  `NO_COLOR` set or `TERM=dumb`; escape codes corrupt logs and `grep`.
-- A shipped name is an interface. Under a compatibility promise, renames
-  keep the old name as a hidden, warned alias until a documented major
-  version, because user scripts cannot be updated in the same commit as
-  the tool. When the project's policy or the maintainer allows breaking
-  changes, remove the old name outright and list old and new names in the
-  changelog.
-- A flag the parser accepts must take effect wherever the user puts it; an
-  accepted but ignored flag is worse than an error. Test both positions.
-- No secrets in flag values (visible in `ps` and shell history) or in
-  environment variables (inherited by children, shown by `docker inspect`).
-- Do not auto-run a guessed correction; suggest it. Invalid input may be a
-  logic error, and each accepted misspelling becomes permanent syntax.
-- `--json`, `--plain`, exit codes, and documented formats are stable; the
-  default human output may change. Say so in the docs.
-- Follow the project's existing conventions where they conflict with a card,
-  and report the conflict instead of changing shipped behavior silently.
+- Extend the project's existing parser (`argparse`, Click, Cobra, clap,
+  picocli, oclif, commander). Do not add a second one or hand-parse `argv`,
+  because two parsers give two help and error formats.
+- Record the interface before editing: `CMD --help`, each `CMD SUB --help`,
+  env vars read (`rg -n 'getenv|environ|env::var|process\.env'`), exit codes,
+  and callers (`rg -n 'CMD SUB'` in tests, docs, completions, CI). Diff the
+  help afterwards so every change is intended.
+- Primary and machine-readable output go to stdout; status, progress,
+  warnings, errors, and prompts go to stderr. Help the user asked for goes
+  to stdout; usage shown because of an error goes to stderr. A pipe carries
+  only stdout, so a status line there corrupts `CMD | jq`.
+- A failure exits non-zero. An unknown flag exiting 0 is the most common
+  defect. Use few documented codes: 0 success, 1 runtime failure, 2 usage
+  error (argparse and Click), 130 after Ctrl-C (128 + SIGINT).
+- Never make a prompt the only way to supply a value. Without a terminal on
+  stdin, or with `--no-input`, fail at once and name the flag that supplies
+  it. Check with `CMD ARGS </dev/null` (cmd.exe: `CMD ARGS <NUL`). A prompt
+  in CI hangs until timeout.
+- Scale confirmation to danger: no prompt for a mild action, prompt plus
+  `--force` and `--dry-run` for a remote or bulk delete, and type-the-name
+  plus `--confirm=NAME` for deleting an application or database. Lowering a
+  count that deletes the surplus is also destructive.
+- Color, spinners, and pagers only when that stream is a terminal, and
+  never with `NO_COLOR` non-empty ([no-color.org](https://no-color.org/)),
+  `TERM=dumb`, or `--no-color`. Test each stream separately, since stderr
+  can be a terminal while stdout is piped. Escape codes corrupt logs.
+- A flag the parser accepts must take effect on either side of the
+  subcommand (`CMD --store x add` and `CMD add --store x`). Test both; an
+  accepted but ignored flag is worse than an error. Parser traps are in
+  [parser gotchas](references/parser-gotchas.md).
+- Do not put secrets in flag values (visible in `ps` and shell history) or
+  env vars (inherited by children, shown by `docker inspect`). Accept
+  `--password-file PATH`, stdin, or a keychain.
+- A shipped name is an interface: flags, subcommands, env vars, config keys,
+  exit codes, and `--json` fields. Keep a renamed one as a hidden alias that
+  warns on stderr, naming the replacement and the removal version, until a
+  documented major release. If the project or maintainer allows breaking
+  changes (pre-1.0, no compatibility promise), rename directly and list
+  old and new names in the changelog instead. Never skip the same-change
+  updates: help, docs, completions, tests, every in-repo caller.
+- `--json`, `--plain`, exit codes, and documented formats are stable; default
+  human output may change. Adding a column to a table is fine, renaming a
+  JSON key is breaking. Say so in the docs, and keep `--json` output
+  identical on and off a terminal.
+- Use the standard flag meanings: `-h/--help` (nothing else),
+  `-q/--quiet`, `-f/--force`, `-n/--dry-run`, `-o/--output`, `-a/--all`,
+  `--json`, `--no-input`, `--version`. Avoid `-v` in a new tool (verbose in
+  some tools, version in others). Give every flag a long name; give only
+  frequently typed flags a short one.
+- Prefer flags over positional arguments, except one primary object or a
+  list of the same kind (`rm a b c`). Accept `-` for stdin or stdout and
+  `--` to end options; test `CMD -- -x` rather than reimplementing it.
+- Suggest a correction for a mistyped command; do not run it. Do not add a
+  catch-all default subcommand or accept unambiguous prefixes as aliases,
+  because a later subcommand would break scripts.
+- Rewrite predictable errors as what failed, why, and what to do next, with
+  the underlying cause (`strerror`, HTTP status) kept and the most important
+  line last. For unexpected errors print one line, write the traceback to a
+  log file or `--debug`, and say where to report. No stack trace by default.
+- Validate all input before any side effect. Give every network call a
+  timeout flag. On SIGINT print a message at once and exit quickly; write
+  files to a temporary name then rename so an interrupt leaves no half file.
+- Precedence from highest to lowest: flags, environment, project config,
+  user config, system config. Put user config and data under
+  `$XDG_CONFIG_HOME` and `$XDG_DATA_HOME` on Linux
+  ([spec](https://specifications.freedesktop.org/basedir-spec/latest/)), and
+  in the platform directory elsewhere (`%APPDATA%` on Windows, via
+  platformdirs or dirs), unless the project already chose one. Env names
+  are uppercase letters, digits, and underscores, with an app prefix.
+- Follow the project's conventions where they conflict with a rule, and
+  report the conflict rather than changing shipped behavior silently.
 
-## Bundled tools
+## Workflow
 
-- `scripts/check_cli.py [--sub SUB]... [--skip ID]... [--timeout S]
-  [--json] [--strict] -- COMMAND [ARG...]`: runs the command with pipes
-  and checks `--help`, `-h`, `SUB --help`, an unknown flag (non-zero,
-  stderr only), stack traces, `--version`, ANSI escapes in pipes, and that
-  a bare run finishes with stdin from `/dev/null` and on a pseudo-terminal.
-  Exit 0 clean, 1 errors (or warnings with `--strict`), 2 bad usage. It
-  starts the command, so point it only at code you trust; `--skip ID`
-  documents deliberate exceptions.
-- `assets/examples/todo.py` (candidate), `assets/examples/todo_bad.py`
-  (baseline), `assets/examples/verify.sh`: `sh assets/examples/verify.sh`
-  prints `VERIFY PASSED` (Python 3.14.7, macOS).
+1. Record the interface and run the checker for a baseline (below).
+1. Implement with the project's parser, error type, and output helpers. Add
+   tests beside the existing CLI tests that assert streams, exit codes, and
+   the non-terminal path.
+1. Rerun the checker (no new findings), the tests, the help diff, and each
+   changed command with stdin from `/dev/null` (`NUL` on Windows) and
+   stdout piped.
+
+## Scripts
+
+- `python3 scripts/check_cli.py [--sub SUB]... [--skip ID]... [--timeout S]
+  [--json] [--strict] -- COMMAND [ARG...]` runs the command with pipes and
+  checks `--help`, `-h`, `SUB --help`, an unknown flag (non-zero, stderr only),
+  stack traces, `--version`, ANSI escapes in pipes, and that a bare run
+  finishes with stdin from `/dev/null` and on a pseudo-terminal. Exit 0
+  clean, 1 errors (or warnings with `--strict`), 2 bad usage. It starts the
+  command, so point it only at code you trust; `--skip ID` documents a
+  deliberate exception. `scripts/test_check_cli.py` tests it. On Windows, use
+  `py -3` for `python3`.
 
 ## References
 
-- [Output and exit codes](references/output-and-exit-codes.md): parser,
-  exit codes, streams, TTY, color, --json and --plain, --quiet, pager.
-- [Help and errors](references/help-and-errors.md): help flags, bare usage,
-  help layout, suggestions, docs, error messages, bug reports.
-- [Arguments and flags](references/arguments-and-flags.md): flags versus
-  arguments, names, flag position, `-` and `--`, secrets, prompts,
-  confirmation.
-- [Subcommands and evolution](references/subcommands-and-evolution.md):
-  inventory, structure, naming, additive changes, renames, deprecation,
-  output stability.
-- [Robustness and configuration](references/robustness-and-configuration.md):
-  validation, progress, timeouts, signals, config precedence, XDG,
-  environment variables, distribution, analytics.
+- Read [parser gotchas](references/parser-gotchas.md) when a flag is
+  ignored after the subcommand, or when adding aliases, deprecations, or
+  hidden commands in `argparse`, Cobra, or clap.
 
-## Completion evidence
-
-The report lists the interface changes; `check_cli.py` output before and
-after; the tests run and their result; the help diff; and any card not
-applied, with the reason.
-
-[evolution]: references/subcommands-and-evolution.md#renaming-a-command-or-flag
-[inventory]: references/subcommands-and-evolution.md#inventory-the-interface-before-changing-it
+[posix]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html

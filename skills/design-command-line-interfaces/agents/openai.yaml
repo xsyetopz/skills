@@ -1,4 +1,4 @@
 interface:
   display_name: "Design Command-Line Interfaces"
   short_description: "Design, change, and rename CLI commands safely"
-  default_prompt: "Use $design-command-line-interfaces to add, change, rename, or review this app's CLI commands so they follow command-line conventions, keep old names working, and pass the bundled check_cli.py probe."
+  default_prompt: "Use $design-command-line-interfaces to add, change, rename, or review this CLI so scripts and people can both use it, and run scripts/check_cli.py."

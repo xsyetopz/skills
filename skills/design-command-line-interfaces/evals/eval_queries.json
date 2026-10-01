@@ -2,67 +2,68 @@
 	{
 		"query": "add a `--json` flag to our `acme export` command so scripts can parse the output",
 		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Rename the `rm` subcommand of our CLI to `delete` without breaking people's scripts",
 		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "our CLI prints `Loading...` to stdout and it breaks `mycli list | jq`. fix it",
 		"should_trigger": true,
-		"split": "train"
-	},
-	{
-		"query": "CI hangs forever on `tool clean` because it asks 'Are you sure?'. How should the command behave?",
-		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Review the flags and subcommands of this Cobra CLI before we release 1.0",
 		"should_trigger": true,
-		"split": "train"
-	},
-	{
-		"query": "Our click app exits 0 even when the upload fails. What exit codes should a CLI use?",
-		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Write the --help text for our new `backup restore` subcommand",
 		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "`mytool --verbose sync` works but `mytool sync --verbose` says unknown flag. Can we make both work?",
 		"should_trigger": true,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Should our CLI take the API token as --token or read it from somewhere else?",
 		"should_trigger": true,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Add a `deploy` subcommand to the clap-based CLI in src/cli.rs with a dry-run option",
 		"should_trigger": true,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Make color output in our Node CLI respect NO_COLOR and turn off when piped",
 		"should_trigger": true,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Deprecate the --out flag in favor of --output in our argparse tool",
 		"should_trigger": true,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "design-command-line-interfaces"
 	},
 	{
 		"query": "Add a `just test` recipe that forwards extra args to pytest",
 		"should_trigger": false,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "write-justfiles"
 	},
 	{
 		"query": "Build a full-screen terminal file manager UI with panes and mouse support in Rust",
@@ -77,7 +78,8 @@
 	{
 		"query": "Fix the flaky integration test in tests/test_sync.py that fails on CI 1 in 10 runs",
 		"should_trigger": false,
-		"split": "train"
+		"split": "train",
+		"expected_skill": "debug-software-failures"
 	},
 	{
 		"query": "Write a bash one-liner to find the 10 largest files under /var/log",
@@ -87,16 +89,30 @@
 	{
 		"query": "Bump our package version for a release that removes a deprecated CLI flag: major or minor?",
 		"should_trigger": false,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "manage-releases"
 	},
 	{
 		"query": "Profile why our Go CLI takes 2 seconds to start and make it faster",
 		"should_trigger": false,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "Write the README install section for our Python package",
 		"should_trigger": false,
-		"split": "validation"
+		"split": "validation",
+		"expected_skill": "document-codebases"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that runs `mytool --help` as a smoke test on every push",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "configure-ci-cd-pipelines"
+	},
+	{
+		"query": "Our Python library raises ValueError for bad config values; restructure the exception hierarchy",
+		"should_trigger": false,
+		"split": "train"
 	}
 ]

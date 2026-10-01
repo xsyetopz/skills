@@ -1,5 +1,8 @@
 # Waste measures
 
+Run the shell blocks in Claude Code's Bash tool (Git Bash on Windows); they
+need `jq`.
+
 Each measure is a method. None has a universal threshold: compare
 sessions from the same machine and Claude Code version, and read the
 largest outliers first. All recipes assume `f` is one transcript and print
@@ -8,48 +11,24 @@ counts, never message text. The fields they use are undocumented; run the
 
 ## Contents
 
-- [Re-reads of an unchanged file](#re-reads-of-an-unchanged-file)
-- [Repeated commands](#repeated-commands)
+- [Re-reads and repeated commands](#re-reads-and-repeated-commands)
 - [Agents that end at their turn limit](#agents-that-end-at-their-turn-limit)
 - [Compaction points](#compaction-points)
 - [Split a transcript into tasks](#split-a-transcript-into-tasks)
 - [Unverified done claims](#unverified-done-claims)
 - [Announce and stop](#announce-and-stop)
-- [Classify each finding](#classify-each-finding)
 - [Sources](#sources)
 
-## Re-reads of an unchanged file
+## Re-reads and repeated commands
 
-A re-read is a `Read` of the same `file_path`, `offset`, and `limit` as an
-earlier `Read` in the same transcript, with no `Edit`, `MultiEdit`,
-`Write`, or `NotebookEdit` of that path in between. The file content
-already sits in the context, so the second read pays again for the same
-tokens.
+`scripts/session_stats.py` counts both. Two blind spots: reads and edits
+through Bash (`cat`, `sed -i`) are not `Read` or `Edit` calls, so count
+them separately and call the result approximate. A re-read after a
+formatter, generator, or another agent changed the file, and polling a
+running job, are not waste; check the calls in between.
 
-- Count: `scripts/session_stats.py` reports `repeated_reads` per path.
-- Blind spot: reads through Bash (`cat`, `sed -n`, `head`) and edits
-  through Bash (`sed -i`, `sd`, redirection) are not `Read` or `Edit`
-  calls. Count Bash reads separately with a pattern over `.input.command`
-  and say the result is approximate.
-- Not waste: a re-read after a formatter, a generator, another agent, or a
-  Bash command changed the file. Check the calls between the two reads
-  before you count it.
-- Typical fix: a rule to read only the needed line range, or to rely on
-  the content already in context after an edit.
-
-## Repeated commands
-
-The same Bash command run again in one transcript with byte-identical
-`stdout` and `stderr`. Status commands (`git status`, `git diff --stat`,
-`ls`) and test runs with no change in between are the usual cases.
-
-- Count: `scripts/session_stats.py` groups by command text and a hash of
-  the output, and reports runs per command.
-- Not waste: polling a job that is still running, or a check before and
-  after an action that turned out to change nothing.
-- Typical fix: a rule to rerun a status command only after an action that
-  can change its output; or a hook that runs the command once and injects
-  the result.
+- Typical fix: read only the needed line range, and rerun a status command
+  only after an action that can change its output.
 
 ## Agents that end at their turn limit
 
@@ -169,27 +148,12 @@ send another prompt to get the work the agent already planned.
 - Typical fix: a rule that the final message reports results, not plans,
   while work remains; or a `Stop` hook that checks the last message.
 
-## Classify each finding
-
-Give each confirmed finding one class and one fix:
-
-| Class | Evidence | Fix |
-| --- | --- | --- |
-| Missing rule | The agent repeats the same avoidable step across sessions, and no instruction covers it | One line in project instructions ($write-agents-md) |
-| Rule that fires too often | A hook, gate, or permission rule denies correct work; denials and retries cluster near turn limits | A bug: narrow the matcher or condition, and add a test case ($create-agent-hooks) |
-| Prompt problem | One brief produced the waste: no stop condition, too many files, unclear done check | Rewrite or split the brief |
-| Expected behavior | The cost bought what the user wanted, such as a large refactor that needed many reads | Record it and change nothing |
-
-Write each finding as: measure, count, sessions or paths, class, fix. A
-fix that adds a rule should name the count it is expected to lower, so the
-next audit can check it.
-
 ## Sources
 
 - [Subagents][sub]: `maxTurns` stops a subagent and marks its output as
   partial. Fetched 2026-09-30.
-- [Manage costs][costs]: `# Compact instructions` in `CLAUDE.md` and
-  `/compact <instructions>`. Fetched 2026-09-30.
+- [Manage costs][costs]: `# Compact instructions` in `CLAUDE.md`. Fetched
+  2026-09-30.
 - The transcript fields used here are observed, not documented; see
   [transcript data](transcript-data.md#fields-observed).
 

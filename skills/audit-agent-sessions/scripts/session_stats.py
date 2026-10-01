@@ -11,12 +11,13 @@ only these fields: `type`, `message.id`, `message.model`, `message.usage`,
 `message.content[]` tool calls (`name`, `id`, `input`) and tool results
 (`tool_use_id`, `content`), and `toolUseResult.stdout`/`stderr`.
 
-It prints counts, paths, and the first two words of repeated commands. It
+It prints counts, paths, and only the program name of repeated commands. It
 never prints message text or command output.
 
   tokens      input, cache writes (5m, 1h), cache reads, and output per model
               and per main or subagent, counted once per `message.id`
-  cost        tokens times the PRICES table below (standard rates only)
+  cost        tokens times the prices in the `--prices FILE` JSON (standard
+              rates only); without the flag, tokens only and no cost
   commands    Bash commands run more than once in one transcript with
               identical output
   reads       Read calls repeating an earlier Read of the same path, offset,
@@ -24,7 +25,16 @@ never prints message text or command output.
               or NotebookEdit of that path in between (Bash edits are not
               seen)
 
-Usage: session_stats.py PATH [--json] [--top N]
+`--prices FILE` holds a JSON object mapping a model id (matched by longest
+prefix) to per-million-token prices, for example:
+
+  {"my-model": {"input": 1.0, "output": 5.0, "cache_write": 1.25,
+                "cache_read": 0.10}}
+
+Cache writes of both lifetimes use `cache_write`. Take the prices from the
+provider's current price page; this script carries none.
+
+Usage: session_stats.py PATH [--json] [--top N] [--prices FILE]
 Exit status: 0 success, 2 bad input.
 """
 
@@ -33,30 +43,86 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
+import shlex
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-PRICES_AS_OF = "2026-09-30"
-PRICES_SOURCE = "https://platform.claude.com/docs/en/about-claude/pricing"
-# USD per million tokens: input, 5m cache write, 1h cache write, cache read,
-# output. Keys match model IDs by prefix.
-PRICES: dict[str, tuple[float, float, float, float, float]] = {
-    "claude-opus-5-5": (4.0, 5.0, 8.0, 0.20, 20.0),
-    "claude-sonnet-5-5": (2.0, 2.50, 4.0, 0.20, 10.0),
-    "claude-fable-5-1": (10.0, 12.50, 20.0, 0.25, 50.0),
-    "claude-haiku-4-5": (1.0, 1.25, 2.0, 0.10, 5.0),
-}
+PRICE_FIELDS = ("input", "cache_write", "cache_read", "output")
 TOKEN_FIELDS = ("input", "cache_write_5m", "cache_write_1h", "cache_read", "output")
 EDIT_TOOLS = {"Edit", "MultiEdit", "Write", "NotebookEdit"}
+UNPARSED = "(unparsed)"
+ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+SAFE_WORD = re.compile(r"[\w./+:@%-]+")
 
 
-def price_for(model: str) -> tuple[float, float, float, float, float] | None:
-    for prefix, price in PRICES.items():
-        if model.startswith(prefix):
-            return price
-    return None
+def program_name(command: str) -> str:
+    """First shell word that is not `export`, `env` or its options, or NAME=value.
+
+    A bare `export X=1` or `env` names itself. Anything that shlex cannot
+    split, or a result with shell syntax left in it (as from `$(...)`), gives
+    `(unparsed)`, so part of an assignment value is never returned.
+    """
+    try:
+        words = shlex.split(command.replace("\\\n", " "))
+    except ValueError:
+        return UNPARSED
+    lead = ""
+    index = 0
+    while index < len(words):
+        word = words[index]
+        if ASSIGNMENT.match(word):
+            index += 1
+        elif word in ("export", "env"):
+            lead = lead or word
+            index += 1
+        elif lead == "env" and word.startswith("-"):
+            index += 2 if word in ("-u", "-C", "-S") else 1
+        else:
+            return word if SAFE_WORD.fullmatch(word) else UNPARSED
+    return lead
+
+
+def load_prices(path: Path) -> dict[str, dict[str, float]]:
+    """Read a model-id to per-million-token price mapping; raise ValueError."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read prices from {path}: {exc}") from exc
+    if not isinstance(data, dict) or not data:
+        raise ValueError(f"{path} must hold a JSON object of model ids to prices")
+    for model, price in data.items():
+        if not isinstance(price, dict) or any(
+            isinstance(price.get(f), bool) or not isinstance(price.get(f), (int, float))
+            for f in PRICE_FIELDS
+        ):
+            raise ValueError(
+                f"{path}: {model!r} needs numeric {', '.join(PRICE_FIELDS)}"
+            )
+    return data
+
+
+def price_for(
+    model: str, prices: dict[str, dict[str, float]]
+) -> dict[str, float] | None:
+    matches = [prefix for prefix in prices if model.startswith(prefix)]
+    return prices[max(matches, key=len)] if matches else None
+
+
+def token_cost(counts: Counter[str], price: dict[str, float]) -> float:
+    cache_write = counts["cache_write_5m"] + counts["cache_write_1h"]
+    return round(
+        (
+            counts["input"] * price["input"]
+            + cache_write * price["cache_write"]
+            + counts["cache_read"] * price["cache_read"]
+            + counts["output"] * price["output"]
+        )
+        / 1e6,
+        4,
+    )
 
 
 def usage_tokens(usage: dict[str, Any]) -> dict[str, int]:
@@ -87,7 +153,9 @@ def transcript_files(path: Path) -> list[Path]:
     return sorted(p for p in path.rglob("*.jsonl") if ".orphaned-" not in p.name)
 
 
-def scan(paths: list[Path], top: int) -> dict[str, Any]:
+def scan(
+    paths: list[Path], top: int, prices: dict[str, dict[str, float]] | None
+) -> dict[str, Any]:
     tokens: dict[tuple[str, str], Counter[str]] = defaultdict(Counter)
     seen_ids: set[str] = set()
     repeated_commands: list[dict[str, Any]] = []
@@ -162,7 +230,7 @@ def scan(paths: list[Path], top: int) -> dict[str, Any]:
                             runs[(command, digest)] += 1
         for (command, _), count in runs.items():
             if count > 1:
-                head = " ".join(command.split()[:2])
+                head = program_name(command) or "(none)"
                 repeated_commands.append(
                     {"transcript": str(path), "command_head": head, "runs": count}
                 )
@@ -174,17 +242,14 @@ def scan(paths: list[Path], top: int) -> dict[str, Any]:
     rows = []
     unpriced: set[str] = set()
     for (model, scope), counts in sorted(tokens.items()):
-        price = price_for(model)
         cost = None
-        if price is None:
-            if any(counts.values()):
-                unpriced.add(model)
-        else:
-            cost = round(
-                sum(counts[f] * p for f, p in zip(TOKEN_FIELDS, price, strict=True))
-                / 1e6,
-                4,
-            )
+        if prices is not None:
+            price = price_for(model, prices)
+            if price is None:
+                if any(counts.values()):
+                    unpriced.add(model)
+            else:
+                cost = token_cost(counts, price)
         rows.append(
             {"model": model, "scope": scope, **{f: counts[f] for f in TOKEN_FIELDS}}
             | {"cost_usd": cost}
@@ -194,12 +259,12 @@ def scan(paths: list[Path], top: int) -> dict[str, Any]:
     return {
         "transcripts": len(paths),
         "bad_lines": bad_lines,
-        "prices_as_of": PRICES_AS_OF,
-        "prices_source": PRICES_SOURCE,
         "nonstandard_rate_rows": nonstandard_rows,
         "unpriced_models": sorted(unpriced),
         "tokens": rows,
-        "total_cost_usd": round(sum(r["cost_usd"] or 0 for r in rows), 4),
+        "total_cost_usd": (
+            None if prices is None else round(sum(r["cost_usd"] or 0 for r in rows), 4)
+        ),
         "repeated_commands_total": sum(r["runs"] - 1 for r in repeated_commands),
         "repeated_commands": repeated_commands[:top],
         "repeated_reads_total": sum(r["rereads"] for r in repeated_reads),
@@ -209,12 +274,15 @@ def scan(paths: list[Path], top: int) -> dict[str, Any]:
 
 def print_text(report: dict[str, Any]) -> None:
     print(f"transcripts: {report['transcripts']}  bad lines: {report['bad_lines']}")
-    print(f"prices: {report['prices_source']} ({report['prices_as_of']})")
-    header = ("model", "scope", *TOKEN_FIELDS, "cost_usd")
+    priced = report["total_cost_usd"] is not None
+    header = ("model", "scope", *TOKEN_FIELDS, *(("cost_usd",) if priced else ()))
     print("\t".join(header))
     for row in report["tokens"]:
         print("\t".join(str(row[h]) for h in header))
-    print(f"estimated total: ${report['total_cost_usd']}")
+    if priced:
+        print(f"estimated total: ${report['total_cost_usd']}")
+    else:
+        print("cost: not computed; pass --prices FILE to price tokens")
     if report["unpriced_models"]:
         print("not priced: " + ", ".join(report["unpriced_models"]))
     if report["nonstandard_rate_rows"]:
@@ -241,6 +309,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--top", type=int, default=10, help="rows per repeat list (default 10)"
     )
+    parser.add_argument(
+        "--prices",
+        type=Path,
+        metavar="FILE",
+        help="JSON: model id -> input, output, cache_write, cache_read "
+        "USD per million tokens (default: report tokens only)",
+    )
     args = parser.parse_args(argv)
     if not args.path.exists():
         print(
@@ -253,7 +328,14 @@ def main(argv: list[str] | None = None) -> int:
     if not paths:
         print(f"error: no *.jsonl transcripts under {args.path}", file=sys.stderr)
         return 2
-    report = scan(paths, args.top)
+    prices = None
+    if args.prices is not None:
+        try:
+            prices = load_prices(args.prices)
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+    report = scan(paths, args.top, prices)
     if args.json:
         print(json.dumps(report, indent=2))
     else:

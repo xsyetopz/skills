@@ -47,6 +47,28 @@ def bash_result(call_id: str, stdout: str) -> dict[str, Any]:
     }
 
 
+PRICES = {
+    "claude-opus-5-5": {
+        "input": 4.0,
+        "output": 20.0,
+        "cache_write": 5.0,
+        "cache_read": 0.2,
+    },
+    "claude-sonnet-5-5": {
+        "input": 2.0,
+        "output": 10.0,
+        "cache_write": 2.5,
+        "cache_read": 0.2,
+    },
+    "claude-haiku-4-5": {
+        "input": 1.0,
+        "output": 5.0,
+        "cache_write": 1.25,
+        "cache_read": 0.1,
+    },
+}
+
+
 class SessionStatsTest(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -60,6 +82,11 @@ class SessionStatsTest(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
         return path
+
+    def prices_file(self, prices: Any = PRICES) -> str:
+        path = self.root / "prices.json"
+        path.write_text(json.dumps(prices), encoding="utf-8")
+        return str(path)
 
     def run_json(self, *argv: str) -> dict[str, Any]:
         out = io.StringIO()
@@ -84,14 +111,14 @@ class SessionStatsTest(unittest.TestCase):
             "s1/subagents/agent-a.jsonl",
             [assistant("m2", "claude-haiku-4-5-20251001", output_tokens=1_000_000)],
         )
-        report = self.run_json(str(self.root))
+        report = self.run_json(str(self.root), "--prices", self.prices_file())
         rows = {(r["model"], r["scope"]): r for r in report["tokens"]}
         main = rows[("claude-opus-5-5", "main")]
         self.assertEqual(
             [main[f] for f in ss.TOKEN_FIELDS], [10, 100, 200, 1_000_000, 50]
         )
-        # 10*4 + 100*5 + 200*8 + 1e6*0.20 + 50*20, per million tokens.
-        self.assertAlmostEqual(main["cost_usd"], 0.20314, places=4)
+        # 10*4 + (100+200)*5 + 1e6*0.20 + 50*20, per million tokens.
+        self.assertAlmostEqual(main["cost_usd"], 0.20254, places=4)
         sub = rows[("claude-haiku-4-5-20251001", "subagent")]
         self.assertEqual(sub["cost_usd"], 5.0)
         self.assertEqual(report["transcripts"], 2)
@@ -105,15 +132,54 @@ class SessionStatsTest(unittest.TestCase):
                 )
             ],
         )
-        (row,) = self.run_json(str(self.root))["tokens"]
+        report = self.run_json(str(self.root), "--prices", self.prices_file())
+        (row,) = report["tokens"]
         self.assertEqual(row["cache_write_5m"], 1_000_000)
         self.assertEqual(row["cost_usd"], 2.5)
 
     def test_unknown_model_is_listed_not_priced(self) -> None:
         self.write("s.jsonl", [assistant("m1", "claude-future-9", output_tokens=5)])
-        report = self.run_json(str(self.root))
+        report = self.run_json(str(self.root), "--prices", self.prices_file())
         self.assertEqual(report["unpriced_models"], ["claude-future-9"])
         self.assertIsNone(report["tokens"][0]["cost_usd"])
+
+    def test_without_prices_reports_tokens_and_no_cost(self) -> None:
+        self.write("s.jsonl", [assistant("m1", "claude-opus-5-5", output_tokens=7)])
+        report = self.run_json(str(self.root))
+        self.assertEqual(report["tokens"][0]["output"], 7)
+        self.assertIsNone(report["tokens"][0]["cost_usd"])
+        self.assertIsNone(report["total_cost_usd"])
+        self.assertEqual(report["unpriced_models"], [])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(ss.main([str(self.root)]), 0)
+        self.assertIn("not computed", out.getvalue())
+        self.assertNotIn("cost_usd", out.getvalue())
+
+    def test_prices_use_longest_matching_model_prefix(self) -> None:
+        prices = {
+            "claude-opus": {"input": 1, "output": 1, "cache_write": 1, "cache_read": 1},
+            "claude-opus-5-5": PRICES["claude-opus-5-5"],
+        }
+        self.write(
+            "s.jsonl",
+            [assistant("m1", "claude-opus-5-5-2026", output_tokens=1_000_000)],
+        )
+        report = self.run_json(str(self.root), "--prices", self.prices_file(prices))
+        self.assertEqual(report["tokens"][0]["cost_usd"], 20.0)
+
+    def test_bad_prices_file_exits_2(self) -> None:
+        self.write("s.jsonl", [assistant("m1", "claude-opus-5-5")])
+        for bad in ({"claude-opus-5-5": {"input": 1}}, [], "nope"):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                code = ss.main([str(self.root), "--prices", self.prices_file(bad)])
+            self.assertEqual(code, 2)
+            self.assertIn("error:", err.getvalue())
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(
+                ss.main([str(self.root), "--prices", str(self.root / "none.json")]), 2
+            )
 
     def test_repeated_command_counts_only_identical_output(self) -> None:
         rows = []
@@ -135,9 +201,45 @@ class SessionStatsTest(unittest.TestCase):
         report = self.run_json(str(self.root))
         self.assertEqual(
             [(r["command_head"], r["runs"]) for r in report["repeated_commands"]],
-            [("git status", 3)],
+            [("git", 3)],
         )
         self.assertEqual(report["repeated_commands_total"], 2)
+
+    def test_repeated_command_head_is_only_the_program_name(self) -> None:
+        commands = [
+            "export GITHUB_TOKEN=ghp_SECRET",
+            "API_KEY=hunter2 env curl -H auth https://x",
+            "mysql -pSECRET db",
+        ]
+        rows = []
+        for n, command in enumerate(commands * 2):
+            call = f"t{n}"
+            rows += [
+                assistant(
+                    f"m{n}", "claude-opus-5-5", [tool(call, "Bash", command=command)]
+                ),
+                bash_result(call, "same"),
+            ]
+        self.write("s.jsonl", rows)
+        heads = sorted(
+            r["command_head"]
+            for r in self.run_json(str(self.root))["repeated_commands"]
+        )
+        self.assertEqual(heads, ["curl", "export", "mysql"])
+        self.assertEqual(ss.program_name("TOKEN=abc"), "")
+        self.assertEqual(ss.program_name("TOKEN=abc ./run.sh -x"), "./run.sh")
+        cases = {
+            'export TOKEN="sk live secret"': "export",
+            'TOKEN="abc def" cmd': "cmd",
+            "TOKEN='a b' cmd": "cmd",
+            "env -i X=1 cmd": "cmd",
+            "env -u HOME X=1 cmd": "cmd",
+            "A=1 \\\ncmd": "cmd",
+            "TOKEN=$(cat secret.txt) cmd": "(unparsed)",
+            'TOKEN="unterminated cmd': "(unparsed)",
+        }
+        for command, head in cases.items():
+            self.assertEqual(ss.program_name(command), head, command)
 
     def test_reread_resets_after_edit_and_ignores_other_ranges(self) -> None:
         def read(call: str, **args: Any) -> dict[str, Any]:

@@ -1,4 +1,4 @@
 interface:
   display_name: "Audit Agent Sessions"
   short_description: "Find wasted turns and tokens in Claude Code transcripts"
-  default_prompt: "Use $audit-agent-sessions to audit my recent Claude Code sessions in this project: count tokens and estimated cost by model and by main or subagent, find repeated reads and commands, turn limits, compactions, and unverified done claims, and turn each finding into one fix, reporting counts and paths, not message text."
+  default_prompt: "Use $audit-agent-sessions to audit my recent Claude Code sessions in this project: count tokens by model and by main or subagent (cost only with a prices file), find repeated reads and commands, turn limits, compactions, and unverified done claims, and turn each finding into one fix, reporting counts and paths, not message text."

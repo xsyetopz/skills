@@ -1,5 +1,0 @@
-Fix lint warning 1 reported in lint-report.txt and run the linter again.
-Fix lint warning 2 reported in lint-report.txt and run the linter again.
-Fix lint warning 3 reported in lint-report.txt and run the linter again.
-Fix lint warning 4 reported in lint-report.txt and run the linter again.
-Fix lint warning 5 reported in lint-report.txt and run the linter again.

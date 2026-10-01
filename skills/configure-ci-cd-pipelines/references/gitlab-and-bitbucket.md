@@ -1,9 +1,8 @@
 # GitLab CI and Bitbucket Pipelines
 
-Facts from the [GitLab CI YAML reference][gl-yaml] (fetched 2026-09-25)
-and the linked Atlassian pages. No pipeline ran on either service.
-Validate with `check-jsonschema --builtin-schema vendor.gitlab-ci FILE`
-or `vendor.bitbucket-pipelines FILE`.
+Facts from the [GitLab CI YAML reference][gl-yaml] (fetched 2026-09-25) and the linked Atlassian
+pages. No pipeline ran on either service. Validate with
+`check-jsonschema --builtin-schema vendor.gitlab-ci FILE` or `vendor.bitbucket-pipelines FILE`.
 
 ## Contents
 
@@ -14,10 +13,9 @@ or `vendor.bitbucket-pipelines FILE`.
 
 ## GitLab: duplicate pipelines
 
-`workflow:rules` decides whether a pipeline is created; job `rules` pick
-jobs inside it. The first matching `if` wins. Without workflow rules, a
-push to a branch with an open MR creates two pipelines. Never copy the
-`when: never` rule without its `$CI_PIPELINE_SOURCE == "push"` condition,
+`workflow:rules` decides whether a pipeline is created; job `rules` pick jobs inside it. The first
+matching `if` wins. Without workflow rules, a push to a branch with an open MR creates two
+pipelines. Never copy the `when: never` rule without its `$CI_PIPELINE_SOURCE == "push"` condition,
 or it also blocks scheduled and triggered pipelines.
 
 ```yaml
@@ -34,22 +32,17 @@ workflow:
 
 ## GitLab: needs, manual jobs, deploys
 
-- `needs` starts a job when its needed jobs finish and downloads
-  artifacts only from them when `artifacts: true` (a misspelled
-  `artifact` fails the schema). A `needs` entry naming a job absent from
-  the pipeline fails pipeline creation unless `optional: true`; do not set
-  it just to silence that, because the consumer then gets no artifact.
-- `allow_failure` defaults to `true` for manual jobs, so an unstarted
-  manual deploy does not block the pipeline. Inside `rules`,
-  `when: manual` switches the default to `false`. Set it explicitly.
-- `interruptible: true` only has effect when "auto-cancel redundant
-  pipelines" is on. Set it in `default:` for build and test jobs and
-  `false` for deploys.
-- `id_tokens` gives an OIDC JWT for the audience you name
-  ([ID tokens][gl-oidc]); `resource_group` serializes deploys. Protected
-  environments and approvals are project settings, not YAML. Never store
-  long-lived cloud keys in variables: masking hides them from logs, not
-  from jobs.
+- `needs` starts a job when its needed jobs finish and downloads artifacts only from them when
+  `artifacts: true` (a misspelled `artifact` fails the schema). A `needs` entry naming a job absent
+  from the pipeline fails pipeline creation unless `optional: true`; do not set it just to silence
+  that, because the consumer then gets no artifact.
+- `allow_failure` defaults to `true` for manual jobs, so an unstarted manual deploy does not block
+  the pipeline. Inside `rules`, `when: manual` switches the default to `false`. Set it explicitly.
+- `interruptible: true` only has effect when "auto-cancel redundant pipelines" is on. Set it in
+  `default:` for build and test jobs and `false` for deploys.
+- `id_tokens` gives an OIDC JWT for the audience you name ([ID tokens][gl-oidc]); `resource_group`
+  serializes deploys. Protected environments and approvals are project settings, not YAML. Never
+  store long-lived cloud keys in variables: masking hides them from logs, not from jobs.
 
 ```yaml
 deploy:
@@ -71,11 +64,10 @@ deploy:
 
 ## Bitbucket: start conditions
 
-`pipelines:` sections: `default` (pushes no branch section matches),
-`branches`, `tags`, `pull-requests` (glob keys), and `custom` (manual or
-scheduled). A PR pipeline merges the destination branch first
-([start conditions][bb-start]). `*` does not match `/`, so
-`feature/x` never runs under `*`; use `**`.
+`pipelines:` sections: `default` (pushes no branch section matches), `branches`, `tags`,
+`pull-requests` (glob keys), and `custom` (manual or scheduled). A PR pipeline merges the
+destination branch first ([start conditions][bb-start]). `*` does not match `/`, so `feature/x`
+never runs under `*`; use `**`.
 
 ```yaml
 pipelines:
@@ -89,14 +81,12 @@ pipelines:
 
 ## Bitbucket: steps, artifacts, deploys
 
-- Each step runs in a fresh container. Only paths listed under
-  `artifacts` (relative to the clone directory) reach later steps
-  ([artifacts][bb-artifacts]); `export`ed variables do not.
-- Put the deploy step in `branches: main`, never in `pull-requests`:
-  `deployment: production`, `trigger: manual`, `oidc: true`
-  ([OIDC][bb-oidc]), and the deploy input (`dist/*.whl`) listed in the
-  producing step's `artifacts`. Restrict workspace, repository, and
-  environment claims in the cloud trust policy.
+- Each step runs in a fresh container. Only paths listed under `artifacts` (relative to the clone
+  directory) reach later steps ([artifacts][bb-artifacts]); `export`ed variables do not.
+- Put the deploy step in `branches: main`, never in `pull-requests`: `deployment: production`,
+  `trigger: manual`, `oidc: true` ([OIDC][bb-oidc]), and the deploy input (`dist/*.whl`) listed in
+  the producing step's `artifacts`. Restrict workspace, repository, and environment claims in the
+  cloud trust policy.
 
 ```yaml
 definitions:

@@ -13,24 +13,21 @@
 
 Each item is exactly one of:
 
-- `confirmed`: traced end to end and demonstrated by a test, or fully
-  argued under stated preconditions.
-- `design risk`: a required control is missing from the design; no
-  exploit path shown.
-- `hypothesis`: evidence missing or contradictory. Name the observation
-  that would settle it.
+- `confirmed`: traced end to end and demonstrated by a test, or fully argued under stated
+  preconditions.
+- `design risk`: a required control is missing from the design; no exploit path shown.
+- `hypothesis`: evidence missing or contradictory. Name the observation that would settle it.
 
-Never promote a hypothesis because the sink looks dangerous or a tool
-rated it critical. A confirmed finding's Evidence names a runnable test
-or command and its observed result.
+Never promote a hypothesis because the sink looks dangerous or a tool rated it critical. A confirmed
+finding's Evidence names a runnable test or command and its observed result.
 
 ## Local exploit-condition test
 
-Build the smallest test against a synthetic target: in-memory database,
-temp directory, 127.0.0.1 server, marker file, or recorder function.
+Build the smallest test against a synthetic target: in-memory database, temp directory, 127.0.0.1
+server, marker file, or recorder function.
 
-1. Vulnerable code shows the condition (for example the marker file
-   appears, or tenant A's record reaches tenant B).
+1. Vulnerable code shows the condition (for example the marker file appears, or tenant A's record
+   reaches tenant B).
 1. Fixed code blocks it with the same input.
 1. A legitimate input still passes through the fixed code.
 
@@ -38,8 +35,8 @@ If the target needs the real system, stop and mark a hypothesis.
 
 ## Finding format
 
-`### F<n>: <title>` followed by these bullets (continuation lines
-indented two spaces). `scripts/check_findings.py` enforces them.
+`### F<n>: <title>` followed by these bullets (continuation lines indented two spaces).
+`scripts/check_findings.py` enforces them.
 
 ```markdown
 ### F2: Invoice readable across tenants by ID
@@ -59,50 +56,41 @@ indented two spaces). `scripts/check_findings.py` enforces them.
   NotFound; the owner still reads the invoice
 ```
 
-If the repository has its own advisory template, fill that with the same
-facts. List hardening notes with no attacker path separately. List "not
-findings" with the reason each was dismissed.
+If the repository has its own advisory template, fill that with the same facts. List hardening notes
+with no attacker path separately. List "not findings" with the reason each was dismissed.
 
 ## CWE and CVSS
 
-- Choose the CWE for the root mistake (for example CWE-89 for SQL
-  built from input, CWE-22 for path traversal, CWE-502 for unsafe
-  deserialization, CWE-918 for SSRF, CWE-639 for missing object-level
-  check). Look up IDs in the [CWE API][cwe-api]; do not guess numbers.
-  [CWE-20][cwe-20], [CWE-200][cwe-200], and [CWE-284][cwe-284] are
-  Discouraged.
-- Record the vector and score it in the FIRST calculator
-  ([v3.1][calc31], [v4.0][calc40]); specs: [v3.1][cvss31],
-  [v4.0][cvss40]. v4.0 vectors start `CVSS:4.0/` and list
-  AV, AC, AT, PR, UI, VC, VI, VA, SC, SI, SA in that order. v3.1 vectors
-  list AV, AC, PR, UI, S, C, I, A. Omit severity if the consumer does
-  not use CVSS.
+- Choose the CWE for the root mistake (for example CWE-89 for SQL built from input, CWE-22 for path
+  traversal, CWE-502 for unsafe deserialization, CWE-918 for SSRF, CWE-639 for missing object-level
+  check). Look up IDs in the [CWE API][cwe-api]; do not guess numbers. [CWE-20][cwe-20],
+  [CWE-200][cwe-200], and [CWE-284][cwe-284] are Discouraged.
+- Record the vector and score it in the FIRST calculator ([v3.1][calc31], [v4.0][calc40]); specs:
+  [v3.1][cvss31], [v4.0][cvss40]. v4.0 vectors start `CVSS:4.0/` and list AV, AC, AT, PR, UI, VC,
+  VI, VA, SC, SI, SA in that order. v3.1 vectors list AV, AC, PR, UI, S, C, I, A. Omit severity if
+  the consumer does not use CVSS.
 
 ## Reporting
 
-Keep live payloads, real secrets, and extracted data out of reports.
-Describe the payload class and show the synthetic proof. Redact any
-credential to a prefix and its location. Run gitleaks over the report
-before sharing it.
+Keep live payloads, real secrets, and extracted data out of reports. Describe the payload class and
+show the synthetic proof. Redact any credential to a prefix and its location. Run gitleaks over the
+report before sharing it.
 
 ## Agent tool boundary
 
-In an app where a model calls tools, retrieved content (documents, web
-pages, issue text, tool output) and model output are untrusted input
-([CWE-1427][cwe-1427]; [OWASP guidance][llm]). Code outside the model
-decides whether a tool may run, and with what arguments, from the
-user's authority, never from text in the content.
+In an app where a model calls tools, retrieved content (documents, web pages, issue text, tool
+output) and model output are untrusted input ([CWE-1427][cwe-1427]; [OWASP guidance][llm]). Code
+outside the model decides whether a tool may run, and with what arguments, from the user's
+authority, never from text in the content.
 
-- Can retrieved text trigger a tool call? Require a per-task tool
-  allowlist.
-- Can a tool call carry data to the network? Require an egress
-  allowlist.
+- Can retrieved text trigger a tool call? Require a per-task tool allowlist.
+- Can a tool call carry data to the network? Require an egress allowlist.
 - Which credential does the tool use? Least privilege, per user.
-- "Be safe" in the prompt enforces nothing; the dispatcher's allow or
-  deny must read the user's grants.
+- "Be safe" in the prompt enforces nothing; the dispatcher's allow or deny must read the user's
+  grants.
 
-Test with a recording tool and a synthetic secret: feed a document that
-asks for the secret to be posted and assert the post is refused.
+Test with a recording tool and a synthetic secret: feed a document that asks for the secret to be
+posted and assert the post is refused.
 
 [cwe-20]: https://cwe.mitre.org/data/definitions/20.html
 [cwe-200]: https://cwe.mitre.org/data/definitions/200.html

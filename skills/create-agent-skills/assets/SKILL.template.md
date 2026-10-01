@@ -8,13 +8,12 @@ description: >-
 
 # {Title}
 
-{One or two sentences: the outcome and what the model gets wrong without
-this skill.}
+{One or two sentences: the outcome and what the model gets wrong without this skill.}
 
 ## Rules
 
-- {Most important mistake. The correct action, as a specific check or
-  command. The reason, in one clause.}
+- {Most important mistake. The correct action, as a specific check or command. The reason, in one
+  clause.}
 - {Next mistake, same form.}
 
 ## Workflow
@@ -26,10 +25,10 @@ this skill.}
 
 ## Scripts
 
-- `python3 scripts/{name}.py ARGS` {what it checks}. Exit 0 clean, 1
-  findings, 2 usage error. On Windows, use `py -3` for `python3`.
+- `python3 scripts/{name}.py ARGS` {what it checks}. Exit 0 clean, 1 findings, 2 usage error. On
+  Windows, use `py -3` for `python3`.
 
 ## References
 
-- Read [`references/{variant}.md`](references/{variant}.md) when {the
-  condition that makes it relevant}.
+- Read [`references/{variant}.md`](references/{variant}.md) when {the condition that makes it
+  relevant}.

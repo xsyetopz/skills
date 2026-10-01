@@ -1,7 +1,6 @@
 # Transcript data
 
-Run these commands in Claude Code's Bash tool (Git Bash on Windows); the
-recipes need `jq`.
+Run these commands in Claude Code's Bash tool (Git Bash on Windows); the recipes need `jq`.
 
 ## Contents
 
@@ -22,11 +21,9 @@ The [`.claude` directory reference][dir] documents these paths:
 | `projects/<project>/<session>/tool-results/` | Large tool outputs spilled to files |
 | `projects/<project>/<session>.orphaned-<timestamp>-<suffix>.jsonl` | A set-aside earlier transcript; skip it or you count the session twice |
 
-`<project>` is the working directory with `/` (and `\`, `:` on Windows)
-replaced by `-` (observed, not documented). Inside `~/.claude/projects`,
-`ls -t ./*/*.jsonl` works and
-`ls -t */*.jsonl` passes an option. Subagent transcripts are deleted with
-their parent session.
+`<project>` is the working directory with `/` (and `\`, `:` on Windows) replaced by `-` (observed,
+not documented). Inside `~/.claude/projects`, `ls -t ./*/*.jsonl` works and `ls -t */*.jsonl` passes
+an option. Subagent transcripts are deleted with their parent session.
 
 ```sh
 rg -l --glob '*.jsonl' 'compact_boundary' ~/.claude/projects
@@ -35,8 +32,8 @@ fd -e jsonl . ~/.claude/projects/-Users-me-repo
 
 ## Check the schema first
 
-List keys and types of a recent transcript before you run a recipe. These
-print structure only, never message text:
+List keys and types of a recent transcript before you run a recipe. These print structure only,
+never message text:
 
 ```sh
 cd ~/.claude/projects
@@ -51,8 +48,7 @@ If a field a recipe uses is missing, adapt the recipe and say so.
 
 ## Fields observed
 
-Seen in September 2026 on Claude Code 2.1.284 and 2.1.285. A starting
-point, not a contract.
+Seen in September 2026 on Claude Code 2.1.284 and 2.1.285. A starting point, not a contract.
 
 | Field | Where | Observed values |
 | --- | --- | --- |
@@ -69,8 +65,8 @@ point, not a contract.
 | `toolUseResult` | user rows | Bash: `stdout`, `stderr`, `interrupted`; Read: `file.filePath` |
 | `subtype`, `compactMetadata` | system rows | `compact_boundary`; `trigger`, `preTokens`, `postTokens`, `durationMs` |
 
-Each subagent transcript has a sibling `agent-<agentId>.meta.json` with
-`agentType`, `description`, `model`, and `spawnDepth`.
+Each subagent transcript has a sibling `agent-<agentId>.meta.json` with `agentType`, `description`,
+`model`, and `spawnDepth`.
 
 ## jq recipes
 
@@ -101,11 +97,10 @@ jq -r '.agentType' "$session_dir"/subagents/agent-*.meta.json \
   | sort | uniq -c | sort -rn
 ```
 
-Bash program names by frequency. Full command lines can hold secrets, so
-print only a first word made of safe characters; a command that starts
-with `NAME=value` or quoting counts as `(other)`, because splitting on
-spaces would print part of a quoted value. `session_stats.py` parses the
-words after an assignment.
+Bash program names by frequency. Full command lines can hold secrets, so print only a first word
+made of safe characters; a command that starts with `NAME=value` or quoting counts as `(other)`,
+because splitting on spaces would print part of a quoted value. `session_stats.py` parses the words
+after an assignment.
 
 ```sh
 jq -r 'select(.type == "assistant") | .message.content[]?
@@ -115,13 +110,12 @@ jq -r 'select(.type == "assistant") | .message.content[]?
   | sort | uniq -c | sort -rn | head
 ```
 
-Count a pattern without printing the matched text with `grep -c` or a `jq`
-`test()`.
+Count a pattern without printing the matched text with `grep -c` or a `jq` `test()`.
 
 ## Sources
 
-- [Explore the `.claude` directory][dir]: paths, subagent directory,
-  `cleanupPeriodDays`. Fetched 2026-09-30.
+- [Explore the `.claude` directory][dir]: paths, subagent directory, `cleanupPeriodDays`. Fetched
+  2026-09-30.
 - Field table: observed with the schema commands above on 2026-09-30.
 
 [dir]: https://code.claude.com/docs/en/claude-directory

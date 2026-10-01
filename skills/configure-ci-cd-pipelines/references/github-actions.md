@@ -1,7 +1,7 @@
 # GitHub Actions
 
-Facts from GitHub's [workflow syntax][syntax], [events][events], and
-[secure use][secure] pages, fetched 2026-09-25. No workflow was run.
+Facts from GitHub's [workflow syntax][syntax], [events][events], and [secure use][secure] pages,
+fetched 2026-09-25. No workflow was run.
 
 ## Contents
 
@@ -14,11 +14,10 @@ Facts from GitHub's [workflow syntax][syntax], [events][events], and
 
 ## Which commit each event tests
 
-- `pull_request` runs the merge commit of the PR with its base
-  (`GITHUB_SHA`). The PR head is `github.event.pull_request.head.sha`.
+- `pull_request` runs the merge commit of the PR with its base (`GITHUB_SHA`). The PR head is
+  `github.event.pull_request.head.sha`.
 - `push` runs the pushed ref. `merge_group` runs the merge-queue commit.
-- `schedule` and `workflow_dispatch` use the workflow on the default
-  branch.
+- `schedule` and `workflow_dispatch` use the workflow on the default branch.
 
 ```yaml
 on:
@@ -28,17 +27,15 @@ on:
   merge_group:
 ```
 
-A required check stuck at "Expected - Waiting" means the workflow was
-never created: check the event, `paths`/`branches` filters, and whether
-the check name matches the job name.
+A required check stuck at "Expected - Waiting" means the workflow was never created: check the
+event, `paths`/`branches` filters, and whether the check name matches the job name.
 
 ## pull_request_target and workflow_run
 
-These run in the context of the base repository with its token and
-secrets. GitHub warns that untrusted code there can poison caches and
-leak write access. `actions/checkout` v7 refuses fork PR code on these
-events unless `allow-unsafe-pr-checkout: true`; do not set it. Use
-these events only to label or comment, never to build or test the PR.
+These run in the context of the base repository with its token and secrets. GitHub warns that
+untrusted code there can poison caches and leak write access. `actions/checkout` v7 refuses fork PR
+code on these events unless `allow-unsafe-pr-checkout: true`; do not set it. Use these events only
+to label or comment, never to build or test the PR.
 
 ```yaml
 # defect: PR head checked out with base-repo secrets
@@ -50,8 +47,8 @@ steps:
       ref: ${{ github.event.pull_request.head.sha }}
 ```
 
-To act on results of untrusted code, run it under `pull_request`, upload
-an artifact, and let a separate `workflow_run` job read it as data only.
+To act on results of untrusted code, run it under `pull_request`, upload an artifact, and let a
+separate `workflow_run` job read it as data only.
 
 ## Shell and pipefail
 
@@ -61,8 +58,7 @@ an artifact, and let a separate `workflow_run` job read it as data only.
 | no `shell:` = `bash -e {0}` | exit 0 |
 | `shell: sh` = `sh -e {0}` | exit 0 |
 
-If the image has no bash, write `set -o pipefail` first (if the shell
-supports it) or avoid pipes.
+If the image has no bash, write `set -o pipefail` first (if the shell supports it) or avoid pipes.
 
 ## Required-check aggregator
 
@@ -83,8 +79,7 @@ all-green:
         [ "$TITLE" = "$want" ] || { echo "pr-title: $TITLE"; exit 1; }
 ```
 
-Branch protection then requires only `all-green`. Check the settings; a
-workflow cannot show them.
+Branch protection then requires only `all-green`. Check the settings; a workflow cannot show them.
 
 ## OIDC deploy job
 
@@ -102,10 +97,9 @@ deploy:
     - run: ./ci/deploy.sh
 ```
 
-`environment` also applies its approval rules. The cloud role's trust
-condition should name `repo:OWNER/REPO:environment:production` (or the
-ref) and the audience ([OIDC hardening][oidc]). Replace long-lived cloud
-keys in secrets with this.
+`environment` also applies its approval rules. The cloud role's trust condition should name
+`repo:OWNER/REPO:environment:production` (or the ref) and the audience ([OIDC hardening][oidc]).
+Replace long-lived cloud keys in secrets with this.
 
 ## Artifacts and job outputs
 
@@ -118,10 +112,9 @@ keys in secrets with this.
     if-no-files-found: error
 ```
 
-Pass small values between jobs through `outputs` and `$GITHUB_OUTPUT`,
-not artifacts. When bumping a pin, read the release notes for runner
-requirements: checkout v5 and later use node24 and need runner
-v2.327.1 or later.
+Pass small values between jobs through `outputs` and `$GITHUB_OUTPUT`, not artifacts. When bumping a
+pin, read the release notes for runner requirements: checkout v5 and later use node24 and need
+runner v2.327.1 or later.
 
 [syntax]: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
 [events]: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows

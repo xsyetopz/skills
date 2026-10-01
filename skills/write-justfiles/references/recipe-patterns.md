@@ -19,10 +19,9 @@ all: (build 'x') (build 'y')       # dependencies with arguments
 check: lint test                   # dependencies run concurrently
 ```
 
-- A dependency runs at most once per invocation, even if several recipes
-  name it, unless it is called with different arguments.
-- A failing dependency stops the chain, so `&& tag` does not run after a
-  failed `release` body.
+- A dependency runs at most once per invocation, even if several recipes name it, unless it is
+  called with different arguments.
+- A failing dependency stops the chain, so `&& tag` does not run after a failed `release` body.
 
 ## Platforms
 
@@ -36,16 +35,16 @@ open:
     start docs
 ```
 
-Also `[linux]` and `[macos]`. Same-name recipes are allowed only when their
-platform attributes are disjoint.
+Also `[linux]` and `[macos]`. Same-name recipes are allowed only when their platform attributes are
+disjoint.
 
 ## Modules and imports
 
-- `mod backend` loads `backend/justfile` (or `backend.just`); call
-  `just backend test` or `just backend::test`. Module recipes run in the
-  module's directory, and `just --list` shows `backend ...`.
-- `import 'common.just'` merges a file into the current namespace, and
-  its recipes run relative to the importing justfile.
+- `mod backend` loads `backend/justfile` (or `backend.just`); call `just backend test` or
+  `just backend::test`. Module recipes run in the module's directory, and `just --list` shows
+  `backend ...`.
+- `import 'common.just'` merges a file into the current namespace, and its recipes run relative to
+  the importing justfile.
 
 ## Variables
 
@@ -55,5 +54,4 @@ mode := if ci == "true" { "strict" } else { "loose" }
 ```
 
 - `env(key, default)` reads the process environment at evaluation time.
-- Override on the command line with `just mode=strict build`, before the
-  recipe name.
+- Override on the command line with `just mode=strict build`, before the recipe name.

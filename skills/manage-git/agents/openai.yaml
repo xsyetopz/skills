@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Git"
+  short_description: "Git history, recovery, and GitHub with gh"
+  default_prompt: "Use $manage-git to make this change safely: back up refs before rewrites, stage exact paths, and use gh with --json."

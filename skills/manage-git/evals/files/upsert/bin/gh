@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""Offline gh stand-in: REST comment routes for one PR, state in gh-state.json."""
+import json
+import re
+import sys
+from pathlib import Path
+
+here = Path(__file__).resolve().parent
+state_path = here / "gh-state.json"
+state = json.loads(state_path.read_text())
+args = sys.argv[1:]
+with open(here / "gh-calls.jsonl", "a") as log:
+    log.write(json.dumps(args) + "\n")
+if args[:1] == ["api"] and "--paginate" in args:
+    pages = [state["comments"][i : i + 30] for i in range(0, len(state["comments"]), 30)]
+    print(json.dumps(pages if "--slurp" in args else state["comments"]))
+elif args[:1] == ["api"] and "--method" not in args and "-X" not in args:
+    print(json.dumps(state["comments"][:30]))
+elif args[:1] == ["api"]:
+    method = args[args.index("--method") + 1] if "--method" in args else args[args.index("-X") + 1]
+    endpoint = next(a for a in args[1:] if a.startswith("repos/"))
+    body = json.loads(sys.stdin.read())["body"] if "--input" in args else args[args.index("-f") + 1].split("=", 1)[1]
+    if method == "PATCH":
+        cid = int(re.search(r"comments/(\d+)$", endpoint).group(1))
+        for c in state["comments"]:
+            if c["id"] == cid:
+                c["body"] = body
+    else:
+        cid = 2000 + len(state["comments"])
+        state["comments"].append({"id": cid, "body": body})
+    state_path.write_text(json.dumps(state, indent=1))
+    print(json.dumps({"id": cid, "html_url": f"https://github.invalid/c/{cid}"}))
+else:
+    sys.exit(f"unsupported in offline gh: {args}")

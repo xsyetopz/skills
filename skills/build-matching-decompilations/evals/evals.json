@@ -72,8 +72,8 @@
 					"check": "grep -Eq '<=[[:space:]]*inv->count|<=[[:space:]]*count' steer/src/inventory.c"
 				},
 				{
-					"text": "evidence/iterations.json still passes the bundled checker.",
-					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/build-matching-decompilations/scripts/check_match_evidence.py\" ]; do [ \"$R\" = / ] && { echo \"check_match_evidence.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/build-matching-decompilations/scripts/check_match_evidence.py\"; python3 \"$T\" --iterations steer/evidence/iterations.json"
+					"text": "evidence/iterations.json is still valid JSON and records the new attempt after attempt 1.",
+					"check": "python3 -c \"import json; a=json.load(open('steer/evidence/iterations.json'))['attempts']; assert len(a)>=2, a\""
 				},
 				{
 					"text": "Attempt 1 is unchanged and no attempt claims a match.",

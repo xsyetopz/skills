@@ -1,5 +1,9 @@
 # ghidra-bridge CLI
 
+Commands are POSIX sh; on Windows run them in Git Bash or WSL. In
+PowerShell, replace `| head -n N` with `| Select-Object -First N` and
+`tail -n N FILE` with `Get-Content FILE -Tail N`.
+
 ## Contents
 
 - [What it is](#what-it-is)
@@ -23,13 +27,13 @@ was at the last export.
 ## Install
 
 ```bash
-pip install 'ghidra-ai-bridge[headless]'
+uv tool install 'ghidra-ai-bridge[headless]'
 ```
 
 The `headless` extra installs `pyghidra`, which `export` and `dump-asm`
 need. Without the extra, only queries over existing exports work. Any PyPI
-CLI installer, such as `uv tool install`, also works; the upstream README
-documents only `pip`.
+CLI installer, such as `pip` in a virtualenv, also works; the upstream
+README documents only `pip`.
 
 Ghidra and a JDK are user installs. Ghidra 12.1.4 requires a 64-bit JDK 21;
 PyGhidra needs Python 3.9 to 3.14. For another Ghidra version, read that
@@ -95,12 +99,12 @@ measure it on your program rather than assuming a duration. In Claude
 Code, run it in the background and wait for the process to exit:
 
 ```bash
-ghidra-bridge export all > /tmp/ghidra-export.log 2>&1
+ghidra-bridge export all > ghidra-export.log 2>&1
 ```
 
 Run that with `run_in_background`, then read only the end of the log
-(`tail -n 20 /tmp/ghidra-export.log`). Add the export directory to
-`.gitignore`:
+(`tail -n 20 ghidra-export.log`). Ask before adding the export directory
+to `.gitignore`:
 
 ```text
 .ghidra-exports/

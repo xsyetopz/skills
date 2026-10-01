@@ -161,7 +161,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true", help="print a JSON report")
     args = parser.parse_args(argv)
     try:
-        findings = parse(args.review.read_text())
+        findings = parse(args.review.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError) as error:
         print(
             f"error: cannot read {args.review}: {error}; expected a Markdown review "

@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,6 +108,24 @@ class Findings(unittest.TestCase):
         with contextlib.redirect_stderr(err):
             self.assertEqual(cf.main(["/nonexistent/review.md"]), 2)
         self.assertIn("cannot read /nonexistent/review.md", err.getvalue())
+
+    def test_utf8_review_is_read_under_a_legacy_locale(self) -> None:
+        real = Path.read_text
+
+        def legacy_default(
+            self: Path, encoding: str | None = None, **kw: object
+        ) -> str:
+            return real(self, encoding=encoding or "cp1252", **kw)  # type: ignore[arg-type]
+
+        with tempfile.TemporaryDirectory() as tmp:
+            review = Path(tmp) / "r.md"
+            review.write_bytes(COMPLETE.replace("users", "u\u010d").encode("utf-8"))
+            with (
+                mock.patch.object(Path, "read_text", legacy_default),
+                contextlib.redirect_stdout(io.StringIO()),
+                contextlib.redirect_stderr(io.StringIO()),
+            ):
+                self.assertEqual(cf.main([str(review)]), 0)
 
 
 if __name__ == "__main__":

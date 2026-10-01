@@ -1,5 +1,8 @@
 # Inputs and comparison
 
+Commands are POSIX sh; on Windows run them in Git Bash or WSL, or use the
+PowerShell forms given. `rg` (ripgrep) is required for the source check.
+
 ## Contents
 
 - [Pin the inputs](#pin-the-inputs)
@@ -34,9 +37,9 @@ Record, before the first function:
 shasum -a 256 orig/GAME.EXE tools/cc/bin/cc.exe tools/cc/bin/link.exe
 ```
 
-`sha256sum` prints the same digest on Linux. Store the digests in the
-project contract file or in `acceptance.json`
-([evidence records](evidence-records.md#acceptancejson)), and have the
+`sha256sum` prints the same digest on Linux; PowerShell `Get-FileHash`
+prints SHA-256 by default. Store the digests in the
+project contract file, and have the
 build refuse to run when the reference digest differs: a different
 release or a patched copy of the binary makes every later result
 meaningless.
@@ -62,9 +65,6 @@ git check-ignore -v orig/GAME.EXE     # prints the matching ignore rule
 git ls-files orig/                    # prints nothing when nothing is tracked
 ```
 
-`scripts/check_match_evidence.py` reports a defect when the reference
-path in `acceptance.json` is tracked by Git.
-
 ## Compare fully and fail closed
 
 Compare the whole function body at the exact address layout the original
@@ -83,6 +83,7 @@ For a whole-image compare, `cmp` is enough and already fails closed:
 ```sh
 cmp orig/GAME.EXE build/GAME.EXE   # exit 0 identical, 1 different
 cmp -l orig/GAME.EXE build/GAME.EXE | head   # 1-based offsets, octal bytes
+# PowerShell: fc.exe /b orig\GAME.EXE build\GAME.EXE
 ```
 
 `cmp` exits 1 on the first difference and reports `EOF on <file>` when
@@ -128,7 +129,7 @@ name (and for data, a size), written and reviewed by a person.
 - A relocation whose target has no manifest entry fails the compare. Do
   not fall back to "any symbol at a nearby address" or to the name the
   candidate happens to use; that turns a wrong call into a match.
-- Record the manifest's digest with the acceptance evidence so a later
+- Record the manifest's digest with the build inputs so a later
   edit to the manifest is visible.
 - Two names for one address, or one name for two addresses, is a
   manifest defect; fix the manifest before comparing.
@@ -148,7 +149,7 @@ after writing the verifier and after every change to it:
 | Remove one symbol from the manifest | Unknown-symbol fallback |
 
 Each control must make the verifier exit non-zero. Record the variant and
-the exit status in `acceptance.json`. Build the variants in a disposable
+the exit status in the project notes. Build the variants in a disposable
 copy or a scratch branch, never in the matching tree.
 
 ## Count only reconstructed code
@@ -167,14 +168,14 @@ decompiled, so they never count:
 A whole-image match with half the functions still in included assembly is
 a correct build, and 50% decompiled. Report both numbers.
 
-Give each function an `origin` in `acceptance.json` (`reconstructed`,
+Give each function an `origin` in the progress data (`reconstructed`,
 `included-asm`, `emitted-bytes`, `copied-bytes`, `dependency`) and count
 matched bytes only where the origin is `reconstructed` and the status is
 `matched`. Measure bytes, not functions: a hundred small leaf functions
 are not a hundred times a large one.
 
-Verify: `grep -rnE '_emit|incbin|INCLUDE_ASM|GLOBAL_ASM' src/` and check
-that every hit belongs to a function whose origin is not `reconstructed`.
+Verify: `rg -n '_emit|\.byte|incbin|INCLUDE_(ASM|RODATA)|GLOBAL_ASM' src/` and
+check that every hit belongs to a function whose origin is not `reconstructed`.
 
 ## Prior art
 
@@ -183,7 +184,7 @@ that every hit belongs to a function whose origin is not `reconstructed`.
   functions and data and demangles symbol names.
 - [decomp.me][decompme] (MIT) is a collaborative site where each
   "scratch" holds one function's target assembly, a compiler preset, and
-  candidate source, so others can iterate on the same function.
+  candidate source; creating a scratch publishes the target assembly.
 - [splat][splat] splits a binary into assembly and data files. Functions
   not matched yet live in `asm/nonmatchings/<file>/<function>.s` and are
   included from C with `INCLUDE_ASM` or `INCLUDE_RODATA` (GCC) or

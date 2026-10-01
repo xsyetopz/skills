@@ -21,15 +21,15 @@ the original programmer wrote one of them.
 
 The loop, for one function:
 
-1. Build with the pinned toolchain and diff against the target (objdiff,
-   a decomp.me scratch, or the project's verifier).
+1. Build with the pinned toolchain and diff against the target (objdiff
+   or the project's verifier; use a decomp.me scratch only when the user
+   supplies one, because a scratch publishes the target assembly).
 1. Name the first difference: a swapped register, a load in a different
    place, an inverted branch, a different stack offset.
 1. Pick the one technique below that addresses that kind of difference
    and make one change.
-1. Rebuild, diff, and log the attempt in `iterations.json` with the
-   differing byte count, whether it improved or not
-   ([attempt log](evidence-records.md#iterationsjson)).
+1. Rebuild, diff, and log the attempt with the differing byte count,
+   whether it improved or not.
 1. Revert a change that made the diff worse, unless it fixed a
    difference earlier in the function; log the revert too.
 
@@ -132,8 +132,7 @@ different stack offsets.
   and `int` apart. Change a type only to what the target shows; a type
   change that the target does not show changes behavior on some input.
 - Parameter and return types decide the calling sequence at the boundary;
-  check them against the [ABI](evidence-records.md#abi-checks-at-boundaries)
-  rather than steering them.
+  check them against the original ABI rather than steering them.
 
 ## Keep original behavior
 

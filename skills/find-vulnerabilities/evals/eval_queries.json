@@ -86,19 +86,19 @@
 		"query": "Our bcrypt password hashing is slow under load; profile it and speed up the login path.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "optimize-python-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "Write the security section of our requirements: what auth and audit logging the new API must have, as testable statements.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "define-requirements"
+		"expected_skill": "plan-software-changes"
 	},
 	{
 		"query": "Squash my last three commits that accidentally included a .env file and push the result.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "manage-git-changes"
+		"expected_skill": "manage-git"
 	},
 	{
 		"query": "Add a Dependabot config for npm and GitHub Actions.",

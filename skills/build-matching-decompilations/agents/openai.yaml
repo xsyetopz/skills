@@ -1,4 +1,4 @@
 interface:
   display_name: "Build Matching Decompilations"
-  short_description: "Byte-exact decompilation with fail-closed compares and evidence"
-  default_prompt: "Use $build-matching-decompilations to make this source compile to the same bytes as the pinned reference binary, with a full fail-closed compare, negative controls, honest coverage, and an attempt log."
+  short_description: "Make source compile to byte-identical output"
+  default_prompt: "Use $build-matching-decompilations to make this source compile to the same bytes as the pinned reference binary: diff with objdiff, steer the compiler one change at a time, and keep the compare fail-closed."

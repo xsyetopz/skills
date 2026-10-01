@@ -1,4 +1,0 @@
-interface:
-  display_name: "Analyze Binaries with Ghidra"
-  short_description: "Query Ghidra projects via pyghidra-mcp or ghidra-bridge"
-  default_prompt: "Use $analyze-binaries-with-ghidra to answer this question about a binary I may analyze: use the pyghidra-mcp server if it is registered, otherwise the ghidra-bridge CLI, search before decompiling, decompile one function per call, and quote addresses with every claim."

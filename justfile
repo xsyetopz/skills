@@ -41,8 +41,10 @@ secrets:
 markdown:
     BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md" "!skills/*/evals/files/**"
 
+# Eval fixtures carry tests that fail on purpose until a run fixes them.
 tests: provision
     "{{ venv }}/bin/python" scripts/run_python_tests.py
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bun test --path-ignore-patterns='**/evals/files/**' skills
 
 assets: provision
     "{{ venv }}/bin/python" scripts/validate_assets.py

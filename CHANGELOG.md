@@ -103,6 +103,62 @@ no released versions yet.
 
 ### Changed
 
+- Skills stop and ask before outward-facing, paid, or destructive steps
+  and name the consequence: pushes, force-pushes, PR and issue writes,
+  releases, registry yanks, paid `reverse` runs, `bun pm trust`, deploy or
+  destructive `just` recipes, and profiling production. Documented commands
+  are listed first and risky ones skipped instead of all being run. Steps
+  that send code or text to a service (GitHub markdown rendering, public
+  Compiler Explorer, literature search, `codex exec`) say so and name a
+  local alternative or ask first. POSIX commands carry a Git Bash or WSL
+  label, Linux-only tools are labeled, and script calls use `python3`
+  with `py -3` noted for Windows. `create-agent-skills` teaches these rules.
+- **Breaking:** `ddmin.py` takes the oracle as arguments after `--`
+  (`ddmin.py INPUT -- CMD ARGS {}`) instead of `--oracle STRING`, so
+  Windows paths with backslashes survive.
+- **Breaking:** `guard_shell.py --deny` adds to the default deny list
+  instead of replacing it, and an invalid pattern exits 2. The force-push
+  pattern also catches global options such as `git -C DIR push -f` and no
+  longer reads flags from a later command such as `&& rm -rf build`, and
+  the delete pattern catches `rm -fr /`. A bare `--force-with-lease` or
+  `--force-with-lease=REF` is now denied as a force push; only
+  `--force-with-lease=REF:SHA` passes, matching `manage-git`.
+- **Breaking:** the catalog is consolidated from 52 skills to 23. Skill
+  bodies keep only rules that models get wrong, with rules first, and are at
+  most 200 lines. Construct cards, routing tables, example projects, and
+  `verify.sh` demos are gone. Renamed and merged skills:
+  - `optimize-c-code`, `optimize-cpp-code`, `optimize-csharp-code`,
+    `optimize-go-code`, `optimize-java-code`, `optimize-javascript-code`,
+    `optimize-kotlin-code`, `optimize-python-code`, `optimize-rust-code`,
+    `optimize-scala-code`, and `optimize-swift-code` become
+    `optimize-code-performance`, with one reference per language.
+  - `develop-vscode-extensions`, `develop-intellij-platform-plugins`,
+    `develop-eclipse-ide-plugins`, `develop-neovim-plugins`,
+    `develop-sublime-text-plugins`, and `develop-zed-editor-extensions`
+    become `develop-editor-plugins`.
+  - `manage-git-changes` and `manage-git-hosting` become `manage-git`.
+    GitLab and Bitbucket material is dropped.
+  - `analyze-binaries-with-ghidra`, `reverse-engineer-functions`, and
+    `run-reagent-pipelines` become `reverse-engineer-binaries`.
+  - `build-and-debug-pcsx2` and `debug-duckstation` become
+    `debug-playstation-emulators`.
+  - `write-goal-conditions` merges into `create-agent-hooks`, which now
+    covers Claude Code and Codex only.
+  - `write-architecture-md` and `write-github-markdown` merge into
+    `document-codebases`.
+  - `apply-semantic-versioning` and `update-changelogs` become
+    `manage-releases`.
+  - `find-code-smells`, `write-readable-code`, and
+    `remove-unneeded-compatibility-code` become `improve-code-quality`.
+  - `define-requirements`, `design-software-architecture`, and
+    `write-implementation-plans` become `plan-software-changes`.
+- The rendered skill listing, one `- name: description (file: path)` line
+  per skill, must fit in 8,000 characters, and each description in 250.
+  `scripts/validate_repository.py` enforces both.
+- `audit-agent-sessions` no longer ships prices. `session_stats.py
+  --prices FILE` computes cost from a user-supplied price file.
+- `just tests` also runs `bun test` for `.mjs` scripts.
+
 - Skill descriptions state what the skill does, then when to use it, then
   what it is not for, in the third person.
 - Every skill description is at most 200 characters and puts the task and
@@ -192,6 +248,18 @@ no released versions yet.
 
 ### Removed
 
+- `choose-claude-model-and-effort`, because its model and price facts go
+  stale, and `coordinate-phase-gated-subagents`, because it added process
+  without changing outcomes.
+- Scripts that duplicated standard tools or checked the skill's own
+  examples: `scan_secrets.py` (use gitleaks or trufflehog), `mutate.py` (use
+  the ecosystem's mutation tool), `check_action_pins.py` (use zizmor),
+  `sync_labels.py`, `jmh_compare.py`, `check_match_evidence.py`,
+  `acceptance_checks.py`, `check_plan.py`, `check_layers.py`,
+  `check_evidence_note.py`, `fetch_metadata.py`, `session_context.py`, and
+  `validate_schema.py`.
+- The `just benchmarks` recipe.
+
 - `find-implementation-plan-flaws`; use `write-implementation-plans`, which
   also reviews plans.
 - `reproduce-software-bugs`, `find-regression-commits`, and
@@ -202,6 +270,29 @@ no released versions yet.
 
 ### Fixed
 
+- `session_stats.py` prints only the program name of repeated commands,
+  parsed with shell quoting, so `export TOKEN=...`, `mysql -pSECRET`, or a
+  quoted value with spaces no longer leaks the secret; a command it cannot
+  parse prints `(unparsed)`. The `transcript-data.md` jq recipe prints
+  `(other)` for a first word with an assignment or quoting.
+- `stop_gate.py` keeps backslashes in `--check` on Windows, so
+  `C:\Python\python.exe` no longer becomes `C:Pythonpython.exe`, and an
+  empty or unclosed-quote `--check` exits 2 instead of a traceback.
+- `check_doc_commands.py` exits 2 with a message when no `sh` is on PATH
+  instead of a traceback. Its summary counts only commands that ran and
+  passed; listed and skipped ones are counted separately, and `--json`
+  adds `failed`, `skipped`, and `listed`.
+- Scripts read and decode text as UTF-8, so non-UTF-8 Windows locales no
+  longer crash or corrupt `ddmin.py`, `audit_plan_claims.py`,
+  `check_sublime_package.py`, `check_findings.py`, `stop_gate.py`,
+  `upsert_comment.py`, and `compare_lockfiles.py` (which also accepts a
+  BOM). `check_pnach.py` escapes characters its console cannot print
+  instead of crashing.
+- `manage-releases` finds the latest stable tag with
+  `git describe --exclude '*-*'`; version sort put `v1.0.0-rc.10` first.
+  `manage-git` uses `git range-diff backup/NAME...HEAD`, which runs.
+- The native-addon check in `migrate-js-tooling-to-bun` uses `fd -HI`; the
+  default skipped `node_modules/.bun` and `.pnpm` and reported no addons.
 - `find-vulnerabilities`' `int()`-sanitized Semgrep example rejects a
   negative `LIMIT`, which SQLite reads as no limit.
 - The IntelliJ Platform workflow runs `scripts/check_plugin_xml.py`

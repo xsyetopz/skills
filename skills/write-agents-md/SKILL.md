@@ -1,107 +1,88 @@
 ---
 name: write-agents-md
 description: >-
-  Writes and audits AGENTS.md and CLAUDE.md repository instructions with
-  verified commands and conventions. Use when creating or fixing agent
-  instruction files. Not for skills or hooks.
+  Writes and trims AGENTS.md and CLAUDE.md instruction files so agents follow
+  the project's commands and rules. Use when creating or auditing agent
+  instructions.
 ---
 
 # Write AGENTS.md
 
-Give coding agents the project facts they cannot infer: the commands that
-build and test the repository, the conventions that differ from defaults,
-and the boundaries with their alternatives. Place each file where every
-target host loads it.
+Give coding agents the facts they cannot infer from the tree: commands that
+work, conventions that differ from defaults, and boundaries with the
+alternative to use. Find existing files first, ignoring `.gitignore`:
 
-## Workflow
+```sh
+fd -HI -E node_modules -E .git \
+  '^(AGENTS|CLAUDE|CLAUDE\.local)\.md$|^AGENTS\.override\.md$'
+```
 
-1. Inventory existing instruction files and their scope:
-   `fd -H '^(AGENTS|CLAUDE|CLAUDE\.local)\.md$|^AGENTS\.override\.md$'`
-   and `.claude/rules/`. Note which hosts the team uses.
-1. Gather evidence: manifests and lockfiles, task runner recipes, CI
-   workflows, formatter and linter configs, generated-file markers.
-1. Run each candidate command from the stated directory and keep only the
-   ones that work ([commands](references/content.md#commands-that-run)).
-1. Write the sections: commands, non-default conventions, boundaries with
-   alternatives, definition of done
-   ([content](references/content.md)).
-1. Place the rules: root file for repository-wide facts, nested files for
-   subprojects, `CLAUDE.md` importing `@AGENTS.md` when Claude needs extras,
-   `.claude/rules/` for path-scoped Claude rules
-   ([hosts](references/hosts.md)).
-1. Check: `python3 scripts/check_instructions.py AGENTS.md [CLAUDE.md ...]`
-   (links, imports, size, generic phrases), then run every command from
-   `--commands` output again.
-1. Confirm loading in each available host (`/context` in Claude Code, the
-   Codex summary prompt); state hosts you could not check.
-
-## Route the task to a card
-
-| Task | Card |
-| --- | --- |
-| Which commands to list | [Commands that run](references/content.md#commands-that-run) |
-| Describing the layout | [Project map](references/content.md#project-map) |
-| Team conventions | [Non-default conventions](references/content.md#non-default-conventions) |
-| Generated files, owned areas, publishing | [Boundaries](references/content.md#boundaries-with-reasons) |
-| What "done" means | [Definition of done](references/content.md#definition-of-done) |
-| Is this rule justified? | [Evidence](references/content.md#evidence-for-each-rule), [what to leave out](references/content.md#what-to-leave-out) |
-| File is long | [Size budget](references/content.md#size-budget), [path-scoped rules](references/hosts.md#claude-code-path-scoped-rules) |
-| Shipping sample instruction files | [Example file names](references/content.md#example-files-never-named-agentsmd) |
-| Codex users launch in subdirectories | [Codex chain](references/hosts.md#codex-discovery-chain), [overrides](references/hosts.md#codex-override-files), [fallback names](references/hosts.md#codex-fallback-file-names) |
-| Repository has AGENTS.md and Claude users | [CLAUDE.md or AGENTS.md](references/hosts.md#claude-code-claudemd-or-agentsmd), [sharing with @AGENTS.md](references/hosts.md#claude-code-sharing-one-file-with-agentsmd) |
-| Personal, uncommitted instructions | [CLAUDE.local.md](references/hosts.md#claude-code-claudelocalmd) |
-| Long sessions lose decisions at compaction | [Compact instructions](references/hosts.md#claude-code-compact-instructions) |
-| Reusing another file | [Imports](references/hosts.md#claude-code-imports) |
-| One file shared as CLAUDE.md, AGENTS.md, GEMINI.md | [Symlinked instruction files](references/hosts.md#symlinked-instruction-files) |
-| Monorepo packages | [Nested files](references/hosts.md#nested-files-in-monorepos) |
-| Did the host load it? | [Confirming what loaded](references/hosts.md#confirming-what-loaded) |
-| A rule now duplicates or contradicts an older one | [Revising rules instead of appending](references/content.md#revising-rules-instead-of-appending) |
+Also check `.claude/rules/`, and edit what you find in place.
 
 ## Rules
 
-- Every command in the file was run successfully from its stated directory
-  during this change; report any that could not be run.
-- Every rule traces to evidence in the repository or an explicit user
-  decision; no generic advice, persona text, or invented approval rules.
-- Do not add `CLAUDE.md` or `CLAUDE.local.md` to an AGENTS.md-only
-  repository without importing `@AGENTS.md`: Claude Code stops reading
-  AGENTS.md.
-- Sample instruction files are named `*.example.md` or `*.template.md`,
-  never `AGENTS.md` or `CLAUDE.md`.
-- Keep files within the hosts' limits: Codex stops at 32 KiB combined by
-  default; Claude Code recommends under 200 lines per file.
-- Preserve existing instruction files' scope and owners; edit in place
-  rather than adding a parallel file.
+- Do not run destructive, publishing, deploy, migration, network, or
+  credentialed commands; run at most their `--help` or a dry run. Run
+  every other command you list, from the directory you state, before
+  writing it down. For an existing file, list its commands first with
+  `python3 scripts/check_instructions.py --commands FILE`. Invented or
+  stale commands are the most common failure, and an agent trusts them.
+  Report any you could not run.
+- Delete what the model does anyway ("write clean code", "run the tests")
+  and what a linter or formatter already enforces; keep a rule only if you
+  can point to a manifest, CI file, or user decision behind it. Extra
+  rules dilute the ones that matter.
+- Write boundaries as "do X instead of Y" with the reason: "`src/gen/` is
+  generated; edit `schema.json` and run `make proto`". A bare prohibition
+  leaves the agent guessing.
+- Keep it short: Claude Code recommends under 200 lines per CLAUDE.md
+  because longer files reduce adherence; Codex stops reading at
+  `project_doc_max_bytes` (32 KiB default) combined
+  ([Claude Code memory][cc-memory], [Codex][codex]). Cut prose first, then
+  move path-specific rules to nested files or `.claude/rules/`.
 - Adding a rule that supersedes an older one: remove or merge the older
-  rule in the same change and keep the file under its size budget
-  ([revising rules](references/content.md#revising-rules-instead-of-appending)).
+  one in the same edit, or the file contradicts itself.
+- Claude Code reads `AGENTS.md` only when no `CLAUDE.md`,
+  `.claude/CLAUDE.md`, or `CLAUDE.local.md` exists. Adding any of them to
+  an AGENTS.md-only repository silently stops AGENTS.md loading; make it
+  start with `@AGENTS.md` (Claude Code, [memory][cc-memory]).
+- Codex loads one file per directory from the project root down to the
+  launch directory, root first, so deeper files win; sibling directories
+  are never loaded, and `AGENTS.override.md` replaces only its own
+  directory's `AGENTS.md` (Codex, [guide][codex]). Put a rule where every
+  launch directory that needs it sees it.
+- Name sample instruction files `*.example.md` or `*.template.md`, never
+  `AGENTS.md` or `CLAUDE.md`, or hosts load them as live instructions.
+- Confirm loading in each host you can run: `/context` in Claude Code
+  (Memory files), `codex exec -s read-only "Summarize the current
+  instructions."` in Codex (sends them to OpenAI; only where Codex is
+  approved). Mark hosts you could not check as not
+  verified; a file's existence does not prove it loaded.
 
-## Bundled tools
+## Workflow
 
-- `scripts/check_instructions.py FILE... [--commands]`: resolves links,
-  `@` imports (four hops), and symlinks (checking each real file once);
-  warns on size (after stripping block-level HTML comments) and generic
-  phrases, and extracts commands; exit 1 on missing links, imports, or a
-  dangling symlink.
-- `assets/examples/*.example.md` and `verify.sh`: a root AGENTS.md, a
-  CLAUDE.md that imports it, a path-scoped rule, a nested web AGENTS.md,
-  and a generic file the checker rejects; `verify.sh` installs them in a
-  temporary demo project and runs every listed command.
-- `assets/AGENTS.template.md`: a starting skeleton.
+1. Gather evidence: manifests, lockfiles, task-runner recipes, CI
+   workflows, formatter and linter configs, generated-file markers.
+1. Write commands, non-default conventions, boundaries, and what "done"
+   means (the checks to pass before finishing).
+1. Place rules: root file for repository-wide facts, nested `AGENTS.md`
+   per subproject that states only what differs, `.claude/rules/` with
+   `paths` globs for Claude-only path rules.
+1. Run `python3 scripts/check_instructions.py AGENTS.md [CLAUDE.md ...]`,
+   fix errors, then rerun each command it extracts.
+
+## Scripts
+
+- `python3 scripts/check_instructions.py FILE... [--commands | --json]` resolves
+  relative links, `@` imports (four hops), and symlinks; warns on size and
+  generic phrases; extracts commands. Exit 0 clean, 1 missing link, import,
+  or dangling symlink, 2 bad input. On Windows, use `py -3` for `python3`.
 
 ## References
 
-- [Instruction content](references/content.md): commands, project map,
-  conventions, boundaries, done criteria, evidence, exclusions, size,
-  example file names.
-- [Host discovery](references/hosts.md): AGENTS.md format, Codex chain,
-  overrides and fallbacks, Claude Code selection, imports, local files,
-  path-scoped rules, compact instructions, nesting, confirming what
-  loaded.
+- Read [`references/hosts.md`](references/hosts.md) when a file is shared
+  between hosts, symlinked, imported, nested, overridden, personal
+  (`CLAUDE.local.md`), or path-scoped.
 
-## Completion evidence
-
-The report lists each instruction file changed and its scope, each command
-with the directory it ran in and its exit status, the evidence for each
-convention and boundary, the checker output, and which hosts confirmed
-loading (or that a host was unavailable).
+[cc-memory]: https://code.claude.com/docs/en/memory
+[codex]: https://learn.chatgpt.com/docs/agent-configuration/agents-md

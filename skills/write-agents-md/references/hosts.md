@@ -1,353 +1,68 @@
 # Host discovery
 
-Where each coding agent looks for instruction files, in what order, and
-how to confirm what it loaded. Facts are from the
-[AGENTS.md format][agents-md], OpenAI's [Codex AGENTS.md guide][codex], and
-Claude Code's [memory documentation][cc-memory]; recheck them against the
-installed versions.
+Facts from the [AGENTS.md format][agents-md], OpenAI's
+[Codex AGENTS.md guide][codex], and Claude Code's [memory docs][cc-memory]
+and [costs docs][cc-costs]. Recheck against the installed versions.
 
-## Contents
+## Symlinked files
 
-- [AGENTS.md format](#agentsmd-format)
-- [Symlinked instruction files](#symlinked-instruction-files)
-- [Codex discovery chain](#codex-discovery-chain)
-- [Codex override files](#codex-override-files)
-- [Codex fallback file names](#codex-fallback-file-names)
-- [Claude Code: CLAUDE.md or AGENTS.md](#claude-code-claudemd-or-agentsmd)
-- [Claude Code: sharing one file with @AGENTS.md][toc-1]
-- [Claude Code: CLAUDE.local.md](#claude-code-claudelocalmd)
-- [Claude Code: path-scoped rules](#claude-code-path-scoped-rules)
-- [Claude Code: compact instructions](#claude-code-compact-instructions)
-- [Claude Code: imports](#claude-code-imports)
-- [Nested files in monorepos](#nested-files-in-monorepos)
-- [Confirming what loaded](#confirming-what-loaded)
+`ln -s AGENTS.md CLAUDE.md` (or `GEMINI.md`) gives hosts one file, but
+Windows checkouts without `core.symlinks` get a text file; prefer a
+`CLAUDE.md` containing `@AGENTS.md`. Claude
+Code's Edit and Write refuse to write through the link and redirect to
+`AGENTS.md`. A dangling link loads nothing, silently;
+`check_instructions.py CLAUDE.md` reports it as an error. If a host needs
+extra rules, import instead of symlinking.
 
-[toc-1]: #claude-code-sharing-one-file-with-agentsmd
+## Codex
 
-## AGENTS.md format
-
-**Definition.** Plain Markdown with no required schema or headings. Agents
-read the nearest `AGENTS.md` in the directory tree; nested files let
-subprojects add their own instructions ([agents.md][agents-md]).
-
-**Use when.** The repository serves several agents (Codex, Claude Code,
-Cursor, and others that read AGENTS.md).
-
-**Do not use when.** A host needs its own file for a feature AGENTS.md
-lacks (Claude Code `paths` rules). Add that file and keep shared rules in
-AGENTS.md.
-
-**Example.** `assets/examples/AGENTS.example.md`.
-
-**Cost removed.** The same rules maintained in several host-specific
-files.
-
-**Verify.**
-
-1. The file renders as ordinary Markdown and passes the checker.
-
-## Symlinked instruction files
-
-**Definition.** A symlink such as `CLAUDE.md -> AGENTS.md` or
-`GEMINI.md -> AGENTS.md` gives several hosts one file to edit. Claude Code
-reads the content once through the link and its Edit and Write tools
-refuse to write through the symlink, redirecting to `AGENTS.md` instead
-([memory docs][cc-memory]). A symlink whose target is missing loads
-nothing in any host, silently: nothing warns the user.
-
-**Use when.** Every host that reads the symlinked name should see the same
-content as the target.
-
-**Do not use when.** A host needs its own additional rules; import the
-shared file instead of symlinking
-([sharing with @AGENTS.md](#claude-code-sharing-one-file-with-agentsmd)).
-
-**Example.** `ln -s AGENTS.md CLAUDE.md` then `ln -s AGENTS.md GEMINI.md`.
-
-**Cost removed.** Copies that drift, and a dangling link that silently
-loads nothing.
-
-**Verify.**
-
-1. `python3 scripts/check_instructions.py CLAUDE.md` follows the link,
-   checks `AGENTS.md` once under its own path, and reports a dangling
-   target as an error rather than loading nothing silently.
-
-## Codex discovery chain
-
-**Definition.** Codex reads one global file from its home directory
-(`~/.codex`: `AGENTS.override.md` if present, else `AGENTS.md`), then walks
-from the project root (usually the Git root) down to the working
-directory, taking at most one file per directory. It concatenates them
-root first, so deeper files come later and take precedence. It skips empty
-files and stops at `project_doc_max_bytes` (32 KiB default)
-([Codex][codex]).
-
-**Use when.** Deciding where a rule belongs when Codex users launch in
-different directories.
-
-**Do not use when.** You expect a sibling directory's AGENTS.md to apply.
-Codex loads only the chain from root to the launch directory.
-
-**Example.** Launching in `repo/services/payments` loads `repo/AGENTS.md`,
-then `repo/services/AGENTS.md`, then `repo/services/payments/AGENTS.md`;
-`repo/services/search/AGENTS.md` is not loaded.
-
-**Cost removed.** Rules that never reach the agent.
-
-**Verify.**
-
-1. Run `codex --ask-for-approval never "Summarize the current
-   instructions."` from the launch directory; Codex lists guidance sources
-   in discovery order ([Codex][codex]).
-
-## Codex override files
-
-**Definition.** `AGENTS.override.md` in a directory replaces that
-directory's `AGENTS.md` (in the Codex home, the global `AGENTS.md`).
-
-**Use when.** One directory needs a temporary or local replacement for its
-instructions without editing the shared file.
-
-**Do not use when.** You expect it to replace the whole chain; it replaces
-only its own directory's file.
-
-**Example.** `services/payments/AGENTS.override.md` replaces
-`services/payments/AGENTS.md`; `repo/AGENTS.md` still loads.
-
-**Cost removed.** Editing a shared file for a personal or temporary rule.
-
-**Verify.**
-
-1. The Codex summary prompt above names the override file.
-
-## Codex fallback file names
-
-**Definition.** `project_doc_fallback_filenames` in Codex configuration
-adds other file names Codex checks after `AGENTS.override.md` and
-`AGENTS.md` in each directory ([Codex][codex]).
-
-**Use when.** A repository already keeps instructions under another name
-and cannot rename it.
-
-**Do not use when.** You are creating a new file; name it `AGENTS.md`.
-
-**Example.**
-
-```toml
-# ~/.codex/config.toml
-project_doc_fallback_filenames = ["TEAM_GUIDE.md"]
-```
-
-**Cost removed.** A duplicate of an existing instructions file.
-
-**Verify.**
-
-1. The Codex summary prompt lists the fallback file.
-
-## Claude Code: CLAUDE.md or AGENTS.md
-
-**Definition.** By default Claude Code reads `CLAUDE.md` files. It reads
-`AGENTS.md` instead only when no `CLAUDE.md`, `.claude/CLAUDE.md`, or
-`CLAUDE.local.md` exists in the working directory or above (v2.1.277+). The
-**Project instructions** setting can load both
-(`claude-md-and-agents-md`) ([memory docs][cc-memory]).
-
-**Use when.** A repository used with Claude Code has, or will get, both
-files.
-
-**Do not use when.** You would add a `CLAUDE.md` or `CLAUDE.local.md` to an
-AGENTS.md-only repository without importing AGENTS.md: Claude Code then
-stops reading AGENTS.md.
-
-**Example.** This repository has only `AGENTS.md`, so Claude Code loads it
-and shows `no CLAUDE.md found; AGENTS.md loaded: ...` in an interactive
-session.
-
-**Cost removed.** Instructions that silently stop loading.
-
-**Verify.**
-
-1. Run `/context` in Claude Code and check **Memory files**.
-
-## Claude Code: sharing one file with @AGENTS.md
-
-**Definition.** A `CLAUDE.md` that imports AGENTS.md with an `@AGENTS.md`
-line and adds Claude-specific rules.
-
-**Use when.** Claude Code and other agents share the repository and Claude
-needs a few extra rules.
-
-**Do not use when.** You would copy AGENTS.md content into CLAUDE.md; the
-copies drift.
-
-**Example.**
-
-```markdown
-@AGENTS.md
+- Global file in `~/.codex`: `AGENTS.override.md` if present, else
+  `AGENTS.md`. Then one file per directory from the project root (usually
+  the Git root) to the working directory, concatenated root first. Empty
+  files are skipped; loading stops at `project_doc_max_bytes` (32 KiB).
+- Launching in `repo/services/payments` loads `repo/AGENTS.md`,
+  `repo/services/AGENTS.md`, and `repo/services/payments/AGENTS.md`, not
+  `repo/services/search/AGENTS.md`.
+- `AGENTS.override.md` replaces that directory's `AGENTS.md` only; parent
+  files still load.
+- `project_doc_fallback_filenames = ["TEAM_GUIDE.md"]` in
+  `~/.codex/config.toml` adds names checked after the two above. Use it
+  only for an existing file that cannot be renamed.
 
 ## Claude Code
 
-- Use the `unittest` command above; `pytest` is not installed here.
-```
+- Reads `CLAUDE.md` files by default, and `AGENTS.md` only when no
+  `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` exists in the
+  working directory or above (v2.1.277+). The Project instructions setting
+  (`claude-md-and-agents-md`) can load both.
+- Share one file with a `CLAUDE.md` that starts with `@AGENTS.md`, then
+  adds Claude-only rules. Do not copy AGENTS.md content; copies drift.
+- `@path` imports resolve relative to the importing file, nest four hops,
+  are not parsed inside code spans or fences, and need one-time approval
+  when outside the working directory. Wrap a path in backticks to avoid
+  importing it.
+- `CLAUDE.local.md` at the project root holds personal instructions and
+  loads after `CLAUDE.md`. Add it to `.gitignore`; verify with
+  `git check-ignore CLAUDE.local.md`.
+- `.claude/rules/*.md` load at startup, or only when Claude works with
+  files matching a `paths` frontmatter glob list:
 
-**Cost removed.** Two diverging instruction files.
+  ```markdown
+  ---
+  paths:
+    - "tests/**/*.py"
+  ---
+  ```
 
-**Verify.**
+- A `# Compact instructions` section in `CLAUDE.md` tells compaction what
+  to keep; add it only when sessions compact and lose decisions or exact
+  errors ([costs docs][cc-costs]).
 
-1. `python3 scripts/check_instructions.py CLAUDE.md` resolves the import;
-   `/context` lists both files.
+## Nested files
 
-## Claude Code: CLAUDE.local.md
-
-**Definition.** `CLAUDE.local.md` at the project root holds personal,
-uncommitted instructions. It loads after `CLAUDE.md`; list it in
-`.gitignore` ([memory docs][cc-memory]).
-
-**Use when.** A developer needs private preferences (sandbox URLs, local
-data paths).
-
-**Do not use when.** The project relies on AGENTS.md alone. Creating
-`CLAUDE.local.md` makes Claude Code stop reading AGENTS.md unless the
-setting loads both.
-
-**Example.** `echo 'CLAUDE.local.md' >> .gitignore`
-
-**Cost removed.** Personal settings committed for everyone.
-
-**Verify.**
-
-1. `git check-ignore CLAUDE.local.md` prints the path.
-
-## Claude Code: path-scoped rules
-
-**Definition.** Markdown files in `.claude/rules/` load at startup, or,
-with a `paths` frontmatter list of globs, only when Claude works with
-matching files ([memory docs][cc-memory]).
-
-**Use when.** A rule applies to one area (tests, migrations, a frontend
-package) and would otherwise enlarge every session.
-
-**Do not use when.** The rule applies everywhere; put it in the main file.
-
-**Example.**
-
-```markdown
----
-paths:
-  - "tests/**/*.py"
----
-
-# Test rules
-
-- Each test name states the behavior: `test_rounds_half_even_cents`.
-```
-
-**Cost removed.** Context spent on rules irrelevant to the current files.
-
-**Verify.**
-
-1. `/context` shows the rule only after Claude reads a matching file.
-
-## Claude Code: compact instructions
-
-**Definition.** A `# Compact instructions` section in `CLAUDE.md` tells
-Claude Code what its compaction summary keeps when a long conversation
-is compacted; `/compact <instructions>` does the same for one run
-([costs docs][cc-costs]).
-
-**Use when.** Sessions in the repository run long enough to compact, and
-work was lost in earlier summaries: a request reworded, a rejected
-approach retried, an exact error or path dropped.
-
-**Do not use when.** The project uses AGENTS.md alone and no one runs
-Claude Code, or sessions never compact.
-
-**Example.**
-
-```markdown
-# Compact instructions
-
-Keep the user's requests and constraints in their own words, decisions
-and rejected approaches with reasons, the current state, and open items.
-Keep exact paths, commands, errors, and numbers.
-```
-
-**Cost removed.** Work redone after a summary dropped a decision or the
-exact error it depended on.
-
-**Verify.**
-
-1. After `/compact`, the summary contains the items the section names.
-
-## Claude Code: imports
-
-**Definition.** `@path` in a CLAUDE.md imports another file, resolved
-relative to the importing file. Imports nest up to four hops. Claude Code
-does not parse imports in code spans or fences. Imports from outside the
-working directory need one-time approval ([memory docs][cc-memory]).
-
-**Use when.** Reusing a file (AGENTS.md, a shared style guide) instead of
-copying it.
-
-**Do not use when.** You mention a path you do not want loaded; wrap it
-in backticks.
-
-**Example.** `@docs/testing.md` imports; `` `@docs/testing.md` `` does
-not.
-
-**Cost removed.** Copies of the same rules in several files.
-
-**Verify.**
-
-1. `check_instructions.py` reports missing imports and imports deeper
-   than four hops.
-
-## Nested files in monorepos
-
-**Definition.** A subproject's own `AGENTS.md` adds rules for its subtree.
-Hosts load it along with its ancestors: Codex when launched inside the
-subtree, Claude Code when it reads files there.
-
-**Use when.** A package has its own toolchain or commands (a Bun web
-client inside a Python repository).
-
-**Do not use when.** It would repeat root rules; state only what differs.
-
-**Example.** `nested-AGENTS.example.md` becomes `web/AGENTS.md` and lists
-`bun install --frozen-lockfile` and `bun test`.
-
-**Cost removed.** Root files full of per-package exceptions.
-
-**Verify.**
-
-1. Launch or read from inside the subtree and confirm both files load
-   (Codex summary prompt, Claude `/context`).
-
-## Confirming what loaded
-
-**Definition.** Each host can show its loaded instructions. Codex lists
-sources when asked to summarize its instructions. Claude Code lists
-**Memory files** in `/context` and prints a line when it loads AGENTS.md
-instead of CLAUDE.md.
-
-**Use when.** You created, moved, or renamed any instruction file.
-
-**Do not use when.** No exception: a file's existence does not prove it
-loaded.
-
-**Example.**
-
-```sh
-codex --ask-for-approval never "Summarize the current instructions."
-```
-
-**Cost removed.** Debugging an agent that "ignores" a file it never read.
-
-**Verify.**
-
-1. Record the host version and the listed files in the report. If the host
-   is not installed, mark the result not verified.
+A subproject `AGENTS.md` adds rules for its subtree and loads with its
+ancestors: in Codex when launched inside the subtree, in Claude Code when
+it reads files there. State only what differs from the root.
 
 [agents-md]: https://agents.md/
 [codex]: https://learn.chatgpt.com/docs/agent-configuration/agents-md

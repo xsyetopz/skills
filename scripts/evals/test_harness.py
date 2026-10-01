@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import harness
 
@@ -323,6 +324,42 @@ class RunTests(unittest.TestCase):
         prefix, tool = harness.tool_prefix(run.events)
         self.assertEqual(prefix, ["ToolSearch", "Skill"])
         self.assertEqual(harness.skill_of(tool), "optimize-go-code")
+
+
+class PreflightTests(unittest.TestCase):
+    def test_retries_until_late_builtin_plugins_are_off(self) -> None:
+        # Claude Code 2.1.286 listed cc-plugin-diff@builtin only after the
+        # other builtin plugins were switched off.
+        stages = [["a@builtin", "b@builtin"], ["c@builtin"]]
+
+        def fake_run(command, cwd, *_args, **_kwargs):
+            settings = json.loads(
+                Path(command[command.index("--settings") + 1]).read_text()
+            )
+            off = {k for k, v in settings["enabledPlugins"].items() if v is False}
+            shown = next((s for s in stages if not off.issuperset(s)), [])
+            init = dict(INIT, plugins=[{"source": p} for p in shown if p not in off])
+            return harness.RunResult(
+                command, cwd, lines=[json.dumps(init)], returncode=0
+            )
+
+        settings = harness.build_settings("claude-opus-5-5", [], [])
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            mock.patch.object(harness, "run_claude", fake_run),
+        ):
+            result = harness.preflight(
+                Path(tmp),
+                Path(tmp) / "settings.json",
+                settings,
+                set(INIT["skills"]),
+                "claude-opus-5-5",
+                "high",
+            )
+        self.assertEqual(result["plugins"], [])
+        self.assertEqual(
+            sorted(settings["enabledPlugins"]), ["a@builtin", "b@builtin", "c@builtin"]
+        )
 
 
 class SlotTests(unittest.TestCase):

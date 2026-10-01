@@ -622,11 +622,14 @@ def preflight(
 ) -> dict[str, Any]:
     """Prove isolation with the local `/cost` command (no model call).
 
-    Skills or plugins that still load are switched off and checked once more;
-    anything still loaded after that, a missing expected skill, or a connected
-    MCP server fails the run.
+    Skills or plugins that still load are switched off and checked again,
+    because some builtin plugins are listed only after others are off. When an
+    attempt finds nothing new to switch off (or after five attempts), anything
+    still loaded, a missing expected skill, or a connected MCP server fails the
+    run.
     """
-    for attempt in (1, 2):
+    attempts = 5
+    for attempt in range(1, attempts + 1):
         write_json(settings_path, settings)
         command = claude_command(
             "/cost",
@@ -649,9 +652,11 @@ def preflight(
         loaded = set(init.get("skills") or [])
         plugins = [p.get("source") or p.get("name") for p in init.get("plugins") or []]
         extra = sorted(loaded - expected)
-        if (extra or plugins) and attempt == 1:
-            settings["skillOverrides"].update(dict.fromkeys(extra, "off"))
-            settings["enabledPlugins"].update(dict.fromkeys(plugins, False))
+        new_skills = [s for s in extra if s not in settings["skillOverrides"]]
+        new_plugins = [p for p in plugins if p not in settings["enabledPlugins"]]
+        if (new_skills or new_plugins) and attempt < attempts:
+            settings["skillOverrides"].update(dict.fromkeys(new_skills, "off"))
+            settings["enabledPlugins"].update(dict.fromkeys(new_plugins, False))
             continue
         missing = sorted(expected - loaded)
         mcp = [s.get("name") for s in init.get("mcp_servers") or []]

@@ -10,6 +10,19 @@ SKILL_LINK = re.compile(r"(?<!!)\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)")
 REFERENCE_LINK = re.compile(r"^\[[^]]+\]:\s*(?:\n\s*)?([^\s#]+)", re.MULTILINE)
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+BODY_MAX_LINES = 200
+DESCRIPTION_MAX = 250
+# Codex renders each skill as this line and falls back to an 8,000-character
+# listing budget when the context window is unknown.
+CATALOG_MAX = 8000
+
+
+def catalog_entry(name: str, description: str) -> str:
+    return f"- {name}: {description} (file: skills/{name}/SKILL.md)"
+
+
+def catalog_size(skills: dict[str, str]) -> int:
+    return sum(len(catalog_entry(name, desc)) for name, desc in skills.items())
 
 
 def outside_fences(text: str) -> str:
@@ -40,6 +53,7 @@ def main() -> int:
     errors = 0
     roots = sorted(Path("skills").glob("*/SKILL.md"))
     names = {path.parent.name for path in roots}
+    descriptions: dict[str, str] = {}
     for skill_md in roots:
         skill = skill_md.parent
         text = skill_md.read_text()
@@ -55,8 +69,10 @@ def main() -> int:
             errors += 1
             continue
         body_lines = len(body.strip().splitlines())
-        if body_lines > 220:
-            fail(f"{skill_md}: body has {body_lines} lines; maximum is 220")
+        if body_lines > BODY_MAX_LINES:
+            fail(
+                f"{skill_md}: body has {body_lines} lines; maximum is {BODY_MAX_LINES}"
+            )
             errors += 1
         if metadata.get("name") != skill.name or not NAME.fullmatch(skill.name):
             fail(f"{skill_md}: name must match its valid directory name")
@@ -65,6 +81,14 @@ def main() -> int:
         if not isinstance(description, str) or not 1 <= len(description) <= 1024:
             fail(f"{skill_md}: description must be a 1-1024 character string")
             errors += 1
+        elif len(description) > DESCRIPTION_MAX:
+            fail(
+                f"{skill_md}: description has {len(description)} characters; "
+                f"maximum is {DESCRIPTION_MAX}"
+            )
+            errors += 1
+        else:
+            descriptions[skill.name] = description
         compatibility = metadata.get("compatibility")
         if "compatibility" in metadata and (
             not isinstance(compatibility, str) or not 1 <= len(compatibility) <= 500
@@ -120,6 +144,11 @@ def main() -> int:
             if match not in names:
                 fail(f"{skill_md}: unknown skill ${match}")
                 errors += 1
+    total = catalog_size(descriptions)
+    print(f"catalog listing: {total}/{CATALOG_MAX} characters")
+    if total > CATALOG_MAX:
+        fail(f"catalog listing has {total} characters; maximum is {CATALOG_MAX}")
+        errors += 1
     return int(errors > 0)
 
 

@@ -29,12 +29,16 @@ changes. Preserve unrelated work and keep one clear implementation path.
 
 ## Validation
 
-Keep each `SKILL.md` body within 220 lines, preferably below 200 without losing
-necessary detail. The existing repository validator excludes frontmatter and
-surrounding blank lines but counts headings, internal blanks, examples, and
-link definitions. References have no numerical ceiling. This is catalog policy,
-not a model limit or a measure of density, read coverage, or reliability. Keep
-the existing validator and its boundary tests; do not add a density checker.
+Keep each `SKILL.md` body within 200 lines, normally about 150 or fewer. The
+repository validator excludes frontmatter and surrounding blank lines but counts
+headings, internal blanks, examples, and link definitions. References have no
+numerical ceiling. This is catalog policy, not a model limit or a measure of
+density, read coverage, or reliability. Keep the existing validator and its
+boundary tests; do not add a density checker.
+
+Keep each description within 250 characters, and the rendered listing, one
+`- name: description (file: skills/name/SKILL.md)` line per skill, within 8,000
+characters. `just metadata` prints the current total.
 
 Run commands from the repository root through existing `just` recipes. Use
 narrow recipes while iterating and `just validate` for catalog-wide changes.

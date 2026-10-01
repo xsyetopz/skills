@@ -7,16 +7,17 @@ into n chunks, keep any chunk or complement that still fails, otherwise
 double n, until the result is 1-minimal (removing any single unit makes the
 failure disappear).
 
-The oracle is a command. For each candidate, the candidate is written to a
-temporary file and the command runs with `{}` replaced by that path. The
+The oracle is a command given after `--` as separate arguments (no shell, so
+Windows backslashes survive). For each candidate, the candidate is written to
+a temporary file and the command runs with `{}` replaced by that path. The
 candidate "fails" when the command's exit status equals --fail-status
 (default 1) and, if given, its stdout+stderr contains --fail-text. Any other
 outcome counts as "passes or is unresolved", so a crash of a different kind
 is never mistaken for the original failure.
 
 Usage:
-  ddmin.py INPUT --oracle 'python3 parser.py {}' [--fail-status 1]
-           [--fail-text 'ValueError'] [--unit line|char] [--output FILE]
+  ddmin.py INPUT [--fail-status 1] [--fail-text 'ValueError']
+           [--unit line|char] [--output FILE] -- python3 parser.py {}
 
 Prints the reduced input (or writes --output) and a summary line to stderr:
   units N -> M, oracle runs K
@@ -27,7 +28,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -38,8 +38,8 @@ EPILOG = """\
 Exit status:
   0  reduced (the result still fails the oracle)
   1  the original input does not fail the oracle; nothing was reduced
-  2  bad input: unreadable INPUT, --oracle without {} or with unbalanced
-     quotes, an oracle command that cannot be started, or an unwritable
+  2  bad input: unreadable INPUT, no oracle command after --, an oracle
+     without {}, an oracle command that cannot be started, or an unwritable
      --output
 
 Output: the reduced input on stdout (or in --output FILE), and the line
@@ -48,28 +48,36 @@ Output: the reduced input on stdout (or in --output FILE), and the line
 "output": FILE or null}; on exit 1 and 2 stdout stays empty.
 
 Examples:
-  python3 scripts/ddmin.py big.csv --oracle 'python3 parser.py {}' \\
-      --fail-text 'expected 3 fields' --output min.csv
-  python3 scripts/ddmin.py crash.txt --oracle './app {}' --fail-status 139 \\
-      --unit char --json
+  python3 scripts/ddmin.py big.csv --fail-text 'expected 3 fields' \\
+      --output min.csv -- python3 parser.py {}
+  python3 scripts/ddmin.py crash.txt --fail-status 139 --unit char --json \\
+      -- ./app {}
 """
 
 
 def make_oracle(
-    command: str, fail_status: int, fail_text: str | None, unit: str
+    command: Sequence[str], fail_status: int, fail_text: str | None, unit: str
 ) -> tuple[Callable[[Sequence[str]], bool], list[int]]:
     runs = [0]
 
     def fails(units: Sequence[str]) -> bool:
         runs[0] += 1
         text = "".join(units)  # line units keep their newlines
-        with tempfile.NamedTemporaryFile("w", suffix=".input", delete=False) as handle:
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".input", delete=False, encoding="utf-8", newline=""
+        ) as handle:
             handle.write(text)
             path = handle.name
         try:
-            argv = [path if part == "{}" else part for part in shlex.split(command)]
+            argv = [path if part == "{}" else part for part in command]
             result = subprocess.run(
-                argv, capture_output=True, text=True, check=False, timeout=60
+                argv,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                check=False,
+                timeout=60,
             )
         except subprocess.TimeoutExpired:
             return False
@@ -114,9 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("input", help="failing input file (UTF-8)")
-    parser.add_argument(
-        "--oracle", required=True, help="command with {} for the candidate path"
-    )
+    parser.usage = "ddmin.py [options] INPUT -- ORACLE_PROGRAM [ARG ...] {}"
     parser.add_argument(
         "--fail-status", type=int, default=1, help="failing exit status (default 1)"
     )
@@ -128,9 +134,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--json", action="store_true", help="print one JSON result on stdout"
     )
-    args = parser.parse_args(argv)
+    arguments = sys.argv[1:] if argv is None else argv
+    if "--" in arguments:
+        split = arguments.index("--")
+        arguments, oracle_words = arguments[:split], arguments[split + 1 :]
+    else:
+        oracle_words = []
+    args = parser.parse_args(arguments)
     try:
-        text = Path(args.input).read_text(encoding="utf-8")
+        with open(args.input, encoding="utf-8", newline="") as handle:
+            text = handle.read()
     except (OSError, UnicodeDecodeError) as error:
         print(
             f"error: cannot read {args.input}: {error}; "
@@ -138,19 +151,16 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
-    try:
-        oracle_words = shlex.split(args.oracle)
-    except ValueError as error:
+    if not oracle_words:
         print(
-            f"error: --oracle is not a valid command line ({error}); "
-            "quote it as one shell word, e.g. --oracle 'python3 check.py {}'",
+            "error: give the oracle command after --, e.g. -- python3 check.py {}",
             file=sys.stderr,
         )
         return 2
     if "{}" not in oracle_words:
-        print("error: --oracle must contain {} for the input path", file=sys.stderr)
+        print("error: the oracle must contain {} for the input path", file=sys.stderr)
         return 2
-    fails, runs = make_oracle(args.oracle, args.fail_status, args.fail_text, args.unit)
+    fails, runs = make_oracle(oracle_words, args.fail_status, args.fail_text, args.unit)
     units = split_units(text, args.unit)
     try:
         if not fails(units):
@@ -159,7 +169,7 @@ def main(argv: list[str] | None = None) -> int:
         reduced = ddmin(units, fails)
     except OSError as error:
         print(
-            f"error: cannot run the oracle {oracle_words[0]!r}: "
+            f"error: cannot run the oracle '{oracle_words[0]}': "
             f"{error.strerror or error}; check the command and its path",
             file=sys.stderr,
         )
@@ -167,7 +177,8 @@ def main(argv: list[str] | None = None) -> int:
     result = "".join(reduced)
     if args.output:
         try:
-            Path(args.output).write_text(result, encoding="utf-8")
+            with open(args.output, "w", encoding="utf-8", newline="") as handle:
+                handle.write(result)
         except OSError as error:
             print(f"error: cannot write --output: {error}", file=sys.stderr)
             return 2

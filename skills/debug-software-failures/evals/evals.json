@@ -5,9 +5,7 @@
 			"id": 1,
 			"prompt": "Our invoice repo is in bisect/invoice.bundle (a git bundle; clone it into ./invoice and work there). `python3 -m unittest tests.test_invoice` passes at tag v1.0 and fails on main. Find the commit that broke it, fix the bug on main without changing the tests, and tell me the commit hash and what went wrong.",
 			"expected_output": "Endpoints verified with one oracle; commits d66324f..603e6a9 fail with ImportError (unrelated) and are skipped, not marked bad; the bisect names 471bcb2 'Add per-line percentage discounts', which replaced the half-up quantize with round(amount, 2) (banker's rounding). The fix restores ROUND_HALF_UP in to_cents while keeping discounts; all tests pass; no bisect is left running.",
-			"files": [
-				"evals/files/bisect/invoice.bundle"
-			],
+			"files": ["evals/files/bisect/invoice.bundle"],
 			"assertions": [
 				{
 					"text": "The reply names the culprit commit 471bcb2.",

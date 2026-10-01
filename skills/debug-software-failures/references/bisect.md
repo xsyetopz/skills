@@ -1,333 +1,105 @@
-# Bisect search techniques
+# Bisect
 
-Each card is a scenario in
-[`assets/examples/bisect/verify.sh`](../assets/examples/bisect/verify.sh),
-which builds disposable repositories with a known culprit and asserts that
-the technique finds it (12 checks, measured with git 2.55.0; the worktree
-scenario backs [worktree isolation](method.md#worktree-isolation)).
+Commands are POSIX sh; on Windows run them in Git Bash or WSL.
+
 Command semantics come from the [git-bisect manual][git-bisect].
 
 ## Contents
 
-- [Verified endpoints](#verified-endpoints)
-- [git bisect run](#git-bisect-run)
-- [Skipping untestable commits](#skipping-untestable-commits)
-- [Ambiguity when skipped commits remain][toc-1]
-- [Custom terms](#custom-terms)
-- [First-parent search](#first-parent-search)
-- [Path-limited search](#path-limited-search)
-- [Bisect log and replay](#bisect-log-and-replay)
-- [Pickaxe search instead of bisect](#pickaxe-search-instead-of-bisect)
+- [Endpoints and run](#endpoints-and-run)
+- [Oracle wrapper](#oracle-wrapper)
+- [Skipped commits](#skipped-commits)
+- [Variants](#variants)
+- [Flaky and performance oracles](#flaky-and-performance-oracles)
+- [Verify the culprit](#verify-the-culprit)
 
-[toc-1]: #ambiguity-when-skipped-commits-remain
+## Endpoints and run
 
-## Verified endpoints
-
-**Definition.** Before searching, run the exact test command on the known
-good commit (it must pass) and on the known bad commit (it must fail with
-the target symptom). Bisect assumes exactly one transition from good to
-bad between them.
-
-**Use when.** Before every `git bisect start`.
-
-**Do not use when.** No exception. A "good" endpoint that fails for
-another reason, or a "bad" endpoint that fails with a different error,
-makes every later answer meaningless.
-
-**Example.**
+Run the exact check on the good commit (must exit 0) and on the bad commit
+(must fail with the target symptom) before searching. Bisect assumes one
+good-to-bad transition between them.
 
 ```sh
-git checkout -q "$GOOD"
-python3 scripts/bisect_oracle.py --bad-exit 1 --skip-exit 3 -- \
-  python3 /abs/path/check.py; echo "good endpoint: $?"   # expect 0
-git checkout -q "$BAD"
-python3 scripts/bisect_oracle.py --bad-exit 1 --skip-exit 3 -- \
-  python3 /abs/path/check.py; echo "bad endpoint: $?"    # expect 1
-```
-
-**Cost removed.** Searches built on a wrong premise.
-
-**Verify.**
-
-1. The report records both printed statuses.
-
-## git bisect run
-
-**Definition.** `git bisect start BAD GOOD` then `git bisect run CMD ARGS`
-checks out midpoints and runs the command: exit 0 marks good, 1-127
-except 125 marks bad, 125 skips, any other status aborts the search. The
-result is left in `refs/bisect/bad` ([bisect run][git-bisect]).
-
-**Use when.** A command can classify the target symptom without human
-judgment.
-
-**Do not use when.** The command's non-zero exits mix the target defect
-with unrelated failures (build errors, missing tools), which become false
-"bad" marks. Wrap the command first (see [bisect oracles](bisect-oracles.md)).
-
-**Example.**
-
-```sh
-git bisect start bad-endpoint good-endpoint
-git bisect run python3 scripts/bisect_oracle.py --bad-exit 1 \
-  --skip-exit 3 -- python3 /abs/path/check.py
+git worktree add --detach /tmp/bisect-wt "$BAD"
+cd /tmp/bisect-wt
+W="python3 /abs/skills/debug-software-failures/scripts/bisect_oracle.py \
+  --bad-exit 1 --skip-exit 3 --timeout 300 --"
+git checkout -q "$GOOD" && $W python3 /abs/check.py; echo "good: $?"  # 0
+git checkout -q "$BAD"  && $W python3 /abs/check.py; echo "bad: $?"   # 1
+git bisect start "$BAD" "$GOOD" >/dev/null
+git bisect run $W python3 /abs/check.py
 git rev-parse refs/bisect/bad
-git bisect log > bisect.log
-git bisect reset
-```
-
-`git bisect start` and `git bisect reset` take no `-q` option. Measured:
-`git bisect start -q HEAD HEAD~1` ignored both revisions and waited for
-marks, and `git bisect reset -q` failed with `'-q' is not a valid commit`.
-Redirect output instead.
-
-**Cost removed.** Manual checkout-and-test cycles. Binary search needs
-about log2(N) tests; measured: 5 tests over 39 candidates.
-
-**Verify.**
-
-1. `verify.sh` asserts the culprit's subject is `commit 23: introduce
-   regression`.
-1. Save `git bisect log` output with the result.
-
-## Skipping untestable commits
-
-**Definition.** Exit 125 from the run command, or `git bisect skip [REV |
-RANGE]`, marks a commit untestable; bisect tests a nearby commit instead
-([bisect skip][git-bisect]).
-
-**Use when.** Some commits cannot run the target test for a reason
-unrelated to the defect (they do not build, a dependency is broken).
-
-**Do not use when.** "Cannot build" is the regression you are looking for;
-then a build failure is "bad".
-
-**Example.** The oracle's `--skip-exit 3` maps the check script's "build
-broken" status to 125. In `verify.sh`, commits 10-12 do not build, and the
-search still finds commit 23.
-
-The mapping, from `classify()` in `scripts/bisect_oracle.py`:
-
-```python
-def classify(code: int, bad: set[int], skip: set[int]) -> int:
-    if code == 0:
-        return 0
-    if code in bad:
-        return 1
-    if code in skip:
-        return 125
-    return 128
-```
-
-The search, from `assets/examples/bisect/verify.sh` (it printed
-`PASS bisect run found commit 23 in 5 steps over 39 candidates`):
-
-```sh
-git bisect start bad-endpoint good-endpoint >/dev/null
-git bisect run "$PY" "$ORACLE" --bad-exit 1 --skip-exit 3 -- \
-    "$PY" "$WORK/check.py" >"$WORK/run.log" 2>&1
-culprit=$(git rev-parse refs/bisect/bad)
-[ "$(subject_of . "$culprit")" = 'commit 23: introduce regression' ] ||
-    fail bisect-run "found $(subject_of . "$culprit")"
-steps=$(grep -c '^Bisecting' "$WORK/run.log" || true)
-git bisect log >"$WORK/linear.bisect.log"
+git bisect log > /tmp/bisect.log
 git bisect reset >/dev/null
-pass "bisect run found commit 23 in $steps steps over 39 candidates"
 ```
 
-**Cost removed.** Aborted searches and false "bad" marks on unbuildable
-commits.
+- `git bisect run` exit codes: 0 good; 1-127 except 125 bad; 125 skip;
+  above 127 aborts. A shell returns 126 and 127 for "not executable" and
+  "command not found", which would be marked bad.
+- `git bisect start` and `git bisect reset` take no `-q`: `start -q HEAD
+  HEAD~1` ignores both revisions and waits for marks, and `reset -q` fails
+  with `'-q' is not a valid commit`. Redirect output instead.
+- Keep the check at an absolute path outside the repository, so every
+  revision runs the same test. If the test must be the project's own file
+  at each revision, say in the report that the question changes with it.
 
-**Verify.**
+## Oracle wrapper
 
-1. `git bisect log` shows `git bisect skip` entries for the unbuildable
-   commits and the correct culprit.
+`scripts/bisect_oracle.py [--bad-exit N]... [--skip-exit N]... [--timeout S]
+-- CMD ARGS` runs the test without a shell and maps its status: 0 to 0,
+`--bad-exit` statuses to 1, `--skip-exit` statuses to 125, and everything
+else (missing command, signal, timeout, unexpected status) to 128, which
+aborts. Skip the wrapper only when the command already returns just 0 or 1
+for the target symptom.
 
-## Ambiguity when skipped commits remain
+## Skipped commits
 
-**Definition.** When skipped commits are adjacent to the transition,
-bisect cannot name one commit. It prints `There are only 'skip'ped commits
-left to test` with the possible first bad commits, and `bisect run` exits
-non-zero.
+Exit 125 or `git bisect skip [REV | RANGE]` marks a commit untestable; map
+"does not build" to skip unless the build break is the regression. If the
+skipped commits sit next to the transition, bisect prints `There are only
+'skip'ped commits left to test` and lists possible first bad commits.
+Report that candidate set, never one commit; test the candidates with a
+build fix applied.
 
-**Use when.** Interpreting any search that used skips.
+For old revisions, restore what they need inside the check (`git submodule
+update --init --recursive`, the pinned toolchain such as
+`rust-toolchain.toml`), and report how many commits were skipped.
 
-**Do not use when.** No exception: never report a single culprit from such
-a run. Report the candidate set, then test the candidates with a build fix
-applied or build them another way.
+## Variants
 
-**Example.** In `verify.sh`, one commit introduces the defect and breaks
-the build, and the next fixes the build. The run ends with the "only
-'skip'ped commits left" message (measured exit status 2). From
-`assets/examples/bisect/verify.sh`, which printed
-`PASS skipped neighbors reported as ambiguous (bisect exit 2)`:
+| Question | Command |
+| --- | --- |
+| Which commit fixed it, or changed a property | `git bisect start --term-old broken --term-new fixed HEAD "$BROKEN"`; exit 0 means the old term (still broken), non-zero the new one (fixed), so invert a check that exits 0 on the fix |
+| Which merge to main introduced it (Git 2.29+) | `git bisect start --first-parent HEAD "$BASE"`, then search inside that merge's branch for the exact commit |
+| Defect lives only in known paths | `git bisect start BAD GOOD -- PATH...`; wrong if the cause could be a dependency, build config, or code elsewhere |
+| A manual mark was wrong | `git bisect log > f`, delete the wrong `git bisect good/bad` line and the comment line above it, `git bisect reset`, `git bisect replay f` |
+| No runnable test, a text change is suspected | `git log -S 'text' --format='%h %s' -- PATH` (count changes) or `-G REGEX` (diff lines); test the commit and its parent, since the commit that added the text need not be the harmful one |
+
+## Flaky and performance oracles
+
+- Flaky test: measure the failure rate on the good endpoint first, then mark
+  bad only if M of K runs fail (for example 2 of 3). One spurious failure
+  on a midpoint sends the search into the wrong half and names an
+  unrelated commit.
+- Slowdown or size growth: exit 1 when a metric crosses a threshold placed
+  between the endpoints' measured distributions, and exit 125 when the
+  measurement tool fails. Run the oracle 5 times on each endpoint first;
+  if the distributions overlap, use an operation count or more runs.
+  Start with `--term-old fast --term-new slow`.
+
+## Verify the culprit
 
 ```sh
-git init -q "$WORK/ambiguous"
-cd "$WORK/ambiguous"
-printf 'def add(a, b):\n    return a + b\n' >calc.py
-commit 'base: good'
-git tag base
-printf 'def add(a, b):\n    return a - b\n' >calc.py
-: >BROKEN_BUILD
-commit 'defect introduced while build broken'
-rm BROKEN_BUILD
-commit 'build fixed'
-git bisect start HEAD base >/dev/null
-status=0
-git bisect run "$PY" "$ORACLE" --bad-exit 1 --skip-exit 3 -- \
-    "$PY" "$WORK/check.py" >"$WORK/amb.log" 2>&1 || status=$?
-grep -q "only 'skip'ped commits left" "$WORK/amb.log" ||
-    fail skip-ambiguity 'bisect did not report skipped candidates'
-git bisect reset >/dev/null
-pass "skipped neighbors reported as ambiguous (bisect exit $status)"
+git checkout -q "$CULPRIT^" && /abs/oracle.sh   # expect 0
+git checkout -q "$CULPRIT"  && /abs/oracle.sh   # expect 1
+git checkout -q --detach "$BAD"
+git revert --no-edit "$CULPRIT" && /abs/oracle.sh   # expect 0
 ```
 
-**Cost removed.** A confidently wrong culprit.
-
-**Verify.**
-
-1. `grep "only 'skip'ped commits left"` on the run output decides whether
-   the result is a single commit or a set.
-
-## Custom terms
-
-**Definition.** `git bisect start --term-old OLD --term-new NEW` renames
-the two states, so the search can find the commit that *fixed* something
-or changed any property. With `bisect run`, exit 0 still means "old"
-([alternate terms][git-bisect]).
-
-**Use when.** Finding when a bug was fixed, when a behavior changed, or
-when performance changed (`--term-old fast --term-new slow`).
-
-**Do not use when.** Plain good/bad fits the question; renamed terms make
-the exit semantics easy to invert by mistake.
-
-**Example.**
-
-```sh
-git bisect start --term-old broken --term-new fixed HEAD "$BROKEN"
-# exit 0 = still broken (old), non-zero = fixed (new)
-git bisect run sh -c 'if python3 /abs/check.py; then exit 1; fi; exit 0'
-git rev-parse refs/bisect/fixed
-```
-
-**Cost removed.** Hand-inverted logic ("mark fixed commits as bad").
-
-**Verify.**
-
-1. `verify.sh` finds the commit titled `fix add`.
-
-## First-parent search
-
-**Definition.** `git bisect start --first-parent` follows only the first
-parent of merges, so it attributes a defect introduced inside a merged
-branch to the merge commit (Git 2.29+).
-
-**Use when.** The question is "which merge to main introduced this" (for
-example, to revert a whole pull request), or branch commits do not build
-individually.
-
-**Do not use when.** You need the exact commit inside the branch. Run a
-full search within the merged branch afterwards.
-
-**Example.**
-
-```sh
-git bisect start --first-parent HEAD "$BASE"
-git bisect run /abs/path/oracle.sh
-git log -1 --format=%s refs/bisect/bad   # merge feature
-```
-
-**Cost removed.** Testing unbuildable intermediate branch commits.
-
-**Verify.**
-
-1. `verify.sh`: with `--first-parent` the result is `merge feature`;
-   without it, `feature: step 2 breaks add`.
-
-## Path-limited search
-
-**Definition.** `git bisect start BAD GOOD -- PATH...` tests only commits
-that touch the given paths.
-
-**Use when.** The defect is known to live in specific files or
-directories, and commits elsewhere cannot affect it.
-
-**Do not use when.** The defect could come from a dependency, build
-configuration, or code outside the paths; the search would skip the real
-culprit.
-
-**Example.**
-
-```sh
-git bisect start bad-endpoint good-endpoint -- calc.py
-git bisect run /abs/path/oracle.sh
-```
-
-**Cost removed.** Tests on irrelevant commits. Measured: only commit 23
-touched `calc.py`, so the result needed no test steps.
-
-**Verify.**
-
-1. `verify.sh` asserts the same culprit as the full search.
-
-## Bisect log and replay
-
-**Definition.** `git bisect log` prints the session as commands;
-`git bisect replay FILE` restarts a session from such a file. Delete a
-wrong manual mark from the file and replay to resume the search.
-
-**Use when.** A manual `good`/`bad` mark was wrong, or a search must
-resume on another machine.
-
-**Do not use when.** Most marks are doubtful; restart with a better
-oracle instead.
-
-**Example.** The log records each mark as a `git bisect bad <hash>` line
-after a `# bad: [hash] subject` comment:
-
-```sh
-git bisect log > mistake.log
-git bisect reset
-awk '/^git bisect start/{s=1} s && /^(git bisect bad |# bad:)/{next}
-     {print}' mistake.log > fixed.log   # drop the wrong mark
-git bisect replay fixed.log
-git bisect run /abs/path/oracle.sh
-```
-
-**Cost removed.** Restarting a long manual search after one wrong answer.
-
-**Verify.**
-
-1. `verify.sh` makes a deliberate wrong mark, removes it, replays, and
-   finds commit 23.
-
-## Pickaxe search instead of bisect
-
-**Definition.** `git log -S STRING` lists commits that change the number
-of occurrences of `STRING`; `git log -G REGEX` lists commits whose diff
-lines match `REGEX` ([git-log][git-log]).
-
-**Use when.** The regression is tied to a specific text change (a
-constant, a call, a config key) and no test can run.
-
-**Do not use when.** The behavior change has no single textual signature.
-Also, the commit that added the text need not be the one that made it
-harmful.
-
-**Example.**
-
-```sh
-git log -S 'a - b' --format='%h %s' -- calc.py
-```
-
-**Cost removed.** Building and testing historical revisions.
-
-**Verify.**
-
-1. `verify.sh` asserts the pickaxe returns the same commit as bisect.
-   Confirm any pickaxe result by testing the commit and its parent.
+- The revert check catches a culprit that only exposed an older defect. If
+  the revert conflicts, report it and test the reversed diff by hand.
+- When the culprit is a merge (`git log -1 --format=%P "$CULPRIT"` shows
+  two parents), run the oracle on both parents. If both pass, the merge
+  itself introduced the defect (a semantic conflict).
 
 [git-bisect]: https://git-scm.com/docs/git-bisect
-[git-log]: https://git-scm.com/docs/git-log

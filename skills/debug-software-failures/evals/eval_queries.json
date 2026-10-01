@@ -53,7 +53,7 @@
 		"query": "Show me the commits that touched src/billing/ last month.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "manage-git-changes"
+		"expected_skill": "manage-git"
 	},
 	{
 		"query": "I know the bug: parse_date should use UTC instead of local time. Change it in utils/dates.py and update the call sites.",
@@ -76,7 +76,7 @@
 		"query": "The Go JSON encoder in our API is slow; pprof shows 40% in reflect. Make it faster.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-go-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "What does 'Segmentation fault: 11' mean on macOS?",
@@ -87,7 +87,7 @@
 		"query": "I messed up a rebase and lost two commits from my feature branch. Get them back.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "manage-git-changes"
+		"expected_skill": "manage-git"
 	},
 	{
 		"query": "Check this Flask upload handler for path traversal and other vulnerabilities.",
@@ -99,12 +99,12 @@
 		"query": "This 300-line function is impossible to follow; split it into readable pieces without changing behaviour.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "write-readable-code"
+		"expected_skill": "improve-code-quality"
 	},
 	{
 		"query": "PCSX2 crashes to desktop when I change the renderer. How do I get a backtrace on macOS?",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "build-and-debug-pcsx2"
+		"expected_skill": "debug-playstation-emulators"
 	}
 ]

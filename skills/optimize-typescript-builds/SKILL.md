@@ -1,152 +1,83 @@
 ---
 name: optimize-typescript-builds
 description: >-
-  Speeds up slow TypeScript type-checking, builds, and emit with tsc
-  diagnostics, incremental builds, and project references. Use when tsc is
-  slow. Not for JavaScript runtime speed.
+  Speeds up TypeScript type checking, tsc and tsgo builds, project
+  references, and editor responsiveness. Use when tsc is slow or runs out of
+  memory. Not for runtime JavaScript speed.
 ---
 
 # Optimize TypeScript Builds
 
-Make TypeScript cheaper to type-check, build, or run without changing
-emitted behavior or the declared types. TypeScript cost has two separate
-sources: the compiler's work (checker, program size, declaration emit) and
-the JavaScript that TypeScript constructs and `target` produce. Each change
-applies one reference card to a cost that a counter, trace, emitted-code
-diff, or runtime profile attributes, is proven equivalent by an oracle, and
-is kept only if the metric the card names improves. Engine-level JavaScript
-tuning (object shapes, array kinds) belongs to the optimize-javascript-code
-skill.
-
-## Workflow
-
-1. Identify the compiler and effective options: `tsc --version` and
-   `tsc --showConfig -p tsconfig.json`. tsc 7 is the Go port with removed
-   options and new defaults; read
-   [TypeScript 7](references/typescript-7.md) before using flags from
-   older docs. Record Node/Bun versions and any other transpiler (Bun,
-   esbuild, SWC) that produces the shipped JavaScript.
-1. Classify the claim: compile time, declaration output, emitted-code
-   size, or runtime. Measure each claim with its own tool; a faster type
-   check is not a runtime improvement, and type-only edits change no
-   runtime cost.
-1. Attribute before editing:
-   - compile time: `tsc -p . --noEmit --singleThreaded
-     --extendedDiagnostics`, then `--generateTrace` and analyze-trace
-     ([measurement](references/measurement.md));
-   - program size: `tsc --listFilesOnly` and `--explainFiles`;
-   - runtime: compile baseline to a directory, diff emitted JavaScript,
-     then profile the running program with the runtime's profiler.
-1. Choose one construct from the routing table whose **Use when** matches
-   the evidence and whose **Do not use when** does not.
-1. Write the oracle first. Runtime: same inputs through baseline and
-   candidate output, including error paths. Types: the project's type
-   tests plus a mutual-assignability probe for changed exports
-   (`Eq<A, B>` in [checker][return-types]).
-1. Apply the change and run the card's **Verify** steps: behavior first,
-   then the metric, with the same options and the same tsc version.
-1. Re-run the project build and tests end to end. Keep the change only if
-   the metric moved and nothing regressed; report null results.
-1. Report with [the report template](assets/performance-report.md).
-
-## Route evidence to a construct
-
-| Evidence | Card |
-| --- | --- |
-| Enum IIFEs in output, enum property loads | [Const enum](references/emit.md#const-enum), [As const object](references/emit.md#as-const-object-instead-of-enum) |
-| Const enum not inlined under `isolatedModules` | [Const enum under isolatedModules](references/emit.md#const-enum-under-isolatedmodules) |
-| `TS1294`, `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX` | [erasableSyntaxOnly](references/runtimes.md#erasablesyntaxonly-as-the-stripping-gate), [Explicit fields](references/emit.md#explicit-fields-instead-of-parameter-properties), [ES module](references/emit.md#es-module-instead-of-namespace) |
-| `__awaiter` / generator frames in profiles | [Native async](references/emit.md#native-async-functions-from-es2017) |
-| `WeakMap`, `__classPrivateFieldGet` in output | [Native private fields](references/emit.md#native-private-fields-from-es2022) |
-| `Object.assign(Object.assign({}` in output | [Native object spread](references/emit.md#native-object-spread-from-es2018) |
-| Same helper copied into many files | [importHelpers](references/emit.md#importhelpers-with-tslib) |
-| Field `undefined` after a target bump, `TS2612` | [Declare fields](references/emit.md#declare-for-redeclared-fields) |
-| `SyntaxError` at `@decorator` on Node | [Standard decorators](references/emit.md#standard-decorators-and-the-target) |
-| Modules loaded only for decorated constructor types | [Decorator metadata](references/emit.md#decorator-metadata-retains-imports) |
-| Module evaluated for a type-only import | [Top-level import type](references/emit.md#top-level-import-type) |
-| Remove a build step for Node or Bun | [Node stripping](references/runtimes.md#node-type-stripping), [Bun](references/runtimes.md#bun-native-typescript), [No type-check](references/runtimes.md#type-stripping-does-not-type-check) |
-| Cross-file const enums with Bun | [Bun bundling](references/runtimes.md#bun-bundling-for-cross-file-const-enums) |
-| High `Check time`, large unions in hot signatures | [Base type](references/checker.md#base-type-instead-of-a-large-union) |
-| `A & B & C` object compositions compared often | [Interfaces](references/checker.md#interfaces-instead-of-intersections) |
-| `TS2589` excessively deep instantiation | [Tail recursion](references/checker.md#tail-recursive-conditional-types) |
-| Conditional return types re-evaluated | [Named conditional types](references/checker.md#named-conditional-types) |
-| Large `.d.ts`, inferred export types | [Return types](references/checker.md#explicit-return-types-on-exports) |
-| Checking dominated by `.d.ts` files | [skipLibCheck](references/build.md#skiplibcheck) |
-| Unused `@types` packages in the program | [types array](references/build.md#scoped-types-array) |
-| Fixtures or output in `--listFilesOnly` | [include](references/build.md#scoped-include) |
-| Repeated full re-checks | [Incremental](references/build.md#incremental-builds-with-tsbuildinfo), [Project references](references/build.md#project-references-with-tsc--b) |
-| Declaration emit blocks dependents | [isolatedDeclarations](references/build.md#isolated-declarations-with-nocheck) |
-| JavaScript needed before the check finishes | [noCheck emit](references/build.md#emit-without-checking) |
-| `TS5102`/`TS5108` after upgrading | [Removed options](references/typescript-7.md#identify-the-compiler-and-removed-options), [New defaults](references/typescript-7.md#new-defaults-from-typescript-60) |
-| Idle cores or memory pressure during tsc 7 | [Checkers](references/typescript-7.md#parallel-type-checkers), [Builders](references/typescript-7.md#parallel-project-builders) |
-| Lint/tools need the `typescript` API on 7 | [tsc6](references/typescript-7.md#side-by-side-tsc6-for-api-consumers) |
+Make TypeScript cheaper to type-check and build without changing emitted
+output or the declared types. Runtime speed of the emitted JavaScript
+belongs to the optimize-code-performance skill.
 
 ## Rules
 
-- Compare compiler counters only with `--singleThreaded` (or the same
-  `--checkers N`) and the same tsc version; tsc 7 changes `Types` and
-  `Memory used` with the worker count. Delete `.tsbuildinfo` before cold
-  measurements.
-- Use `--skipLibCheck` in both runs when measuring a type-level change, or
-  lib checking hides it; measure skipLibCheck itself separately.
-- A type-only change has no runtime effect. Claim runtime changes only
-  from emitted-code diffs plus a runtime measurement in the target
-  runtime.
-- Changing `target` changes class-field semantics at ES2022 and object
-  spread semantics at ES2018 as well as speed. Run the field and spread
-  oracles before a target bump.
-- Node and Bun do not type-check. Keep `tsc --noEmit` (or `tsc -b`) in CI
-  whenever code runs without tsc emit.
-- Do not weaken public types (to `any`, `object`, a base type) to speed up
-  checking unless the API owner agrees; prove equality with a probe.
-- Timing claims need repeated runs on a quiet machine. Record null
-  results (named conditionals, namespace-to-module speed) instead of
-  hiding them.
+- Attribute the cost before changing config: `tsc -p . --noEmit
+  --singleThreaded --extendedDiagnostics`, then `--generateTrace DIR` with
+  `@typescript/analyze-trace`. Changing flags by habit fixes the wrong
+  phase; only a dominant `Check time` points at types, and `Parse time`
+  points at program size (`--listFilesOnly`, `--explainFiles`).
+- Compare counters only with `--singleThreaded` (or the same `--checkers N`)
+  and the same tsc version, and delete the `*.tsbuildinfo` files (see
+  `tsBuildInfoFile` and `outDir`) first. tsc 7 changes `Types` and `Memory
+  used` with the worker count, and a warm `.tsbuildinfo` hides the real
+  check.
+- Check `tsc --version` and `tsc --showConfig` before using flags. tsc 7
+  (the Go port) removes `target: es5`, `downlevelIteration`,
+  `baseUrl`, and `moduleResolution: node10` (`TS5108`, `TS5102`) and
+  defaults `types` to `[]`; advice from 5.x docs breaks there. See
+  [TypeScript 7](references/typescript-7.md).
+- Do not add `skipLibCheck` by reflex. It also skips your own hand-written
+  `.d.ts` files and can hide conflicts, so measure with and without it,
+  diff the errors once, and keep one CI check without it when the repo has
+  hand-written `.d.ts` files (`git ls-files '*.d.ts'` outside build output).
+  Use it in both runs
+  when measuring a type-level change.
+- `isolatedDeclarations` alone does not speed up tsc. It needs an explicit
+  annotation on every export (`TS90xx` otherwise), and the gain comes from
+  emitting declarations without type-checking (`--noCheck` or another
+  emitter) next to a separate `tsc --noEmit` that still reports errors.
+- Do not weaken public types (`any`, `object`, a base interface) to save
+  checking time without the API owner. Prove an edit changed nothing with
+  the project's type tests or a mutual-assignability probe
+  (`Eq<Before, After>`).
+- Split repeated full re-checks with `composite` project references and
+  `tsc -b`, or `incremental` with a persisted `.tsbuildinfo`. A
+  `.tsbuildinfo` not restored between CI runs only adds a write. References
+  must form a DAG; split along the existing package graph (typically 5 to
+  20 projects).
+- Edit a type only when a trace names it: large unions in hot signatures,
+  `A & B & C` compared often, conditional return types, `TS2589`
+  recursion. Some wiki advice has no measured gain on tsc 7 (named
+  conditional types); keep an edit only if the counter that justified it
+  dropped. See [Build settings and type costs](references/build-and-types.md).
+- Narrow `include` and `types` only after `--listFilesOnly` shows surplus
+  files, and keep tests type-checked in their own project. A `types` list
+  that omits `node` or a test framework fails with "Cannot find name".
+- Node and Bun strip types without checking. Keep `tsc --noEmit` or
+  `tsc -b` in CI wherever code runs without a tsc emit.
+- Timing claims need at least 5 runs on a quiet machine; report the median
+  and spread. Report a change with no measured gain as null instead of
+  keeping it.
 
-## Bundled tools
+## Workflow
 
-- `assets/examples/verify.sh verify|emit|checker|benchmark|measure|trace`:
-  copies the examples to a temp directory and runs the oracles with
-  `node harness.ts`. `verify` (and `benchmark`, a smoke alias) checks
-  every card's behavior and deterministic metric; `measure` adds
-  machine-specific timings; `trace` runs analyze-trace. tsc comes from
-  `TSC`, then `./node_modules/.bin/tsc`, then `PATH`. Needs Node 22.18+;
-  Bun is optional (tslib install, Bun cases).
-- `assets/performance-report.md`: the report skeleton.
+1. Record `tsc --version`, the effective options, and the baseline
+   counters with the command above.
+1. Attribute with the trace or the file list, apply one change, and rerun
+   the same command with the same flags.
+1. Run the normal build and tests, and keep the change only if the
+   counter or time dropped and diagnostics are unchanged.
 
 ## References
 
-- [Measurement](references/measurement.md): counters, traces, pprof, file
-  inclusion, emitted-code diffs, runtime timing.
-- [Emit](references/emit.md): enums, classes, namespaces, target
-  lowering, helpers, decorators, imports.
-- [Runtimes](references/runtimes.md): Node type stripping,
-  erasableSyntaxOnly, Bun.
-- [Checker](references/checker.md): unions, intersections, recursion,
-  conditional types, return types.
-- [Build](references/build.md): skipLibCheck, types, include, incremental,
-  project references, isolated declarations, noCheck.
-- [TypeScript 7](references/typescript-7.md): removed options, defaults,
-  checkers, builders, single-threaded mode, tsc6.
-- [Sources](references/sources.md): primary documentation per card; read
-  it when a card's claim must be checked against the target version.
-
-## Completion evidence
-
-The final report contains:
-
-- tsc version, effective options that matter (`target`, `module`,
-  `isolatedModules`, `verbatimModuleSyntax`, `types`, `skipLibCheck`),
-  runtime versions, OS/CPU, and the transpiler that ships the code;
-- the counter, trace, file listing, or emitted-code diff that attributed
-  the cost;
-- the card applied, with its **Use when** items checked and **Do not use
-  when** items ruled out;
-- the oracle command and result: type tests, assignability probes, and
-  runtime equivalence including error paths;
-- baseline and candidate metrics from the same command and flags
-  (`--singleThreaded` counters, `.d.ts` bytes, helper counts, medians);
-- anything not run (other runtimes, other tsc versions, bundler output)
-  stated as not verified.
-
-[return-types]: references/checker.md#explicit-return-types-on-exports
+- Read [Measurement](references/measurement.md) when attributing cost:
+  counters, traces, tsc 7 profiles, and program-size checks.
+- Read [Build settings and type costs](references/build-and-types.md) when
+  choosing `skipLibCheck`, incremental builds, project references,
+  `isolatedDeclarations`, `--noCheck`, or editing expensive types.
+- Read [TypeScript 7](references/typescript-7.md) when the compiler is
+  tsc 7 or tsgo, for removed options, new defaults, `--checkers`,
+  `--builders`, and `tsc6`.

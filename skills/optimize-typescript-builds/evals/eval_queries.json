@@ -20,12 +20,12 @@
 		"split": "train"
 	},
 	{
-		"query": "Our Node 24 service is compiled with target es2016 and the CPU profile is full of __awaiter frames; dist has WeakMap-based private fields. Can we just raise the target? What could break?",
+		"query": "Our editor freezes for seconds in a huge TypeScript monorepo and tsserver memory keeps growing. How do I find what the language service is checking and cut it?",
 		"should_trigger": true,
 		"split": "train"
 	},
 	{
-		"query": "We want to delete the tsc build step and run src/*.ts straight on Node 24. We still have enums, a namespace, and constructor parameter properties. What has to change?",
+		"query": "Is it safe to set skipLibCheck: true to speed up tsc? We have some hand-written .d.ts files.",
 		"should_trigger": true,
 		"split": "train"
 	},
@@ -40,12 +40,12 @@
 		"split": "validation"
 	},
 	{
-		"query": "startup of our NestJS-style app loads a heavy SDK that's only used as a constructor parameter type. we have emitDecoratorMetadata on. why is it loaded and how do we stop it?",
+		"query": "Upgrading to TypeScript 7 gave TS5108 and TS5102 errors in tsconfig, and I want to know which options changed and how to benchmark tsgo against tsc 6.",
 		"should_trigger": true,
 		"split": "validation"
 	},
 	{
-		"query": "Someone wants to convert every enum to const enum for speed. We use isolatedModules and bundle with bun build. Does that actually remove anything from the output?",
+		"query": "Why does Check time differ between two runs of tsc --extendedDiagnostics on the same code when I change --checkers?",
 		"should_trigger": true,
 		"split": "validation"
 	},
@@ -53,7 +53,7 @@
 		"query": "Our React table re-renders 50k rows and Array.prototype.map is hot in the Chrome profile; the row objects have inconsistent shapes. Make the page faster.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-javascript-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "Switch our pnpm monorepo to Bun for installs and run the Jest suites with bun test instead.",
@@ -70,13 +70,13 @@
 		"query": "Our VS Code extension's activation takes 2 seconds; package it with esbuild and make activation lazy on the right events.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "develop-vscode-extensions"
+		"expected_skill": "develop-editor-plugins"
 	},
 	{
 		"query": "Node API p99 latency spiked after the last deploy and the CPU profile shows JSON.stringify of big responses. Speed up the handler.",
 		"should_trigger": false,
 		"split": "train",
-		"expected_skill": "optimize-javascript-code"
+		"expected_skill": "optimize-code-performance"
 	},
 	{
 		"query": "Our GitHub Actions workflow for the TypeScript monorepo takes 20 minutes; add dependency caching and split lint, test, and build into parallel jobs.",
@@ -85,7 +85,7 @@
 		"expected_skill": "configure-ci-cd-pipelines"
 	},
 	{
-		"query": "What's the difference between `interface` and `type` aliases in TypeScript?",
+		"query": "We want to delete the tsc build step and run src/*.ts straight on Node 24. We still have enums and constructor parameter properties. What has to change?",
 		"should_trigger": false,
 		"split": "validation"
 	},
@@ -93,7 +93,7 @@
 		"query": "Now that we require TypeScript 5.5+, remove the old `downlevelIteration` workarounds and the ts-ignore shims we added for TS 4.x.",
 		"should_trigger": false,
 		"split": "validation",
-		"expected_skill": "remove-unneeded-compatibility-code"
+		"expected_skill": "improve-code-quality"
 	},
 	{
 		"query": "Write vitest tests for our date-range parser: DST transitions, leap days, and invalid input.",

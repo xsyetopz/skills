@@ -111,9 +111,7 @@
 			"id": 5,
 			"prompt": "Add a docstring to calculate_tax in tax/tax.py explaining the parameters and what it returns.",
 			"expected_output": "Out of scope for test writing: a docstring describing amount, rate, inclusive, and the rounded Decimal result; behaviour unchanged and no test suite added.",
-			"files": [
-				"evals/files/tax/tax.py"
-			],
+			"files": ["evals/files/tax/tax.py"],
 			"assertions": [
 				{
 					"text": "calculate_tax has a docstring and behaves as before.",

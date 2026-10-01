@@ -22,10 +22,10 @@ other's slots rather than share them.
 is reported but does not change pass/fail.
 
 Examples:
-  just eval-triggers --skill optimize-go-code --dry-run
-  just eval-triggers --skill optimize-go-code --split train --runs 3 --jobs 4
+  just eval-triggers --skill optimize-code-performance --dry-run
+  just eval-triggers --skill optimize-code-performance --split train --runs 3 --jobs 4
   just eval-triggers --skill write-justfiles --model claude-fable-5-1 --effort medium --json
-  python3 scripts/evals/trigger_eval.py --catalog /tmp/candidate-skills --skill optimize-go-code
+  python3 scripts/evals/trigger_eval.py --catalog /tmp/candidate-skills --skill optimize-code-performance
 
 Output: <out>/triggers-<UTC timestamp>/ holds settings.json, isolation.json,
 the catalog snapshot, one stream per run under streams/, and results.json.

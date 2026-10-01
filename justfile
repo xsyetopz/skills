@@ -60,7 +60,7 @@ python-types: provision
 shell:
     if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -not -path '*/evals/files/*' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
 
-validate: skills metadata skill-lint hygiene secrets markdown tests assets justfiles python-lint python-types shell benchmarks
+validate: skills metadata skill-lint hygiene secrets markdown tests assets justfiles python-lint python-types shell
     git diff --check
 
 [positional-arguments]
@@ -70,8 +70,3 @@ eval-triggers *args:
 [positional-arguments]
 eval-outputs *args:
     python3 scripts/evals/output_eval.py "$@"
-
-benchmarks:
-    sh skills/optimize-javascript-code/assets/examples/verify.sh benchmark
-    sh skills/optimize-rust-code/assets/examples/verify.sh benchmark
-    sh skills/optimize-csharp-code/assets/examples/verify.sh benchmark

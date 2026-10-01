@@ -1,3 +1,0 @@
--Xmx1g
--XX:+UseParallelGC
--XX:+HeapDumpOnOutOfMemoryError

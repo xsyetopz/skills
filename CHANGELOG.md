@@ -13,6 +13,8 @@ released versions yet.
   `line_length` from the nearest markdownlint config (100 without one) and leaves lists, tables,
   code, HTML, and hard breaks intact, plus markdownlint config templates that it copies into a
   repository without one and offers to replace an existing one.
+- `manage-git` ships commitlint (Conventional Commits) and lefthook `commit-msg` templates for
+  repositories that want commit messages linted, asking before replacing an existing config.
 - `write-architecture-md` writes, updates, and audits ARCHITECTURE.md files from the architecture.md
   template, with matklad's durability rules. The file is always `ARCHITECTURE.md` at the repository
   root; one kept in `docs/` is moved there. `scripts/check_architecture.py` checks the document

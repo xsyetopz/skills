@@ -45,6 +45,13 @@ request. The rules below are the mistakes agents make with `git` and `gh`.
   keeps the tag unless `--cleanup-tag` is given, so ask which one the user means.
 - Follow the repository's commit message, merge policy, and agent attribution rules (look in
   `AGENTS.md`, `CONTRIBUTING.md`, and `git log -10`). Do not invent a style.
+- When the user wants commit messages linted, use
+  [`assets/commitlint.config.mjs`](assets/commitlint.config.mjs) (Conventional Commits) and the
+  `commit-msg` hook in [`assets/lefthook.yml`](assets/lefthook.yml). Add `@commitlint/cli`,
+  `@commitlint/config-conventional`, and `lefthook` as dev dependencies with the repository's
+  package manager, change the hook's `bun`/`bunx` to it, and run `lefthook install`. If a commitlint
+  or lefthook config exists, ask whether to replace it or merge the hook in, and keep it until the
+  user answers.
 
 ### GitHub
 

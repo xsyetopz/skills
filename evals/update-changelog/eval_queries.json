@@ -1,0 +1,112 @@
+[
+	{
+		"query": "Update CHANGELOG.md with everything since v2.1.0 before the release, under Unreleased.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Cut the 3.2.0 release section in CHANGELOG.md: date it, add a fresh Unreleased, and fix the compare links.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our 1.4.0 release broke the API and was published; can I rename it to 2.0.0 in the changelog?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add an entry for the CSV export fix to the changelog; it used to drop the last row.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We pulled 1.0.1 from PyPI because it corrupted caches. Record that in CHANGELOG.md.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The Unreleased section is just commit subjects pasted in. Rewrite it so users can follow it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Convert our commit log since the last tag into changelog entries users can read, and pick the version.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Is a new default encoding a Fixed or a Changed entry in the release notes?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Prepare the release notes for 5.0: we removed the v1 export endpoint.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Start a CHANGELOG.md for this project in Keep a Changelog format, from the existing tags.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We are about to ship; the CLI dropped the --legacy flag since 1.4.7. What should the next version be?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Sort these tags by precedence: v2.0.0-rc.10, v2.0.0-rc.9, v2.0.0.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Create and push the tag v1.4.0 for the current commit.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Write a commit message for the staged CSV export fix.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Write a README section explaining how to install and run the CLI.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Write a GitHub Actions job that publishes release notes when a tag is pushed.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Is removing an exported function a major or minor bump?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Create the GitHub release page for v1.4.0 with gh and attach the artifacts.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Document the public API of this package in a reference guide with examples.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Our 0.9.3 library changed a signature; is that 0.9.4 or 0.10.0?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "bump-semver"
+	}
+]

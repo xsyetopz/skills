@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Changelog"
+  short_description: "Write user-facing CHANGELOG entries and sections"
+  default_prompt: "Use $update-changelog to write user-facing entries from the release range, cut the dated section, fix compare links, and run audit_changelog.py."

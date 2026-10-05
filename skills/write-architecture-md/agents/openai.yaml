@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write ARCHITECTURE.md"
+  short_description: "ARCHITECTURE.md codemaps checked against the code"
+  default_prompt: "Use $write-architecture-md to write or audit this repository's ARCHITECTURE.md: modules, entry points, and invariants taken from the code, with nothing invented."

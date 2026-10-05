@@ -1,0 +1,122 @@
+[
+	{
+		"query": "Write a README for this CLI with a quick start that shows the real output",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "The README install steps fail when I run them, fix the docs so the commands work",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Write a CONTRIBUTING.md whose commands match what CI runs",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Document the public API in docs/api.md from the source and check every example runs",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "New people can't get this project running from our docs, write them a getting started page",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "the setup instructions still say pip install oldname, check them against pyproject and fix them",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Our quick start passes --limit but the tool rejects it, make the usage section match --help",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Add a usage section to the README showing each subcommand with its actual output",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "The docs say Node 18 but package.json engines says 20, sort out the prerequisites",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "write docs for this library so someone can install it and run the first example",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Create an ARCHITECTURE.md for this repo with a code map and the module boundaries",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Add a table of contents to docs/guide.md that links to the headings and keep it in sync",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Write an AGENTS.md with the build and test commands for this repo",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Add a changelog entry for the new --precision flag in 2.1.0",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Write the --help text for our new `backup restore` subcommand",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Rewrap the paragraphs in CONTRIBUTING.md so markdownlint MD013 passes",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "ARCHITECTURE.md still mentions the old handlers module, bring it in line with the code",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Update CLAUDE.md so agents know to run just test before finishing",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Add a collapsible details section and a NOTE alert to the README the GitHub way",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Write a SKILL.md for a skill that formats SQL migrations",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-agent-skill"
+	}
+]

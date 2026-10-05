@@ -1,0 +1,111 @@
+[
+	{
+		"query": "We are about to ship; the CLI dropped the --legacy flag since 1.4.7. What should the next version be?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our library is at 0.9.3 and I changed a function signature. Is this 0.9.4 or 0.10.0?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Sort these tags by precedence: v2.0.0-rc.10, v2.0.0-rc.9, v2.0.0, v1.10.0, v1.9.0.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Should we publish 3.2.0+wasm and 3.2.0+native to npm as two variants of the same release?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We're cutting 3.0 next week; strip out the aliases we deprecated during 2.x.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Bump the version in pyproject.toml for this release; we only fixed two bugs since 1.8.2.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is removing an exported function a major or minor bump? We follow SemVer.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "How do I version a Go module that is going to v2?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "What comes after 2.0.0-rc.3 if the candidate is good, and what if we need one more?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We raised engines.node from 18 to 20 but changed no code. Does that need a new major?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Update CHANGELOG.md with everything since v2.1.0 before the release, under Unreleased.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Cut the 3.2.0 release section in CHANGELOG.md: date it, add a fresh Unreleased, and fix the compare links.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Our 1.4.0 release broke the API; mark it yanked in the changelog and point to 1.4.1.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Create and push the tag v1.4.0 for the current commit.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that builds and publishes to npm when a tag is pushed.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Remove the dead Python 2 branches from utils.py; this package never supported Python 2.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Turn the commits since v3.1.0 into release notes our users can read.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Create the GitHub release page for v1.4.0 with gh and attach the artifacts.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Which dependency upgrades should we take this sprint, and in what order?",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Amend the last commit message and force-push the branch safely.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	}
+]

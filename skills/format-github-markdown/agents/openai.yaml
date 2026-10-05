@@ -1,0 +1,4 @@
+interface:
+  display_name: "Format GitHub Markdown"
+  short_description: "Fix anchors, Contents lists, and markdownlint errors"
+  default_prompt: "Use $format-github-markdown to fix this Markdown so it renders on GitHub and passes markdownlint: anchors, Contents lists, tables, alerts, and line wrapping."

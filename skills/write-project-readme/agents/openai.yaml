@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Project README"
+  short_description: "README, CONTRIBUTING, and API docs whose commands run"
+  default_prompt: "Use $write-project-readme to write or fix this repository's README or project docs: run every command before documenting it, take versions from the manifests, and check links."

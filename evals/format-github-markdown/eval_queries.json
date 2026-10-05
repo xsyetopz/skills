@@ -1,0 +1,122 @@
+[
+	{
+		"query": "Add a table of contents to docs/guide.md that links to the headings and keep it in sync",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Our docs links to #setup-options are broken on GitHub, find and fix the anchors",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Add a collapsible details section and a NOTE alert to the README the GitHub way",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "markdownlint fails MD013 on CONTRIBUTING.md, rewrap the paragraphs without breaking the lists",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "The table in docs/flags.md renders as plain text on GitHub, fix it",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "set up markdownlint for the docs in this repo",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Fix the relative links in docs/ after we moved the guides folder",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "The pipe characters inside my table cells break the columns",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "I renamed the 'Options & flags' heading and now links to it 404, fix every link",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "my > **Note:** block shows as a plain quote on GitHub instead of a callout",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Write a README for this CLI with a quick start that shows the real output",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Create an ARCHITECTURE.md for this repo with a code map and the module boundaries",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Write an AGENTS.md with the build and test commands for this repo",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Add a changelog entry for the new --precision flag in 2.1.0",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Write a SKILL.md for a skill that formats SQL migrations",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agent-skill"
+	},
+	{
+		"query": "ESLint reports too many warnings, relax the config so CI passes",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "fix-diagnostics-without-suppressing"
+	},
+	{
+		"query": "The README install steps fail when I run them, fix the docs so the commands work",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "ARCHITECTURE.md still mentions the old handlers module, bring it in line with the code",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Update CLAUDE.md so agents know to run just test before finishing",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Turn on markdownlint in the CI workflow with a pinned action",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-ci-workflow"
+	}
+]

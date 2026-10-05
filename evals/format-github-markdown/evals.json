@@ -1,0 +1,63 @@
+{
+	"skill_name": "format-github-markdown",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "In guide/, I renamed the Options heading in docs/guide.md to \"Options & flags\". Fix whatever broke.",
+			"expected_output": "Every link to #options (README.md, docs/faq.md, and inside docs/guide.md) points to #options--flags, the Contents list in docs/guide.md is regenerated to match the headings, and check_links.py and markdown_toc.py --check both pass. The heading keeps its new name.",
+			"files": [
+				"files/guide/README.md",
+				"files/guide/docs/guide.md",
+				"files/guide/docs/faq.md"
+			],
+			"assertions": [
+				{
+					"text": "The Contents list in docs/guide.md matches its headings (markdown_toc.py --check).",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/format-github-markdown/scripts/markdown_toc.py\" ]; do [ \"$R\" = / ] && { echo \"markdown_toc.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/format-github-markdown/scripts/markdown_toc.py\"; python3 \"$T\" --check guide/docs/guide.md"
+				},
+				{
+					"text": "check_links.py reports no errors for guide/.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/write-project-readme/scripts/check_links.py\" ]; do [ \"$R\" = / ] && { echo \"check_links.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/write-project-readme/scripts/check_links.py\"; python3 \"$T\" guide"
+				},
+				{
+					"text": "No link uses the old #options anchor, and README.md and docs/faq.md link to #options--flags.",
+					"check": "! grep -rq '#options)' guide && grep -q 'docs/guide.md#options--flags' guide/README.md && grep -q 'guide.md#options--flags' guide/docs/faq.md"
+				},
+				{
+					"text": "The heading keeps its new name.",
+					"check": "grep -qx '## Options & flags' guide/docs/guide.md"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "render/README.md looks broken on GitHub: the flags table columns are off, the note isn't an alert box, and the collapsed example log shows raw Markdown. Fix it and make it pass markdownlint's 100-column limit, without changing the wording.",
+			"expected_output": "The pipe in the --format cell is escaped as \\|, the bold Note quote becomes a > [!NOTE] alert with the marker alone on its line, the <details> block has blank lines after </summary> and before </details>, the long paragraph is wrapped at 100 columns with reflow_markdown.py, and the sentences are unchanged.",
+			"files": [
+				"files/render/README.md"
+			],
+			"assertions": [
+				{
+					"text": "The note is a GitHub alert whose marker is alone on its line, and the bold Note quote is gone.",
+					"check": "grep -qx '> \\[!NOTE\\]' render/README.md && ! grep -q '\\*\\*Note:\\*\\*' render/README.md"
+				},
+				{
+					"text": "The pipe inside the --format cell is escaped.",
+					"check": "grep -Fq '`--format html\\|text`' render/README.md"
+				},
+				{
+					"text": "The details block has a blank line after </summary> and before </details>.",
+					"check": "awk '/<\\/summary>/{getline n; if (n==\"\") ok=1} END{exit !ok}' render/README.md && awk '{if ($0==\"</details>\" && prev==\"\") ok=1; prev=$0} END{exit !ok}' render/README.md"
+				},
+				{
+					"text": "Paragraphs fill lines up to 100 columns (reflow_markdown.py --check).",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/format-github-markdown/scripts/reflow_markdown.py\" ]; do [ \"$R\" = / ] && { echo \"reflow_markdown.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/format-github-markdown/scripts/reflow_markdown.py\"; python3 \"$T\" --check --width 100 render/README.md"
+				},
+				{
+					"text": "The wording is unchanged.",
+					"check": "tr '\\n' ' ' < render/README.md | tr -s ' ' | grep -q 'keeping the same base name and replacing the extension with .html' && grep -q 'The input file is never modified.' render/README.md"
+				}
+			]
+		}
+	]
+}

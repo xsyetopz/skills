@@ -1,0 +1,94 @@
+{
+	"skill_name": "bump-semver",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "slugkit/released-1.4.2/slugkit.py is our last release (1.4.2) and slugkit/src/slugkit.py is what we are about to ship. Pick the next version by SemVer, set it in slugkit/pyproject.toml, and explain why. Don't change the code.",
+			"expected_output": "Version 2.0.0 in pyproject.toml: renaming the public keyword argument max_len to max_length breaks callers that pass max_len=..., which outranks the backward-compatible separator parameter (minor). The response names the rename as the deciding change and may suggest keeping max_len as a deprecated alias in a 1.5.0 instead. Source files unchanged.",
+			"files": [
+				"files/slugkit/pyproject.toml",
+				"files/slugkit/released-1.4.2/slugkit.py",
+				"files/slugkit/src/slugkit.py"
+			],
+			"assertions": [
+				{
+					"text": "pyproject.toml declares version 2.0.0.",
+					"check": "grep -Eq '^version = \"2\\.0\\.0\"$' slugkit/pyproject.toml"
+				},
+				{
+					"text": "The code at HEAD is unchanged.",
+					"check": "grep -q 'def slugify(text: str, max_length: int = 80, separator: str = \"-\") -> str:' slugkit/src/slugkit.py && grep -q 'max_len: int = 80' slugkit/released-1.4.2/slugkit.py"
+				},
+				{
+					"text": "The response mentions max_len.",
+					"check": "grep -q 'max_len' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The response identifies renaming the keyword argument max_len to max_length as a backward-incompatible change to the public API that requires a major increment.",
+				"The response classifies the new separator parameter as backward-compatible functionality (minor on its own) and states that the breaking change decides the increment."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "We build @acme/codec (codec/package.json) in two variants, wasm and native. For the next feature release I want to publish both to npm as 3.2.0+wasm and 3.2.0+native so users can install whichever they need. Set up package.json for that.",
+			"expected_output": "Refuses the build-metadata plan with the reason: SemVer build metadata is ignored for precedence and npm's node-semver drops it, so 3.2.0+wasm and 3.2.0+native are both version 3.2.0 and the second publish fails (npm never reuses a name and version). Proposes variants with distinct identities, such as separate package names (@acme/codec-wasm, @acme/codec-native) or one package with optional platform packages, and uses 3.2.0 as the version. package.json contains no '+' in its version.",
+			"files": ["files/codec/package.json"],
+			"assertions": [
+				{
+					"text": "package.json has no build metadata in its version field.",
+					"check": "! grep -Eq '\"version\": *\"[^\"]*\\+' codec/package.json"
+				},
+				{
+					"text": "The response mentions build metadata.",
+					"check": "grep -Eiq 'build metadata|build-metadata' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The response states that npm treats 3.2.0+wasm and 3.2.0+native as the same version 3.2.0 (build metadata is ignored or stripped), so both cannot be published.",
+				"The response proposes a way to publish the two variants with distinct package identities, such as separate package names or platform-specific optional packages, instead of build metadata."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Our release script picks the newest tag with `git tag | sort | tail -1`. Tags are v1.9.3, v2.0.0-rc.2, v2.0.0-rc.9, v2.0.0-rc.10. It keeps saying rc.9 is newest. What's the next release candidate, what will the final be, and how do I fix the script?",
+			"expected_output": "Explains that plain sort compares strings, so rc.10 sorts before rc.9 although SemVer compares numeric identifiers numerically; the newest is 2.0.0-rc.10, the next candidate is 2.0.0-rc.11, and the final release is 2.0.0 (higher than every rc). Fixes the script with a precedence-aware sort (for example semver.py sort, or a SemVer library) and notes the v prefix is not part of the version.",
+			"assertions": [
+				{
+					"text": "The response names 2.0.0-rc.11 as the next release candidate.",
+					"check": "grep -q '2\\.0\\.0-rc\\.11' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The response explains that plain sort compares text, so rc.10 sorts before rc.9, while SemVer compares numeric pre-release identifiers numerically.",
+				"The response states that the final release is 2.0.0 and that it has higher precedence than every 2.0.0-rc version.",
+				"The response gives a replacement for `sort | tail -1` that orders tags by SemVer precedence, not by string or plain version sort."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "We're cutting the next major of units (units/). Set the version in units/pyproject.toml and do the code cleanup a major release allows. Don't edit DEPRECATIONS.md or add a changelog; list in your reply what you removed, what you kept, and why. Keep units/tests passing.",
+			"expected_output": "Version 2.0.0. ms_to_s() and its test are removed, because DEPRECATIONS.md schedules it for 2.0.0 and its deprecation shipped in 1.5.0. secs() stays, because its removal is scheduled for 3.0.0. _LEGACY_KEYS stays, because saved 1.x config files still use the timeout key. Tests pass. The reply lists the removal with its replacement to_seconds().",
+			"files": [
+				"files/units/pyproject.toml",
+				"files/units/DEPRECATIONS.md",
+				"files/units/src/units.py",
+				"files/units/tests/test_units.py"
+			],
+			"assertions": [
+				{
+					"text": "pyproject.toml declares version 2.0.0.",
+					"check": "grep -Eq '^version = \"2\\.0\\.0\"$' units/pyproject.toml"
+				},
+				{
+					"text": "ms_to_s is gone from the source and the tests.",
+					"check": "! grep -rq 'ms_to_s' units/src units/tests"
+				},
+				{
+					"text": "secs, to_seconds, and the legacy timeout key reader remain.",
+					"check": "grep -q 'def secs' units/src/units.py && grep -q 'def to_seconds' units/src/units.py && grep -q '\"timeout\": \"timeout_s\"' units/src/units.py"
+				},
+				{
+					"text": "The tests pass and still cover secs and the legacy key.",
+					"check": "grep -q 'secs' units/tests/test_units.py && grep -q 'timeout' units/tests/test_units.py && cd units && python3 -m unittest discover -s tests"
+				},
+				"The reply says secs() is kept because its removal is scheduled for 3.0.0, not 2.0.0.",
+				"The reply says the legacy timeout key mapping is kept because saved config files may still use it, and names to_seconds() as the replacement for ms_to_s()."
+			]
+		}
+	]
+}

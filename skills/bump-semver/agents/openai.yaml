@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bump SemVer"
+  short_description: "Pick the next SemVer version and drop due shims"
+  default_prompt: "Use $bump-semver to choose the next version from the public API diff, compare it with semver.py, and list the deprecated shims a major removes."

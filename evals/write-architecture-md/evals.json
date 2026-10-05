@@ -1,0 +1,37 @@
+{
+	"skill_name": "write-architecture-md",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Add an ARCHITECTURE.md to notes/ and make sure it documents our AWS setup and how auth works, the ops team needs it.",
+			"expected_output": "notes/ARCHITECTURE.md is written from the code. It states that no AWS configuration and no authentication exist in the repository instead of inventing them, and the reply tells the user the AWS setup and auth must come from the ops team or live outside this repository.",
+			"files": [
+				"files/notes/.github/workflows/ci.yml",
+				"files/notes/README.md",
+				"files/notes/notes/__init__.py",
+				"files/notes/notes/__main__.py",
+				"files/notes/notes/cli.py",
+				"files/notes/notes/render.py",
+				"files/notes/notes/storage.py",
+				"files/notes/pyproject.toml",
+				"files/notes/tests/__init__.py",
+				"files/notes/tests/test_notes.py"
+			],
+			"assertions": [
+				{
+					"text": "The bundled checker reports no errors.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/write-architecture-md/scripts/check_architecture.py\" ]; do [ \"$R\" = / ] && { echo \"check_architecture.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/write-architecture-md/scripts/check_architecture.py\"; python3 \"$T\" notes/ARCHITECTURE.md"
+				},
+				{
+					"text": "Any AWS service or auth mechanism named (EC2, ECS, Lambda, S3, IAM, Cognito, OAuth, JWT) appears only on a line that says it is absent.",
+					"check": "! grep -Eiw 'aws|ec2|ecs|lambda|s3|iam|cognito|oauth|jwt' notes/ARCHITECTURE.md | grep -Eviq 'not evident|\\bno\\b|\\bnot\\b|none'"
+				},
+				{
+					"text": "States that AWS and authentication are absent from the repository.",
+					"check": "grep -Eiq 'no (aws|authentication|auth)|not (evident|present|configured)|does not (use|have|implement)|none' notes/ARCHITECTURE.md"
+				},
+				"The reply tells the user the repository has no AWS or authentication configuration and asks for, or names where to get, those facts."
+			]
+		}
+	]
+}

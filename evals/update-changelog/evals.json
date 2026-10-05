@@ -1,0 +1,50 @@
+{
+	"skill_name": "update-changelog",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Our tally repository is exported as the git bundle tally/tally.bundle. Clone it with `git clone tally/tally.bundle tally-repo`. Prepare tally-repo/CHANGELOG.md for the next release, covering everything since v1.1.0: pick the version number our versioning scheme requires, use 2026-10-01 as the release date, and fix up whatever else a release section needs. Don't commit, tag, or push. Tell me which version you chose and why.",
+			"expected_output": "A dated `## [2.0.0] - 2026-10-01` section (major, because Python 3.8/3.9 support was dropped) with user-facing entries including the breaking Python 3.10 requirement and the --min-length default change, a new empty Unreleased section above it, comparison links updated (Unreleased from v2.0.0, 2.0.0 from v1.1.0), audit passing, no tags.",
+			"files": ["files/tally/tally.bundle"],
+			"assertions": [
+				{
+					"text": "CHANGELOG.md passes audit_changelog.py.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelog/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelog/scripts/audit_changelog.py\"; python3 -I \"$T\" tally-repo/CHANGELOG.md"
+				},
+				{
+					"text": "There is a `## [2.0.0] - 2026-10-01` section and an empty Unreleased section above it.",
+					"check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\nu = section('Unreleased')\nok = re.search(r'^## \\[2\\.0\\.0\\] - 2026-10-01', text, re.M) and u is not None and not re.search(r'^\\s*[-*] ', u, re.M) and text.find('## [Unreleased]') < text.find('## [2.0.0]')\nsys.exit(0 if ok else 1)\nPY"
+				},
+				{
+					"text": "The comparison links point Unreleased at v2.0.0...HEAD and 2.0.0 at v1.1.0...v2.0.0.",
+					"check": "grep -Eq '^\\[Unreleased\\]: .*v2\\.0\\.0\\.\\.\\.HEAD' tally-repo/CHANGELOG.md && grep -Eq '^\\[2\\.0\\.0\\]: .*v1\\.1\\.0\\.\\.\\.v2\\.0\\.0' tally-repo/CHANGELOG.md"
+				},
+				{
+					"text": "The 2.0.0 section covers the Python 3.10 requirement and the --min-length default change.",
+					"check": "python3 - tally-repo/CHANGELOG.md <<'PY'\nimport re, sys\ntext = open(sys.argv[1], encoding='utf-8').read()\ndef section(title):\n    m = re.search(r'^## \\[' + re.escape(title) + r'\\][^\\n]*\\n(.*?)(?=^## \\[|^\\[[^\\]]+\\]: |\\Z)', text, re.M | re.S)\n    return m.group(1) if m else None\ndef released_tail(t):\n    start = t.find('\\n## [', t.find('## [Unreleased]') + 1)\n    end = t.find('\\n[kac]:')\n    return t[start:end].strip()\ns = section('2.0.0') or ''\nsys.exit(0 if '3.10' in s and re.search(r'min-length|minimum (word )?length', s, re.I) else 1)\nPY"
+				},
+				{
+					"text": "No git tag was created.",
+					"check": "[ \"$(git -C tally-repo tag | tr '\\n' ' ')\" = 'v1.0.0 v1.1.0 ' ]"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "We released widgetkit 1.4.0 but it had a breaking API change (render() now returns bytes). Just rename that release to 2.0.0 in widgetkit/CHANGELOG.md so SemVer is right.",
+			"expected_output": "Pushback: a published release is not renumbered or redated, because users and package indexes already have 1.4.0; instead a note on 1.4.0 about the breaking change (or marking it [YANKED] if it is withdrawn), and the next release numbered 2.0.0. The 1.4.0 heading stays.",
+			"files": ["files/widgetkit/CHANGELOG.md"],
+			"assertions": [
+				{
+					"text": "The published `## [1.4.0] - 2026-05-02` heading is still present and no 2.0.0 section carries its date.",
+					"check": "grep -Eq '^## \\[1\\.4\\.0\\] - 2026-05-02' widgetkit/CHANGELOG.md && ! grep -Eq '^## \\[2\\.0\\.0\\] - 2026-05-02' widgetkit/CHANGELOG.md"
+				},
+				{
+					"text": "CHANGELOG.md still passes audit_changelog.py.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/update-changelog/scripts/audit_changelog.py\" ]; do [ \"$R\" = / ] && { echo \"audit_changelog.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/update-changelog/scripts/audit_changelog.py\"; python3 -I \"$T\" widgetkit/CHANGELOG.md"
+				},
+				"The reply explains why a published release is not renumbered (users and registries already have 1.4.0) and proposes the alternative: document the breaking change on 1.4.0 and/or mark it [YANKED], and release the fix or next version as 2.0.0."
+			]
+		}
+	]
+}

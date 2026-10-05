@@ -1,0 +1,122 @@
+[
+	{
+		"query": "Create an ARCHITECTURE.md for this repo with a code map and the module boundaries",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "ARCHITECTURE.md still mentions the old handlers module, bring it in line with the code",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Write a doc for new contributors explaining how the modules fit together and which layer may import which",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Our docs/architecture.md is out of date and in the wrong place, fix it",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Document the invariants of this codebase, like core never importing the HTTP layer, so newcomers don't break them",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Add a codemap describing each top-level package, its entry points, and what it deliberately does not do",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Audit ARCHITECTURE.md for directories and tools that no longer exist",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Explain this repo's high-level design in a markdown file at the root for someone who has never seen it",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "The ops team wants an overview of how our services are structured, write it from what the code actually does",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Update ARCHITECTURE.md after we split storage into storage/ and cache/",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Write a README for this CLI with a quick start that shows the real output",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Move the auth logic out of the controllers into a service layer, hexagonal style",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "Write an AGENTS.md describing the repo layout and the test command",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-agents-md"
+	},
+	{
+		"query": "Add a table of contents to ARCHITECTURE.md",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Write a CONTRIBUTING.md whose commands match what CI runs",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Turn this design discussion into a spec with requirements and scenarios",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Review this PR for layering violations between the domain and the adapters",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "Rewrap ARCHITECTURE.md to 100 columns so markdownlint passes",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "format-github-markdown"
+	},
+	{
+		"query": "Document the public API in docs/api.md from the source",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Write an OpenSpec change proposal for splitting the billing module",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	}
+]

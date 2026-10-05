@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit and Rewrite Git"
+  short_description: "Commit, stage, rewrite, recover, and bisect git history"
+  default_prompt: "Use $commit-and-rewrite-git to make this git change safely: stage exact paths, back up refs before rewrites, and verify any bisect culprit."

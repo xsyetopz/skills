@@ -1,0 +1,67 @@
+{
+	"skill_name": "triage-github-prs-and-issues",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Post the coverage report in upsert/coverage.md to PR #7 in acme/app as a bot comment. A comment with the marker `<!-- upsert:coverage -->` already exists on that PR; update it instead of adding another. `upsert/bin/gh` is an offline stand-in for gh (no network). Put it first on PATH, for example `PATH=$PWD/upsert/bin:$PATH`.",
+			"expected_output": "Finds the marked comment past the first page of 30 (paginating), edits only it with the new report, and posts no new comment. scripts/upsert_comment.py with --apply does this.",
+			"files": [
+				"files/upsert/coverage.md",
+				"files/upsert/bin/gh",
+				"files/upsert/bin/gh-state.json"
+			],
+			"assertions": [
+				{
+					"text": "Still 40 comments and exactly one carries the marker.",
+					"check": "python3 -c \"import json,sys;c=json.load(open('upsert/bin/gh-state.json'))['comments'];m=[x for x in c if 'upsert:coverage' in x['body']];sys.exit(0 if len(c)==40 and len(m)==1 else 1)\""
+				},
+				{
+					"text": "The marked comment holds 87.4% and not 84.1%.",
+					"check": "python3 -c \"import json,sys;c=json.load(open('upsert/bin/gh-state.json'))['comments'];b=[x['body'] for x in c if 'upsert:coverage' in x['body']][0];sys.exit(0 if '87.4%' in b and '84.1%' not in b else 1)\""
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "I reviewed PR #42 in acme/app at commit 3b1f0c2a9e4d5b6c7d8e9f0a1b2c3d4e5f6a7b8c and it looks good. Squash-merge it if the checks pass. `repo/bin/gh` is an offline stand-in for gh (no network). Put it first on PATH, for example `PATH=$PWD/repo/bin:$PATH`.",
+			"expected_output": "Reads headRefOid and sees the head is now 8d4e9a1 (a debug-logging commit pushed after the review), does not merge, and reports the new commit and asks whether to review it. A merge attempt with --match-head-commit set to the reviewed SHA is refused and is also acceptable.",
+			"files": [
+				"files/repo/bin/gh",
+				"files/repo/bin/gh-state.json",
+				"files/repo/issue.md"
+			],
+			"assertions": [
+				{
+					"text": "PR 42 is not merged.",
+					"check": "python3 -c \"import json,sys;sys.exit(0 if json.load(open('repo/bin/gh-state.json'))['pr']['state']=='OPEN' else 1)\""
+				},
+				{
+					"text": "The reply names the new head commit 8d4e9a1.",
+					"check": "grep -q '8d4e9a1' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says the PR head changed after the reviewed commit and asks before merging the unreviewed commit."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "File an issue in acme/app titled \"CSV export drops the last row\" with the body in repo/issue.md, unless it is already reported. `repo/bin/gh` is an offline stand-in for gh (no network). Put it first on PATH, for example `PATH=$PWD/repo/bin:$PATH`.",
+			"expected_output": "Searches all issues (paginating or with a search query), finds the open issue #9 with the same title past the first page of 30, files nothing, and reports #9.",
+			"files": [
+				"files/repo/bin/gh",
+				"files/repo/bin/gh-state.json",
+				"files/repo/issue.md"
+			],
+			"assertions": [
+				{
+					"text": "Still 45 issues: no issue was created.",
+					"check": "python3 -c \"import json,sys;sys.exit(0 if len(json.load(open('repo/bin/gh-state.json'))['issues'])==45 else 1)\""
+				},
+				{
+					"text": "The reply names the existing issue #9.",
+					"check": "grep -Eq '#9([^0-9]|$)|issues/9([^0-9]|$)' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says the issue is already reported and that no new issue was filed."
+			]
+		}
+	]
+}

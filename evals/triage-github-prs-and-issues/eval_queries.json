@@ -1,0 +1,121 @@
+[
+	{
+		"query": "Open a pull request from fix-empty into main as a draft with this description.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "My CI bot posts a coverage comment on every PR run and now there are five copies. Make it update one comment.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "List all open issues labeled bug with their assignees and summarize them.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Review PR 17 in acme/app and tell me what is risky; don't post anything.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Is there already an issue about the CSV export dropping rows? If not, file one.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Close every issue with no activity since January and leave a comment saying why.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Merge PR 42 once the required checks pass, and only if the head is the commit I reviewed.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Sync the labels in this repo: rename enhancement to feature and set colors.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Open a PR from my fork's gpu-fix branch to stenzek/duckstation.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "gh says PR 88 is not mergeable. Find out why.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Commit the parser fix and push it to my branch.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Squash my last three commits before I open the PR.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that comments test results on the pull request.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Our GitHub Actions job fails with 'Resource not accessible by integration' when it comments on the PR. Fix the permissions block.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Write the changelog entry for this release from the merged pull requests.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Write a CONTRIBUTING.md that explains how to open pull requests here.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "I lost commits after a bad rebase; recover them.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Pin the actions in my workflow to commit SHAs.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Should this breaking change bump the major version?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Explain the difference between a mutex and a semaphore.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

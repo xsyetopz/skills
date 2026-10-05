@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write CI Workflow"
+  short_description: "Write and fix CI workflows that fail correctly"
+  default_prompt: "Use $write-ci-workflow to add or fix this CI pipeline so it tests the right commit with least privilege, pins actions, fails required checks correctly, and passes actionlint and zizmor."

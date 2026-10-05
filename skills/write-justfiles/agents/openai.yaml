@@ -1,4 +1,0 @@
-interface:
-  display_name: "Write Justfiles"
-  short_description: "Write just recipes that wrap project commands"
-  default_prompt: "Use $write-justfiles to add or fix just recipes that wrap this project's commands, preserve arguments and exit status, and verify them with real runs."

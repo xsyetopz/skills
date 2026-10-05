@@ -1,0 +1,364 @@
+{
+ "pr": {
+  "number": 42,
+  "title": "Fix invoice rounding",
+  "state": "OPEN",
+  "isDraft": false,
+  "baseRefName": "main",
+  "headRefName": "fix-rounding",
+  "headRefOid": "8d4e9a1f2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
+  "mergeable": "MERGEABLE",
+  "mergeStateStatus": "CLEAN",
+  "reviewDecision": "APPROVED",
+  "statusCheckRollup": [
+   {
+    "name": "test",
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS"
+   }
+  ],
+  "commits": [
+   {
+    "oid": "3b1f0c2a9e4d5b6c7d8e9f0a1b2c3d4e5f6a7b8c",
+    "messageHeadline": "Fix invoice rounding"
+   },
+   {
+    "oid": "8d4e9a1f2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e",
+    "messageHeadline": "Log raw amounts for debugging"
+   }
+  ],
+  "url": "https://github.invalid/acme/app/pull/42"
+ },
+ "issues": [
+  {
+   "number": 45,
+   "title": "Flaky test in billing suite (#45 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 44,
+   "title": "Upgrade to Node 22 (#44 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 43,
+   "title": "Docs: typo in install guide (#43 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 42,
+   "title": "Add retry to webhook sender (#42 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 41,
+   "title": "Dark mode toggle resets after reload (#41 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 40,
+   "title": "Login times out on slow networks (#40 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 39,
+   "title": "Rate limit header is wrong (#39 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 38,
+   "title": "Crash when avatar is missing (#38 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 37,
+   "title": "Search ignores accents (#37 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 36,
+   "title": "Export filename has wrong date (#36 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 35,
+   "title": "Flaky test in billing suite (#35 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 34,
+   "title": "Upgrade to Node 22 (#34 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 33,
+   "title": "Docs: typo in install guide (#33 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 32,
+   "title": "Add retry to webhook sender (#32 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 31,
+   "title": "Dark mode toggle resets after reload (#31 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 30,
+   "title": "Login times out on slow networks (#30 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 29,
+   "title": "Rate limit header is wrong (#29 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 28,
+   "title": "Crash when avatar is missing (#28 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 27,
+   "title": "Search ignores accents (#27 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 26,
+   "title": "Export filename has wrong date (#26 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 25,
+   "title": "Flaky test in billing suite (#25 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 24,
+   "title": "Upgrade to Node 22 (#24 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 23,
+   "title": "Docs: typo in install guide (#23 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 22,
+   "title": "Add retry to webhook sender (#22 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 21,
+   "title": "Dark mode toggle resets after reload (#21 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 20,
+   "title": "Login times out on slow networks (#20 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 19,
+   "title": "Rate limit header is wrong (#19 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 18,
+   "title": "Crash when avatar is missing (#18 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 17,
+   "title": "Search ignores accents (#17 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 16,
+   "title": "Export filename has wrong date (#16 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 15,
+   "title": "Flaky test in billing suite (#15 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 14,
+   "title": "Upgrade to Node 22 (#14 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 13,
+   "title": "Docs: typo in install guide (#13 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 12,
+   "title": "Add retry to webhook sender (#12 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 11,
+   "title": "Dark mode toggle resets after reload (#11 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 10,
+   "title": "Login times out on slow networks (#10 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 9,
+   "title": "CSV export drops the last row",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 8,
+   "title": "Crash when avatar is missing (#8 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 7,
+   "title": "Search ignores accents (#7 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 6,
+   "title": "Export filename has wrong date (#6 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 5,
+   "title": "Flaky test in billing suite (#5 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 4,
+   "title": "Upgrade to Node 22 (#4 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 3,
+   "title": "Docs: typo in install guide (#3 report)",
+   "state": "OPEN",
+   "labels": [
+    {
+     "name": "bug"
+    }
+   ]
+  },
+  {
+   "number": 2,
+   "title": "Add retry to webhook sender (#2 report)",
+   "state": "OPEN",
+   "labels": []
+  },
+  {
+   "number": 1,
+   "title": "Dark mode toggle resets after reload (#1 report)",
+   "state": "OPEN",
+   "labels": []
+  }
+ ]
+}

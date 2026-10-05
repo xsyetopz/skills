@@ -1,0 +1,121 @@
+[
+	{
+		"query": "Commit the parser fix with a message that matches our history, nothing else.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Stage only the empty-row change in parser.py and commit it; leave the debug print unstaged.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "I did git reset --hard and lost two commits. Get them back.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Rebase feature onto main, conflicts in package.json, keep my dependency versions.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "I committed a secret and pushed it to a feature branch. Remove the commit from history and update the remote safely.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "`pytest tests/test_invoice.py::test_rounding` passes on v2.3.0 and fails on main, 140 commits apart, and a few old commits don't even install. Find the commit that broke it.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "commit and push this",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Squash my last three commits into one before I open the PR.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Undo the merge of feature/payments on main, it is shared and broke prod.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Split my working tree changes into two commits, one per feature, some in the same file.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "commit-and-rewrite-git"
+	},
+	{
+		"query": "Open a pull request from fix-empty into main as a draft with this description.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Merge PR 42 once the required checks pass.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that runs tests on every pull request.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Write the changelog entry for this release from the merged commits.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Should this breaking API change bump the major or minor version?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Add a just recipe that runs the linter and the tests.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfile"
+	},
+	{
+		"query": "Our bot posts a coverage comment on every PR run; keep only one.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Review PR 17 and leave comments on the risky lines.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "triage-github-prs-and-issues"
+	},
+	{
+		"query": "Pin the actions in my workflow to commit SHAs and restrict the token permissions.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "How do I generate an SSH key and add it to ssh-agent?",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

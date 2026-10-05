@@ -1,0 +1,4 @@
+interface:
+  display_name: "Triage GitHub PRs and Issues"
+  short_description: "GitHub pull requests, issues, reviews, and labels with gh"
+  default_prompt: "Use $triage-github-prs-and-issues to do this GitHub task with gh: name the repo with -R, read --json, paginate, and merge only the reviewed head."

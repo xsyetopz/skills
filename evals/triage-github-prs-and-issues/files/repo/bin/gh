@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""Offline gh stand-in for acme/app: PR 42 and 45 issues, state in gh-state.json."""
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+here = Path(__file__).resolve().parent
+state_path = here / "gh-state.json"
+state = json.loads(state_path.read_text())
+args = sys.argv[1:]
+with open(here / "gh-calls.jsonl", "a") as log:
+    log.write(json.dumps(args) + "\n")
+
+
+def opt(name, default=None):
+    return args[args.index(name) + 1] if name in args else default
+
+
+def emit(value):
+    fields = opt("--json")
+    if fields and isinstance(value, dict):
+        value = {k: value.get(k) for k in fields.split(",")}
+    elif fields:
+        value = [{k: v.get(k) for k in fields.split(",")} for v in value]
+    text = json.dumps(value)
+    if opt("--jq", opt("-q")):
+        text = subprocess.run(["jq", "-r", opt("--jq", opt("-q"))], input=text, capture_output=True, text=True).stdout
+    print(text)
+
+
+def save():
+    state_path.write_text(json.dumps(state, indent=1))
+
+
+def stems(text):
+    # Like GitHub search: drop qualifiers such as is:open, then match words by a rough stem.
+    words = re.findall(r"[a-z0-9]+", re.sub(r"\S+:\S+", "", text.lower()))
+    words = [re.sub(r"(ing|ed|s)$", "", w) if len(w) > 3 else w for w in words]
+    return {re.sub(r"([^aeiou])\1$", r"\1", w).removesuffix("e") for w in words}
+
+
+def matches(issue, query):
+    return stems(query or "") <= stems(issue["title"])
+
+
+pr, issues = state["pr"], state["issues"]
+endpoint = next((a.lstrip("/") for a in args[1:] if a.lstrip("/").startswith("repos/")), "")
+if args[:2] == ["pr", "view"]:
+    emit(pr)
+elif args[:2] == ["pr", "checks"]:
+    emit(pr["statusCheckRollup"])
+elif args[:2] == ["pr", "merge"]:
+    head = opt("--match-head-commit")
+    if head and head != pr["headRefOid"]:
+        sys.exit("GraphQL: Head branch was modified. Review and try the merge again. (mergePullRequest)")
+    pr["state"], pr["mergedBy"] = "MERGED", "agent"
+    save()
+    print(f"Merged pull request acme/app#{pr['number']}")
+elif args[:2] == ["issue", "list"]:
+    wanted = (opt("--state", "open")).upper()
+    found = [i for i in issues if wanted == "ALL" or i["state"] == wanted]
+    found = [i for i in found if matches(i, opt("--search"))] if "--search" in args else found
+    emit(found[: int(opt("--limit", opt("-L", "30")))])
+elif args[:2] == ["search", "issues"]:
+    query = args[2] if len(args) > 2 and not args[2].startswith("-") else ""
+    emit([i for i in issues if matches(i, query)][: int(opt("--limit", opt("-L", "30")))])
+elif args[:2] == ["issue", "view"]:
+    emit(next(i for i in issues if str(i["number"]) == args[2].lstrip("#")))
+elif args[:2] == ["issue", "create"]:
+    number = max(i["number"] for i in issues) + 1
+    issues.insert(0, {"number": number, "title": opt("--title", opt("-t", "")), "state": "OPEN"})
+    save()
+    print(f"https://github.invalid/acme/app/issues/{number}")
+elif args[:1] == ["api"] and re.fullmatch(r"repos/acme/app/issues(\?.*)?", endpoint):
+    size = min(int((re.search(r"per_page=(\d+)", " ".join(args)) or [0, 30])[1]), 100)
+    pages = [issues[i : i + size] for i in range(0, len(issues), size)]
+    if "--paginate" not in args:
+        emit(pages[0])
+    else:
+        emit(pages if "--slurp" in args else issues)
+elif args[:1] == ["api"] and endpoint == "repos/acme/app/pulls/42":
+    emit({"number": 42, "head": {"sha": pr["headRefOid"]}, "state": "open", "mergeable": True})
+else:
+    sys.exit(f"unsupported in offline gh: {args}")

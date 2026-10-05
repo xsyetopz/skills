@@ -1,0 +1,87 @@
+{
+	"skill_name": "commit-and-rewrite-git",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Run `sh evals/files/partial/setup.sh` to build partial/repo. In that repo, commit only the empty-row fix in parser.py (the `if r` change). The same file has a DEBUG print I added while debugging: keep it in my working copy but out of the commit. Leave README.md staged and notes.txt untracked.",
+			"expected_output": "One new commit changing only parser.py with the `if r` fix and no DEBUG print. The DEBUG print remains an unstaged change, README.md stays staged, notes.txt stays untracked. No git add -A, no git commit parser.py.",
+			"files": [
+				"files/partial/setup.sh"
+			],
+			"assertions": [
+				{
+					"text": "Exactly one new commit on the base commit touches only parser.py.",
+					"check": "cd partial/repo && test \"$(git rev-list --count HEAD)\" = 2 && test \"$(git diff-tree --no-commit-id --name-only -r HEAD)\" = parser.py"
+				},
+				{
+					"text": "The committed parser.py has the fix and no DEBUG.",
+					"check": "cd partial/repo && git show HEAD:parser.py | grep -q 'if r' && ! git show HEAD:parser.py | grep -q DEBUG"
+				},
+				{
+					"text": "DEBUG is still an uncommitted worktree change, README.md is staged, notes.txt is untracked.",
+					"check": "cd partial/repo && git diff HEAD -- parser.py | grep -q '^+.*DEBUG' && test \"$(git diff --cached --name-only)\" = README.md && git status --porcelain notes.txt | grep -q '^?? '"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Run `sh evals/files/reflog/setup.sh` to build reflog/repo. I ran `git reset --hard` by mistake and lost two commits on main. Get them back on main without losing anything else.",
+			"expected_output": "Finds the lost commits through the reflog, restores main to 'add entry three' (for example a backup branch, then reset --hard or merge --ff-only to the old tip), and ledger.txt has all three lines.",
+			"files": [
+				"files/reflog/setup.sh"
+			],
+			"assertions": [
+				{
+					"text": "main has the three original commits.",
+					"check": "cd reflog/repo && test \"$(git rev-list --count main)\" = 3 && git log -1 --format=%s main | grep -q 'entry three'"
+				},
+				{
+					"text": "ledger.txt has three lines and the worktree is clean.",
+					"check": "cd reflog/repo && test \"$(wc -l <ledger.txt | tr -d ' ')\" = 3 && test -z \"$(git status --porcelain)\""
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Run `sh evals/files/lease/setup.sh` to build lease/mine, a clone whose branch feature was amended after it was pushed. Update origin/feature with the amended commit, but a colleague may have pushed to it too, so do not overwrite their work without telling me.",
+			"expected_output": "Notices that origin/feature has a colleague commit that mine does not contain, and does not plain-force-push. Either stops and reports, or fetches and rebases first, then pushes with --force-with-lease=refs/heads/feature:SHA. The colleague commit is never lost from origin/feature.",
+			"files": [
+				"files/lease/setup.sh"
+			],
+			"assertions": [
+				{
+					"text": "The colleague commit is still reachable from origin/feature.",
+					"check": "cd lease && git -C remote.git log feature --format=%s | grep -q 'colleague work'"
+				},
+				{
+					"text": "origin/feature keeps base, the colleague commit, and is not rewritten past it (at least 3 commits).",
+					"check": "cd lease && test \"$(git -C remote.git rev-list --count feature)\" -ge 3"
+				}
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Our invoice repo is in bisect/invoice.bundle (a git bundle; clone it into ./invoice and work there). `python3 -m unittest tests.test_invoice` passes at tag v1.0 and fails on main. Find the commit that broke it and tell me the commit hash and what went wrong. Do not fix it yet.",
+			"expected_output": "Endpoints verified with one oracle; commits d66324f..603e6a9 fail with ImportError (unrelated) and are skipped, not marked bad; the bisect names 471bcb2 'Add per-line percentage discounts', which replaced the half-up quantize with round(amount, 2) (banker's rounding). The culprit is verified (parent passes, culprit fails); main is left unchanged and no bisect is left running.",
+			"files": [
+				"files/bisect/invoice.bundle"
+			],
+			"assertions": [
+				{
+					"text": "The reply names the culprit commit 471bcb2.",
+					"check": "grep -q '471bcb2' \"$EVAL_RESPONSE_FILE\""
+				},
+				{
+					"text": "main is unchanged (5701189) and no tracked file is modified.",
+					"check": "test \"$(git -C invoice rev-parse main)\" = 5701189bd404338dab0ca6199c580524652e8c75 && test -z \"$(git -C invoice status --porcelain --untracked-files=no)\""
+				},
+				{
+					"text": "No bisect session is left in progress in ./invoice.",
+					"check": "test -d invoice/.git && ! test -e invoice/.git/BISECT_START"
+				},
+				"The reply explains that the commits between d66324f and ff94fd9 fail with an ImportError rather than the rounding failure, and that the search skipped them or otherwise kept them from being marked bad.",
+				"The reply shows the culprit was verified: its parent passes test_rounding and the culprit fails it."
+			]
+		}
+	]
+}

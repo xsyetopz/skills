@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design CLI Interface"
+  short_description: "Design, change, and rename CLI commands safely"
+  default_prompt: "Use $design-cli-interface to add, change, rename, or review this CLI so scripts and people can both use it, and run scripts/check_cli.py."

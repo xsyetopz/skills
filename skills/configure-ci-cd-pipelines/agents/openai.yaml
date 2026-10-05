@@ -1,4 +1,0 @@
-interface:
-  display_name: "Configure CI/CD Pipelines"
-  short_description: "Write and harden CI workflows safely"
-  default_prompt: "Use $configure-ci-cd-pipelines to change this pipeline so it tests the right commit with least privilege, pins actions, fails required checks correctly, and passes actionlint and zizmor."

@@ -1,0 +1,85 @@
+{
+	"skill_name": "design-cli-interface",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "In deployctl/, rename the `ls` subcommand to `list` and `rm` to `delete`. Our CI scripts and deployctl/test_deployctl.py still call `ls` and `rm`, and we can't update all of them this release.",
+			"expected_output": "`list` and `delete` are the new names. `ls` and `rm` still work with the same stdout and exit status, print a deprecation warning on stderr naming the new command, and are hidden from --help or marked deprecated. Help, tests, and any docs are updated; the existing test still passes.",
+			"files": [
+				"files/deployctl/deployctl.py",
+				"files/deployctl/apps.json",
+				"files/deployctl/test_deployctl.py"
+			],
+			"assertions": [
+				{
+					"text": "`deployctl list` exits 0 and its stdout lists both apps.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\ncode, out, err = run('list')\nprint(code, out, err)\nsys.exit(0 if code == 0 and 'web' in out and 'staging' in out else 1)\nPY"
+				},
+				{
+					"text": "`deployctl ls` still exits 0 with the same stdout as `list`, and warns on stderr that names `list`.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\nc1, o1, e1 = run('list'); c2, o2, e2 = run('ls')\nprint(repr(o1), repr(o2), repr(e2))\nsys.exit(0 if c2 == 0 and o1 == o2 and 'list' in e2 and 'deprecat' in e2.lower() else 1)\nPY"
+				},
+				{
+					"text": "`deployctl rm` is still accepted: `deployctl rm --help` exits 0.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\ncode, out, err = run('rm', '--help')\nsys.exit(0 if code == 0 else 1)\nPY"
+				},
+				{
+					"text": "The existing test file passes unchanged in intent (it still calls `ls`).",
+					"check": "grep -Eq \"[\\\"']ls[\\\"']\" deployctl/test_deployctl.py && PYTHONDONTWRITEBYTECODE=1 python3 deployctl/test_deployctl.py"
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Two problems with deployctl/deployctl.py: `deployctl ls | cut -f1` includes a junk first line with escape codes, and our cleanup CI job hangs forever on `deployctl rm staging`. Also a typo like `deployctl rm stagin` reports success. Fix these.",
+			"expected_output": "`ls` prints only records on stdout, with status and color (if any) on stderr and only on a terminal. `rm` never prompts without a terminal: it exits non-zero, deletes nothing, and names the flag that confirms (for example --force or --confirm=NAME); with that flag it deletes. A missing app exits non-zero with the message on stderr. check_cli.py reports no errors.",
+			"files": [
+				"files/deployctl/deployctl.py",
+				"files/deployctl/apps.json",
+				"files/deployctl/test_deployctl.py"
+			],
+			"assertions": [
+				{
+					"text": "`deployctl ls` stdout (piped) contains only the two app records and no ANSI escapes.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\ncode, out, err = run('ls')\nprint(repr(out))\nlines = [l for l in out.splitlines() if l.strip()]\nsys.exit(0 if code == 0 and '\\x1b' not in out and [l.split('\\t')[0] for l in lines] == ['web', 'staging'] else 1)\nPY"
+				},
+				{
+					"text": "`deployctl rm staging` with an open, silent stdin pipe finishes within 5 s, exits non-zero, keeps staging, and names a confirmation flag on stderr.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\nfeeder = subprocess.Popen(['sleep', '30'], stdout=subprocess.PIPE)\ncode, out, err = run('rm', 'staging', stdin=feeder.stdout, timeout=5)\nfeeder.kill()\nprint(code, repr(err))\nkept = 'staging' in open(work + '/d/apps.json').read()\nsys.exit(0 if code not in (None, 0) and kept and '--' in err else 1)\nPY"
+				},
+				{
+					"text": "With a documented confirmation flag (--force, --yes, or --confirm=staging), `rm staging` deletes it without a prompt.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\nfor flags in (['--force'], ['--yes'], ['-y'], ['--confirm=staging'], ['--confirm', 'staging']):\n    code, out, err = run('rm', 'staging', *flags)\n    if code == 0 and 'staging' not in open(work + '/d/apps.json').read():\n        sys.exit(0)\nsys.exit(1)\nPY"
+				},
+				{
+					"text": "`deployctl rm stagin` exits non-zero and writes its error to stderr, not stdout.",
+					"check": "python3 - <<'PY'\nimport os, shutil, subprocess, sys, tempfile\nwork = tempfile.mkdtemp(); shutil.copytree('deployctl', work + '/d')\nenv = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}\ndef run(*args, stdin=subprocess.DEVNULL, timeout=10):\n    try:\n        p = subprocess.run([sys.executable, work + '/d/deployctl.py', *args], stdin=stdin,\n                           capture_output=True, text=True, timeout=timeout, env=env)\n    except subprocess.TimeoutExpired:\n        return None, '', 'TIMEOUT'\n    return p.returncode, p.stdout, p.stderr\ncode, out, err = run('rm', 'stagin', '--force')\nif code == 2 and 'unrecognized' in err:\n    code, out, err = run('rm', 'stagin')\nprint(code, repr(out), repr(err))\nsys.exit(0 if code not in (None, 0) and err.strip() and 'stagin' in err and not out.strip() else 1)\nPY"
+				},
+				{
+					"text": "check_cli.py reports no errors for deployctl.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/design-cli-interface/scripts/check_cli.py\" ]; do [ \"$R\" = / ] && { echo \"check_cli.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; T=\"$R/skills/design-cli-interface/scripts/check_cli.py\"; python3 \"$T\" --timeout 5 --sub ls --sub rm -- python3 deployctl/deployctl.py"
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Review the command-line interface of deployctl/deployctl.py before we publish it. List the problems in order of how badly they hurt users or scripts, with the fix for each. Don't change the code yet.",
+			"expected_output": "A prioritized review without code changes that finds: `--token` puts a secret on the command line (visible in ps and history), errors exit 0 and go to stdout, `rm` prompts even without a terminal and has no --force or --no-input, `ls` prints a colored status line to stdout, `--token`/`--verbose` only work before the subcommand, and there is no --version. Each item names the fix.",
+			"files": [
+				"files/deployctl/deployctl.py",
+				"files/deployctl/apps.json",
+				"files/deployctl/test_deployctl.py"
+			],
+			"assertions": [
+				"Identifies `--token` as a secret exposed through the command line and proposes a file, stdin, or credential-store alternative.",
+				"Identifies that a missing app prints ERROR to stdout and exits 0.",
+				"Identifies that `rm` prompts with no terminal and no --force/--no-input path, which hangs or crashes in CI.",
+				"Identifies the colored `Fetching apps...` line on stdout as breaking pipes.",
+				{
+					"text": "deployctl.py is unchanged.",
+					"check": "grep -q 'input(f\"Really delete' deployctl/deployctl.py && grep -q 'Fetching apps' deployctl/deployctl.py"
+				}
+			]
+		}
+	]
+}

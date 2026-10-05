@@ -1,0 +1,118 @@
+[
+	{
+		"query": "add a `--json` flag to our `acme export` command so scripts can parse the output",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Rename the `rm` subcommand of our CLI to `delete` without breaking people's scripts",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "our CLI prints `Loading...` to stdout and it breaks `mycli list | jq`. fix it",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Review the flags and subcommands of this Cobra CLI before we release 1.0",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Write the --help text for our new `backup restore` subcommand",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "`mytool --verbose sync` works but `mytool sync --verbose` says unknown flag. Can we make both work?",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Should our CLI take the API token as --token or read it from somewhere else?",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Add a `deploy` subcommand to the clap-based CLI in src/cli.rs with a dry-run option",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Make color output in our Node CLI respect NO_COLOR and turn off when piped",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Deprecate the --out flag in favor of --output in our argparse tool",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Add a `just test` recipe that forwards extra args to pytest",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfile"
+	},
+	{
+		"query": "Build a full-screen terminal file manager UI with panes and mouse support in Rust",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our REST API returns 200 on errors; which HTTP status codes should it use?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Fix the flaky integration test in tests/test_sync.py that fails on CI 1 in 10 runs",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Write a bash one-liner to find the 10 largest files under /var/log",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Bump our package version for a release that removes a deprecated CLI flag: major or minor?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "Profile why our Go CLI takes 2 seconds to start and make it faster",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Write the README install section for our Python package",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Write a GitHub Actions workflow that runs `mytool --help` as a smoke test on every push",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Our Python library raises ValueError for bad config values; restructure the exception hierarchy",
+		"should_trigger": false,
+		"split": "train"
+	}
+]

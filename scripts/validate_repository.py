@@ -49,6 +49,18 @@ def outside_fences(text: str) -> str:
     return "\n".join(kept)
 
 
+def read_frontmatter(text: str) -> tuple[dict, str]:
+    """Split a SKILL.md into its frontmatter mapping and body; raise ValueError."""
+    try:
+        _, frontmatter, body = text.split("---", 2)
+        metadata = yaml.safe_load(frontmatter)
+    except (ValueError, yaml.YAMLError) as error:
+        raise ValueError(f"invalid frontmatter: {error}") from error
+    if not isinstance(metadata, dict):
+        raise ValueError("frontmatter must be a mapping")
+    return metadata, body
+
+
 def fail(message: str) -> None:
     print(message, file=sys.stderr)
 
@@ -62,14 +74,9 @@ def main() -> int:
         skill = skill_md.parent
         text = skill_md.read_text()
         try:
-            _, frontmatter, body = text.split("---", 2)
-            metadata = yaml.safe_load(frontmatter)
-        except (ValueError, yaml.YAMLError) as error:
-            fail(f"{skill_md}: invalid frontmatter: {error}")
-            errors += 1
-            continue
-        if not isinstance(metadata, dict):
-            fail(f"{skill_md}: frontmatter must be a mapping")
+            metadata, body = read_frontmatter(text)
+        except ValueError as error:
+            fail(f"{skill_md}: {error}")
             errors += 1
             continue
         body_lines = len(body.strip().splitlines())

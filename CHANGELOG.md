@@ -82,6 +82,9 @@ released versions yet.
 - `just hygiene` runs the pre-commit-hooks checks (large files, private keys, case conflicts,
   symlinks, shebangs against the executable bit), and `just secrets` runs gitleaks on staged,
   unstaged, and committed content. The pre-commit hook and `just validate` run both.
+- `just index` prints a skill list for CLAUDE.md or AGENTS.md, one line per skill with when to use
+  it, and `--bundle NAME` limits it to installed bundles. The README drops its skill list for
+  `bunx skills add xsyetopz/skills --list` and `just index`.
 - Bundled checkers accept `--json`; scanners accept `--limit`; `mutate.py` accepts `--list` for a
   dry run.
 
@@ -149,8 +152,36 @@ released versions yet.
     speedhacks, and servers that trust client values in games the user builds, each proven with a
     hostile-client test, for offline games or the team's own test servers only. The `security`
     bundle lists both.
-- The rendered skill listing, one `- name: description (file: path)` line per skill, must fit in
-  8,000 characters, and each description in 250. `scripts/validate_repository.py` enforces both.
+  - `manage-git` is split into `commit-and-rewrite-git` and `triage-github-prs-and-issues`.
+  - `manage-releases` is split into `bump-semver` and `update-changelog`.
+  - `document-codebases` is split into `write-project-readme`, `write-architecture-md`, and
+    `format-github-markdown`.
+  - `plan-software-changes` is replaced by `interview-to-openspec`, which interviews the user in
+    rounds of multiple-choice questions, then writes an OpenSpec change and runs
+    `openspec validate --strict`.
+  - `create-agent-skills` becomes `write-agent-skill` and `create-agent-hooks` becomes
+    `write-agent-hooks`. Goal conditions and the stop gate move to the new
+    `write-agent-stop-condition`.
+  - `optimize-code-performance` becomes `optimize-runtime-performance`,
+    `optimize-typescript-builds` becomes `optimize-tsc-builds`, `configure-ci-cd-pipelines` becomes
+    `write-ci-workflow`, `design-command-line-interfaces` becomes `design-cli-interface`, and
+    `write-justfiles` becomes `write-justfile`.
+  - `build-matching-decompilations` becomes `decompile-to-matching-c-cpp` and
+    `reverse-engineer-binaries` becomes `reverse-engineer-binary`. New `recompile-console-binary`
+    turns console executables into native C or C++ with static recompilers such as N64Recomp and
+    XenonRecomp.
+  - `develop-editor-plugins` becomes `build-editor-extension`, `migrate-js-tooling-to-bun` becomes
+    `migrate-js-to-bun`, and `analyze-scientific-papers` becomes `review-scientific-paper`. All
+    three set `disable-model-invocation`, so they load only when invoked by name.
+- **Breaking:** evals and their fixtures move from `skills/<skill>/evals/` to `evals/<skill>/`, so
+  an installed skill ships without them.
+- `bundles.toml` puts every skill in exactly one install bundle. Each bundle's rendered skill
+  listing, one `- name: description (file: path)` line per skill, must fit in 8,000 characters, each
+  description in 400, and each `when_to_use` in 250. `scripts/validate_repository.py` enforces all
+  three.
+- Markdown headings use title case: Chicago style for English, the language's own convention
+  otherwise, and names as their owners write them. `format-github-markdown` teaches the rule, and
+  this repository's headings follow it.
 - `audit-agent-sessions` no longer ships prices. `session_stats.py --prices FILE` computes cost from
   a user-supplied price file.
 - `just tests` also runs `bun test` for `.mjs` scripts.
@@ -249,6 +280,8 @@ released versions yet.
 
 ### Fixed
 
+- `reflow_markdown.py` keeps a GitHub alert marker such as `> [!NOTE]` on its own line instead of
+  joining it with the next line, which broke the alert.
 - `session_stats.py` prints only the program name of repeated commands, parsed with shell quoting,
   so `export TOKEN=...`, `mysql -pSECRET`, or a quoted value with spaces no longer leaks the secret;
   a command it cannot parse prints `(unparsed)`. The `transcript-data.md` jq recipe prints `(other)`

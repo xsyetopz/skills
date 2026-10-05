@@ -26,6 +26,11 @@ skills: provision
 metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
 
+# Skill index for CLAUDE.md or AGENTS.md; pass `--bundle NAME` to pick bundles.
+[positional-arguments]
+index *args: provision
+    "{{ venv }}/bin/python" scripts/skill_index.py "$@"
+
 # `agents/` holds each skill's Codex metadata (agents/openai.yaml).
 skill-lint: provision
     "{{ venv }}/bin/python" scripts/skill_lint.py --strict --allow agents

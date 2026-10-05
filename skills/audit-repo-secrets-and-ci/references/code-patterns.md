@@ -1,4 +1,4 @@
-# Code patterns
+# Code Patterns
 
 Python examples; the failure and the check carry over to other languages. Sources are linked per
 section.
@@ -6,9 +6,9 @@ section.
 ## Contents
 
 - [SQL](#sql)
-- [Shell and argument injection](#shell-and-argument-injection)
-- [HTML and templates](#html-and-templates)
-- [File paths, tar, and races](#file-paths-tar-and-races)
+- [Shell and Argument Injection](#shell-and-argument-injection)
+- [HTML and Templates](#html-and-templates)
+- [File Paths, Tar, and Races](#file-paths-tar-and-races)
 - [Deserialization](#deserialization)
 - [XML](#xml)
 
@@ -20,7 +20,7 @@ section.
   turn direction into a boolean that picks `ASC` or `DESC`; reject anything else. Quoting an
   identifier from input is not a control.
 
-## Shell and argument injection
+## Shell and Argument Injection
 
 - `subprocess.run([...])` with a list and the default `shell=False` passes `;`, `|`, `$()` as
   literal bytes. `shell=True`, `os.system`, and `os.popen` make quoting your job
@@ -29,7 +29,7 @@ section.
   (`git log -- "$ref"`, `curl -- "$url"`). Put `--` before operands from input, where the tool
   supports it (CWE-88).
 
-## HTML and templates
+## HTML and Templates
 
 - `html.escape(s)` escapes `&`, `<`, `>`, and with `quote=True` (the default) `"` and `'`. Between
   tags that suffices; inside a quoted attribute `quote=False` lets `"` start new attributes
@@ -42,7 +42,7 @@ section.
 - Never pass user text to `from_string`, `Template(...)`, or `render_template_string` as source;
   pass it to `render(name=...)` as data (CWE-1336).
 
-## File paths, tar, and races
+## File Paths, Tar, and Races
 
 - Containment: `Path.resolve()` both the base and the joined candidate (it follows symlinks and
   removes `..`), then require `candidate.is_relative_to(base)`. A `startswith` string check on the

@@ -1,12 +1,12 @@
-# Web, crypto, and dependencies
+# Web, Crypto, and Dependencies
 
 ## Contents
 
 - [SSRF](#ssrf)
 - [Authorization](#authorization)
 - [Tokens](#tokens)
-- [Randomness, passwords, comparison](#randomness-passwords-comparison)
-- [Secrets and logs](#secrets-and-logs)
+- [Randomness, Passwords, Comparison](#randomness-passwords-comparison)
+- [Secrets and Logs](#secrets-and-logs)
 - [Dependencies](#dependencies)
 
 ## SSRF
@@ -40,7 +40,7 @@ For a server-side fetch of a URL from input (CWE-918; [OWASP][owasp-ssrf]):
   PKCE is a hardening note; use of the implicit or password grant is a finding. Check `state` and
   exact redirect URI matching ([RFC 9700][rfc9700]).
 
-## Randomness, passwords, comparison
+## Randomness, Passwords, Comparison
 
 - `random` (Mersenne Twister) is "completely unsuitable for cryptographic purposes"
   ([random][random]). Tokens, IDs, reset codes, and salts need `secrets.token_urlsafe(32)` or
@@ -53,12 +53,9 @@ For a server-side fetch of a URL from input (CWE-918; [OWASP][owasp-ssrf]):
 - Compare MACs, signatures, webhook digests, and reset tokens with `hmac.compare_digest`, not `==`
   ([compare][compare]; CWE-208). It can still leak length.
 
-## Secrets and logs
+## Secrets and Logs
 
-- Scan the tree and history: `gitleaks dir --redact .` and `gitleaks git --redact .` (exit 1 on
-  leaks; [gitleaks][gitleaks]); `trufflehog filesystem --no-verification .` as a second detector
-  ([trufflehog][trufflehog]). Recommend rotating anything found in history in the report; deleting
-  the line does not revoke it, and rotation is the owner's step, not yours.
+- For secrets in the tree and history, see [secrets and CI](secrets-and-ci.md).
 - Logs must not carry tokens, passwords, session IDs, or full headers and bodies ([OWASP
   logging][owasp-log]). Redact known keys when building the record and add a `logging.Filter` as a
   last defense (CWE-532).
@@ -87,8 +84,6 @@ For a server-side fetch of a URL from input (CWE-918; [OWASP][owasp-ssrf]):
 [scrypt]: https://docs.python.org/3/library/hashlib.html#hashlib.scrypt
 [owasp-pw]: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
 [compare]: https://docs.python.org/3/library/hmac.html#hmac.compare_digest
-[gitleaks]: https://github.com/gitleaks/gitleaks
-[trufflehog]: https://github.com/trufflesecurity/trufflehog
 [owasp-log]: https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
 [rustsec]: https://rustsec.org/
 [bun-audit]: https://bun.com/docs/pm/cli/audit

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audit Repo Secrets and CI"
+  short_description: "Find leaked secrets, unsafe workflows, and proven code vulnerabilities"
+  default_prompt: "Use $audit-repo-secrets-and-ci to scan this repository and its history for secrets, audit its GitHub Actions workflows, and trace attacker input to proven vulnerabilities."

@@ -1,0 +1,28 @@
+name: PR preview
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - name: Announce preview
+        run: echo "Preview for ${{ github.event.pull_request.title }}"
+      - name: Deploy preview
+        run: npx surge ./dist "pr-${{ github.event.number }}.acme-preview.surge.sh"
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}

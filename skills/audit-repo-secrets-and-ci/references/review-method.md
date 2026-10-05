@@ -1,15 +1,15 @@
-# Review method
+# Review Method
 
 ## Contents
 
-- [Evidence classes](#evidence-classes)
-- [Local exploit-condition test](#local-exploit-condition-test)
-- [Finding format](#finding-format)
+- [Evidence Classes](#evidence-classes)
+- [Local Exploit-Condition Test](#local-exploit-condition-test)
+- [Finding Format](#finding-format)
 - [CWE and CVSS](#cwe-and-cvss)
 - [Reporting](#reporting)
-- [Agent tool boundary](#agent-tool-boundary)
+- [Agent Tool Boundary](#agent-tool-boundary)
 
-## Evidence classes
+## Evidence Classes
 
 Each item is exactly one of:
 
@@ -21,7 +21,7 @@ Each item is exactly one of:
 Never promote a hypothesis because the sink looks dangerous or a tool rated it critical. A confirmed
 finding's Evidence names a runnable test or command and its observed result.
 
-## Local exploit-condition test
+## Local Exploit-Condition Test
 
 Build the smallest test against a synthetic target: in-memory database, temp directory, 127.0.0.1
 server, marker file, or recorder function.
@@ -33,7 +33,7 @@ server, marker file, or recorder function.
 
 If the target needs the real system, stop and mark a hypothesis.
 
-## Finding format
+## Finding Format
 
 `### F<n>: <title>` followed by these bullets (continuation lines indented two spaces).
 `scripts/check_findings.py` enforces them.
@@ -76,7 +76,7 @@ Keep live payloads, real secrets, and extracted data out of reports. Describe th
 show the synthetic proof. Redact any credential to a prefix and its location. Run gitleaks over the
 report before sharing it.
 
-## Agent tool boundary
+## Agent Tool Boundary
 
 In an app where a model calls tools, retrieved content (documents, web pages, issue text, tool
 output) and model output are untrusted input ([CWE-1427][cwe-1427]; [OWASP guidance][llm]). Code

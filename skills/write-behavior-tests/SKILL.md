@@ -1,9 +1,16 @@
 ---
 name: write-behavior-tests
 description: >-
-  Writes tests that check observable behavior instead of implementation
-  details, with fixtures, fakes, and property tests. Use when adding or
-  fixing tests or a regression test.
+  Writes and fixes tests that check observable behavior, and finds the root
+  cause of a failure, crash, or hang: regression tests that fail without the
+  fix, boundary and property tests, fakes instead of mocks, deterministic time
+  and races, and reduced reproductions. Use when adding tests, fixing flaky or
+  brittle tests, or finding why code fails. Not for CI setup.
+when_to_use: >-
+  Add a regression test for this bug and fix it. Our tests mock everything and
+  break on every refactor. Would these tests pass even if the logic were wrong?
+  This test sleeps and is flaky on CI. The import crashes on one file, find out
+  why.
 ---
 
 # Write Behavior Tests
@@ -14,9 +21,17 @@ user.
 
 ## Rules
 
-- A regression test must be seen failing without the fix. Run it on the faulty commit (disposable
-  worktree) or with only the fix reverted, and check the failure line comes from the assertion, not
-  from setup or an import error. A test never seen red protects nothing.
+- A bug fix starts with a test that reproduces the bug through the public operation, and that test
+  is the regression test. Reduce the failing input first (see [reduction](references/reduction.md)).
+  See it red without the fix: run it on the faulty commit (disposable worktree) or with only the fix
+  reverted, and check the failure line comes from the assertion, not from setup or an import error.
+  A test never seen red protects nothing.
+- Tests live in their own file, never inline. In Rust, `foo.rs` declares `#[cfg(test)] mod tests;`
+  with the tests in `foo/tests.rs` (or `foo_tests.rs` through `#[path]`), never an inline
+  `mod tests { … }` block. Keep the same split in every language. When the user's own project
+  inlines tests, move the inline tests of a module you change, and report it. In a project the user
+  does not own, follow its layout unless the user asks (see
+  [test layout](references/test-design.md#test-layout)).
 - Take expected values from the contract, never from running the code under test, the same formula,
   the current output, or a snapshot. A user's guessed cause is evidence, not an expected value.
 - Do not mock the unit under test. Replace only collaborators that are slow, dangerous, unavailable,
@@ -45,19 +60,33 @@ user.
 
 ## Workflow
 
-1. Write the contract; map each claim to the smallest layer that can observe it.
+1. Write the contract; map each claim to the smallest layer that can observe it. For a bug, the
+   contract is the expected behavior, and the reduced reproduction is the first test.
 1. Choose inputs: classes and boundaries, a decision table, transitions, standard vectors, or
    properties.
 1. Write the tests, then run them where the behavior is missing and record the red line.
 1. Make the change, rerun the test and its neighbors.
 1. Report each claim with its layer, the commands run, and what was not run.
 
+## Scripts
+
+`python3 scripts/ddmin.py [--fail-status N] [--fail-text TEXT] [--unit line|char] [--output FILE]
+[--json] INPUT -- CMD ARGS {}` reduces a failing input to a 1-minimal one, with the oracle as argv
+and `{}` for the candidate path; it prints `units N -> M, oracle runs K`. Exit 0 on success, 1 when
+the input does not fail the oracle, 2 on usage errors. On Windows, use `py -3` for `python3`. Run
+`python3 scripts/test_ddmin.py` after changing it.
+
 ## References
 
 - Read [test design](references/test-design.md) when choosing expected values, boundaries, or a
-  layer, when picking a mock, stub, or fake, when a test breaks on every refactor, or for package,
-  host, and hardware claims.
+  layer, when picking a mock, stub, or fake, when a test breaks on every refactor, when deciding
+  where a test file goes, or for package, host, and hardware claims.
+- Read [reduction](references/reduction.md) when shrinking a failing input, config, or program,
+  writing the oracle for `ddmin.py`, measuring an intermittent failure, or packaging a reproduction.
 - Read [regressions and flakiness](references/regressions-and-flakiness.md) when fixing a bug, for
   races, timeouts, expiry, tests that pass alone and fail in the suite, or before deleting a test.
 - Read [generative](references/generative.md) for property tests, fuzzing untrusted input,
   sanitizers, or judging test strength with mutation testing.
+- Read [diagnosis](references/diagnosis.md) when the cause of a failure is unknown, when several
+  causes are plausible, for hangs, native crashes, file, network, or build errors, failures after
+  running a while, or a limit the tool should not have.

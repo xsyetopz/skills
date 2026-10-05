@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix Diagnostics Without Suppressing"
+  short_description: "Fix warnings and deprecations at the cause"
+  default_prompt: "Use $fix-diagnostics-without-suppressing to fix these diagnostics: reproduce them, fix each at its cause or move to the documented replacement, and ask before any suppression or looser config."

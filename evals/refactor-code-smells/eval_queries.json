@@ -1,0 +1,112 @@
+[
+	{
+		"query": "Find the code smells in orders.py and tell me what to change for each, report only",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This function is five levels of nested if/else; restructure it so it reads top to bottom without changing behavior",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Remove the try/except ImportError tomli fallback now that we require Python 3.11",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "status.ts has if (s === 'open') ... else if (s === 'closed') ... for eight states; turn it into something the compiler checks",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "render(user, true, false, true) is unreadable at every call site. Refactor those boolean parameters away",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "We dropped Node 16 support; delete the structuredClone polyfill and the deprecated alias exports",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review this class for readability: it has an interface with one implementation and a utils dump",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The v1 header parser says it is kept for old clients. Is it safe to delete it, and if so remove it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Order status is passed around as raw strings like \"pending\" and amounts as plain ints of cents; tidy that up in the Rust crate without changing behavior",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Remove the feature flag that has been on everywhere for two releases, and its old code path",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Make this loop faster, it is the hot path in our profile",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Where should the new refund use case live in our hexagonal layout, and which port does the Stripe adapter implement?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "clippy reports needless_borrow and a deprecated API warning in CI; make the lint job pass",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "fix-diagnostics-without-suppressing"
+	},
+	{
+		"query": "Write tests for the billing module covering the boundaries",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Find security bugs in the login handler",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "audit-repo-secrets-and-ci"
+	},
+	{
+		"query": "Reduce memory allocations in the JSON parser using a benchmark",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Our Android screen's ViewModel calls Room directly; restructure the feature into the UI and data layers the rest of the app uses",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "tsc warns that moduleResolution node10 is deprecated; fix the config properly instead of silencing it",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "fix-diagnostics-without-suppressing"
+	},
+	{
+		"query": "Add regression tests for the pagination bug we just fixed",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Cut p99 latency of the search endpoint; here is the flame graph",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-runtime-performance"
+	}
+]

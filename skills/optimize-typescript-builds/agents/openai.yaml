@@ -1,4 +1,0 @@
-interface:
-  display_name: "Optimize TypeScript Builds"
-  short_description: "Speed up tsc, tsgo, and type checking"
-  default_prompt: "Use $optimize-typescript-builds to attribute this project's slow type checking with --extendedDiagnostics and traces, then apply one measured fix."

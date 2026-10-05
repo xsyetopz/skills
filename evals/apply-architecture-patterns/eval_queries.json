@@ -1,0 +1,112 @@
+[
+	{
+		"query": "Where should the business logic for this new refunds endpoint go in our app?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add PayPal as a second payment provider without the domain code knowing which provider is used",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Should I use a factory or a strategy for these three export formats?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My SwiftUI view does the network call and the price calculation itself. Move things to where they belong.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Is this codebase MVVM or MVC? I need to add a settings screen that fits",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our domain package imports SQLAlchemy models directly; is that a layering problem in this hexagonal layout?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Add a poison status effect to my Bevy game; should it be a component, a resource, or an event?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Add a CSV import feature following the clean architecture layers this repo uses",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The controller has 300 lines of discount rules. Where should they live instead?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Do we need a repository interface for this one Postgres table, or is that over-engineering here?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "This if/else chain compares status to eight strings; replace it with a match",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Interview me about the new billing system and write an OpenSpec change for it",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Write ARCHITECTURE.md for this repo with a codemap of the modules",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Speed up the hot loop in the pricing engine; the profile shows allocation churn",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Remove the feature flag that has been on everywhere for two releases",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Fix the 30 clippy warnings in the domain crate",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "fix-diagnostics-without-suppressing"
+	},
+	{
+		"query": "Write tests for the checkout view model's state transitions, checking behavior not internals",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Document the module layout in the README so new contributors can find things",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Split this 600-line function into readable pieces without changing behavior",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Plan a multi-quarter migration from the monolith to services, with requirements and tasks",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	}
+]

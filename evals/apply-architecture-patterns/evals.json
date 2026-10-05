@@ -1,0 +1,78 @@
+{
+	"skill_name": "apply-architecture-patterns",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Add PayPal as a second payment provider in shop/. PayPal's API: POST {base_url}/v2/payments with a Bearer token and JSON {\"reference\": order_id, \"value\": amount_cents}; the response JSON has the charge id in \"id\". Pick it with PAYMENT_PROVIDER=paypal; card stays the default.",
+			"expected_output": "Names the architecture with evidence (domain/ports.py defines PaymentGateway, adapters/card_gateway.py implements it, app/place_order.py takes the port, main.py wires it). Adds adapters/paypal_gateway.py implementing charge() the same way as CardGateway, and selects it in main.build_gateway(). domain/ and app/ do not change or import adapter code. Runs the tests.",
+			"files": [
+				"files/shop/adapters/__init__.py",
+				"files/shop/adapters/card_gateway.py",
+				"files/shop/app/__init__.py",
+				"files/shop/app/place_order.py",
+				"files/shop/domain/__init__.py",
+				"files/shop/domain/orders.py",
+				"files/shop/domain/ports.py",
+				"files/shop/main.py",
+				"files/shop/tests/__init__.py",
+				"files/shop/tests/test_place_order.py"
+			],
+			"assertions": [
+				{
+					"text": "domain/ and app/ import no adapter, HTTP, or PayPal code.",
+					"check": "python3 - <<'PY'\nimport ast, pathlib, sys\nbad = []\nfor path in sorted(pathlib.Path(\"shop/domain\").rglob(\"*.py\")) + sorted(pathlib.Path(\"shop/app\").rglob(\"*.py\")):\n    source = path.read_text()\n    if \"paypal\" in source.lower():\n        bad.append(f\"{path}: mentions PayPal\")\n    for node in ast.walk(ast.parse(source)):\n        names = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module or \"\"] if isinstance(node, ast.ImportFrom) else []\n        for name in names:\n            if name.split(\".\")[0] in {\"adapters\", \"main\", \"urllib\", \"http\", \"requests\", \"httpx\", \"json\"}:\n                bad.append(f\"{path}:{node.lineno} imports {name}\")\nprint(bad or \"domain and app import no adapter, HTTP, or PayPal code\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				{
+					"text": "With PAYMENT_PROVIDER=paypal, main.build_gateway() returns an adapter from adapters/ that posts the PayPal request and returns its id; without it, the card gateway is used.",
+					"check": "python3 - <<'PY'\nimport subprocess, sys\nprogram = '''\nimport io, json, os, urllib.request\n\nclass Env(dict):\n    # Stub environment: any variable the wiring reads, other than PAYMENT_PROVIDER, gets a URL-shaped value.\n    def __missing__(self, key):\n        if key == \"PAYMENT_PROVIDER\":\n            raise KeyError(key)\n        return \"https://api.test\"\n    def get(self, key, default=None):\n        try:\n            return self[key]\n        except KeyError:\n            return default\n\nsent = []\n\nclass Response(io.BytesIO):\n    def __enter__(self):\n        return self\n    def __exit__(self, *exc):\n        return False\n\ndef fake_urlopen(request, *args, **kwargs):\n    # Stub transport: records the request and answers like PayPal.\n    sent.append(request)\n    return Response(json.dumps({\"id\": \"P-1\", \"charge_id\": \"C-1\"}).encode())\n\nurllib.request.urlopen = fake_urlopen\nimport main\n\nos.environ = Env(PAYMENT_PROVIDER=\"paypal\")\ngateway = main.build_gateway()\nassert type(gateway).__module__.startswith(\"adapters.\"), type(gateway).__module__\nassert gateway.charge(\"o1\", 500) == \"P-1\"\nrequest = sent[-1]\nassert request.full_url.endswith(\"/v2/payments\"), request.full_url\nassert json.loads(request.data) == {\"reference\": \"o1\", \"value\": 500}, request.data\nassert (request.get_header(\"Authorization\") or \"\").startswith(\"Bearer \"), request.headers\n\nos.environ = Env()\ncard = main.build_gateway()\nassert type(card).__name__ == \"CardGateway\", type(card).__name__\n'''\ndone = subprocess.run([sys.executable, \"-c\", program], cwd=\"shop\", capture_output=True, text=True, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "The existing tests pass.",
+					"check": "cd shop && python3 -m unittest -q"
+				},
+				"The reply names the architecture (ports and adapters or hexagonal) with file evidence and says where the new code went."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Orders of 10,000 cents or more now get 10% off, rounded down to the cent. Add it to checkout in store/.",
+			"expected_output": "The discount is a pricing rule in domain/pricing.py (order_total or a function it uses), so both the web checkout and the phone-order CLI apply it; web/handlers.py keeps only parsing and mapping. The reply notes that cli.py also gets the discount, or asks whether phone orders should.",
+			"files": [
+				"files/store/cli.py",
+				"files/store/domain/__init__.py",
+				"files/store/domain/pricing.py",
+				"files/store/tests/__init__.py",
+				"files/store/tests/test_checkout.py",
+				"files/store/web/__init__.py",
+				"files/store/web/handlers.py"
+			],
+			"assertions": [
+				{
+					"text": "Web checkout and phone orders both apply the discount at the 10,000-cent boundary, rounding down, and the existing test passes.",
+					"check": "python3 - <<'PY'\nimport subprocess, sys\nprogram = '''\nimport json\nfrom web.handlers import checkout\n\ndef total(items):\n    body = json.dumps({\"items\": [{\"price_cents\": p, \"qty\": q} for p, q in items]})\n    status, payload = checkout(body)\n    assert status == 200, status\n    return json.loads(payload)[\"total_cents\"]\n\ncases = [([(2500, 2), (1200, 1)], 6200), ([(9999, 1)], 9999), ([(10000, 1)], 9000), ([(5000, 2), (1, 1)], 9000), ([(3333, 3), (1, 1)], 9000), ([(12345, 1)], 11110)]\nbad = [(items, total(items), want) for items, want in cases if total(items) != want]\nassert not bad, bad\n'''\ndone = subprocess.run([sys.executable, \"-c\", program], cwd=\"store\", capture_output=True, text=True, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nphone = subprocess.run([sys.executable, \"cli.py\", \"10000x1\", \"1x1\"], cwd=\"store\", capture_output=True, text=True, timeout=60)\nphone_ok = phone.stdout.strip() == \"9000\"\nprint(f\"phone order 10000x1 1x1 printed {phone.stdout.strip()!r}, expected '9000'\")\ntests = subprocess.run([sys.executable, \"-m\", \"unittest\", \"-q\"], cwd=\"store\", capture_output=True, text=True, timeout=60)\nprint(tests.stderr.strip()[-300:])\nsys.exit(1 if done.returncode or not phone_ok or tests.returncode else 0)\nPY"
+				},
+				{
+					"text": "web/handlers.py holds no discount numbers.",
+					"check": "python3 - <<'PY'\nimport ast, sys\ntree = ast.parse(open(\"store/web/handlers.py\").read())\nnumbers = sorted({node.value for node in ast.walk(tree) if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool)} - {200})\nprint(f\"numeric constants in web/handlers.py other than 200: {numbers}\")\nsys.exit(1 if numbers else 0)\nPY"
+				},
+				"The reply says the rule went into the domain layer and that cli.py, the second entry point, gets it too (or asks about it)."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Add a CSV export next to the JSON one in export/.",
+			"expected_output": "An export_csv(rows) function in exporters.py using the csv module, registered in FORMATS in cli.py, in the same shape as export_json. No exporter base class, strategy interface, or factory, because the codebase uses a dict of functions.",
+			"files": [
+				"files/export/cli.py",
+				"files/export/exporters.py"
+			],
+			"assertions": [
+				{
+					"text": "--format csv writes the rows as CSV with a header and correct quoting, JSON output is unchanged, and no class, ABC, or Protocol was added.",
+					"check": "python3 - <<'PY'\nimport ast, csv, io, json, pathlib, subprocess, sys\nrows = [{\"id\": 1, \"name\": \"Ada, Countess\", \"city\": \"London\"}, {\"id\": 2, \"name\": \"Grace \\\"Amazing\\\" Hopper\", \"city\": \"New York\"}]\nout = subprocess.run([sys.executable, \"cli.py\", \"--format\", \"csv\"], cwd=\"export\", input=json.dumps(rows), capture_output=True, text=True, timeout=60)\ngot = list(csv.DictReader(io.StringIO(out.stdout)))\nwant = [{key: str(value) for key, value in row.items()} for row in rows]\nprint(out.stderr.strip()[-300:], f\"csv rows: {got}\")\nsame = subprocess.run([sys.executable, \"cli.py\"], cwd=\"export\", input=json.dumps(rows), capture_output=True, text=True, timeout=60)\njson_ok = same.stdout == json.dumps(rows, indent=2)\nprint(f\"default json output unchanged: {json_ok}\")\nextra = []\nfor path in pathlib.Path(\"export\").rglob(\"*.py\"):\n    for node in ast.walk(ast.parse(path.read_text())):\n        if isinstance(node, ast.ClassDef):\n            extra.append(f\"{path}:{node.lineno} class {node.name}\")\n        if isinstance(node, (ast.Import, ast.ImportFrom)):\n            names = [alias.name for alias in node.names] + [getattr(node, \"module\", None) or \"\"]\n            if \"abc\" in names or \"Protocol\" in names:\n                extra.append(f\"{path}:{node.lineno} imports {names}\")\nprint(f\"classes or interfaces added: {extra}\")\nsys.exit(0 if got == want and json_ok and not extra else 1)\nPY"
+				},
+				"The reply says it followed the existing dict-of-functions shape instead of adding a pattern."
+			]
+		}
+	]
+}

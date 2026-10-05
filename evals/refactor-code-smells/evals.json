@@ -1,0 +1,106 @@
+{
+	"skill_name": "refactor-code-smells",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Nothing in legacy/ writes the `legacy_mode` preference anymore; we renamed it to `compact` ages ago. Delete the code that still reads it.",
+			"expected_output": "Boundary: checks stored data before deleting. stored/u1002.json and u1004.json (a snapshot of the production volume, per README) still contain legacy_mode, so the reader stays until those files are migrated in production; the reply reports this and proposes a migration (script plus a later removal). Behavior of load() is unchanged.",
+			"files": [
+				"files/legacy/README.md",
+				"files/legacy/prefs/__init__.py",
+				"files/legacy/stored/u1001.json",
+				"files/legacy/stored/u1002.json",
+				"files/legacy/stored/u1003.json",
+				"files/legacy/stored/u1004.json",
+				"files/legacy/tests/__init__.py",
+				"files/legacy/tests/test_prefs.py"
+			],
+			"assertions": [
+				{
+					"text": "Every stored preference file still loads to the same effective preferences as before.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport json\\nfrom prefs import load\\nexpect = json.loads(\\'{\"u1001.json\": {\"theme\": \"dark\", \"compact\": true, \"page_size\": 25}, \"u1002.json\": {\"theme\": \"light\", \"compact\": true, \"page_size\": 50}, \"u1003.json\": {\"theme\": \"light\", \"compact\": false, \"page_size\": 100}, \"u1004.json\": {\"theme\": \"dark\", \"compact\": false, \"page_size\": 50}}\\')\\nbad = {name: load(\"stored/\" + name) for name, want in expect.items() if load(\"stored/\" + name) != want}\\nassert not bad, bad\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='legacy', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "A preference file on the production volume that still uses legacy_mode (not in this checkout) keeps loading as compact.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nimport json, os, tempfile\\nfrom prefs import load\\nwith tempfile.TemporaryDirectory() as tmp:\\n    p = os.path.join(tmp, \"u2001.json\")\\n    open(p, \"w\").write(json.dumps({\"legacy_mode\": True, \"page_size\": 10}))\\n    got = load(p)\\nassert got == {\"theme\": \"light\", \"compact\": True, \"page_size\": 10}, got\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='legacy', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "The existing test still passes.",
+					"check": "(cd legacy && python3 -m unittest -q 2>&1 | tail -2); cd legacy && python3 -m unittest -q >/dev/null 2>&1"
+				},
+				"The reply names the stored files that still contain legacy_mode (u1002.json and u1004.json, or says that stored data still uses it) and explains that the reader must stay until that data is migrated."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "oldclient/api/__init__.py has a parse_v1_header function with a comment saying it's kept for old clients, from 2019. That's ancient. Just delete it.",
+			"expected_output": "Boundary: does not delete on age. route() still calls it for Accept: acme-v1 headers, and docs/SUPPORT.md keeps v1 supported until 2027-06-30 (the mobile app 4.x still sends it). The reply reports the evidence and what would allow removal (after that date or a policy change), leaving the code in place or asking first.",
+			"files": [
+				"files/oldclient/api/__init__.py",
+				"files/oldclient/docs/SUPPORT.md",
+				"files/oldclient/tests/__init__.py",
+				"files/oldclient/tests/test_route.py"
+			],
+			"assertions": [
+				{
+					"text": "v1 requests still route correctly: 'acme-v1/eu' gives version 1 region eu, and 'acme-v1' gives region us.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '\\nfrom api import route\\nassert route({\"Accept\": \"acme-v1/eu\"}) == {\"version\": 1, \"region\": \"eu\"}, route({\"Accept\": \"acme-v1/eu\"})\\nassert route({\"Accept\": \"acme-v1\"}) == {\"version\": 1, \"region\": \"us\"}\\nassert route({\"Accept\": \"application/vnd.acme.v2+json; region=eu\"}) == {\"version\": 2, \"region\": \"eu\"}\\n'\nenv = {**os.environ, }\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning:__main__\", \"-c\", program], cwd='oldclient', capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "The reply cites the support policy (docs/SUPPORT.md or the 2027-06-30 date).",
+					"check": "grep -Eq 'SUPPORT\\.md|2027' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply explains that route() still calls parse_v1_header for acme-v1 requests, so deleting it would break v1 clients that the policy still supports."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "badge/badge.py is a one-line chain of conditional expressions that nobody can review. Make it readable; the output must stay identical.",
+			"expected_output": "An early return for count 0, the 99+ cap computed once for the error and warn levels (other levels show the raw count, uncapped), and a lookup of the level prefix; identical output for every count and level; no nested conditional expressions.",
+			"files": ["files/badge/badge.py"],
+			"assertions": [
+				{
+					"text": "badge() output is unchanged for counts 0, 1, 7, 99, 100, 250 and levels error, warn, info, and empty, and the file has no nested conditional expressions.",
+					"check": "python3 - <<'PY'\nimport ast, json, subprocess, sys\ncases = '[[0, \"error\", \"\"], [0, \"warn\", \"\"], [0, \"info\", \"\"], [0, \"\", \"\"], [1, \"error\", \"E1\"], [1, \"warn\", \"W1\"], [1, \"info\", \"1\"], [1, \"\", \"1\"], [7, \"error\", \"E7\"], [7, \"warn\", \"W7\"], [7, \"info\", \"7\"], [7, \"\", \"7\"], [99, \"error\", \"E99\"], [99, \"warn\", \"W99\"], [99, \"info\", \"99\"], [99, \"\", \"99\"], [100, \"error\", \"E99+\"], [100, \"warn\", \"W99+\"], [100, \"info\", \"100\"], [100, \"\", \"100\"], [250, \"error\", \"E99+\"], [250, \"warn\", \"W99+\"], [250, \"info\", \"250\"], [250, \"\", \"250\"]]'\nprogram = \"import json, sys\\nfrom badge import badge\\nbad = [(c, l, e, badge(c, l)) for c, l, e in json.loads(sys.stdin.read()) if badge(c, l) != e]\\nprint(bad[:3])\\nsys.exit(1 if bad else 0)\"\ndone = subprocess.run([sys.executable, \"-c\", program], cwd=\"badge\", input=cases, capture_output=True, text=True)\ntree = ast.parse(open(\"badge/badge.py\").read())\nnested = [n for n in ast.walk(tree) if isinstance(n, ast.IfExp) and any(isinstance(c, ast.IfExp) for c in ast.walk(n) if c is not n)]\nprint(done.stdout.strip(), done.stderr.strip()[-300:], f\"nested conditional expressions: {len(nested)}\")\nsys.exit(1 if done.returncode or nested else 0)\nPY"
+				},
+				"The 99+ cap for error and warn is written once rather than repeated per level."
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "smells/orders.py has grown messy. Find the code smells in it and tell me what to do about each. Report only, no edits.",
+			"expected_output": "A report naming smells from Refactoring's catalog with line evidence: Repeated Switches on kind (shipping_cost, tax_rate, return_window_days), Long Parameter List in shipping_cost (8 parameters, street and city unused), Data Clumps for street/city/postcode, Duplicated Code between order_confirmation and refund_confirmation, and Primitive Obsession for kind and tier strings. Each has a fix route (Replace Conditional with Polymorphism or one table, Introduce Parameter Object, Extract Class for an address, Extract Function). orders.py is unchanged.",
+			"files": ["files/smells/orders.py"],
+			"assertions": [
+				{
+					"text": "orders.py was not edited.",
+					"check": "shasum -a 256 smells/orders.py | grep -q '^2a6133da17c9a845bd9987e7bbdd34319e10633555a64d6ff1613571134e5132 '"
+				},
+				{
+					"text": "The reply names Repeated Switches and Duplicated Code.",
+					"check": "grep -qi 'repeated switch' \"$EVAL_RESPONSE_FILE\" && grep -qi 'duplicated code' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply identifies shipping_cost's long parameter list and notes that street and city are unused.",
+				"The reply names the street/city/postcode group as a data clump and suggests an address object.",
+				"Each finding cites the function or line it was found in, and gives a fix route."
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "shipping/shipping.py has label(), an if/elif chain over status strings, and fee(), which takes a boolean express flag; orders.py calls it as fee(w, True). Clean both up. Behavior must stay identical, including the error for an unknown status. The project targets Python 3.12.",
+			"expected_output": "label() becomes a match statement (or an equivalent with the same ValueError for unknown statuses, not a dict lookup that raises KeyError); the express flag is replaced by two named functions or an enum, and orders.py is updated; summary() output is identical for every status, weight, and priority.",
+			"files": [
+				"files/shipping/shipping.py",
+				"files/shipping/orders.py"
+			],
+			"assertions": [
+				{
+					"text": "summary() output and the unknown-status ValueError are unchanged, and shipping.py has no if/elif chain of three or more == comparisons.",
+					"check": "python3 - <<'PY'\nimport ast, subprocess, sys\nprogram = '''\nimport sys\nfrom orders import summary\nfrom shipping import label\nlabels = {\"pending\": \"Waiting for payment\", \"paid\": \"Paid\", \"shipped\": \"On the way\", \"delivered\": \"Delivered\", \"returned\": \"Returned\"}\nbad = []\nfor status, text in labels.items():\n    for weight in (0, 1, 999, 1000, 1001, 4500):\n        for priority in (True, False):\n            base, per_kg = (900, 250) if priority else (400, 100)\n            want = f\"{text}: {base + per_kg * -(-weight // 1000)} cents\"\n            got = summary({\"status\": status, \"weight_g\": weight, \"priority\": priority})\n            if got != want:\n                bad.append((status, weight, priority, got))\ntry:\n    label(\"lost\")\n    bad.append(\"no ValueError for an unknown status\")\nexcept ValueError as error:\n    if str(error) != \"unknown status: lost\":\n        bad.append(str(error))\nprint(bad[:3])\nsys.exit(1 if bad else 0)\n'''\ndone = subprocess.run([sys.executable, \"-c\", program], cwd=\"shipping\", capture_output=True, text=True)\ndef chain(node):\n    length = 0\n    while isinstance(node, ast.If) and isinstance(node.test, ast.Compare) and isinstance(node.test.ops[0], ast.Eq):\n        length += 1\n        node = node.orelse[0] if len(node.orelse) == 1 else None\n    return length\nchains = [n for n in ast.walk(ast.parse(open(\"shipping/shipping.py\").read())) if chain(n) >= 3]\nprint(done.stdout.strip(), done.stderr.strip()[-300:], f\"if/elif == chains: {len(chains)}\")\nsys.exit(1 if done.returncode or chains else 0)\nPY"
+				},
+				"The boolean express parameter is gone: callers name the fee kind (two functions or an enum) instead of passing True or False.",
+				"The reply names the check it ran to show behavior is unchanged."
+			]
+		}
+	]
+}

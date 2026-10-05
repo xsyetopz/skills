@@ -1,0 +1,109 @@
+[
+	{
+		"query": "Our Go JSON encoder shows 80 allocs/op in the benchmark and pprof alloc_space puts Encode on top. Cut the allocations without changing output.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "samply says 70% of time is under parse() in our Rust log summarizer. Make it faster but keep the summary output identical.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "JFR shows byte[] and String dominating allocations in our Java order lookup. Reduce them and show me the JMH numbers.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "python -m cProfile says dedupe_events takes 80% of the nightly job. Speed it up without changing results.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "perf record on our C tokenizer shows malloc and free at the top. Rework it and prove the output is the same.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "BenchmarkDotNet shows our C# line parser allocating 400 bytes per call. Get that down and compare to the baseline CSV.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "node --cpu-prof shows the report builder spending most of its time in Array.prototype.map chains. Make it faster.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our Swift CSV importer retains and releases constantly according to Instruments. Cut the ARC traffic and benchmark it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The Kotlin top-orders function is slow under JMH because of chained map and filter on big lists. Optimize it and show before and after.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our C++ matcher copies strings all over the place and perf shows memcpy hot. Fix it and check with Google Benchmark.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "tsc takes four minutes on our monorepo. How do I speed up type checking with project references?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-tsc-builds"
+	},
+	{
+		"query": "This PostgreSQL query takes 12 seconds. Help me tune it with EXPLAIN ANALYZE and the right indexes.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our GitHub Actions pipeline takes 25 minutes. Add caching and split the jobs so it runs faster.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Our event dispatcher is a 40-branch if (type === ...) else if chain. Replace it with a switch or lookup table, same behavior.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Rename the variables in this Python module and split the long function so it reads better. Behavior stays the same.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Our React page feels slow to users because the bundle is 4 MB. Which CDN and image format should we use?",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Our tsconfig builds are slow because skipLibCheck is off and incremental is disabled. What should I change?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-tsc-builds"
+	},
+	{
+		"query": "The test suite is flaky and sometimes hangs on CI only. Find out why.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "Write a Dockerfile that builds our Rust app with a smaller final image.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Add a matrix build for Node 20 and 22 to our workflow and pin the actions by SHA.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-ci-workflow"
+	}
+]

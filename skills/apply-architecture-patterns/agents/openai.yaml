@@ -1,0 +1,4 @@
+interface:
+  display_name: "Apply Architecture Patterns"
+  short_description: "Fit new code to the codebase's architecture"
+  default_prompt: "Use $apply-architecture-patterns to add this feature: identify the codebase's architecture with evidence, copy the nearest feature's shape, keep dependencies pointing inward, and ask before adding a new pattern."

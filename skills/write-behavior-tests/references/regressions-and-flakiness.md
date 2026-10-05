@@ -1,18 +1,18 @@
-# Regressions, nondeterminism, and retirement
+# Regressions, Nondeterminism, and Retirement
 
 ## Contents
 
-- [Regression tests](#regression-tests)
+- [Regression Tests](#regression-tests)
 - [Races](#races)
-- [Time and waiting](#time-and-waiting)
-- [Isolation and flaky tests](#isolation-and-flaky-tests)
-- [Retiring tests](#retiring-tests)
+- [Time and Waiting](#time-and-waiting)
+- [Isolation and Flaky Tests](#isolation-and-flaky-tests)
+- [Retiring Tests](#retiring-tests)
 
-## Regression tests
+## Regression Tests
 
 - Keep the smallest complete input that triggered the bug, including the boundary that caused it
   (encoding, transaction, packaging). Reduce secrets and personal data out first (see
-  `$debug-software-failures`).
+  [reduction](reduction.md)).
 - Show red on the faulty version: check out the faulty commit in a disposable worktree, or revert
   only the fix, and quote the failure line. Check it comes from the assertion, not from setup or an
   import error. Then show green on the fix together with the neighboring cases.
@@ -35,7 +35,7 @@ many times and hoping: both threads read, wait on the barrier, then both write. 
 hook, use a stress run with a recorded seed and report it as probabilistic, or a race detector
 (`go test -race`, ThreadSanitizer).
 
-## Time and waiting
+## Time and Waiting
 
 - Code that depends on time takes a clock parameter; the test sets the time. A TTL test then runs in
   microseconds instead of sleeping.
@@ -44,7 +44,7 @@ hook, use a stress run with a recorded seed and report it as probabilistic, or a
   Find offenders with `rg -n 'time\.sleep|Thread\.sleep|setTimeout' tests/`.
 - A real latency budget is a benchmark, not a unit test.
 
-## Isolation and flaky tests
+## Isolation and Flaky Tests
 
 - Each test builds its own state: fresh objects, per-test directories, ports chosen by the operating
   system (port 0), reset registries. Run suspects alone, in reverse, and randomized
@@ -54,7 +54,7 @@ hook, use a stress run with a recorded seed and report it as probabilistic, or a
   time, randomness, external service). Do not add retries or lengthen timeouts to get green ([flaky
   tests][pytest-flaky]; for browser waits see [Playwright best practices][playwright]).
 
-## Retiring tests
+## Retiring Tests
 
 For a test that breaks during a behavior-preserving change, choose one: retain (it catches a real
 defect), rewrite (the requirement matters but the test is coupled), consolidate (it duplicates

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Debug Software Failures"
-  short_description: "Find root causes by repro, bisect, and reduction"
-  default_prompt: "Use $debug-software-failures to find the root cause of this failure: reproduce it with a strict oracle, bisect or shrink it, and end with a regression test."

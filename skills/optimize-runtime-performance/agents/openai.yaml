@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimize Runtime Performance"
+  short_description: "Profile and speed up hot code paths safely"
+  default_prompt: "Use $optimize-runtime-performance to profile this hot path, prove behavior is unchanged with a test, apply one measured change, and report before and after numbers."

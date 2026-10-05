@@ -1,0 +1,112 @@
+[
+	{
+		"query": "CI fails on cargo clippy -- -D warnings with 14 warnings; make it pass",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "tsc 6 now says baseUrl and moduleResolution node are deprecated. What do I change in tsconfig?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Fix the ruff errors in src/ without adding noqa comments",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "PCSX2 prints a warning that one of the command-line flags in our launch script is deprecated. Update the script.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our Kotlin build has 40 deprecation warnings after the Compose upgrade, clean them up",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Just add eslint-disable to the lines that fail so the pipeline goes green",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My Ghidra script logs that it uses a deprecated API on every run. How do I get rid of that?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Swift 6 language mode gives me Sendable errors everywhere; resolve them instead of marking things @unchecked",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The C++ build spits out -Wdeprecated-declarations and C4996 warnings on Windows; fix them",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "pyright reports 23 errors in the new module; get the type check to zero",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "This function is five levels of nested ifs; restructure it without changing behavior",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "tsc takes 90 seconds on our monorepo; make type checking faster",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-tsc-builds"
+	},
+	{
+		"query": "Our GitHub Actions workflow takes 20 minutes; add caching and a test matrix",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "The checkout test fails about once in ten runs on CI; write a test that pins the race",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "PCSX2 exits 0 but my homebrew ELF never boots; find out why",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Replace the string status field with an enum across the order module",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Decompile this function in Ghidra and rename the recovered locals",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "Delete the Python 3.8 compatibility shims now that we require 3.11",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Write a pnach patch that skips the intro movie in my PS2 game",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Which version should the next release be after we removed the deprecated API?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "bump-semver"
+	}
+]

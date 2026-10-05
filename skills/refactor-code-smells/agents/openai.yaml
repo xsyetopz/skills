@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactor Code Smells"
+  short_description: "Refactor smells and dead shims without behavior change"
+  default_prompt: "Use $refactor-code-smells to clean up this code: pin behavior with a test first, replace the smells with the language's idiomatic form, keep the diff narrow, and delete compatibility paths only with evidence."

@@ -1,15 +1,16 @@
-# Test design
+# Test Design
 
 ## Contents
 
-- [Expected values](#expected-values)
+- [Expected Values](#expected-values)
 - [Inputs](#inputs)
 - [Layer](#layer)
 - [Doubles](#doubles)
 - [Coupling](#coupling)
-- [Packages, hosts, and hardware](#packages-hosts-and-hardware)
+- [Test Layout](#test-layout)
+- [Packages, Hosts, and Hardware](#packages-hosts-and-hardware)
 
-## Expected values
+## Expected Values
 
 - Take the expected value from the contract: a requirement, standard, issue, or spec vector. The
   code under test, a copy of its formula, and an existing snapshot are not sources.
@@ -60,7 +61,26 @@ installed package, host, or hardware. Do not use an end-to-end test for a claim 
 - Structural rules: compute an agreed dependency rule from the code ("production code never imports
   test code", [ArchUnit][archunit] on Java), not a frozen list of class names.
 
-## Packages, hosts, and hardware
+## Test Layout
+
+Tests live in their own file, never inline in the production file. When the user's own project
+inlines tests, new tests go in a separate file, and the inline tests of a module you change move
+there in the same change; report the move. In a project the user does not own, such as an upstream
+contribution, follow its layout, because an unasked move enlarges the pull request; split only when
+the user asks.
+
+- Rust: `src/foo.rs` declares `#[cfg(test)] mod tests;` and the tests live in `src/foo/tests.rs`, or
+  `#[cfg(test)] #[path = "foo_tests.rs"] mod tests;` with `src/foo_tests.rs`. Never an inline
+  `mod tests { … }` block. The child module still reaches private items with `use super::*;`
+  ([submodules in files][rust-modules]). Cross-crate behavior goes in `tests/`.
+- Python: `tests/test_foo.py`. Go: `foo_test.go` beside `foo.go`, with `package foo_test` for
+  black-box tests. JS, TS, and Bun: `foo.test.ts` beside the source or under `tests/`, never
+  in-source test blocks such as `import.meta.vitest`.
+- Swift: a test target (`Tests/FooTests/`) with Swift Testing or XCTest. Kotlin Multiplatform:
+  `src/commonTest/kotlin` and the platform test source sets. C#: a separate `Foo.Tests` project.
+  Scala and Java: `src/test/scala` and `src/test/java`.
+
+## Packages, Hosts, and Hardware
 
 - Packaged artifacts: build with the packaging command (`python -m build`, `npm pack`,
   `cargo package`), never one that tags or publishes, install into a clean environment, and run the
@@ -79,4 +99,5 @@ installed package, host, or hardware. Do not use an end-to-end test for a claim 
 [fowler]: https://martinfowler.com/articles/mocksArentStubs.html
 [overspecified]: https://test-smell-catalog.readthedocs.io/en/latest/Code%20related/In%20association%20with%20production%20code/Overspecified%20Software.html
 [archunit]: https://www.archunit.org/userguide/html/000_Index.html
+[rust-modules]: https://doc.rust-lang.org/reference/items/modules.html#module-source-filenames
 [src-layout]: https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/

@@ -1,13 +1,13 @@
-# Property, fuzz, and mutation testing
+# Property, Fuzz, and Mutation Testing
 
 ## Contents
 
-- [Property tests](#property-tests)
+- [Property Tests](#property-tests)
 - [Fuzzing](#fuzzing)
 - [Sanitizers](#sanitizers)
-- [Mutation testing](#mutation-testing)
+- [Mutation Testing](#mutation-testing)
 
-## Property tests
+## Property Tests
 
 Use a property test for a law over a large input space: round trip, idempotence, ordering,
 conservation, or agreement with a simple model. Write the property from the contract, not from the
@@ -30,10 +30,14 @@ output.
 ## Sanitizers
 
 Run memory and race checks on the same tests: `-fsanitize=address` for C and C++
-([AddressSanitizer][asan]), `-fsanitize=thread` ([ThreadSanitizer][tsan]), and `go test -race`.
-Report the sanitizer and the command with the result.
+([AddressSanitizer][asan]; MSVC `cl /fsanitize=address`), `-fsanitize=thread`
+([ThreadSanitizer][tsan]), and `go test -race`. AddressSanitizer stops at the first invalid access
+with its kind, size, and stacks; the race detectors name both racing stacks. They do not cover
+Python threads; force the interleaving instead. On one macOS setup the default SDK failed to link
+(`ld: tapi error: malformed file`); point `SDKROOT` at another installed SDK. Report the sanitizer
+and the command with the result.
 
-## Mutation testing
+## Mutation Testing
 
 A mutation tool changes the code in small ways (flips a comparison, swaps an operator, changes a
 constant) and reruns the tests; a mutant the tests do not detect survives. Classify each survivor as

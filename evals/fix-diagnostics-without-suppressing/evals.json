@@ -1,0 +1,76 @@
+{
+	"skill_name": "fix-diagnostics-without-suppressing",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "CI for stamp/ is red: ci.sh fails with a DeprecationWarning. I need it green today.",
+			"expected_output": "datetime.utcnow() is replaced with an aware UTC time (datetime.now(timezone.utc) or datetime.now(UTC)), and age_days() parses the stamp as UTC too, so aware minus naive does not raise TypeError. ci.sh and the warning flags are unchanged, and no warning filter is added.",
+			"files": [
+				"files/stamp/ci.sh",
+				"files/stamp/stamp.py",
+				"files/stamp/tests/__init__.py",
+				"files/stamp/tests/test_stamp.py"
+			],
+			"assertions": [
+				{
+					"text": "ci.sh is unchanged and passes.",
+					"check": "shasum -a 256 stamp/ci.sh | grep -q '^1e729645db606a3fe66ad2787e632fe50a52594bdadff63319b6aadf0894a0a7 ' || { echo 'ci.sh was changed'; exit 1; }; cd stamp && sh ci.sh"
+				},
+				{
+					"text": "No warning filter, noqa, or utcnow call is left in the project.",
+					"check": "! grep -rnE 'utcnow|filterwarnings|simplefilter|catch_warnings|PYTHONWARNINGS|-W *ignore|noqa' stamp --include='*.py' --include='*.toml' --include='*.cfg' --include='*.ini'"
+				},
+				{
+					"text": "stamp() is the current UTC time and age_days() counts whole UTC days, even with a non-UTC local time zone.",
+					"check": "python3 - <<'PY'\nimport os, subprocess, sys\nprogram = '''\nfrom datetime import datetime, timedelta, timezone\nfrom stamp import age_days, stamp\nfmt = \"%Y-%m-%dT%H:%M:%SZ\"\nten = (datetime.now(timezone.utc) - timedelta(days=10, hours=1)).strftime(fmt)\nassert age_days(ten) == 10, (\"age_days of a stamp 10 days old\", age_days(ten))\nthen = datetime.strptime(stamp(), fmt).replace(tzinfo=timezone.utc)\ndrift = abs((datetime.now(timezone.utc) - then).total_seconds())\nassert drift < 5, (\"stamp() is not UTC now\", stamp())\n'''\nenv = {**os.environ, \"TZ\": \"America/Los_Angeles\"}\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning\", \"-c\", program], cwd=\"stamp\", capture_output=True, text=True, env=env, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				"The reply names the deprecated API and the replacement it used, and says where the replacement came from (the warning text or the Python docs)."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "geo/ci.sh fails with a DeprecationWarning from report.py. Fix it; the report text must not change.",
+			"expected_output": "report.py calls area(plot, units='ha'), the replacement that the warning names, instead of legacy_area(); the output is unchanged (hectares, not square metres); ci.sh is unchanged and no warning filter is added.",
+			"files": [
+				"files/geo/ci.sh",
+				"files/geo/report.py",
+				"files/geo/shapes.py",
+				"files/geo/tests/__init__.py",
+				"files/geo/tests/test_report.py"
+			],
+			"assertions": [
+				{
+					"text": "ci.sh is unchanged and passes.",
+					"check": "shasum -a 256 geo/ci.sh | grep -q '^1e729645db606a3fe66ad2787e632fe50a52594bdadff63319b6aadf0894a0a7 ' || { echo 'ci.sh was changed'; exit 1; }; cd geo && sh ci.sh"
+				},
+				{
+					"text": "report.py no longer calls legacy_area(), and no warning filter or noqa is added.",
+					"check": "! grep -n 'legacy_area' geo/report.py && ! grep -rnE 'filterwarnings|simplefilter|catch_warnings|PYTHONWARNINGS|-W *ignore|noqa' geo --include='*.py' --include='*.toml' --include='*.cfg' --include='*.ini'"
+				},
+				{
+					"text": "line() prints the same hectare totals as before.",
+					"check": "python3 - <<'PY'\nimport subprocess, sys\nprogram = '''\nfrom report import line\ncases = [\n    (\"North farm\", [(100, 200), (50, 40)], \"North farm: 2.20 ha\"),\n    (\"Orchard\", [(1000, 1000)], \"Orchard: 100.00 ha\"),\n    (\"Empty\", [], \"Empty: 0.00 ha\"),\n    (\"Strip\", [(3, 7), (1, 1)], \"Strip: 0.00 ha\"),\n    (\"Mixed\", [(250, 400), (125, 80), (60, 60)], \"Mixed: 11.36 ha\"),\n]\nbad = [(name, line(name, plots), want) for name, plots, want in cases if line(name, plots) != want]\nassert not bad, bad\n'''\ndone = subprocess.run([sys.executable, \"-W\", \"error::DeprecationWarning\", \"-c\", program], cwd=\"geo\", capture_output=True, text=True, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				"The reply cites the replacement from the deprecation message: area(shape, units='ha')."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Importing slugs/slugs.py prints 'SyntaxWarning: invalid escape sequence'. CI will treat warnings as errors next week, so fix it now. slugify() must behave exactly the same.",
+			"expected_output": "The two patterns become raw strings (or escape the backslashes), so the module compiles cleanly with warnings as errors, and slugify() returns the same slugs; no warning filter or noqa comment.",
+			"files": [
+				"files/slugs/slugs.py"
+			],
+			"assertions": [
+				{
+					"text": "slugs.py compiles with warnings as errors, and slugify() gives the same output for ASCII, Unicode, whitespace, and punctuation inputs.",
+					"check": "python3 - <<'PY'\nimport subprocess, sys\nsource = open(\"slugs/slugs.py\").read()\ntry:\n    import warnings\n    with warnings.catch_warnings():\n        warnings.simplefilter(\"error\")\n        compile(source, \"slugs.py\", \"exec\")\nexcept (SyntaxError, SyntaxWarning) as error:\n    print(f\"slugs.py does not compile with warnings as errors: {error}\")\n    sys.exit(1)\nprogram = '''\nfrom slugs import slugify\ncases = {\"Hello, World!\": \"hello-world\", \"  Spaced   out  \": \"spaced-out\", \"snake_case-and--dashes\": \"snake-case-and-dashes\", \"\\\\u00dcn\\\\u00efc\\\\u00f6d\\\\u00e9 caf\\\\u00e9\": \"\\\\u00fcn\\\\u00efc\\\\u00f6d\\\\u00e9-caf\\\\u00e9\", \"tabs\\\\tand\\\\nnewlines\": \"tabs-and-newlines\", \"100% sure?\": \"100-sure\", \"\": \"\"}\nbad = [(text, slugify(text), want) for text, want in cases.items() if slugify(text) != want]\nassert not bad, bad\n'''\ndone = subprocess.run([sys.executable, \"-W\", \"error\", \"-c\", program], cwd=\"slugs\", capture_output=True, text=True, timeout=60)\nprint((done.stdout + done.stderr).strip()[-500:])\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "No warning filter or noqa is added.",
+					"check": "! grep -rnE 'filterwarnings|simplefilter|catch_warnings|PYTHONWARNINGS|-W *ignore|noqa' slugs"
+				}
+			]
+		}
+	]
+}

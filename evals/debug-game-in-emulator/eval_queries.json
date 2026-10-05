@@ -1,0 +1,112 @@
+[
+	{
+		"query": "cmake says 'no EE/VU/IOP recompilers' when I build pcsx2 on my M3 and the dependency script dies linking KDDockWidgets. how do I get a working build",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "DuckStation crashes on launch on my Mac and I only get an exit status of 134. How do I capture what happened?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Menu textures flicker on Vulkan in the latest PCSX2 nightly but were fine two releases ago. Help me find the regression.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a CI smoke test that boots my homebrew ELF in PCSX2 headless and checks the ELF's own printf output.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set a memory write breakpoint in Dolphin on my player struct and show me which code writes the health field.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Connect gdb to xemu and break at my XBE's entry point before the kernel jumps into it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "My widescreen .pnach for a PS2 game does nothing in PCSX2. No error in the UI, the patch just never applies.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "This Gecko code works on the NTSC-U disc of my GameCube homebrew but not on rev 1. Where do I put a revision-specific version in Dolphin?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Load Ghidra headless on this PS2 game ELF and recover the function names and types. I have no source code.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "I'm matching a PS1 function so the compiled object is byte-identical to the original. Which gcc flags and objdiff setup should I use?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "Our GitHub Actions workflow that builds the game's PS2 toolchain keeps failing on the cache step. Fix the workflow YAML.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "Write unit tests for the save-file checksum routine in my PS2 homebrew game's C code.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "PCSX2 says Startup Error about a missing BIOS even though I copied one into my -datapath folder. What is wrong?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "RPCS3's GDB server won't stop on my PPU breakpoint in my PS3 homebrew. What setting do I need?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Use the PPSSPP remote debugger over WebSocket to dump memory when my game hits a breakpoint.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "A save state from DuckStation 0.1-11826 won't load in a newer release. Is that a regression?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Merge my debug settings overlay into DuckStation's settings.ini and tell me which of my keys are wrong.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Write a DuckStation .cht code that gives my test disc 60 fps, with the value picked in the UI from 1 to 60.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Decompile this PS1 overlay function into C that matches the original assembly byte for byte.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "Statically recompile my PS2 homebrew ELF into a native Windows executable instead of running it in an emulator.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "recompile-console-binary"
+	}
+]

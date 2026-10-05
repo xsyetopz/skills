@@ -1,4 +1,0 @@
-interface:
-  display_name: "Debug PlayStation Emulators"
-  short_description: "Debug PCSX2 and DuckStation, patches and logs"
-  default_prompt: "Use $debug-playstation-emulators to debug this emulator problem: use an isolated data root, a bounded run with a log file, and name the failing layer."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Emulator Patches"
+  short_description: "Write and fix emulator patches and cheat codes"
+  default_prompt: "Use $write-emulator-patches to write or fix this game patch: key it to the exact game ID and revision, run the format's checker, and test it alone from a cold boot."

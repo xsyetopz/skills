@@ -1,4 +1,4 @@
-# PCSX2 gotchas
+# PCSX2 Gotchas
 
 Commands are POSIX sh; on Windows run them in Git Bash or WSL.
 
@@ -8,15 +8,15 @@ Re-check a flag or key against `-help` and the source of the build under test.
 ## Contents
 
 - [Build](#build)
-- [Data root and launch](#data-root-and-launch)
+- [Data Root and Launch](#data-root-and-launch)
 - [Logging](#logging)
 - [Debugger](#debugger)
-- [Renderer and GS dumps](#renderer-and-gs-dumps)
-- [Host crashes with lldb](#host-crashes-with-lldb)
-- [Patches and pnach files](#patches-and-pnach-files)
+- [Renderer and GS Dumps](#renderer-and-gs-dumps)
+- [Host Crashes with lldb](#host-crashes-with-lldb)
+- [Patches and Cheats](#patches-and-cheats)
 - [Textures](#textures)
-- [Save states](#save-states)
-- [Bisecting a regression](#bisecting-a-regression)
+- [Save States](#save-states)
+- [Bisecting a Regression](#bisecting-a-regression)
 
 ## Build
 
@@ -45,7 +45,7 @@ Re-check a flag or key against `-help` and the source of the build under test.
 - `pcsx2-gsrunner` is excluded from `all` unless `-DENABLE_GSRUNNER=ON`. Apple builds accept
   `-renderer metal`, which the docs omit.
 
-## Data root and launch
+## Data Root and Launch
 
 - `-datapath DIR` needs an existing `DIR`, else `v2.8.2` exits 1 and creates nothing. The data root
   is `DIR/PCSX2`, so copying a BIOS to `DIR/bios` is never found. Put it in `DIR/PCSX2/bios`.
@@ -95,7 +95,7 @@ Re-check a flag or key against `-help` and the source of the build under test.
 - There is no GDB remote stub: `target remote :port` does not work. `gdb` and `lldb` attach to the
   host process, not the guest.
 
-## Renderer and GS dumps
+## Renderer and GS Dumps
 
 - `[EmuCore/GS] Renderer`: `-1` Auto, `3` DX11, `15` DX12, `12` OpenGL, `14` Vulkan, `17` Metal,
   `13` Software, `11` Null. A per-game ini in `gamesettings/` overrides the global value, so a
@@ -109,7 +109,7 @@ Re-check a flag or key against `-help` and the source of the build under test.
   `test_check_dumps.py` compares PNG MD5s for frames present in the baseline only. An empty baseline
   passes vacuously. The docs' extra `/pcsx2-gsrunner` level in `-baselinedir` does not exist.
 
-## Host crashes with lldb
+## Host Crashes with lldb
 
 - The official macOS release has the hardened runtime without `get-task-allow`, so lldb cannot
   attach. Attach to a scratch copy after
@@ -119,34 +119,11 @@ Re-check a flag or key against `-help` and the source of the build under test.
   `settings set platform.plugin.darwin.ignored-exceptions EXC_BAD_ACCESS`. On Linux use
   `process handle SIGSEGV -n false -p true -s false`. Otherwise every first stop is a false crash.
 
-## Patches and pnach files
+## Patches and Cheats
 
-- Patches load from `patches/`, cheats from `cheats/` and only with Enable Cheats on, bundled ones
-  from `resources/patches.zip`. The loader globs `SERIAL_CRC*.pnach`, then `CRC*.pnach`. The CRC is
-  8 hex digits, matched case-insensitively. Addresses and CRCs differ per region and revision.
-- A `patch=` line before the first `[group]` is legacy and always on. One in `patches/` also stops
-  the loader from reading `patches.zip` for that game. A `[group]` name already loaded is skipped.
-  Groups `Widescreen 16:9` and `No-Interlacing` apply automatically with the matching global
-  settings.
-- Format: `patch=<place>,<cpu>,<address>,<type>,<data>`. `place` is `0` startup, `1` every vsync,
-  `2` both, `3` startup and when enabled. `cpu` is `EE` or `IOP`, case-sensitive. `address` is at
-  most 8 hex digits with no `0x`. `type` is lowercase: `byte`, `short`, `word`, `double`,
-  `extended`, `beshort`, `beword`, `bedouble`, `bytes`. `data` is bare hex. Whitespace around fields
-  is fine. A value wider than the type is truncated. A bad line logs `(Patch) Error Parsing: ...`
-  and is dropped while the game runs.
-- `gsaspectratio` takes only `N:M`. `Stretch` and `Auto 4:3/3:2` appear in the docs but log
-  `is an unknown aspect ratio`.
-- `type=extended` RAW codes use the high nibble of `address`: `0`-`2` writes, `3` increment, `4`
-  strided, `5` copy, `6` pointer, `7` OR/AND/XOR, `D` and `E` conditionals. `9` and `C` are
-  unsupported. Multi-line codes use consecutive `patch=` lines. Do not mix conditionals with
-  non-extended lines. A `D` code `Daaaaaaa,nntsvvvv` skips the next `max(n,1)` commands when false.
-  Pointer codes of three or more lines were misread up to `v2.7.168`, and `bytes` patches were not
-  applied from `v2.7.169` to `v2.7.185`.
-- `dpatch=0,<P>,<R>,<off>,<val>,...` (P pattern pairs, then R replacement pairs, hex) patches code
-  that loads at varying addresses. It only runs under the EE recompiler, and a pattern with an
-  absolute address immediate stops matching after relocation.
-- A patch that should reach every user belongs upstream in GameDB or `pcsx2_patches`, which is a
-  contribution. Do not open the PR.
+- Mistake: blaming the emulator with codes on. Patches and cheats change guest memory, so turn off
+  `[EmuCore] EnablePatches` and `EnableCheats` and rerun first. A patch never proves an emulator
+  fix.
 
 ## Textures
 
@@ -156,14 +133,14 @@ Re-check a flag or key against `-help` and the source of the build under test.
   (`<TEX0hash>[-<CLUThash>][-r<W>x<H>]-<bits>[-mip<N>].png`), so a renamed file never matches. Turn
   dumping off for performance comparisons.
 
-## Save states
+## Save States
 
 - A state (`.p2s`) loads only when its version is not newer and the upper 16 bits match
   (`g_SaveVersion`; `0x9A590000` at both pinned builds). Commits that bump it carry `[SAVEVERSION+]`
   in the message. A state is never the only evidence of a bug. Reproduce from a cold boot or a
   memory-card save.
 
-## Bisecting a regression
+## Bisecting a Regression
 
 - Release bisect: list tags with
   `gh api 'repos/PCSX2/pcsx2/releases?per_page=100' --jq '.[].tag_name'`, download each release's

@@ -1,0 +1,66 @@
+{
+	"skill_name": "write-emulator-patches",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach is the cheat file for my homebrew test disc in PCSX2 v2.9.84, and none of it works: HP should be locked at 999, ammo at 99999, and the game should run widescreen 16:9. Fix the file in place so PCSX2's patch loader accepts every line, and tell me what was wrong with each one.",
+			"expected_output": "The file keeps its name, every patch line sits in a [group], uses EE (uppercase), bare hex addresses, and lowercase types; HP is word 000003E7, ammo is widened from short to word 0001869F, and gsaspectratio=16:9. The reply lists each loader rejection (CPU target case, 0x prefix, Word, data too wide for short, 16/9) and notes the unlabelled legacy line and that cheats need Enable Cheats on.",
+			"files": [
+				"files/pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach"
+			],
+			"assertions": [
+				{
+					"text": "The fixed pnach passes the loader rules (5 fields, place 0-3, EE or IOP, bare hex, known lowercase type, data fits the type, every patch inside a [group], gsaspectratio N:M) and writes 999 to 0015F444, 99999 to 0015F450 every frame, with gsaspectratio=16:9.",
+					"check": "python3 - <<'PY'\nimport re, sys\npath = \"pnach-fix/cheats/SLUS-99999_1A2B3C4D.pnach\"\ntypes = {\"byte\": 1, \"short\": 2, \"word\": 4, \"double\": 8, \"beshort\": 2, \"beword\": 4,\n         \"bedouble\": 8, \"extended\": 8, \"bytes\": 0}\nkeys = {\"patch\", \"dpatch\", \"gsaspectratio\", \"gsinterlacemode\", \"author\",\n        \"description\", \"comment\", \"gametitle\"}\nerrors, patches, aspect, group = [], {}, None, None\nfor number, raw in enumerate(open(path, encoding=\"utf-8\"), 1):\n    line = raw.strip()\n    cut = line.find(\"//\")\n    line = (line[:cut] if cut != -1 else line).strip()\n    if not line:\n        continue\n    if line.startswith(\"[\"):\n        if not line.endswith(\"]\") or len(line) < 3:\n            errors.append(f\"{number}: bad group header\")\n        group = line[1:-1]\n        continue\n    key, eq, value = (part.strip() for part in line.partition(\"=\"))\n    if not eq or key not in keys:\n        errors.append(f\"{number}: unknown or ignored line {line!r}\")\n        continue\n    if key == \"gsaspectratio\":\n        aspect = value\n    if key != \"patch\":\n        continue\n    if group is None:\n        errors.append(f\"{number}: patch outside a [group] (legacy, disables patches.zip)\")\n    fields = [p.strip() for p in value.split(\",\")]\n    if len(fields) != 5:\n        errors.append(f\"{number}: expected 5 fields\")\n        continue\n    place, cpu, address, kind, data = fields\n    if place not in {\"0\", \"1\", \"2\", \"3\"}:\n        errors.append(f\"{number}: bad place {place}\")\n    if cpu not in {\"EE\", \"IOP\"}:\n        errors.append(f\"{number}: CPU must be EE or IOP, got {cpu}\")\n    if not re.fullmatch(r\"[0-9A-Fa-f]{1,8}\", address):\n        errors.append(f\"{number}: address {address} must be bare hex\")\n    if kind not in types:\n        errors.append(f\"{number}: unknown type {kind}\")\n        continue\n    if not re.fullmatch(r\"[0-9A-Fa-f]+\", data):\n        errors.append(f\"{number}: data {data} must be bare hex\")\n        continue\n    if types[kind] and int(data, 16) >= 1 << (8 * types[kind]):\n        errors.append(f\"{number}: data {data} does not fit in {kind}\")\n    patches[int(address, 16)] = (place, kind, int(data, 16))\nhp, ammo = patches.get(0x0015F444), patches.get(0x0015F450)\nif not hp or hp[2] != 999 or hp[0] != \"1\":\n    errors.append(f\"HP patch at 0015F444 should write 999 every frame (place 1), got {hp}\")\nif not ammo or ammo[2] != 99999 or ammo[0] != \"1\":\n    errors.append(f\"ammo patch at 0015F450 should write 99999 every frame (place 1), got {ammo}\")\nif not aspect or not re.fullmatch(r\"16\\s*:\\s*9\", aspect):\n    errors.append(f\"gsaspectratio should be 16:9, got {aspect!r}\")\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "The reply explains that the ammo value 99999 (0x1869F) does not fit in a short.",
+					"check": "grep -Eiq 'short' \"$EVAL_RESPONSE_FILE\" && grep -Eiq '1869F|99999' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply names the lowercase `ee` CPU target, the `0x` address prefix, and the capitalised `Word` type as reasons the loader drops the HP line.",
+				"The reply says the cheats only apply with Enable Cheats turned on for PCSX2."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "I copied the settings.ini out of my portable DuckStation v0.1-11826 copy while it was closed: settings-merge/settings.ini (a trimmed copy of what the release wrote on first launch). I wrote settings-merge/debug-overlay.ini from memory with what I want: log to a file at Debug level with timestamps, and the GDB server on port 4321. Merge my overlay into settings-merge/settings.ini in place, change nothing else, and tell me which of my lines were wrong.",
+			"expected_output": "settings-merge/settings.ini has LogToFile = true, LogLevel = Debug, LogFileTimestamps = true, EnableGDBServer = true, and GDBServerPort = 4321, with every other key untouched and no invented or duplicate keys. The reply says LogToFiles and GDBPort are not keys the release writes, yes is not a boolean, and EnableGDBServer was set twice.",
+			"files": [
+				"files/settings-merge/settings.ini",
+				"files/settings-merge/debug-overlay.ini"
+			],
+			"assertions": [
+				{
+					"text": "settings-merge/settings.ini sets the five intended keys (LogToFile, LogLevel, LogFileTimestamps, EnableGDBServer, GDBServerPort = 4321), keeps the other keys unchanged, and adds no unknown or duplicate keys.",
+					"check": "python3 - <<'PY'\nimport sys\ntarget = {\"Logging.LogToFile\": \"true\", \"Logging.LogLevel\": \"Debug\",\n          \"Logging.LogFileTimestamps\": \"true\", \"Debug.EnableGDBServer\": \"true\",\n          \"Debug.GDBServerPort\": \"4321\"}\nuntouched = {\"Main.ConfirmPowerOff\": \"true\", \"Main.EmulationSpeed\": \"1\",\n             \"Main.SaveStateOnExit\": \"true\", \"Logging.CPU\": \"true\",\n             \"Logging.GPU\": \"true\", \"Logging.LogToConsole\": \"false\",\n             \"Debug.ShowVRAM\": \"false\"}\nsection, seen, errors = \"\", {}, []\nfor raw in open(\"settings-merge/settings.ini\", encoding=\"utf-8\"):\n    line = raw.strip()\n    if not line or line[0] in \";#\":\n        continue\n    if line.startswith(\"[\") and line.endswith(\"]\"):\n        section = line[1:-1]\n        continue\n    key, eq, value = line.partition(\"=\")\n    if not eq:\n        errors.append(\"not key = value: \" + line)\n        continue\n    name = section + \".\" + key.strip()\n    if name in seen:\n        errors.append(\"duplicate \" + name)\n    seen[name] = value.strip()\nfor name, want in {**target, **untouched}.items():\n    if seen.get(name) != want:\n        errors.append(f\"{name} is {seen.get(name)!r}, want {want!r}\")\nextra = set(seen) - set(target) - set(untouched)\nif extra:\n    errors.append(\"unexpected keys: \" + \", \".join(sorted(extra)))\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "The reply names LogToFiles and GDBPort as wrong key names.",
+					"check": "grep -q 'LogToFiles' \"$EVAL_RESPONSE_FILE\" && grep -q 'GDBPort' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says that `yes` is not an accepted boolean (true or false) and that EnableGDBServer appeared twice with conflicting values.",
+				"The reply says the file must only be edited while DuckStation is not running, or confirms that it was."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "dolphin-ini/GHBE99.ini is the user game ini for my own GameCube homebrew (game ID GHBE99, one revision) in a recent Dolphin dev build. The intro skip and the coin patch never happen, and the health Gecko code does nothing either. Fix the file in place and tell me what was wrong with each line.",
+			"expected_output": "GHBE99.ini writes dword 0x60000000 to 0x80123456 and word 0x3E7 to 0x803A1F20, both with the 0x prefix, lists $Skip intro and $Max coins under [OnFrame_Enabled] and $Infinite health under [Gecko_Enabled], and keeps the Gecko line 04345678 3E7 (padding it to 000003E7 is fine). The reply says word32 is not a type, the missing 0x makes the address unparseable, nothing was enabled, Dolphin drops bad OnFrame lines without a message, and Gecko codes also need [Core] EnableCheats.",
+			"files": [
+				"files/dolphin-ini/GHBE99.ini"
+			],
+			"assertions": [
+				{
+					"text": "dolphin-ini/GHBE99.ini parses under Dolphin's OnFrame and Gecko rules, makes the two OnFrame writes and keeps the Gecko line, and enables all three codes by name.",
+					"check": "python3 - <<'PY'\nimport re, sys\npath = \"dolphin-ini/GHBE99.ini\"\nsections, current = {}, None\nfor raw in open(path, encoding=\"utf-8\"):\n    line = raw.strip()\n    if not line:\n        continue\n    if line.startswith(\"[\") and line.endswith(\"]\"):\n        current = sections.setdefault(line[1:-1], [])\n        continue\n    if current is not None:\n        current.append(line)\n\ndef number(text, base=0):\n    # strtoull rules: base 0 auto-detects 0x hex, leading-0 octal, else decimal.\n    text = text.strip()\n    if base == 0:\n        if re.fullmatch(r\"0[xX][0-9A-Fa-f]+\", text):\n            return int(text, 16)\n        if re.fullmatch(r\"0[0-7]*\", text):\n            return int(text, 8)\n        return int(text, 10) if re.fullmatch(r\"[1-9][0-9]*\", text) else None\n    return int(text, 16) if re.fullmatch(r\"[0-9A-Fa-f]+\", text) else None\n\nerrors, onframe, name = [], {}, None\nfor line in sections.get(\"OnFrame\", []):\n    if line.startswith(\"$\"):\n        name = line[1:].strip()\n        onframe[name] = []\n        continue\n    items = line.replace(\"=\", \":\", 1).split(\":\")\n    address = number(items[0]) if len(items) >= 3 else None\n    value = number(items[2]) if len(items) >= 3 else None\n    if address is None or value is None or items[1] not in (\"byte\", \"word\", \"dword\"):\n        errors.append(f\"OnFrame line dropped by Dolphin: {line!r}\")\n        continue\n    onframe.setdefault(name, []).append((address, items[1], value))\nif onframe.get(\"Skip intro\") != [(0x80123456, \"dword\", 0x60000000)]:\n    errors.append(f\"Skip intro should be one dword write of 0x60000000 to 0x80123456, got {onframe.get('Skip intro')}\")\nif onframe.get(\"Max coins\") != [(0x803A1F20, \"word\", 0x3E7)]:\n    errors.append(f\"Max coins should be one word write of 0x3E7 to 0x803A1F20, got {onframe.get('Max coins')}\")\ngecko, name = {}, None\nfor line in sections.get(\"Gecko\", []):\n    if line.startswith(\"$\"):\n        name = line[1:].split(\"[\")[0].strip()\n        gecko[name] = []\n    elif not line.startswith(\"*\") and name:\n        words = line.split()\n        if len(words) >= 2:\n            gecko[name].append((number(words[0], 16), number(words[1], 16)))\nif gecko.get(\"Infinite health\") != [(0x04345678, 0x3E7)]:\n    errors.append(f\"Infinite health should keep 04345678 000003E7, got {gecko.get('Infinite health')}\")\nfor section, names in ((\"OnFrame_Enabled\", [\"Skip intro\", \"Max coins\"]), (\"Gecko_Enabled\", [\"Infinite health\"])):\n    listed = {line[1:].strip() for line in sections.get(section, []) if line.startswith(\"$\")}\n    for wanted in names:\n        if wanted not in listed:\n            errors.append(f\"[{section}] should list ${wanted}\")\nprint(\"\\n\".join(errors) or \"OK\")\nsys.exit(1 if errors else 0)\nPY"
+				},
+				{
+					"text": "The reply says Gecko codes need Enable Cheats ([Core] EnableCheats).",
+					"check": "grep -Eiq 'EnableCheats|Enable Cheats' \"$EVAL_RESPONSE_FILE\""
+				},
+				"The reply says `word32` is not a valid type (byte, word, or dword) and that the address without `0x` does not parse, and that Dolphin drops such lines without a message.",
+				"The reply does not claim that the short Gecko word `3E7` is invalid or rejected by Dolphin."
+			]
+		}
+	]
+}

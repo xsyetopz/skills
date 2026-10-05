@@ -1,4 +1,4 @@
-# DuckStation gotchas
+# DuckStation Gotchas
 
 Commands are POSIX sh; on Windows run them in Git Bash or WSL.
 
@@ -7,15 +7,15 @@ and no game image. Re-check a flag or key against `-help` of the build under tes
 
 ## Contents
 
-- [Releases and policy](#releases-and-policy)
-- [Isolation and settings](#isolation-and-settings)
+- [Releases and Policy](#releases-and-policy)
+- [Isolation and Settings](#isolation-and-settings)
 - [Launch](#launch)
-- [Logging and debugging](#logging-and-debugging)
-- [Layer triage](#layer-triage)
+- [Logging and Debugging](#logging-and-debugging)
+- [Layer Triage](#layer-triage)
 - [Textures](#textures)
-- [Cheats and patches](#cheats-and-patches)
+- [Cheats and Patches](#cheats-and-patches)
 
-## Releases and policy
+## Releases and Policy
 
 - Mistake: building, patching, or packaging DuckStation. The licence is CC-BY-NC-ND-4.0, the
   [`CMakeLists.txt`][cmakelists] header adds "you may not use this file to create packages or build
@@ -37,7 +37,7 @@ and no game image. Re-check a flag or key against `-help` of the build under tes
   adds (`gh release view TAG -R stenzek/duckstation --json body`). Report the last good tag, the
   first bad tag, and the commits between them.
 
-## Isolation and settings
+## Isolation and Settings
 
 - Mistake: running an experiment against the default user directory
   (`~/Library/Application Support/DuckStation`, `$XDG_DATA_HOME/duckstation` or
@@ -78,7 +78,7 @@ and no game image. Re-check a flag or key against `-help` of the build under tes
   (Windows: `Stop-Process`, then `Stop-Process -Force`), and record "forced". Quote a log line for
   the checkpoint.
 
-## Logging and debugging
+## Logging and Debugging
 
 - Mistake: reporting a run without a log. Set `[Logging] LogToFile = true` and `LogLevel = Debug`
   (default `Info`), which writes `duckstation.log` in the user directory. Its first lines include
@@ -112,7 +112,7 @@ and no game image. Re-check a flag or key against `-help` of the build under tes
   guest crash with the process alive writes no report. One fresh-copy first run aborted at shutdown
   in `INISettingsInterface::Save`, a host crash unrelated to the guest.
 
-## Layer triage
+## Layer Triage
 
 - Mistake: calling a missing input an emulator bug. Walk the layers and stop at the first failing
   one: host process starts and logs its version; inputs are found (BIOS search, boot path, `.sbi`
@@ -154,17 +154,10 @@ and no game image. Re-check a flag or key against `-help` of the build under tes
 - Mistake: raising cache limits just in case. The wiki warns that too many texture objects break
   mobile drivers and too much VRAM use causes swapping.
 
-## Cheats and patches
+## Cheats and Patches
 
 - Mistake: blaming the emulator with codes on. Patches (`patches/`) and cheats (`cheats/`) change
   guest memory, so disable all codes and rerun first. A patch never proves an emulator fix.
-- Mistake: reusing a code on another disc revision. Files are `SERIAL.cht` or `SERIAL-HASH.cht`, and
-  the README says the hash form exists because offsets differ between revisions.
-- Mistake: trusting a hand-written `.cht`. Format: `[Code Name]`, then `Type = Gameshark`,
-  `Activation = EndFrame` or `Manual`, `Description`, `Option`, `OptionRange = min:max`, then code
-  lines. The [chtdb][chtdb] `validate_file.py` checks opcodes, and it accepted files with letter-O
-  digits and hyphenated addresses that the README format does not allow, so read the README format
-  as well.
 
 [cmakelists]:
 https://github.com/stenzek/duckstation/blob/0d8dda34d3785d8a5c9e910b9ef50caa85fcde0c/CMakeLists.txt
@@ -175,4 +168,3 @@ https://github.com/stenzek/duckstation/blob/0d8dda34d3785d8a5c9e910b9ef50caa85fc
 [wiki-res]: https://github.com/stenzek/duckstation/wiki/Resource-Overrides
 [wiki-log]: https://github.com/stenzek/duckstation/wiki/Enabling-Logging
 [wiki-tex]: https://github.com/stenzek/duckstation/wiki/Texture-Replacement
-[chtdb]: https://github.com/duckstation/chtdb

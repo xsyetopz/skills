@@ -1,0 +1,112 @@
+[
+	{
+		"query": "My widescreen .pnach for a PS2 game does nothing in PCSX2. No error in the UI, the patch just never applies.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Write a DuckStation .cht code for my test disc that sets lives to 9 every frame, with the count picked in the UI from 1 to 99.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This Gecko code works on the NTSC-U disc of my GameCube homebrew but not on rev 1. Where do I put a revision-specific version in Dolphin?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "RPCS3 ignores the patch.yml I wrote for my PS3 homebrew. The Patch Manager doesn't even list it.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Turn this list of raw addresses and values into a PPSSPP CWCheat file for my PSP game, ULUS-10041.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I copied cheat lines from a forum into my PCSX2 cheats folder. Check them and tell me which ones the loader will drop.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "PCSX2 crashes with EXC_BAD_ACCESS as soon as my homebrew boots. Attach lldb and find out why.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Set a memory write breakpoint in the Dolphin debugger on my player struct and step through who writes it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "DuckStation shows a black screen on Vulkan but works on OpenGL for my homebrew. Which layer is it?",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Connect gdb to xemu's GDB stub and break at my XBE's entry point.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "What does this function at 0x0012F3A0 in my PS2 game's ELF do? Recover its arguments in Ghidra.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "Write the config TOML to recompile my N64 homebrew to native PC code with N64Recomp.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "recompile-console-binary"
+	},
+	{
+		"query": "Add a 60 fps unlock to my Wii game as an OnFrame patch, keyed to the right game ID file.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Merge my debug settings overlay into DuckStation's settings.ini and tell me which keys are wrong.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The Action Replay code I typed into Dolphin pops up 'invalid AR code line'. Fix the code.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "My pnach uses a C-type conditional extended code and it never triggers. Rewrite it so PCSX2 runs it.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "A save state from an older PCSX2 release won't load in the new one. Is that a regression?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "RPCS3's GDB server won't stop on my PPU breakpoint. What setting do I need?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Use the PPSSPP remote debugger over WebSocket to dump memory when my game hits a breakpoint.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Make this PS1 function compile byte-identical to the original with the PsyQ compiler.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	}
+]

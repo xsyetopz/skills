@@ -1,0 +1,4 @@
+interface:
+  display_name: "Debug Game in Emulator"
+  short_description: "Debug games in emulators with logs and debuggers"
+  default_prompt: "Use $debug-game-in-emulator to debug this emulator problem: use an isolated data root, a bounded run with a log file, and name the failing layer."

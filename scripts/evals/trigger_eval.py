@@ -1,7 +1,7 @@
 """Measure how reliably catalog skill descriptions trigger in Claude Code.
 
 Follows the agentskills.io "Optimizing skill descriptions" method. Each
-selected skill's `evals/eval_queries.json` is a list of
+selected skill's `evals/<skill>/eval_queries.json` is a list of
 `{"query", "should_trigger", "split": "train"|"validation", "expected_skill"?}`.
 The whole catalog is installed in an isolated project for every run, so each
 skill competes with every other catalog skill. A run reads past meta tools
@@ -22,10 +22,10 @@ other's slots rather than share them.
 is reported but does not change pass/fail.
 
 Examples:
-  just eval-triggers --skill optimize-code-performance --dry-run
-  just eval-triggers --skill optimize-code-performance --split train --runs 3 --jobs 4
-  just eval-triggers --skill write-justfiles --model claude-fable-5-1 --effort medium --json
-  python3 scripts/evals/trigger_eval.py --catalog /tmp/candidate-skills --skill optimize-code-performance
+  just eval-triggers --skill optimize-runtime-performance --dry-run
+  just eval-triggers --skill optimize-runtime-performance --split train --runs 3 --jobs 4
+  just eval-triggers --skill write-justfile --model claude-fable-5-1 --effort medium --json
+  python3 scripts/evals/trigger_eval.py --catalog /tmp/candidate-skills --skill optimize-runtime-performance
 
 Output: <out>/triggers-<UTC timestamp>/ holds settings.json, isolation.json,
 the catalog snapshot, one stream per run under streams/, and results.json.
@@ -238,6 +238,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="catalog directory holding <skill>/SKILL.md (default: skills/)",
     )
     parser.add_argument(
+        "--evals",
+        type=Path,
+        default=harness.EVALS_DIR,
+        help="directory holding <skill>/eval_queries.json (default: evals/)",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default=harness.DEFAULT_OUT,
@@ -330,19 +336,20 @@ def main(argv: list[str]) -> int:
         sources = harness.catalog_skills(catalog_dir)
         if not sources:
             raise harness.UsageError(f"no skills found in {catalog_dir}")
+        evals_dir = args.evals.resolve()
         skills = args.skill or [
-            n for n in sources if (sources[n] / "evals" / "eval_queries.json").is_file()
+            n for n in sources if (evals_dir / n / "eval_queries.json").is_file()
         ]
         unknown = [s for s in skills if s not in sources]
         if unknown:
             raise harness.UsageError(f"unknown skills: {', '.join(unknown)}")
         if not skills:
             raise harness.UsageError(
-                "no skill has evals/eval_queries.json; pass --skill"
+                f"no skill has {evals_dir}/<skill>/eval_queries.json; pass --skill"
             )
         queries: list[Query] = []
         for skill in skills:
-            path = sources[skill] / "evals" / "eval_queries.json"
+            path = evals_dir / skill / "eval_queries.json"
             if not path.is_file():
                 raise harness.UsageError(f"{path} does not exist")
             queries.extend(load_queries(skill, path))

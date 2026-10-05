@@ -285,6 +285,23 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(command[command.index("--output-format") + 1], "stream-json")
         self.assertEqual(command[command.index("--permission-prompts") + 1], "none")
 
+    def test_token_switches_children_to_empty_config_dir(self) -> None:
+        harness.claude_home.cache_clear()
+        self.addCleanup(harness.claude_home.cache_clear)
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_OAUTH_TOKEN": "t"}):
+            home = harness.claude_home()
+            self.assertTrue(harness.isolated_home())
+            self.assertEqual(list(home.iterdir()), [])
+            self.assertEqual(
+                harness.child_env("claude-opus-5-5")["CLAUDE_CONFIG_DIR"], str(home)
+            )
+        harness.claude_home.cache_clear()
+        with mock.patch.dict(os.environ, clear=False) as env:
+            env.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
+            env.pop("CLAUDE_CONFIG_DIR", None)
+            self.assertFalse(harness.isolated_home())
+            self.assertNotIn("CLAUDE_CONFIG_DIR", harness.child_env("claude-opus-5-5"))
+
     def test_snapshot_excludes_evals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "src" / "demo"

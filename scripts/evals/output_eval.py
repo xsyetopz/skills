@@ -1,11 +1,11 @@
 """Run a skill's evals.json with and without the skill, grade, and benchmark.
 
 Follows the agentskills.io "Evaluating skill output quality" method. Every
-case in `<catalog>/<skill>/evals/evals.json` (default catalog: skills/) runs
+case in `<evals>/<skill>/evals.json` (default: evals/) runs
 in a fresh isolated workspace, once per configuration: `with_skill` (the skill
 installed) and the baseline, `without_skill` (no skills) or `old_skill`
 (--baseline-skill-dir, an older snapshot). Case `files` are paths relative
-to the skill directory; a file under `evals/files/` is copied to the same
+to the skill's eval directory; a file under `files/` is copied to the same
 relative path inside the workspace, any other file to the workspace root.
 
 Assertions are either plain strings, graded by one strict LLM grader call per
@@ -32,11 +32,11 @@ created or changed). benchmark.json aggregates every graded run in the
 iteration, so configurations can be run separately into the same iteration.
 
 Examples:
-  just eval-outputs --skill write-justfiles --dry-run
-  just eval-outputs --skill write-justfiles --eval-id 1 --config with_skill
-  just eval-outputs --skill write-justfiles --runs 3 --jobs 4
-  just eval-outputs --skill write-justfiles --baseline-skill-dir /tmp/write-justfiles-old --iteration 2
-  python3 scripts/evals/output_eval.py --catalog /tmp/candidate-skills --skill write-justfiles
+  just eval-outputs --skill write-justfile --dry-run
+  just eval-outputs --skill write-justfile --eval-id 1 --config with_skill
+  just eval-outputs --skill write-justfile --runs 3 --jobs 4
+  just eval-outputs --skill write-justfile --baseline-skill-dir /tmp/write-justfile-old --iteration 2
+  python3 scripts/evals/output_eval.py --catalog /tmp/candidate-skills --skill write-justfile
 
 stdout: a JSON summary (benchmark plus one row per run). stderr: progress.
 
@@ -198,11 +198,11 @@ def workspace_path(file: str) -> Path:
     path = Path(file)
     if path.is_absolute() or ".." in path.parts:
         raise harness.UsageError(
-            f"case file {file!r} must be a relative path inside the skill"
+            f"case file {file!r} must be a relative path inside the eval directory"
         )
     parts = path.parts
-    if parts[:2] == ("evals", "files") and len(parts) > 2:
-        return Path(*parts[2:])
+    if parts[0] == "files" and len(parts) > 1:
+        return Path(*parts[1:])
     return Path(path.name)
 
 
@@ -437,7 +437,7 @@ def execute(job: Job, ctx: dict[str, Any]) -> dict[str, Any]:
         for file in job.case.files:
             target = workspace / workspace_path(file)
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(ctx["skill_dir"] / file, target)
+            shutil.copy2(ctx["eval_dir"] / file, target)
         before = manifest(workspace)
         command = harness.claude_command(
             job.case.prompt,
@@ -675,6 +675,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="catalog directory holding <skill>/SKILL.md (default: skills/)",
     )
     parser.add_argument(
+        "--evals",
+        type=Path,
+        default=harness.EVALS_DIR,
+        help="directory holding <skill>/evals.json and its files/ (default: evals/)",
+    )
+    parser.add_argument(
         "--out",
         type=Path,
         default=harness.DEFAULT_OUT,
@@ -715,7 +721,8 @@ def main(argv: list[str]) -> int:
         skill_dir = args.catalog.resolve() / args.skill
         if not (skill_dir / "SKILL.md").is_file():
             raise harness.UsageError(f"{skill_dir} has no SKILL.md")
-        name, cases = load_evals(skill_dir / "evals" / "evals.json")
+        eval_dir = args.evals.resolve() / args.skill
+        name, cases = load_evals(eval_dir / "evals.json")
         if name != args.skill:
             raise harness.UsageError(
                 f"evals.json skill_name {name!r} does not match {args.skill!r}"
@@ -728,7 +735,7 @@ def main(argv: list[str]) -> int:
         for case in cases:
             for file in case.files:
                 workspace_path(file)
-                if not (skill_dir / file).is_file():
+                if not (eval_dir / file).is_file():
                     raise harness.UsageError(
                         f"eval {case.id}: file {file} does not exist"
                     )
@@ -895,6 +902,7 @@ def main(argv: list[str]) -> int:
             "env": harness.child_env(args.model),
             "timeout": args.timeout,
             "skill_dir": skill_dir,
+            "eval_dir": eval_dir,
         }
         jobs = [
             Job(c, cfg, k, run_dir(c, cfg, k), skill_sets[cfg]) for c, cfg, k in planned

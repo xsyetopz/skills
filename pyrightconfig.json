@@ -1,6 +1,6 @@
 {
 	"include": ["scripts", "skills"],
-	"exclude": ["**/node_modules", "**/__pycache__", "**/.*", "skills/*/evals/files"],
+	"exclude": ["**/node_modules", "**/__pycache__", "**/.*", "evals"],
 	"pythonVersion": "3.10",
 	"typeCheckingMode": "standard",
 	"executionEnvironments": [

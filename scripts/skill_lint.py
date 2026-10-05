@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-STANDARD_ENTRIES = {"SKILL.md", "scripts", "references", "assets", "evals"}
+STANDARD_ENTRIES = {"SKILL.md", "scripts", "references", "assets"}
 LICENSE_RE = re.compile(r"^(LICEN[CS]E|COPYING)(\.(md|txt))?$", re.I)
 CONTEXT_SUFFIXES = {".md", ".txt", ".rst", ".yaml", ".yml", ".json", ".csv", ".xml"}
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
@@ -34,7 +34,7 @@ LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 # paths point outside it and are left unchecked.
 BARE_PATH_RE = re.compile(
     r"(?:(?<=\$\{CLAUDE_SKILL_DIR\}/)|(?<![\w/.-]))"
-    r"((?:scripts|references|assets|evals)/[\w./-]*)"
+    r"((?:scripts|references|assets)/[\w./-]*)"
 )
 AUX_DOC_RE = re.compile(
     r"^(README|CHANGELOG|CONTRIBUTING|INSTALL(ATION_GUIDE)?|QUICK_REFERENCE|SETUP|TODO|NOTES)\.md$",
@@ -302,21 +302,20 @@ def check_contents(root, files, reachable, a, r):
         r.warn(
             "policy",
             f"'{entry}' is outside the conventional layout "
-            "(SKILL.md, scripts/, references/, assets/, evals/, LICENSE); allow with --allow",
+            "(SKILL.md, scripts/, references/, assets/, LICENSE); allow with --allow",
         )
     for f in files:
         rel = f.relative_to(root)
-        if rel.parts[0] != "evals":  # eval fixtures may carry any file on purpose
-            if len(rel.parts) == 1 and AUX_DOC_RE.match(f.name):
-                r.err(
-                    "anthropic",
-                    f"{rel}: auxiliary docs do not belong in a skill; put human docs in the repo README",
-                )
-            if JUNK_NAME_RE.search(f.name) or JUNK_DIRS.intersection(rel.parts):
-                r.err(
-                    "policy",
-                    f"{rel}: build, OS, editor, or env artifact; delete it and ignore it",
-                )
+        if len(rel.parts) == 1 and AUX_DOC_RE.match(f.name):
+            r.err(
+                "anthropic",
+                f"{rel}: auxiliary docs do not belong in a skill; put human docs in the repo README",
+            )
+        if JUNK_NAME_RE.search(f.name) or JUNK_DIRS.intersection(rel.parts):
+            r.err(
+                "policy",
+                f"{rel}: build, OS, editor, or env artifact; delete it and ignore it",
+            )
         if f.is_symlink():
             tgt = f.resolve()
             if tgt != rroot and rroot not in tgt.parents:

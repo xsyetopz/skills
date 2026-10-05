@@ -1,9 +1,10 @@
-"""Validate skill identities, OpenAI metadata, and internal Markdown links."""
+"""Validate skill identities, OpenAI metadata, install bundles, and internal Markdown links."""
 
 import re
 import sys
 from pathlib import Path
 
+import tomllib
 import yaml
 
 SKILL_LINK = re.compile(r"(?<!!)\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)")
@@ -11,10 +12,13 @@ REFERENCE_LINK = re.compile(r"^\[[^]]+\]:\s*(?:\n\s*)?([^\s#]+)", re.MULTILINE)
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 BODY_MAX_LINES = 200
-DESCRIPTION_MAX = 250
-# Codex renders each skill as this line and falls back to an 8,000-character
-# listing budget when the context window is unknown.
-CATALOG_MAX = 8000
+DESCRIPTION_MAX = 400
+WHEN_TO_USE_MAX = 250
+# Claude Code lists skills within 1% of the context window (about 8,000
+# characters at 200k tokens), and Codex falls back to 8,000 characters. Users
+# install one bundle at a time, so each bundle's listing must fit.
+BUNDLE_MAX = 8000
+BUNDLES = Path("bundles.toml")
 
 
 def catalog_entry(name: str, description: str) -> str:
@@ -53,7 +57,7 @@ def main() -> int:
     errors = 0
     roots = sorted(Path("skills").glob("*/SKILL.md"))
     names = {path.parent.name for path in roots}
-    descriptions: dict[str, str] = {}
+    listings: dict[str, str] = {}
     for skill_md in roots:
         skill = skill_md.parent
         text = skill_md.read_text()
@@ -87,8 +91,17 @@ def main() -> int:
                 f"maximum is {DESCRIPTION_MAX}"
             )
             errors += 1
-        else:
-            descriptions[skill.name] = description
+        when_to_use = metadata.get("when_to_use", "")
+        if not isinstance(when_to_use, str) or len(when_to_use) > WHEN_TO_USE_MAX:
+            fail(
+                f"{skill_md}: when_to_use must be a string of at most "
+                f"{WHEN_TO_USE_MAX} characters"
+            )
+            errors += 1
+        elif isinstance(description, str) and not metadata.get(
+            "disable-model-invocation"
+        ):
+            listings[skill.name] = f"{description} {when_to_use}".strip()
         compatibility = metadata.get("compatibility")
         if "compatibility" in metadata and (
             not isinstance(compatibility, str) or not 1 <= len(compatibility) <= 500
@@ -122,11 +135,7 @@ def main() -> int:
             fail(f"{openai_path}: invalid OpenAI metadata: {error}")
             errors += 1
         for markdown in skill.rglob("*.md"):
-            # Eval fixtures are test inputs, often deliberately broken.
-            if (
-                markdown.name.endswith(".template.md")
-                or "/evals/files/" in markdown.as_posix()
-            ):
+            if markdown.name.endswith(".template.md"):
                 continue
             markdown_text = outside_fences(markdown.read_text())
             targets = [
@@ -144,10 +153,35 @@ def main() -> int:
             if match not in names:
                 fail(f"{skill_md}: unknown skill ${match}")
                 errors += 1
-    total = catalog_size(descriptions)
-    print(f"catalog listing: {total}/{CATALOG_MAX} characters")
-    if total > CATALOG_MAX:
-        fail(f"catalog listing has {total} characters; maximum is {CATALOG_MAX}")
+    return int(errors > 0) | check_bundles(names, listings)
+
+
+def check_bundles(names: set[str], listings: dict[str, str]) -> int:
+    """Each skill sits in one bundle, and each bundle's listing fits its budget."""
+    try:
+        bundles = tomllib.loads(BUNDLES.read_text())["bundles"]
+    except (OSError, KeyError, tomllib.TOMLDecodeError) as error:
+        fail(f"{BUNDLES}: invalid bundle map: {error}")
+        return 1
+    errors = 0
+    seen: dict[str, str] = {}
+    for bundle, members in bundles.items():
+        for name in members:
+            if name not in names:
+                fail(f"{BUNDLES}: {bundle} names unknown skill {name}")
+                errors += 1
+            elif name in seen:
+                fail(f"{BUNDLES}: {name} is in both {seen[name]} and {bundle}")
+                errors += 1
+            seen[name] = bundle
+        listed = {name: listings[name] for name in members if name in listings}
+        total = catalog_size(listed)
+        print(f"{bundle} listing: {total}/{BUNDLE_MAX} characters")
+        if total > BUNDLE_MAX:
+            fail(f"{bundle} listing has {total} characters; maximum is {BUNDLE_MAX}")
+            errors += 1
+    for name in sorted(names - seen.keys()):
+        fail(f"{BUNDLES}: {name} is in no bundle")
         errors += 1
     return int(errors > 0)
 

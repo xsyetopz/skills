@@ -116,12 +116,12 @@ target/
 
 # Eval fixtures are committed inputs even when they look generated
 # (bin/, dist/, *.log); only caches that runs create inside them stay ignored.
-!/skills/*/evals/files/**
-/skills/*/evals/files/**/__pycache__/
-/skills/*/evals/files/**/*.py[cod]
-/skills/*/evals/files/**/.build/
-/skills/*/evals/files/**/.gradle/
-/skills/*/evals/files/**/node_modules/
+!/evals/*/files/**
+/evals/*/files/**/__pycache__/
+/evals/*/files/**/*.py[cod]
+/evals/*/files/**/.build/
+/evals/*/files/**/.gradle/
+/evals/*/files/**/node_modules/
 
 # Private reports from other agents
 letters/

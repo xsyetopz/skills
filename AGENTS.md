@@ -3,7 +3,7 @@
 Skills guide requested work without expanding its scope or authorizing adjacent changes. Preserve
 unrelated work and keep one clear implementation path.
 
-## Existing mechanisms
+## Existing Mechanisms
 
 - Before adding a file or tool, inspect the root and affected subtree. Extend an existing mechanism
   with the same responsibility.
@@ -14,7 +14,7 @@ unrelated work and keep one clear implementation path.
 - Use Bun for JavaScript tooling. Never introduce npm, npx, Yarn, or pnpm.
 - Use `just` for new task orchestration.
 
-## Change boundaries
+## Change Boundaries
 
 - Treat everything under `skills/` as published package content. Keep internal plans, audits, and
   execution records outside it, such as in `docs/audits/`. Published instructions must not depend on
@@ -34,9 +34,11 @@ link definitions. References have no numerical ceiling. This is catalog policy, 
 a measure of density, read coverage, or reliability. Keep the existing validator and its boundary
 tests; do not add a density checker.
 
-Keep each description within 250 characters, and the rendered listing, one
-`- name: description (file: skills/name/SKILL.md)` line per skill, within 8,000 characters.
-`just metadata` prints the current total.
+Keep each description within 400 characters and each optional `when_to_use` within 250. Every skill
+sits in exactly one bundle in `bundles.toml`, and each bundle's listing, one
+`- name: description when_to_use (file: skills/name/SKILL.md)` line per model-invoked skill, stays
+within 8,000 characters. `just metadata` prints each bundle's total.
+`docs/research/skill-discoverability.md` records the sources for these limits.
 
 Run commands from the repository root through existing `just` recipes. Use narrow recipes while
 iterating and `just validate` for catalog-wide changes. Do not duplicate recipe logic in new scripts

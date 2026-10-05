@@ -1,6 +1,6 @@
 target-version = "py310"
 # Eval fixtures are deliberately flawed inputs.
-extend-exclude = ["skills/*/evals/files"]
+extend-exclude = ["evals/*/files"]
 
 [lint]
 select = [

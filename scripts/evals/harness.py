@@ -7,14 +7,19 @@ personal and claude.ai-synced skills, plugins, hooks, and claude.ai MCP
 connectors. `--strict-mcp-config` drops the remaining MCP servers. A zero-cost
 preflight (`/cost`, a local command that never reaches the model) reads the
 stream's `init` event and proves which skills, plugins, and MCP servers load
-before any model call is made. The user-level CLAUDE.md still loads; the
-isolation record says so.
+before any model call is made. With `CLAUDE_CODE_OAUTH_TOKEN` set (from
+`claude setup-token`), children run against an empty `CLAUDE_CONFIG_DIR`, so
+personal skills, plugins, the user-level CLAUDE.md, and user settings never
+load. Without it they share `~/.claude`, and the isolation record says what
+still loads.
 """
 
 from __future__ import annotations
 
+import atexit
 import contextlib
 import fcntl
+import functools
 import json
 import os
 import re
@@ -31,6 +36,8 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_DIR = REPO_ROOT / "skills"
+# Eval definitions live outside skills/ so `skills add` never installs them.
+EVALS_DIR = REPO_ROOT / "evals"
 DEFAULT_OUT = REPO_ROOT / ".evals"
 # Fixed trigger-run working directories, outside any repository so no parent
 # CLAUDE.md, skills, or git status reaches the session.
@@ -67,6 +74,11 @@ META_TOOLS = frozenset(
         "TaskGet",
     }
 )
+
+# Builtin plugins that load even when disabled and add nothing to a session.
+# `claude plugin details cc-plugin-sec-default` (Claude Code 2.1.289): no
+# skills, agents, hooks, MCP or LSP servers, ~0 always-on tokens.
+INERT_PLUGINS = frozenset({"cc-plugin-sec-default@builtin"})
 
 EXIT_OK = 0
 EXIT_FAILED = 1
@@ -108,6 +120,20 @@ def write_json(path: Path, data: Any) -> None:
     path.write_text(
         json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
+
+
+@functools.cache
+def claude_home() -> Path:
+    """The config dir children use: an empty temp dir when a token is set."""
+    if not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
+        return Path.home() / ".claude"
+    home = Path(tempfile.mkdtemp(prefix="skill-eval-claude-"))
+    atexit.register(shutil.rmtree, home, ignore_errors=True)
+    return home
+
+
+def isolated_home() -> bool:
+    return claude_home() != Path.home() / ".claude"
 
 
 def personal_skill_names(claude_home: Path) -> list[str]:
@@ -201,7 +227,7 @@ def sandbox_settings(network: bool) -> dict[str, Any]:
 
 
 def default_settings(model: str, under_test: set[str]) -> dict[str, Any]:
-    home = Path.home() / ".claude"
+    home = claude_home()
     personal = personal_skill_names(home)
     collisions = sorted(under_test.intersection(personal))
     if collisions:
@@ -222,6 +248,8 @@ def child_env(model: str) -> dict[str, str]:
     env = dict(os.environ)
     env.update(dict.fromkeys(MODEL_ENV_KEYS, model))
     env["ENABLE_CLAUDEAI_MCP_SERVERS"] = "false"
+    if isolated_home():
+        env["CLAUDE_CONFIG_DIR"] = str(claude_home())
     return env
 
 
@@ -313,7 +341,7 @@ def remove_project(project: Path) -> None:
     creates `~/.claude/projects/<sanitized cwd>/` (and large tool results) and
     a per-session temp dir under `/tmp/claude-<uid>/<sanitized cwd>/`.
     """
-    state = session_state_dir(project, Path.home() / ".claude")
+    state = session_state_dir(project, claude_home())
     temp = Path("/tmp") / f"claude-{os.getuid()}" / state.name
     for path in (project, state, temp):
         shutil.rmtree(path, ignore_errors=True)
@@ -631,6 +659,13 @@ def preflight(
     attempts = 5
     for attempt in range(1, attempts + 1):
         write_json(settings_path, settings)
+        if isolated_home():
+            # Builtin plugins ignore enabledPlugins from --settings but obey
+            # it in user settings, which the isolated config dir owns.
+            write_json(
+                claude_home() / "settings.json",
+                {"enabledPlugins": settings["enabledPlugins"]},
+            )
         command = claude_command(
             "/cost",
             model=model,
@@ -650,7 +685,11 @@ def preflight(
                 f"preflight unexpectedly used {usage['total_tokens']} tokens"
             )
         loaded = set(init.get("skills") or [])
-        plugins = [p.get("source") or p.get("name") for p in init.get("plugins") or []]
+        plugins = [
+            source
+            for p in init.get("plugins") or []
+            if (source := p.get("source") or p.get("name")) not in INERT_PLUGINS
+        ]
         extra = sorted(loaded - expected)
         new_skills = [s for s in extra if s not in settings["skillOverrides"]]
         new_plugins = [p for p in plugins if p not in settings["enabledPlugins"]]
@@ -688,8 +727,8 @@ def preflight(
 def isolation_record(
     settings: dict[str, Any], preflights: dict[str, Any], project_dirs: str
 ) -> dict[str, Any]:
-    user_claude_md = Path.home() / ".claude" / "CLAUDE.md"
-    user_settings_path = Path.home() / ".claude" / "settings.json"
+    user_claude_md = claude_home() / "CLAUDE.md"
+    user_settings_path = claude_home() / "settings.json"
     user_settings = (
         read_json(user_settings_path) if user_settings_path.is_file() else {}
     )
@@ -701,6 +740,9 @@ def isolation_record(
             "--permission-prompts none",
         ],
         "project_dirs": project_dirs,
+        "config_dir": "isolated (CLAUDE_CONFIG_DIR, empty)"
+        if isolated_home()
+        else "shared (~/.claude)",
         "preflight": preflights,
         "not_isolated": {
             "user_claude_md": str(user_claude_md) if user_claude_md.is_file() else None,

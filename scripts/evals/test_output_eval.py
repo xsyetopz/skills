@@ -37,7 +37,7 @@ class LoadTests(unittest.TestCase):
                         "id": 1,
                         "prompt": "do it",
                         "expected_output": "done",
-                        "files": ["evals/files/data/in.csv"],
+                        "files": ["files/data/in.csv"],
                         "assertions": [
                             "Says done.",
                             {"text": "out.txt exists", "check": "test -f out.txt"},
@@ -97,7 +97,7 @@ class LoadTests(unittest.TestCase):
 
     def test_workspace_paths(self) -> None:
         self.assertEqual(
-            output_eval.workspace_path("evals/files/data/in.csv"), Path("data/in.csv")
+            output_eval.workspace_path("files/data/in.csv"), Path("data/in.csv")
         )
         self.assertEqual(output_eval.workspace_path("assets/x.json"), Path("x.json"))
         for bad in ("/etc/passwd", "../x"):

@@ -1,0 +1,55 @@
+# Install bundles. Users install one bundle at a time, so `just metadata` checks that each
+# bundle's skill listing fits 8,000 characters, and that every skill sits in exactly one bundle.
+# Manual-only skills (disable-model-invocation) cost no listing space.
+
+[bundles]
+agent-tooling = [
+  "write-agent-skill",
+  "write-agent-hooks",
+  "write-agent-stop-condition",
+  "write-agents-md",
+  "audit-agent-sessions",
+]
+core-engineering = [
+  "write-behavior-tests",
+  "refactor-code-smells",
+  "apply-architecture-patterns",
+  "fix-diagnostics-without-suppressing",
+  "optimize-runtime-performance",
+  "optimize-tsc-builds",
+]
+planning = [
+  "interview-to-openspec",
+]
+repo-workflow = [
+  "write-justfile",
+  "write-ci-workflow",
+  "design-cli-interface",
+  "commit-and-rewrite-git",
+  "triage-github-prs-and-issues",
+]
+docs-and-release = [
+  "write-project-readme",
+  "write-architecture-md",
+  "format-github-markdown",
+  "bump-semver",
+  "update-changelog",
+]
+security = [
+  "audit-repo-secrets-and-ci",
+  "test-game-exploits",
+]
+decomp-and-re = [
+  "decompile-to-matching-c-cpp",
+  "recompile-console-binary",
+  "reverse-engineer-binary",
+]
+emulators = [
+  "debug-game-in-emulator",
+  "write-emulator-patches",
+]
+niche = [
+  "build-editor-extension",
+  "migrate-js-to-bun",
+  "review-scientific-paper",
+]

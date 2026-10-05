@@ -7,14 +7,13 @@ from pathlib import Path
 
 
 def main() -> int:
+    # Eval fixtures under evals/ carry tests that fail on purpose until a run
+    # fixes them, so only skills/ and scripts/ are searched.
     tests = sorted(
-        test
-        for test in [
+        [
             *Path("skills").glob("**/test_*.py"),
             *Path("scripts").glob("**/test_*.py"),
         ]
-        # Eval fixtures carry tests that fail on purpose until a run fixes them.
-        if "/evals/files/" not in test.as_posix()
     )
     # Tests import published packages and start child interpreters; neither
     # may leave __pycache__ directories inside skills/.

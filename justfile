@@ -19,8 +19,9 @@ provision:
     env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX \
         "{{ venv }}/bin/python" -m pip install --disable-pip-version-check -r requirements-validation.txt
 
+# skills-ref rules, minus the documented Claude Code frontmatter fields.
 skills: provision
-    for skill in skills/*; do "{{ venv }}/bin/skills-ref" validate "$skill"; done
+    "{{ venv }}/bin/python" scripts/validate_spec.py skills/*
 
 metadata: provision
     "{{ venv }}/bin/python" scripts/validate_repository.py
@@ -39,18 +40,17 @@ secrets:
     if command -v gitleaks >/dev/null; then gitleaks git --no-banner --redact --pre-commit --staged . && gitleaks git --no-banner --redact --pre-commit . && gitleaks git --no-banner --redact .; else echo 'SKIP gitleaks: unavailable'; fi
 
 markdown:
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md" "!skills/*/evals/files/**"
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun markdownlint-cli2 "*.md" "skills/**/*.md" "docs/**/*.md"
 
-# Eval fixtures carry tests that fail on purpose until a run fixes them.
 tests: provision
     "{{ venv }}/bin/python" scripts/run_python_tests.py
-    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bun test --path-ignore-patterns='**/evals/files/**' skills
+    BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bun test skills
 
 assets: provision
     "{{ venv }}/bin/python" scripts/validate_assets.py
 
 justfiles: provision
-    "{{ venv }}/bin/python" skills/write-justfiles/scripts/check_justfiles.py justfile skills
+    "{{ venv }}/bin/python" skills/write-justfile/scripts/check_justfiles.py justfile skills
 
 python-lint: provision
     "{{ venv }}/bin/ruff" check --no-cache scripts skills
@@ -60,7 +60,7 @@ python-types: provision
     BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun pyright --pythonpath "{{ venv }}/bin/python"
 
 shell:
-    if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -not -path '*/evals/files/*' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
+    if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
 
 validate: skills metadata skill-lint hygiene secrets markdown tests assets justfiles python-lint python-types shell
     git diff --check

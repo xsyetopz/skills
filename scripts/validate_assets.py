@@ -13,9 +13,10 @@ import yaml
 
 def main() -> int:
     errors: list[str] = []
-    for path in Path("skills").rglob("*"):
-        # Eval fixtures may be deliberately malformed inputs.
-        if not path.is_file() or "/evals/files/" in path.as_posix():
+    # Eval definitions are checked; eval fixtures (evals/*/files/) may be
+    # deliberately malformed inputs.
+    for path in [*Path("skills").rglob("*"), *Path("evals").glob("*/*.json")]:
+        if not path.is_file():
             continue
         try:
             match path.suffix:

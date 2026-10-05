@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Agent Hooks"
+  short_description: "Claude Code and Codex hook guards and config"
+  default_prompt: "Use $write-agent-hooks to write or fix this hook: exact events and decision output, tested on sample payloads, merged without losing existing settings."

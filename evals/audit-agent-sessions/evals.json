@@ -1,0 +1,99 @@
+{
+	"skill_name": "audit-agent-sessions",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Audit the Claude Code sessions in claude-projects/-Users-me-shop/ (a copy of my ~/.claude/projects directory for this repo). Where did the tokens go, and where did the agents waste turns? No prices file is available.",
+			"expected_output": "The report names the searched directory and both transcripts; gives token counts per model and per main or subagent, counting each message.id once, and states that cost is not computed because no prices file was given; shows cache reads hold most tokens; reports git status run 3 times with identical output, cart.py read again with no edit in between, rg -l run 4 times by the subagent, one auto compaction at 190000 tokens, and a done claim with no test run; classifies each finding and proposes one fix each; quotes no message text.",
+			"files": [
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop.jsonl",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop/subagents/agent-a1b2c3.jsonl",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop/subagents/agent-a1b2c3.meta.json"
+			],
+			"assertions": [
+				{
+					"text": "The report gives token counts separately for claude-opus-5-5 (main: 1,820,000 cache reads, 3,100 output) and claude-haiku-4-5 (subagent: 160,000 cache reads, 600 output), not doubled by counting each content-block row."
+				},
+				{
+					"text": "The report states cost was not computed, or asks for a prices file from the provider's pricing page, and does not invent dollar figures."
+				},
+				{
+					"text": "The report states that cache reads are the largest token type in this data, from the counts, not as an assumption."
+				},
+				{
+					"text": "The report names the repeated `git status --short` (3 runs, identical output) and the repeated read of `/Users/me/shop/cart.py`."
+				},
+				{
+					"text": "The report names the one compaction point (auto, about 190000 tokens before)."
+				},
+				{
+					"text": "Each finding has one class (missing rule, rule that fires too often, prompt problem, or expected behavior) and one concrete fix."
+				},
+				{
+					"text": "The report does not contain the customer name or email from the first prompt (Jane Example, jane@example.com) or other message text."
+				}
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Review the session transcript claude-projects/-Users-me-shop/7c1e0b52-shop.jsonl. Did the agent verify its fix before saying it was done? What one change would have made this session faster or cheaper, and where should it go?",
+			"expected_output": "The answer finds that the task ended with a completion claim and no test or build command ran in that task (only git status, Read, Edit, and an Explore agent); it counts it as a confirmed unverified done claim after checking the last message; it proposes one line in the project instructions (CLAUDE.md or AGENTS.md) naming the test command to run before reporting done, or a Stop hook, and links the retro answer to a single recorded change; it does not quote the user prompt.",
+			"files": [
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop.jsonl"
+			],
+			"assertions": [
+				{
+					"text": "The answer says no test or build command ran in the task before the done claim, and bases this on the Bash commands in the transcript."
+				},
+				{
+					"text": "The answer proposes exactly one recorded change: one line in CLAUDE.md or AGENTS.md, or one Stop hook change."
+				},
+				{
+					"text": "The answer does not quote the first user prompt or name the customer (Jane Example)."
+				}
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Estimate what the sessions in claude-projects/-Users-me-shop/ cost. My prices are in prices.json (USD per million tokens). Which token type drives the cost?",
+			"expected_output": "The report runs session_stats.py with --prices prices.json, gives cost per model (Opus main about $1.21, Haiku subagent about $0.06, total about $1.27), says cache reads drive the cost for the main model, and quotes no message text.",
+			"files": [
+				"files/prices.json",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop.jsonl",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop/subagents/agent-a1b2c3.jsonl",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop/subagents/agent-a1b2c3.meta.json"
+			],
+			"assertions": [
+				{
+					"text": "The report gives the claude-opus-5-5 cost as about $1.21 and the claude-haiku-4-5 cost as about $0.06, using the prices in prices.json."
+				},
+				{
+					"text": "The report says cache reads are the largest cost component for the Opus main conversation, from the per-type counts and prices."
+				},
+				{
+					"text": "The report does not contain the customer name or email from the first prompt (Jane Example, jane@example.com)."
+				}
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "In claude-projects/-Users-me-shop/, how often did the agents re-read a file or rerun the same command with identical output? Give counts and where.",
+			"expected_output": "The report uses session_stats.py: /Users/me/shop/cart.py re-read 2 times with no edit between in the main transcript, git status run 3 times in the main transcript, rg -l run 4 times in the subagent transcript; paths given, no message text or command output.",
+			"files": [
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop.jsonl",
+				"files/claude-projects/-Users-me-shop/7c1e0b52-shop/subagents/agent-a1b2c3.jsonl"
+			],
+			"assertions": [
+				{
+					"text": "The report gives cart.py as re-read 2 times in the main transcript."
+				},
+				{
+					"text": "The report gives git status as run 3 times in the main transcript and rg -l as run 4 times in the subagent transcript."
+				},
+				{
+					"text": "The report does not quote message text or tool output."
+				}
+			]
+		}
+	]
+}

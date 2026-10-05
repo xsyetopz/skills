@@ -1,4 +1,0 @@
-interface:
-  display_name: "Create Agent Hooks"
-  short_description: "Claude Code and Codex hooks and goals"
-  default_prompt: "Use $create-agent-hooks to write or fix this hook or goal condition: exact events and decision output, tested on sample payloads, merged without losing existing settings."

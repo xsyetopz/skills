@@ -1,12 +1,18 @@
 ---
 name: audit-agent-sessions
 description: >-
-  Reads Claude Code session transcripts to measure token use, tool calls,
-  cost, and failure patterns. Use when reviewing why a session was slow,
-  costly, or went wrong.
+  Audits Claude Code session transcripts (~/.claude/projects JSONL, subagent
+  logs) for token use, cache reads, cost per model, repeated reads and
+  commands, compactions, turn limits, and unverified done claims. Use when
+  usage or cost is high, a session was slow or went wrong, or before changing
+  CLAUDE.md or hooks after a long session. Not for writing hooks or AGENTS.md.
+when_to_use: >-
+  Why is my Claude Code usage so high this week? What burns my limit, main or
+  subagents? Did my subagents hit their turn limit? What would have made that
+  session faster or cheaper?
 ---
 
-# Audit agent sessions
+# Audit Agent Sessions
 
 Claude Code only: the transcripts and their fields belong to Claude Code. Measure where sessions
 spent turns and tokens, then report one fix per finding. The fix is a proposal, so make it only if
@@ -32,7 +38,7 @@ the user asks.
 - A pattern over message text only flags candidates. Open each flagged task by index, confirm it,
   and report only confirmed counts.
 - Give each finding one class and one fix. Missing rule: a line in project instructions
-  ($write-agents-md). Hook that blocks correct work: narrow it ($create-agent-hooks). Vague brief:
+  ($write-agents-md). Hook that blocks correct work: narrow it ($write-agent-hooks). Vague brief:
   rewrite or split it. Expected cost for a wanted result: change nothing.
 
 ## Scripts

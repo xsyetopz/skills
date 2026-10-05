@@ -1,9 +1,15 @@
 ---
 name: write-agents-md
 description: >-
-  Writes and trims AGENTS.md and CLAUDE.md instruction files so agents follow
-  the project's commands and rules. Use when creating or auditing agent
-  instructions.
+  Writes and audits AGENTS.md, CLAUDE.md, CLAUDE.local.md, and .claude/rules
+  instruction files for Claude Code and Codex: commands, boundaries, nested
+  files, and @ imports. Use when an agent ignores the project's rules, runs
+  stale or wrong commands, misses per-package instructions, or the file grew
+  too long. Not for README or CONTRIBUTING docs for humans, skills, or hooks.
+when_to_use: >-
+  Claude keeps using npm after we switched to pnpm. Our CLAUDE.md is 600
+  lines and half of it is ignored. Give agents per-package commands in this
+  monorepo. Codex ignores services/billing/AGENTS.md.
 ---
 
 # Write AGENTS.md
@@ -35,6 +41,10 @@ Also check `.claude/rules/`, and edit what you find in place.
   adherence; Codex stops reading at `project_doc_max_bytes` (32 KiB default) combined ([Claude Code
   memory][cc-memory], [Codex][codex]). Cut prose first, then move path-specific rules to nested
   files or `.claude/rules/`.
+- Do not write down a convention that the evidence shows is harmful, such as a deprecated tool, a
+  dead command, or a habit of suppressing lint findings, only because the repository does it. Name
+  it with the evidence and its maintenance cost, and ask the user before you record or remove it.
+  Agents follow a recorded rule in every later session.
 - Adding a rule that supersedes an older one: remove or merge the older one in the same edit, or the
   file contradicts itself.
 - Claude Code reads `AGENTS.md` only when no `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md`
@@ -44,6 +54,12 @@ Also check `.claude/rules/`, and edit what you find in place.
   so deeper files win; sibling directories are never loaded, and `AGENTS.override.md` replaces only
   its own directory's `AGENTS.md` (Codex, [guide][codex]). Put a rule where every launch directory
   that needs it sees it.
+- If skills are installed (`.claude/skills/`, `.agents/skills/`, or the user's
+  `~/.claude/skills/` and `~/.agents/skills/`), offer one line per skill that says when to use it in
+  terms of the task, such as "Before changing CI workflows, use `write-ci-workflow`". Do not copy
+  its description, which the host already lists. Add the lines only when the user agrees, and list
+  only skills that exist. In [Vercel's Next.js eval][vercel], a skill went uninvoked in 56% of
+  cases until a CLAUDE.md line said when to use it, which raised the trigger rate to over 95%.
 - Name sample instruction files `*.example.md` or `*.template.md`, never `AGENTS.md` or `CLAUDE.md`,
   or hosts load them as live instructions.
 - Confirm loading in each host you can run: `/context` in Claude Code (Memory files),
@@ -76,3 +92,4 @@ Also check `.claude/rules/`, and edit what you find in place.
 
 [cc-memory]: https://code.claude.com/docs/en/memory
 [codex]: https://learn.chatgpt.com/docs/agent-configuration/agents-md
+[vercel]: https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals

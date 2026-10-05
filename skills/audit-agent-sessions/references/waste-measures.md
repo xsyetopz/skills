@@ -1,4 +1,4 @@
-# Waste measures
+# Waste Measures
 
 Run the shell blocks in Claude Code's Bash tool (Git Bash on Windows); they need `jq`.
 
@@ -9,15 +9,15 @@ check](transcript-data.md#check-the-schema-first) first.
 
 ## Contents
 
-- [Re-reads and repeated commands](#re-reads-and-repeated-commands)
-- [Agents that end at their turn limit](#agents-that-end-at-their-turn-limit)
-- [Compaction points](#compaction-points)
-- [Split a transcript into tasks](#split-a-transcript-into-tasks)
-- [Unverified done claims](#unverified-done-claims)
-- [Announce and stop](#announce-and-stop)
+- [Re-reads and Repeated Commands](#re-reads-and-repeated-commands)
+- [Agents That End at Their Turn Limit](#agents-that-end-at-their-turn-limit)
+- [Compaction Points](#compaction-points)
+- [Split a Transcript into Tasks](#split-a-transcript-into-tasks)
+- [Unverified Done Claims](#unverified-done-claims)
+- [Announce and Stop](#announce-and-stop)
 - [Sources](#sources)
 
-## Re-reads and repeated commands
+## Re-reads and Repeated Commands
 
 `scripts/session_stats.py` counts both. Two blind spots: reads and edits through Bash (`cat`,
 `sed -i`) are not `Read` or `Edit` calls, so count them separately and call the result approximate.
@@ -27,7 +27,7 @@ job, are not waste; check the calls in between.
 - Typical fix: read only the needed line range, and rerun a status command only after an action that
   can change its output.
 
-## Agents that end at their turn limit
+## Agents That End at Their Turn Limit
 
 A subagent with `maxTurns` in its definition stops at that limit, and Claude Code marks its returned
 output as partial. The parent then resumes it, redoes the work, or reports an incomplete result.
@@ -56,7 +56,7 @@ done
 - Typical fix: a smaller brief, a rule or hook that stops the retry loop earlier, or a different
   limit.
 
-## Compaction points
+## Compaction Points
 
 Each compaction writes a `system` row with `subtype` `compact_boundary`:
 
@@ -73,7 +73,7 @@ jq -c 'select(.type == "system" and .subtype == "compact_boundary")
 - Typical fix: split long tasks, start a fresh session between unrelated tasks, or add a
   `# Compact instructions` section to `CLAUDE.md` that names what to keep.
 
-## Split a transcript into tasks
+## Split a Transcript into Tasks
 
 A task runs from one typed prompt to the next. A typed prompt is a `user` row whose
 `message.content` is a string, with `isMeta` and `isCompactSummary` not set. The program below
@@ -113,7 +113,7 @@ jq -s -c -f tasks.jq \
 Take the command pattern from the repository's `AGENTS.md`, `CLAUDE.md`, `justfile`, `Makefile`, or
 `package.json`, not from this example.
 
-## Unverified done claims
+## Unverified Done Claims
 
 Tasks with `claims_done` true and `tests` 0. The agent reported completion without running a check
 in that task.
@@ -123,9 +123,9 @@ in that task.
 - Not waste: a task with nothing to test (a question, a docs change with no checker), or a check the
   user ran themselves.
 - Typical fix: a rule naming the check command to run before reporting done, or a `Stop` hook that
-  blocks the stop until a check ran ($create-agent-hooks).
+  blocks the stop until a check ran ($write-agent-stop-condition).
 
-## Announce and stop
+## Announce and Stop
 
 Tasks with `announces_next` true: the last text says what the agent will do next ("Next, I'll run
 the tests."), and the turn ends. The user must send another prompt to get the work the agent already

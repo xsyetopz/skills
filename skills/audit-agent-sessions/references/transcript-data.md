@@ -1,16 +1,16 @@
-# Transcript data
+# Transcript Data
 
 Run these commands in Claude Code's Bash tool (Git Bash on Windows); the recipes need `jq`.
 
 ## Contents
 
-- [Where the transcripts are](#where-the-transcripts-are)
-- [Check the schema first](#check-the-schema-first)
-- [Fields observed](#fields-observed)
-- [jq recipes](#jq-recipes)
+- [Where the Transcripts Are](#where-the-transcripts-are)
+- [Check the Schema First](#check-the-schema-first)
+- [Fields Observed](#fields-observed)
+- [jq Recipes](#jq-recipes)
 - [Sources](#sources)
 
-## Where the transcripts are
+## Where the Transcripts Are
 
 The [`.claude` directory reference][dir] documents these paths:
 
@@ -30,7 +30,7 @@ rg -l --glob '*.jsonl' 'compact_boundary' ~/.claude/projects
 fd -e jsonl . ~/.claude/projects/-Users-me-repo
 ```
 
-## Check the schema first
+## Check the Schema First
 
 List keys and types of a recent transcript before you run a recipe. These print structure only,
 never message text:
@@ -46,7 +46,7 @@ jq -c 'paths | map(tostring) | join(".")' "$f" | sort -u \
 
 If a field a recipe uses is missing, adapt the recipe and say so.
 
-## Fields observed
+## Fields Observed
 
 Seen in September 2026 on Claude Code 2.1.284 and 2.1.285. A starting point, not a contract.
 
@@ -68,7 +68,7 @@ Seen in September 2026 on Claude Code 2.1.284 and 2.1.285. A starting point, not
 Each subagent transcript has a sibling `agent-<agentId>.meta.json` with `agentType`, `description`,
 `model`, and `spawnDepth`.
 
-## jq recipes
+## jq Recipes
 
 Tokens by model for one transcript, each API message counted once:
 

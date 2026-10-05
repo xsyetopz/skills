@@ -1,9 +1,9 @@
-# Host discovery
+# Host Discovery
 
 Facts from the [AGENTS.md format][agents-md], OpenAI's [Codex AGENTS.md guide][codex], and Claude
 Code's [memory docs][cc-memory] and [costs docs][cc-costs]. Recheck against the installed versions.
 
-## Symlinked files
+## Symlinked Files
 
 `ln -s AGENTS.md CLAUDE.md` (or `GEMINI.md`) gives hosts one file, but Windows checkouts without
 `core.symlinks` get a text file; prefer a `CLAUDE.md` containing `@AGENTS.md`. Claude Code's Edit
@@ -47,7 +47,7 @@ rules, import instead of symlinking.
 - A `# Compact instructions` section in `CLAUDE.md` tells compaction what to keep; add it only when
   sessions compact and lose decisions or exact errors ([costs docs][cc-costs]).
 
-## Nested files
+## Nested Files
 
 A subproject `AGENTS.md` adds rules for its subtree and loads with its ancestors: in Codex when
 launched inside the subtree, in Claude Code when it reads files there. State only what differs from

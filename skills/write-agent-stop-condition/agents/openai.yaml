@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Agent Stop Condition"
+  short_description: "Keep the agent working until a check passes"
+  default_prompt: "Use $write-agent-stop-condition to keep the agent working until this check passes: a bounded goal or a Stop hook that runs the check, guarded against loops."

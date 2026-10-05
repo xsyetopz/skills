@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Agent Skill"
+  short_description: "Write, trim, and evaluate Agent Skills"
+  default_prompt: "Use $write-agent-skill to audit this skill: cut what the model already does, fix the description, and run trigger evals."

@@ -1,20 +1,20 @@
 {
-	"skill_name": "migrate-js-tooling-to-bun",
+	"skill_name": "migrate-js-to-bun",
 	"evals": [
 		{
 			"id": 1,
 			"prompt": "Switch the npm monorepo in mono/ to `bun install` (it has package-lock.json and two workspaces plus a local codegen tool). Only the package manager moves: scripts, the runtime, and the test runner stay as they are. Update CI (mono/.github/workflows/ci.yml) to match.",
 			"expected_output": "Runs bun install with package-lock.json present so Bun migrates it, compares resolutions (compare_lockfiles.py or bun pm ls) before deleting the old lockfile, reviews the blocked codegen postinstall with bun pm untrusted and trusts it after reading it, keeps start and test on Node, and changes CI to bun ci plus a lockfile-only diff check for workspaces.",
 			"files": [
-				"evals/files/mono/.github/workflows/ci.yml",
-				"evals/files/mono/package-lock.json",
-				"evals/files/mono/package.json",
-				"evals/files/mono/packages/app/index.js",
-				"evals/files/mono/packages/app/package.json",
-				"evals/files/mono/packages/app/slug.test.js",
-				"evals/files/mono/packages/util/index.js",
-				"evals/files/mono/packages/util/package.json",
-				"evals/files/mono/tools/codegen/package.json"
+				"files/mono/.github/workflows/ci.yml",
+				"files/mono/package-lock.json",
+				"files/mono/package.json",
+				"files/mono/packages/app/index.js",
+				"files/mono/packages/app/package.json",
+				"files/mono/packages/app/slug.test.js",
+				"files/mono/packages/util/index.js",
+				"files/mono/packages/util/package.json",
+				"files/mono/tools/codegen/package.json"
 			],
 			"assertions": [
 				{
@@ -38,14 +38,14 @@
 			"prompt": "CI for gap/ runs `bun ci`, but a teammate merged a change adding \"@acme/log\": \"workspace:*\" to gap/packages/api/package.json without updating bun.lock, and CI stayed green. How did that pass? Fix the lockfile and make CI catch this next time.",
 			"expected_output": "Explains and reproduces that frozen installs do not detect a new workspace:* edge, updates bun.lock with bun install, keeps bun ci, and adds bun install --lockfile-only followed by git diff --exit-code bun.lock to CI, showing the check failing on the stale lockfile.",
 			"files": [
-				"evals/files/gap/.github/workflows/ci.yml",
-				"evals/files/gap/bun.lock",
-				"evals/files/gap/package.json",
-				"evals/files/gap/packages/api/api.test.js",
-				"evals/files/gap/packages/api/index.js",
-				"evals/files/gap/packages/api/package.json",
-				"evals/files/gap/packages/log/index.js",
-				"evals/files/gap/packages/log/package.json"
+				"files/gap/.github/workflows/ci.yml",
+				"files/gap/bun.lock",
+				"files/gap/package.json",
+				"files/gap/packages/api/api.test.js",
+				"files/gap/packages/api/index.js",
+				"files/gap/packages/api/package.json",
+				"files/gap/packages/log/index.js",
+				"files/gap/packages/log/package.json"
 			],
 			"assertions": [
 				{
@@ -68,12 +68,12 @@
 			"prompt": "Move the Jest tests in jestapp/ to `bun test` (we already install with Bun). Keep the setup file, the 90% line-coverage gate, and the lcov upload in jestapp/.github/workflows/ci.yml working.",
 			"expected_output": "Maps setupFiles to [test] preload in bunfig.toml, the coverage gate to coverageThreshold and the lcov reporter (coverage/lcov.info), switches the test scripts to bun test, compares test counts before and after, and never updates snapshots wholesale.",
 			"files": [
-				"evals/files/jestapp/.github/workflows/ci.yml",
-				"evals/files/jestapp/jest.config.js",
-				"evals/files/jestapp/package.json",
-				"evals/files/jestapp/src/invoice.js",
-				"evals/files/jestapp/test/invoice.test.js",
-				"evals/files/jestapp/test/setup.js"
+				"files/jestapp/.github/workflows/ci.yml",
+				"files/jestapp/jest.config.js",
+				"files/jestapp/package.json",
+				"files/jestapp/src/invoice.js",
+				"files/jestapp/test/invoice.test.js",
+				"files/jestapp/test/setup.js"
 			],
 			"assertions": [
 				{
@@ -96,9 +96,9 @@
 			"prompt": "Quick question about runtime-q/: we moved installs to Bun last week (see runtime-q/NOTES.md). Production runs `bun run start`. Is our server running on Bun now? Don't change anything; tell me and show me how to check.",
 			"expected_output": "No: bun run executes the script's own `node dist/server.js` command, so the server runs on Node; only `bun --bun run start` or a bun entry point changes the runtime. Shows how to observe it (process.versions.bun or startup log) and leaves the files unchanged.",
 			"files": [
-				"evals/files/runtime-q/NOTES.md",
-				"evals/files/runtime-q/dist/server.js",
-				"evals/files/runtime-q/package.json"
+				"files/runtime-q/NOTES.md",
+				"files/runtime-q/dist/server.js",
+				"files/runtime-q/package.json"
 			],
 			"assertions": [
 				{

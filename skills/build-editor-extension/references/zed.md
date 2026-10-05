@@ -1,4 +1,4 @@
-# Zed extensions
+# Zed Extensions
 
 Gotchas for `extension.toml`, Rust/WASM code, language servers, Tree-sitter queries, themes, and
 registry publishing. Rules mirror Zed v1.21.0 and `zed_extension_api` 0.7.0 sources. Checkers, all
@@ -16,14 +16,14 @@ stdlib-only Python:
 
 ## Contents
 
-- [Manifest and build](#manifest-and-build)
-- [Language servers and other Rust features](#language-servers-and-other-rust-features)
-- [Languages and queries](#languages-and-queries)
-- [Themes, icons, and snippets](#themes-icons-and-snippets)
+- [Manifest and Build](#manifest-and-build)
+- [Language Servers and Other Rust Features](#language-servers-and-other-rust-features)
+- [Languages and Queries](#languages-and-queries)
+- [Themes, Icons, and Snippets](#themes-icons-and-snippets)
 - [Publishing](#publishing)
 - [Sources](#sources)
 
-## Manifest and build
+## Manifest and Build
 
 - Mistake: building against a `zed_extension_api` newer than the target Zed accepts. Fix: Zed
   v1.21.0 accepts API 0.0.1 through 0.7.0; use 0.7.0 or older unless the user targets only dev or
@@ -52,7 +52,7 @@ stdlib-only Python:
 - Mistake: I/O or downloads in `Extension::new`. Fix: there is no `Result` there and no worktree; do
   the work in the first `language_server_command` call.
 
-## Language servers and other Rust features
+## Language Servers and Other Rust Features
 
 - Mistake: bundling a server or debug adapter binary. Fix: resolve in this order: `Worktree::which`,
   the cached path, then a download with `zed::download_file`. `Worktree::which` needs no capability;
@@ -66,7 +66,7 @@ stdlib-only Python:
 - Mistake: debug adapter binaries copied into the extension. Fix: locate them on `PATH` or download
   them like a language server. [debugger extensions][dap-docs]
 
-## Languages and queries
+## Languages and Queries
 
 - Mistake: a grammar `rev` that is a branch or tag. Fix: pin a 40-character commit SHA and re-run
   `check_zed_queries.py --node-types` whenever it changes; queries written for another revision name
@@ -78,7 +78,7 @@ stdlib-only Python:
 - Mistake: reusing a grammar from another extension by copying it. Fix: point `[grammars.<name>]` at
   the same repository and rev. [FAQ][faq]
 
-## Themes, icons, and snippets
+## Themes, Icons, and Snippets
 
 - Mistake: a theme color not written as `#rgb`, `#rgba`, `#rrggbb`, or `#rrggbbaa`, or a misspelled
   style key. Fix: run `check_zed_theme.py` with the published schema; the schema allows unknown keys

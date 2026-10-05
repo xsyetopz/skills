@@ -1,4 +1,0 @@
-interface:
-  display_name: "Analyze Scientific Papers"
-  short_description: "Evidence-checked answers from papers"
-  default_prompt: "Use $analyze-scientific-papers to read this paper critically: confirm the exact version and retraction status, check methods and recomputed statistics, and scope each claim to the evidence."

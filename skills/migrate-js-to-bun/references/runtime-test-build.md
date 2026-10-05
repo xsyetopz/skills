@@ -1,4 +1,4 @@
-# Runtime, tests, and bundling
+# Runtime, Tests, and Bundling
 
 Sources: [runtime](https://bun.com/docs/runtime), [Node
 compatibility](https://bun.com/docs/runtime/nodejs-compat),
@@ -9,14 +9,14 @@ gaps](https://github.com/oven-sh/bun/issues/1825), [bundler](https://bun.com/doc
 
 ## Contents
 
-- [Script runtime](#script-runtime)
-- [Node compatibility boundary](#node-compatibility-boundary)
-- [Test runner](#test-runner)
-- [Setup, coverage, and reports](#setup-coverage-and-reports)
-- [Bundler target](#bundler-target)
+- [Script Runtime](#script-runtime)
+- [Node Compatibility Boundary](#node-compatibility-boundary)
+- [Test Runner](#test-runner)
+- [Setup, Coverage, and Reports](#setup-coverage-and-reports)
+- [Bundler Target](#bundler-target)
 - [Rollback](#rollback)
 
-## Script runtime
+## Script Runtime
 
 - `bun run SCRIPT` runs the script but an explicit `node` command or a `node`-shebang CLI still runs
   on Node. `bun --bun run SCRIPT` puts a `node` symlink to Bun first on the path, so the same script
@@ -26,7 +26,7 @@ gaps](https://github.com/oven-sh/bun/issues/1825), [bundler](https://bun.com/doc
 - `bun entry.ts` runs a file directly and is a runtime switch. Bun strips types without checking, so
   keep `bunx tsc --noEmit` in CI.
 
-## Node compatibility boundary
+## Node Compatibility Boundary
 
 - Before a runtime switch, list the Node APIs the code and dependencies use (POSIX sh with `rg` and
   `fd`; on Windows run them in Git Bash or WSL):
@@ -43,7 +43,7 @@ fd -HI -e node . node_modules
   module's tests on both runtimes, and keep Node for a tool that needs an API marked partial or
   missing.
 
-## Test runner
+## Test Runner
 
 - `bun test` runs `*.test.*`, `*_test.*`, `*.spec.*`, and `*_spec.*`, with a Jest-like API from
   `bun:test` (`mock`, `spyOn`, snapshots). Missing Jest features are tracked in the Jest gaps issue.
@@ -53,7 +53,7 @@ fd -HI -e node . node_modules
   deliberate bug must fail the suite.
 - Review each snapshot change; never run `bun test --update-snapshots` to get green.
 
-## Setup, coverage, and reports
+## Setup, Coverage, and Reports
 
 - `[test] preload = ["./setup.js"]` in `bunfig.toml` replaces Jest `setupFiles`.
   `bun test --coverage --coverage-reporter=lcov` writes `coverage/lcov.info`;
@@ -61,7 +61,7 @@ fd -HI -e node . node_modules
 - Point the CI coverage gate and report upload at the new paths. Never drop a gate because the
   format changed; confirm it still fails below its threshold.
 
-## Bundler target
+## Bundler Target
 
 - `bun build --target=browser|node|bun` picks resolution and output for the consumer; the default is
   `browser`. `--target=bun` output starts with `// @bun`, and `format: "cjs"` with `target: "bun"`

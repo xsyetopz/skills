@@ -1,4 +1,4 @@
-# Package manager
+# Package Manager
 
 Sources: [installation](https://bun.com/docs/installation),
 [lockfile](https://bun.com/docs/pm/lockfile), [install](https://bun.com/docs/pm/cli/install),
@@ -8,16 +8,16 @@ registries](https://bun.com/docs/pm/scopes-registries), [.npmrc](https://bun.com
 
 ## Contents
 
-- [Version pin](#version-pin)
-- [Lockfile migration](#lockfile-migration)
-- [Resolution comparison](#resolution-comparison)
-- [Binary lockfile](#binary-lockfile)
-- [Frozen installs](#frozen-installs-and-the-workspace-gap)
-- [Lifecycle script trust](#lifecycle-script-trust)
+- [Version Pin](#version-pin)
+- [Lockfile Migration](#lockfile-migration)
+- [Resolution Comparison](#resolution-comparison)
+- [Binary Lockfile](#binary-lockfile)
+- [Frozen Installs and the Workspace Gap](#frozen-installs-and-the-workspace-gap)
+- [Lifecycle Script Trust](#lifecycle-script-trust)
 - [Linker](#linker)
-- [Registries and credentials](#registries-and-credentials)
+- [Registries and Credentials](#registries-and-credentials)
 
-## Version pin
+## Version Pin
 
 - `packageManager: "bun@X"` records intent but does not prove which executable ran. Print
   `bun --version` and `bun --revision` in every CI job and image, and match the version the user
@@ -26,7 +26,7 @@ registries](https://bun.com/docs/pm/scopes-registries), [.npmrc](https://bun.com
   `git diff --exit-code bun.lock`. `bun update` resolves new versions, so a failing test no longer
   points at the runtime.
 
-## Lockfile migration
+## Lockfile Migration
 
 - With no `bun.lock`, `bun install` converts `yarn.lock` v1, `package-lock.json` with
   `lockfileVersion` 2, 3, or 4, and `pnpm-lock.yaml`, and keeps the original file.
@@ -36,7 +36,7 @@ registries](https://bun.com/docs/pm/scopes-registries), [.npmrc](https://bun.com
 - If `bun.lock` already exists, no migration runs.
 - A migration from npm or Yarn writes `"configVersion": 0`, which keeps the hoisted layout.
 
-## Resolution comparison
+## Resolution Comparison
 
 - Before deleting the old lockfile, run
   `python3 scripts/compare_lockfiles.py package-lock.json bun.lock` and explain every changed line.
@@ -44,7 +44,7 @@ registries](https://bun.com/docs/pm/scopes-registries), [.npmrc](https://bun.com
 - The script reads only `package-lock.json`. For Yarn or pnpm, diff the old tool's full resolved
   list against `bun pm ls --all`.
 
-## Binary lockfile
+## Binary Lockfile
 
 - Bun before 1.2 wrote a binary `bun.lockb`. Convert with
   `bun install --save-text-lockfile --frozen-lockfile --lockfile-only`, then delete `bun.lockb`,
@@ -53,7 +53,7 @@ registries](https://bun.com/docs/pm/scopes-registries), [.npmrc](https://bun.com
 - Keep a saved copy until `bun ci` passes with only `bun.lock` and `bun pm ls --all` is identical
   before and after.
 
-## Frozen installs and the workspace gap
+## Frozen Installs and the Workspace Gap
 
 - `bun ci` is `bun install --frozen-lockfile`: it never writes the lockfile and exits 1 with
   "lockfile had changes, but lockfile is frozen" when `package.json` needs a change. Bun does not
@@ -67,7 +67,7 @@ bun install --lockfile-only
 git diff --exit-code bun.lock
 ```
 
-## Lifecycle script trust
+## Lifecycle Script Trust
 
 - Bun runs `preinstall`/`postinstall` only for trusted packages. `trustedDependencies` omitted means
   a built-in list of popular packages; a list of names means only those, and the built-in list is
@@ -90,7 +90,7 @@ git diff --exit-code bun.lock
 - Record `configVersion` and the linker in the report, and run each workspace's tests from its own
   directory.
 
-## Registries and credentials
+## Registries and Credentials
 
 - Bun reads `.npmrc` and `[install.scopes]` in `bunfig.toml`; values can reference environment
   variables:

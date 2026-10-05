@@ -1,12 +1,16 @@
 ---
-name: develop-editor-plugins
+name: build-editor-extension
 description: >-
-  Builds, tests, and packages editor extensions for VS Code, IntelliJ,
-  Eclipse, Neovim, Sublime Text, and Zed. Use when writing or debugging a
-  plugin, manifest, or extension API call.
+  Builds, tests, and packages editor extensions: VS Code package.json and
+  activation events, IntelliJ plugin.xml, Eclipse MANIFEST.MF bundles, Neovim
+  Lua plugins, Sublime Text packages, and Zed extension.toml with Tree-sitter
+  queries. Use when writing, debugging, or publishing a plugin that others
+  install. Not for personal editor settings, standalone language servers, or
+  CLI tools.
+disable-model-invocation: true
 ---
 
-# Develop Editor Plugins
+# Build Editor Extension
 
 Editor extensions run inside a host that owns the UI thread, the activation schedule, and the API
 versions. Most failures come from work the host did not expect: slow startup, blocked UI, a manifest

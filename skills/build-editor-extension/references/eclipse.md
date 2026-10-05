@@ -1,4 +1,4 @@
-# Eclipse IDE plug-ins
+# Eclipse IDE Plug-Ins
 
 Gotchas for OSGi metadata, workbench contributions, Jobs, SWT threading, markers, preferences, and
 Tycho builds. Run `python3 scripts/check_eclipse_bundle.py BUNDLE_DIR...` on each bundle
@@ -7,14 +7,14 @@ their sources.
 
 ## Contents
 
-- [Bundle metadata](#bundle-metadata)
-- [Commands, handlers, and menus](#commands-handlers-and-menus)
-- [Jobs and threads](#jobs-and-threads)
-- [Workspace, markers, and preferences](#workspace-markers-and-preferences)
-- [Tycho build and tests](#tycho-build-and-tests)
+- [Bundle Metadata](#bundle-metadata)
+- [Commands, Handlers, and Menus](#commands-handlers-and-menus)
+- [Jobs and Threads](#jobs-and-threads)
+- [Workspace, Markers, and Preferences](#workspace-markers-and-preferences)
+- [Tycho Build and Tests](#tycho-build-and-tests)
 - [Sources](#sources)
 
-## Bundle metadata
+## Bundle Metadata
 
 - Mistake: `<extension>` or `<extension-point>` in `plugin.xml` with a plain `Bundle-SymbolicName`.
   Fix: add `;singleton:=true`; otherwise the registry ignores the contributions (`M009`, a PDE
@@ -36,7 +36,7 @@ their sources.
 - Mistake: `javax.inject` annotations. Fix: current Eclipse uses `jakarta.inject`. [API
   removals][removals]
 
-## Commands, handlers, and menus
+## Commands, Handlers, and Menus
 
 - Mistake: putting the work in `execute` of a handler. Fix: capture the input (selection, file),
   schedule a `Job`, and return; handlers run on the UI thread. [handlers][handlers]
@@ -49,7 +49,7 @@ their sources.
 - Mistake: `Display.getDefault()` during class loading of non-UI code. Fix: obtain the display only
   when running UI code. [SWT threading][swt]
 
-## Jobs and threads
+## Jobs and Threads
 
 - Mistake: slow work in handlers, listeners, or the activator. Fix: a `Job` (or `WorkspaceJob` when
   it writes resources). [jobs][jobs]
@@ -69,7 +69,7 @@ their sources.
   `Color` and `Font` objects you create (use `LocalResourceManager`). [JFace resources][jface-res],
   [Color][color], [LRM][lrm]
 
-## Workspace, markers, and preferences
+## Workspace, Markers, and Preferences
 
 - Mistake: modifying the workspace inside an `IResourceChangeListener`. Fix: the workspace is locked
   against changes during notification; schedule a Job. [resource events][events]
@@ -87,7 +87,7 @@ their sources.
 - Mistake: `System.err` or `printStackTrace` for errors. Fix: log through the bundle's `ILog`.
   [ILog][ilog]
 
-## Tycho build and tests
+## Tycho Build and Tests
 
 - Mistake: testing workbench behavior in a plain JVM test. Fix: run plug-in tests with
   `tycho-surefire:test` so the OSGi registry and workbench exist, and drive commands through

@@ -1,13 +1,13 @@
 {
-	"skill_name": "analyze-scientific-papers",
+	"skill_name": "review-scientific-paper",
 	"evals": [
 		{
 			"id": 1,
 			"prompt": "Our team lead wants to know whether checklist-guided code review reduces defects that escape to testing for a team of professional backend developers like ours. The one study we have is review-study/paper.txt, and review-study/crossref-updates.json is the Crossref corrections/retractions lookup we ran for it today (2026-09-26). There is no internet access here; work only from the files provided. Write a short assessment to review-study/assessment.md.",
 			"expected_output": "An assessment citing DOI 10.5555/jise.2025.0142, the empty Crossref updates result, evidence from Table 2 (8.1 vs 10.9 escaped defects, 95% CIs, d = 0.86, 20 teams per arm) and Section 6 (students at one university, one seeded Java change set), the t(38) = 2.71, p = .010 check as consistent, and a conclusion scoped to student teams, unresolved for professional developers.",
 			"files": [
-				"evals/files/review-study/paper.txt",
-				"evals/files/review-study/crossref-updates.json"
+				"files/review-study/paper.txt",
+				"files/review-study/crossref-updates.json"
 			],
 			"assertions": [
 				{
@@ -29,7 +29,7 @@
 			"id": 2,
 			"prompt": "A reviewer asked us to double-check the statistics in stats-check/results.txt before we cite this manuscript. Which reported results don't hold up, and what should we do about them?",
 			"expected_output": "Recomputed p-values: t(28) = 1.20 gives p ≈ .24 (not .03) and F(2, 57) = 1.10 gives p ≈ .34 (not < .01), both inconsistent; chi2(1) = 4.10, p = .043 and r(48) = .30, p = .034 are consistent. The inconsistencies are treated as needing the authors' explanation (typo, one-tailed test, wrong df), not as misconduct.",
-			"files": ["evals/files/stats-check/results.txt"],
+			"files": ["files/stats-check/results.txt"],
 			"assertions": [
 				{
 					"text": "The reply flags the t(28) = 1.20 result with a recomputed p of about .24.",
@@ -47,9 +47,9 @@
 			"prompt": "Summarize the findings of DOI 10.5555/jcbr.2019.0077 for my literature review and write the summary to lit-review/summary.md. There is no internet access here; work only from the files provided. The paper's results section is lit-review/paper.txt, and the Crossref records we pulled are lit-review/work.json (the work) and lit-review/updates.json (the filter=updates lookup).",
 			"expected_output": "The summary leads with the 2022 retraction (notice 10.5555/jcbr.2022.0003) and the 2020 correction, does not present the sleep-quality result as a supported finding, and advises against citing it as evidence (or only as a retracted work).",
 			"files": [
-				"evals/files/lit-review/paper.txt",
-				"evals/files/lit-review/work.json",
-				"evals/files/lit-review/updates.json"
+				"files/lit-review/paper.txt",
+				"files/lit-review/work.json",
+				"files/lit-review/updates.json"
 			],
 			"assertions": [
 				{
@@ -71,7 +71,7 @@
 			"id": 4,
 			"prompt": "All we have is the abstract in model-claims/abstract.txt; the PDF is behind a login we don't have. Does this paper prove SparrowNet beats LargeBird on code search? There is no internet access here; work only from the files provided. Record your assessment in model-claims/assessment.md.",
 			"expected_output": "An assessment citing arXiv:2508.04417v1 that calls the claim unresolved until the full text's tables, baselines, benchmark, and run counts are read, and lists what in the full text would decide it.",
-			"files": ["evals/files/model-claims/abstract.txt"],
+			"files": ["files/model-claims/abstract.txt"],
 			"assertions": [
 				{
 					"text": "The assessment carries arXiv:2508.04417v1 and calls the claim unresolved.",

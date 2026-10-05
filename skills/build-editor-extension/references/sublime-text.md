@@ -1,4 +1,4 @@
-# Sublime Text plugins
+# Sublime Text Plugins
 
 Gotchas for the plugin host, commands, events, async work, settings, resource files, decorations,
 and packaging. Run `python3 scripts/check_sublime_package.py PACKAGE_DIR [--external CMD ...]` on
@@ -7,15 +7,15 @@ commands it cannot resolve unless they are passed with `--external`.
 
 ## Contents
 
-- [Host and lifecycle](#host-and-lifecycle)
+- [Host and Lifecycle](#host-and-lifecycle)
 - [Commands](#commands)
-- [Events and async work](#events-and-async-work)
-- [Settings and resource files](#settings-and-resource-files)
+- [Events and Async Work](#events-and-async-work)
+- [Settings and Resource Files](#settings-and-resource-files)
 - [Decorations and HTML](#decorations-and-html)
-- [Tests and packaging](#tests-and-packaging)
+- [Tests and Packaging](#tests-and-packaging)
 - [Sources](#sources)
 
-## Host and lifecycle
+## Host and Lifecycle
 
 - Mistake: no `.python-version`, or a value the target builds do not know. Fix: write `3.8` for
   builds 4050 to 4204; any other value or no file selects Python 3.3, except in the `User` package.
@@ -53,7 +53,7 @@ commands it cannot resolve unless they are passed with `--external`.
 - Mistake: an `input()` method with no palette entry. Fix: list the command in a `.sublime-commands`
   file; input handlers are shown only from the Command Palette. [Command.input][commandinput]
 
-## Events and async work
+## Events and Async Work
 
 - Mistake: slow work in `on_modified` or `on_selection_modified`. Fix: use the `_async` variants or
   `set_timeout_async` for computation only, and debounce with a generation counter.
@@ -69,7 +69,7 @@ commands it cannot resolve unless they are passed with `--external`.
   other handlers decide, and honor `operator` and `match_all`. [on_query_context][querycontext],
   [keys][keys]
 
-## Settings and resource files
+## Settings and Resource Files
 
 - Mistake: reading settings once and caching them. Fix:
   `sublime.load_settings("Pkg.sublime-settings")` in `plugin_loaded`, `add_on_change(tag, cb)` with
@@ -95,7 +95,7 @@ commands it cannot resolve unless they are passed with `--external`.
 - Mistake: a `Phantom` set that is not kept. Fix: hold one `PhantomSet` per view and update it
   instead of creating new ones. [PhantomSet][phantomset]
 
-## Tests and packaging
+## Tests and Packaging
 
 - Mistake: treating a stub or pure test as proof of editor behavior. Fix: use it for call shapes and
   logic; run undo, drawing, key dispatch, and palette checks under UnitTesting in a disposable or

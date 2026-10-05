@@ -1,4 +1,4 @@
-# Search and identity
+# Search and Identity
 
 Each index has its own coverage and native query syntax; none is complete. Use native queries, not
 one keyword string everywhere.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Migrate JS Tooling to Bun"
-  short_description: "Move npm, Yarn, pnpm, and Jest to Bun"
-  default_prompt: "Use $migrate-js-tooling-to-bun to move the requested tooling to Bun, compare the lockfile, and run each moved command."

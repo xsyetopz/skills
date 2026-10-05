@@ -1,12 +1,15 @@
 ---
-name: migrate-js-tooling-to-bun
+name: migrate-js-to-bun
 description: >-
-  Moves JavaScript projects from npm, Yarn, pnpm, Node scripts, and Jest to
-  Bun, and checks lockfile and test parity. Use when adopting Bun in an
-  existing project.
+  Moves npm, Yarn, and pnpm installs, package-lock.json and bun.lockb
+  lockfiles, Node scripts, Jest and node:test suites, and esbuild bundles to
+  Bun with the same resolved versions and test counts. Use when adopting bun
+  install, bun ci, bun test, or bun build in an existing project. Not for
+  speeding up a Bun app or tsc type checking.
+disable-model-invocation: true
 ---
 
-# Migrate JS Tooling to Bun
+# Migrate JS to Bun
 
 Move only the responsibilities the request names (package manager, script runtime, test runner,
 bundler) and keep the resolved dependency graph, build output, test coverage, and runtime equal

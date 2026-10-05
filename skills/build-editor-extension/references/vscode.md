@@ -1,4 +1,4 @@
-# VS Code extensions
+# VS Code Extensions
 
 Gotchas for `package.json`, the extension host, tests, and `vsce`. Run
 `bun scripts/check_vscode_manifest.mjs package.json --src src` first: it encodes the manifest rules
@@ -6,17 +6,17 @@ below as rule IDs `M001` to `M021`.
 
 ## Contents
 
-- [Manifest and activation](#manifest-and-activation)
-- [Commands and menus](#commands-and-menus)
+- [Manifest and Activation](#manifest-and-activation)
+- [Commands and Menus](#commands-and-menus)
 - [Settings](#settings)
-- [Documents and edits](#documents-and-edits)
-- [Workspace Trust, virtual workspaces, and web](#workspace-trust-virtual-workspaces-and-web)
+- [Documents and Edits](#documents-and-edits)
+- [Workspace Trust, Virtual Workspaces, and Web](#workspace-trust-virtual-workspaces-and-web)
 - [Secrets](#secrets)
 - [Tests](#tests)
-- [Bundling and packaging](#bundling-and-packaging)
+- [Bundling and Packaging](#bundling-and-packaging)
 - [Sources](#sources)
 
-## Manifest and activation
+## Manifest and Activation
 
 - Mistake: raising `@types/vscode` past `engines.vscode`, or calling an API newer than the floor.
   Fix: pick the floor from the newest API the code calls and pin `@types/vscode` to the same minor.
@@ -40,7 +40,7 @@ below as rule IDs `M001` to `M021`.
 - Mistake: `icon` as SVG, more than 30 `keywords`, or a category outside the documented list. Fix:
   PNG icon, 30 keywords, documented category (`M005` to `M007`). [manifest fields][manifest]
 
-## Commands and menus
+## Commands and Menus
 
 - Mistake: hiding a risky command with a menu `when` clause. Fix: `when` only hides UI; the command
   stays callable from the palette, keybindings, and other extensions. Check the condition inside the
@@ -58,7 +58,7 @@ below as rule IDs `M001` to `M021`.
 - Mistake: caching `getConfiguration()` values at activation. Fix: read inside the handler, or
   listen to `onDidChangeConfiguration` and check `affectsConfiguration("section.key")`.
 
-## Documents and edits
+## Documents and Edits
 
 - Mistake: applying a result computed for document version N after an `await`. Fix: capture
   `document.version` (and a request counter) before the await and compare after; drop stale results.
@@ -79,7 +79,7 @@ below as rule IDs `M001` to `M021`.
 - Mistake: `console.log` for extension logs. Fix: `createOutputChannel(name, { log: true })` gives
   levels and timestamps under the user's log-level setting.
 
-## Workspace Trust, virtual workspaces, and web
+## Workspace Trust, Virtual Workspaces, and Web
 
 - Mistake: declaring no `capabilities.untrustedWorkspaces`. Fix: without it the extension is
   disabled in Restricted Mode (`M021`). Declare `limited` with a description, and check
@@ -119,7 +119,7 @@ below as rule IDs `M001` to `M021`.
   untrusted folder (no `--disable-workspace-trust`), then assert the trust-gated command refuses.
   [test-cli][cli]
 
-## Bundling and packaging
+## Bundling and Packaging
 
 - Mistake: shipping `node_modules` and sources. Fix: bundle with esbuild (`external: ["vscode"]`),
   add `.vscodeignore`, and package with `--no-dependencies`. Inspect the list with

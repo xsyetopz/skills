@@ -1,11 +1,15 @@
 ---
-name: analyze-scientific-papers
+name: review-scientific-paper
 description: >-
-  Reads research papers critically, checking methods, statistics, and claims
-  against evidence. Use when summarizing, reviewing, or comparing papers.
+  Critical reading of research papers, preprints, arXiv IDs, and DOIs:
+  versions, retractions, reported t, F, chi-square, and r statistics, effect
+  sizes, study design, and conflicting results. Use when summarizing, vetting,
+  or comparing studies, or asking what the research says about a claim. Not
+  for formatting citations or writing a paper.
+disable-model-invocation: true
 ---
 
-# Analyze Scientific Papers
+# Review Scientific Paper
 
 Answer research questions from what the papers show: the exact version, the table or section, and
 results whose statistics hold, scoped to the user's setting.

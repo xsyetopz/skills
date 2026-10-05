@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review Scientific Paper"
+  short_description: "Evidence-checked answers from research papers"
+  default_prompt: "Use $review-scientific-paper to read this paper critically: confirm the exact version and retraction status, check methods and recomputed statistics, and scope each claim to the evidence."
+policy:
+  allow_implicit_invocation: false

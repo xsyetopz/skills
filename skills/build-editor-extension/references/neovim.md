@@ -1,4 +1,4 @@
-# Neovim Lua plugins
+# Neovim Lua Plugins
 
 Gotchas for plugin layout, commands and mappings, buffer edits, async work,
 configuration, and headless tests. Claims cite the Neovim v0.12.5 `runtime/doc`
@@ -8,15 +8,15 @@ keymap and autocmd options 0.12; older releases use `buffer`).
 
 ## Contents
 
-- [Layout and loading](#layout-and-loading)
-- [Commands, mappings, and autocommands](#commands-mappings-and-autocommands)
-- [Buffers and options](#buffers-and-options)
-- [Async work](#async-work)
-- [Configuration and errors](#configuration-and-errors)
-- [Tests and docs](#tests-and-docs)
+- [Layout and Loading](#layout-and-loading)
+- [Commands, Mappings, and Autocommands](#commands-mappings-and-autocommands)
+- [Buffers and Options](#buffers-and-options)
+- [Async Work](#async-work)
+- [Configuration and Errors](#configuration-and-errors)
+- [Tests and Docs](#tests-and-docs)
 - [Sources](#sources)
 
-## Layout and loading
+## Layout and Loading
 
 - Mistake: `require("myplugin")` or a heavy `require` at the top of `plugin/myplugin.lua`. Fix:
   `plugin/` only defines commands and `<Plug>` maps; each callback calls `require` when it runs.
@@ -40,7 +40,7 @@ keymap and autocmd options 0.12; older releases use `buffer`).
   `*-scm-1.rockspec` and version releases with tags. [rockspec format][rockspec],
   [versioning][lua-plugin]
 
-## Commands, mappings, and autocommands
+## Commands, Mappings, and Autocommands
 
 - Mistake: binding default keys with `vim.keymap.set("n", "<leader>x")` from the plugin. Fix: expose
   `<Plug>(name-action)` mappings and let the user map them. Reason: a `<Plug>` map does nothing if
@@ -60,7 +60,7 @@ keymap and autocmd options 0.12; older releases use `buffer`).
   `nargs`, `range`, and `complete` in `nvim_create_user_command` and read `opts.fargs`,
   `opts.line1`, `opts.line2`. [nvim_create_user_command][api], [:command-nargs][map]
 
-## Buffers and options
+## Buffers and Options
 
 - Mistake: `vim.o.wrap = false` (or `vim.o.number`) for a window option. Fix: `vim.wo[win].wrap`
   with a handle, or `vim.opt_local` in `ftplugin/`. Reason: `vim.o` also sets the global value,
@@ -80,7 +80,7 @@ keymap and autocmd options 0.12; older releases use `buffer`).
 - Mistake: a results buffer that prompts on quit or is listed. Fix: `nvim_create_buf(false, true)`
   with `buftype=nofile`, `bufhidden=wipe`, `swapfile` off. [nvim_create_buf][api]
 
-## Async work
+## Async Work
 
 - Mistake: calling `vim.api.*`, `vim.fn.*`, or `vim.cmd` inside a `vim.uv` callback or a
   `vim.system` callback. Fix: wrap with `vim.schedule` or `vim.schedule_wrap`. Reason: those run in
@@ -101,7 +101,7 @@ keymap and autocmd options 0.12; older releases use `buffer`).
   before starting the next one; the request counter above makes late results harmless.
   [SystemObj][lua]
 
-## Configuration and errors
+## Configuration and Errors
 
 - Mistake: `setup()` that starts timers, registers autocmds, or requires heavy modules. Fix:
   `setup(opts)` validates and stores options; behavior starts when a command, `<Plug>` map, or
@@ -118,7 +118,7 @@ keymap and autocmd options 0.12; older releases use `buffer`).
 - Mistake: no way to diagnose a broken setup. Fix: a `health.lua` under `lua/<name>/` using
   `vim.health.start/ok/warn/error`, run with `:checkhealth <name>`. [health][health]
 
-## Tests and docs
+## Tests and Docs
 
 - Mistake: testing editor behavior with a standalone `lua` run or a mocked `vim`. Fix: run headless
   (`nvim --clean --headless -u tests/minimal_init.lua -l tests/run.lua`) with `XDG_CONFIG_HOME`,

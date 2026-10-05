@@ -1,4 +1,4 @@
-# IntelliJ Platform plugins
+# IntelliJ Platform Plugins
 
 Gotchas for `plugin.xml`, threading, services, and the Gradle build. Run `python3
 scripts/check_intellij_plugin_xml.py --src-root src/main/kotlin --src-root src/main/java
@@ -9,9 +9,9 @@ src/main/resources/META-INF/plugin.xml` before editing, and again with `--patche
 
 - [Threading](#threading)
 - [Actions](#actions)
-- [Services and state](#services-and-state)
+- [Services and State](#services-and-state)
 - [plugin.xml](#pluginxml)
-- [Build, test, and release](#build-test-and-release)
+- [Build, Test, and Release](#build-test-and-release)
 - [Sources](#sources)
 
 ## Threading
@@ -51,7 +51,7 @@ src/main/resources/META-INF/plugin.xml` before editing, and again with `--patche
 - Mistake: an action that works during indexing but is not `DumbAware`, or the reverse. Fix:
   implement `DumbAware` only when it needs no index.
 
-## Services and state
+## Services and State
 
 - Mistake: heavy work or service lookups in a service constructor. Fix: keep constructors empty; the
   only injectable parameters are `Project` and `CoroutineScope`. [services][services]
@@ -84,7 +84,7 @@ src/main/resources/META-INF/plugin.xml` before editing, and again with `--patche
 - Mistake: a custom extension point that is not `dynamic="true"`. Fix: set it; all registered
   implementations must then unload cleanly. [extension points][eps]
 
-## Build, test, and release
+## Build, Test, and Release
 
 - Mistake: IntelliJ Platform Gradle Plugin 1.x configuration (`intellij {}` block). Fix: 2.x uses
   the `intellijPlatform {}` extension and

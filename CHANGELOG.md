@@ -126,6 +126,29 @@ released versions yet.
     `improve-code-quality`.
   - `define-requirements`, `design-software-architecture`, and `write-implementation-plans` become
     `plan-software-changes`.
+- **Breaking:** more skills are split, renamed, or removed:
+  - `debug-playstation-emulators` is split into `debug-game-in-emulator`, which debugs games and
+    homebrew in PCSX2, DuckStation, Dolphin, RPCS3, PPSSPP, and xemu, and `write-emulator-patches`,
+    which writes PCSX2 pnach, DuckStation cht, Dolphin Gecko, Action Replay and OnFrame, RPCS3
+    patch.yml, and PPSSPP CWCheat patches. The `emulators` bundle lists both.
+  - `improve-code-quality` becomes `refactor-code-smells`, which refactors the smells agents leave
+    (equality chains, flag arguments, deep nesting, stringly-typed state, dead shims) without
+    changing behavior, with one reference per language.
+  - New `fix-diagnostics-without-suppressing` fixes compiler, linter, and type-checker diagnostics
+    at any severity at their cause instead of suppressing them, with references for C and C++,
+    .NET, Kotlin, Python, Rust, Scala, Swift, TypeScript, emulators, and Ghidra.
+  - New `apply-architecture-patterns` places new code in the layer and pattern the codebase already
+    uses: ports and adapters, clean and onion architecture, MVC, MVP, MVVM, ECS, and GoF patterns.
+  - `debug-software-failures` is removed. Its reduction and diagnosis guides move to
+    `write-behavior-tests` (`references/reduction.md` and `references/diagnosis.md`), its sanitizer
+    notes to `references/generative.md`, and its bisect fixture to `commit-and-rewrite-git`.
+  - `find-vulnerabilities` becomes `audit-repo-secrets-and-ci`, which leads with leaked secrets in
+    files and git history (gitleaks, trufflehog) and GitHub Actions attack paths (zizmor,
+    `pull_request_target`, script injection), and keeps the code review proven by local tests.
+  - New `test-game-exploits` finds and fixes save editing, memory editing, packet tampering,
+    speedhacks, and servers that trust client values in games the user builds, each proven with a
+    hostile-client test, for offline games or the team's own test servers only. The `security`
+    bundle lists both.
 - The rendered skill listing, one `- name: description (file: path)` line per skill, must fit in
   8,000 characters, and each description in 250. `scripts/validate_repository.py` enforces both.
 - `audit-agent-sessions` no longer ships prices. `session_stats.py --prices FILE` computes cost from

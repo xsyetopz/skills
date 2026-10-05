@@ -65,7 +65,7 @@ python-types: provision
     BUN_INSTALL_CACHE_DIR="{{ bun_cache }}" bunx --bun pyright --pythonpath "{{ venv }}/bin/python"
 
 shell:
-    if command -v shellcheck >/dev/null; then find skills scripts -type f -name '*.sh' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
+    if command -v shellcheck >/dev/null; then find skills scripts evals -type f -name '*.sh' -print0 | xargs -0 shellcheck; else echo 'SKIP shellcheck: unavailable'; fi
 
 validate: skills metadata skill-lint hygiene secrets markdown tests assets justfiles python-lint python-types shell
     git diff --check

@@ -3,7 +3,7 @@
 	"evals": [
 		{
 			"id": 1,
-			"prompt": "Run `sh evals/files/partial/setup.sh` to build partial/repo. In that repo, commit only the empty-row fix in parser.py (the `if r` change). The same file has a DEBUG print I added while debugging: keep it in my working copy but out of the commit. Leave README.md staged and notes.txt untracked.",
+			"prompt": "Run `sh partial/setup.sh` to build partial/repo. In that repo, commit only the empty-row fix in parser.py (the `if r` change). The same file has a DEBUG print I added while debugging: keep it in my working copy but out of the commit. Leave README.md staged and notes.txt untracked.",
 			"expected_output": "One new commit changing only parser.py with the `if r` fix and no DEBUG print. The DEBUG print remains an unstaged change, README.md stays staged, notes.txt stays untracked. No git add -A, no git commit parser.py.",
 			"files": [
 				"files/partial/setup.sh"
@@ -25,7 +25,7 @@
 		},
 		{
 			"id": 2,
-			"prompt": "Run `sh evals/files/reflog/setup.sh` to build reflog/repo. I ran `git reset --hard` by mistake and lost two commits on main. Get them back on main without losing anything else.",
+			"prompt": "Run `sh reflog/setup.sh` to build reflog/repo. I ran `git reset --hard` by mistake and lost two commits on main. Get them back on main without losing anything else.",
 			"expected_output": "Finds the lost commits through the reflog, restores main to 'add entry three' (for example a backup branch, then reset --hard or merge --ff-only to the old tip), and ledger.txt has all three lines.",
 			"files": [
 				"files/reflog/setup.sh"
@@ -43,7 +43,7 @@
 		},
 		{
 			"id": 3,
-			"prompt": "Run `sh evals/files/lease/setup.sh` to build lease/mine, a clone whose branch feature was amended after it was pushed. Update origin/feature with the amended commit, but a colleague may have pushed to it too, so do not overwrite their work without telling me.",
+			"prompt": "Run `sh lease/setup.sh` to build lease/mine, a clone whose branch feature was amended after it was pushed. Update origin/feature with the amended commit, but a colleague may have pushed to it too, so do not overwrite their work without telling me.",
 			"expected_output": "Notices that origin/feature has a colleague commit that mine does not contain, and does not plain-force-push. Either stops and reports, or fetches and rebases first, then pushes with --force-with-lease=refs/heads/feature:SHA. The colleague commit is never lost from origin/feature.",
 			"files": [
 				"files/lease/setup.sh"

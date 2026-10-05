@@ -1,0 +1,110 @@
+[
+	{
+		"query": "What does FUN_00401a30 in our old tool32.exe do? I have the Ghidra project but lost the source.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up pyghidra-mcp so Claude can decompile firmware.bin from my Ghidra project without opening the GUI.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The crash report says game.exe faulted at 0x7ff6a1b31a3c with base 0x7ff6a1b20000. Find the function in Ghidra.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Recover the struct layout and vtable for the object sub_140012380 allocates, from this disassembly listing.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The decompiler says this is __cdecl but it ends with ret 0Ch. Is the prototype right?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I have an IDA database of my old game. Hook up ida-pro-mcp and list every caller of the save routine.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our decomp builds but func_80012345 is 3 instructions off from the original. Help me match it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "The PS1 game crashes in DuckStation when I load a save state; capture the crash in the CPU debugger.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Review this Go service for SQL injection. We have the full source.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Rewrite this decompiled function as clean readable C. We have the source repo, just tidy it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Turn my N64 homebrew ROM into a native PC port with N64Recomp. I still have the ELF with symbols.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "recompile-console-binary"
+	},
+	{
+		"query": "Set up a byte-identical rebuild of this Win32 DLL with pinned compiler flags and the original SHA-256.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "This raw flash dump from my own STM32 board has no header. Find its load address and get it into Ghidra with the peripherals named.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "I want to understand the save-file format of this 90s game. I only have the EXE and the data files.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "re-agent finished with 40 functions at checker PASS. How do I review them?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Ghidra headless export fails with Unable to lock project. What do I do?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Walk me through patching this commercial program's licence check at 0x0045c210 to always return 1.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "PCSX2 renders the game with broken textures; bisect which commit caused it.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Write unit tests for the parser we rewrote from the decompiled game code.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "My PS2Recomp build of my homebrew ELF hangs on an unhandled syscall. Where do I stub it in the runtime?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "recompile-console-binary"
+	}
+]

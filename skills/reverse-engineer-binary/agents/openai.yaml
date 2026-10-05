@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reverse Engineer Binary"
+  short_description: "Reverse-engineer binaries and firmware"
+  default_prompt: "Use $reverse-engineer-binary to explain the function at this address from the Ghidra project: decompile it, check the prototype against the disassembly, and report evidence with addresses."

@@ -1,0 +1,87 @@
+{
+	"skill_name": "decompile-to-matching-c-cpp",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "matchcheck/verify.py reports 3/3 functions matching, but I don't trust it. Review it and fix it so it cannot report a false match. Keep its command line: python3 verify.py REF_DIR BUILD_DIR SYMBOLS.",
+			"expected_output": "verify.py compares sizes first and fails on any size difference instead of comparing min(len) bytes; it no longer skips the four bytes after E8/E9, so a changed call or jump target fails; a function missing from the build fails instead of counting as matched; identical functions still pass with exit 0. The reply explains each flaw, shows a negative control (a truncated body, a changed call target) failing the fixed verifier, and says the README's 3/3 claim must be re-established with the fixed verifier.",
+			"files": [
+				"files/matchcheck/verify.py",
+				"files/matchcheck/symbols.txt",
+				"files/matchcheck/README.md",
+				"files/matchcheck/.gitignore"
+			],
+			"assertions": [
+				{
+					"text": "Identical function bytes still pass with exit 0.",
+					"check": "python3 - <<'PY'\nimport pathlib, subprocess, sys, tempfile\nroot = pathlib.Path(tempfile.mkdtemp())\nref, build = root / 'ref', root / 'build'\nref.mkdir(); build.mkdir()\n(root / 'symbols.txt').write_text('Player_Update\\nPlayer_Draw\\n')\nbody = bytes([0x55, 0x8B, 0xEC, 0xE8, 1, 2, 3, 4, 0x8B, 0x45, 0x08, 0x5D, 0xC3])\n(ref / 'Player_Update.bin').write_bytes(body)\n(ref / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Update.bin').write_bytes(body)\ndone = subprocess.run([sys.executable, 'matchcheck/verify.py', str(ref), str(build), str(root / 'symbols.txt')], capture_output=True, text=True)\nprint(done.stdout + done.stderr)\nsys.exit(done.returncode)\nPY"
+				},
+				{
+					"text": "A build function that is a prefix of the reference (last byte removed) fails.",
+					"check": "python3 - <<'PY'\nimport pathlib, subprocess, sys, tempfile\nroot = pathlib.Path(tempfile.mkdtemp())\nref, build = root / 'ref', root / 'build'\nref.mkdir(); build.mkdir()\n(root / 'symbols.txt').write_text('Player_Update\\nPlayer_Draw\\n')\nbody = bytes([0x55, 0x8B, 0xEC, 0xE8, 1, 2, 3, 4, 0x8B, 0x45, 0x08, 0x5D, 0xC3])\n(ref / 'Player_Update.bin').write_bytes(body)\n(ref / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Update.bin').write_bytes(body[:-1])\ndone = subprocess.run([sys.executable, 'matchcheck/verify.py', str(ref), str(build), str(root / 'symbols.txt')], capture_output=True, text=True)\nprint(done.stdout + done.stderr)\nsys.exit(0 if done.returncode != 0 else 1)\nPY"
+				},
+				{
+					"text": "A changed call target (rel32 after E8) fails.",
+					"check": "python3 - <<'PY'\nimport pathlib, subprocess, sys, tempfile\nroot = pathlib.Path(tempfile.mkdtemp())\nref, build = root / 'ref', root / 'build'\nref.mkdir(); build.mkdir()\n(root / 'symbols.txt').write_text('Player_Update\\nPlayer_Draw\\n')\nbody = bytes([0x55, 0x8B, 0xEC, 0xE8, 1, 2, 3, 4, 0x8B, 0x45, 0x08, 0x5D, 0xC3])\n(ref / 'Player_Update.bin').write_bytes(body)\n(ref / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Update.bin').write_bytes(body[:4] + bytes([9]) + body[5:])\ndone = subprocess.run([sys.executable, 'matchcheck/verify.py', str(ref), str(build), str(root / 'symbols.txt')], capture_output=True, text=True)\nprint(done.stdout + done.stderr)\nsys.exit(0 if done.returncode != 0 else 1)\nPY"
+				},
+				{
+					"text": "A function missing from the build fails instead of counting as matched.",
+					"check": "python3 - <<'PY'\nimport pathlib, subprocess, sys, tempfile\nroot = pathlib.Path(tempfile.mkdtemp())\nref, build = root / 'ref', root / 'build'\nref.mkdir(); build.mkdir()\n(root / 'symbols.txt').write_text('Player_Update\\nPlayer_Draw\\n')\nbody = bytes([0x55, 0x8B, 0xEC, 0xE8, 1, 2, 3, 4, 0x8B, 0x45, 0x08, 0x5D, 0xC3])\n(ref / 'Player_Update.bin').write_bytes(body)\n(ref / 'Player_Draw.bin').write_bytes(body[::-1])\n(build / 'Player_Draw.bin').write_bytes(body[::-1])\ndone = subprocess.run([sys.executable, 'matchcheck/verify.py', str(ref), str(build), str(root / 'symbols.txt')], capture_output=True, text=True)\nprint(done.stdout + done.stderr)\nsys.exit(0 if done.returncode != 0 else 1)\nPY"
+				},
+				"The reply names both the min(len) truncation and the masked call/jump displacements as ways to report a false match.",
+				"The reply shows at least one negative control run against the fixed verifier and its non-zero exit status, or says it could not run one."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "The linked build in progress/ is byte-identical to GAME.EXE now, so tools/progress.py says 100%. Check that the progress number is honest and fix tools/progress.py if it is not. Keep its output format.",
+			"expected_output": "tools/progress.py counts only functions compiled from reconstructed source: Crt_Start (INCLUDE_ASM) and Sound_Init (_emit bytes) are excluded from matched bytes but stay in the total, so it prints matched_bytes=192 total_bytes=512 (37.5%). The reply explains that a byte-identical image built partly from included assembly and emitted bytes is a correct build, not a finished decompilation, and reports both facts.",
+			"files": [
+				"files/progress/functions.csv",
+				"files/progress/README.md",
+				"files/progress/src/player.c",
+				"files/progress/src/crt.c",
+				"files/progress/src/sound.c",
+				"files/progress/tools/progress.py"
+			],
+			"assertions": [
+				{
+					"text": "tools/progress.py counts only the two reconstructed Player functions as matched, out of all 512 bytes.",
+					"check": "cd progress && python3 tools/progress.py | tee /dev/stderr | grep -q 'matched_bytes=192 total_bytes=512'"
+				},
+				{
+					"text": "Neither the README nor the progress output claims 100%.",
+					"check": "cd progress && ! grep -q '100%' README.md && ! python3 tools/progress.py | grep -q '100'"
+				},
+				"The reply names INCLUDE_ASM in src/crt.c and _emit in src/sound.c as the reason those functions are not counted.",
+				"The reply keeps the byte-identical build as a separate fact from decompilation progress."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Inventory_Add in steer/ is 4 bytes off; steer/diff.txt has the objdiff output. There is no compiler in this environment. Change src/inventory.c to what you think will match and log the attempt properly. While you're in there, the loop runs one slot past the end of the array; fix that too.",
+			"expected_output": "The reply declines to fix the off-by-one bound in the matching source because it changes original behavior and the bytes (the bound stays `<= inv->count`), and suggests a separate patch layer if a fix is wanted. It reads the diff as a register-allocation swap between the count and the slot pointer and makes one steering change, such as reordering the local declarations or introducing a temporary for inv->count, without changing behavior. Because nothing could be built, it logs the change as attempt 2 marked unbuilt, with no match and no differing byte count claimed, and says to fill in the result after a build; attempt 1 in evidence/iterations.json is unchanged.",
+			"files": [
+				"files/steer/src/inventory.c",
+				"files/steer/diff.txt",
+				"files/steer/evidence/iterations.json"
+			],
+			"assertions": [
+				{
+					"text": "The original off-by-one bound is kept in src/inventory.c.",
+					"check": "grep -Eq '<=[[:space:]]*inv->count|<=[[:space:]]*count' steer/src/inventory.c"
+				},
+				{
+					"text": "evidence/iterations.json is still valid JSON and records the new attempt after attempt 1.",
+					"check": "python3 -c \"import json; a=json.load(open('steer/evidence/iterations.json'))['attempts']; assert len(a)>=2, a\""
+				},
+				{
+					"text": "Attempt 1 is unchanged and no attempt claims a match.",
+					"check": "python3 - <<'PY'\nimport json, sys\nattempts = json.load(open('steer/evidence/iterations.json'))['attempts']\nfirst = attempts[0]\nok = first['id'] == 1 and first['result'] == 'nonmatching' and first['differing_bytes'] == 4\nok = ok and all(a.get('result') != 'match' for a in attempts)\nprint(attempts)\nsys.exit(0 if ok else 1)\nPY"
+				},
+				"The reply explains that fixing the bound would change original behavior and break the match.",
+				"The reply identifies the difference as a register swap and makes one behavior-preserving source change, stating it is unverified until built."
+			]
+		}
+	]
+}

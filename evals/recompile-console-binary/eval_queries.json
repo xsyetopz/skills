@@ -1,0 +1,110 @@
+[
+	{
+		"query": "Port my N64 homebrew game to PC with N64Recomp. I have the ELF with symbols; write the config TOML.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "N64Recomp skipped the jump table in func_80034A10 and the native build crashes there. How do I fix it?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "I want a native Windows build of my old Xbox 360 indie game from its XEX, not emulated. Set up XenonRecomp.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The recompiled C calls an unhandled syscall on boot and aborts. Where do I stub or implement it in the runtime?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Replace the recompiled draw_hud with my own hand-written C version without editing the generated files.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The TOML wants setjmp, longjmp, and savegpr addresses for my XEX. Where do I find them?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Make func_80012345 compile byte-identical to the original with IDO 7.1.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "What does sub_82134560 do in this XEX? I only need to understand it in Ghidra.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "PCSX2 crashes when it loads my homebrew's save state. Catch it in the debugger.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Write a pnach widescreen patch for my PS2 game.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Our C++ engine's frame time spiked and the profile points at the particle update loop. Speed it up.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Add a JIT dynarec to my CHIP-8 emulator so it stops interpreting every opcode.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Turn the ELF of my own PS2 homebrew game into C++ that runs natively. Static translation, no emulator.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "My recompiled port drifts from the console after a few minutes of physics. The floats come out different. Why?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The N64 port boots, but the audio microcode is missing. Can I recompile the RSP code too, or do I need HLE?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "The static recomp of my ROM boots, but every value read from the save data is garbage. I think the big-endian byte swap is wrong.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Set up splat and objdiff for my PS1 decomp project.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "decompile-to-matching-c-cpp"
+	},
+	{
+		"query": "Find the load base address of this raw firmware dump and recover its functions.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "Set a memory watch in Dolphin's debugger on the player's HP value.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Compile my C game for the N64 with libdragon and fix the linker errors.",
+		"should_trigger": false,
+		"split": "validation"
+	}
+]

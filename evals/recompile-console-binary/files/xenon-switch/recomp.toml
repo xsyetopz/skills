@@ -1,0 +1,4 @@
+[main]
+file_path = "private/default.xex"
+out_directory_path = "generated"
+switch_table_file_path = "switch_tables.toml"

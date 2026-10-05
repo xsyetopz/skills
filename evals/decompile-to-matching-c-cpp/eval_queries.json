@@ -1,0 +1,112 @@
+[
+	{
+		"query": "Our N64 decomp builds but func_80012345 is still 3 instructions off from the original. Help me get it matching.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Set up a byte-identical rebuild of this old Win32 DLL: pin the compiler and flags and verify against the original's SHA-256.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Review tools/verify.py in our decompilation repo; I think it can report a match when the function is truncated.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "The progress badge says 80% matched but half the functions are still INCLUDE_ASM. Fix the progress script.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "This function decompiles fine but the registers come out swapped compared to the target; how do I steer MSVC 6 to allocate them like the original?",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Our objdiff unit for Player_Update shows two relocation diffs. Tell me how to get the call targets to match.",
+		"should_trigger": true,
+		"split": "train"
+	},
+	{
+		"query": "Figure out what this function at 0x4012a0 in the Ghidra project does and give it a name and signature.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "N64Recomp misses the jump table in func_80034A10 of my homebrew ROM, so the native PC build crashes there. Fix the recomp config.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "recompile-console-binary"
+	},
+	{
+		"query": "Write unit tests for the save-file parser we rewrote from the decompiled game code.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "The PCSX2 build crashes when loading my game's save state; help me debug it.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "debug-game-in-emulator"
+	},
+	{
+		"query": "Make this C hash function faster; the profile shows it at 40% of CPU.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-runtime-performance"
+	},
+	{
+		"query": "Our release build differs between two CI runs; make the build reproducible so the tarballs are identical.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "I pasted a decomp.me scratch; the target has the stores in a different order than my C. What should I try?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "We want the rebuilt game.exe to match the original exactly. Where do we keep the original binary, and should we commit it?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Write the splat YAML for this PS1 SLUS executable so we can start splitting it into asm and C files for PsyQ 4.0.",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Our objdiff config ignores relocations to make more functions green. Is that okay?",
+		"should_trigger": true,
+		"split": "validation"
+	},
+	{
+		"query": "Recover the struct layout used by this game's inventory code from the disassembly.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "reverse-engineer-binary"
+	},
+	{
+		"query": "XenonRecomp stops on an unknown switch table at 0x8231A0B0 in my Xbox 360 homebrew XEX. How do I add it to the TOML?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "recompile-console-binary"
+	},
+	{
+		"query": "Write a pnach patch that unlocks 60 fps in my PS2 homebrew game.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-emulator-patches"
+	},
+	{
+		"query": "Run DuckStation with a clean profile and capture the crash in the CPU debugger.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "debug-game-in-emulator"
+	}
+]

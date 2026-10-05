@@ -1,0 +1,15 @@
+[[section]]
+rom = 0x1000
+vram = 0x80000400
+size = 0x40000
+name = "code"
+
+[[section.functions]]
+name = "Game_Init"
+vram = 0x80000400
+size = 0x80
+
+[[section.functions]]
+name = "D_80041F10"
+vram = 0x80041F10
+size = 0x40

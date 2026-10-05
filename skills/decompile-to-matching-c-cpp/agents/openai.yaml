@@ -1,0 +1,4 @@
+interface:
+  display_name: "Decompile to Matching C or C++"
+  short_description: "Match decompiled functions byte for byte"
+  default_prompt: "Use $decompile-to-matching-c-cpp to make this source compile to the same bytes as the pinned reference binary: diff with objdiff, steer the compiler one change at a time, and keep the compare fail-closed."

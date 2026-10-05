@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recompile Console Binary"
+  short_description: "Recompile console games into native C or C++"
+  default_prompt: "Use $recompile-console-binary to fix this static recompilation: correct missed functions and jump tables in the recompiler config, add overrides without editing generated files, and pin the input hash and tool commit."

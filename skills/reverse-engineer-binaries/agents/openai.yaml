@@ -1,4 +1,0 @@
-interface:
-  display_name: "Reverse Engineer Binaries"
-  short_description: "Analyze binaries with Ghidra and recover functions"
-  default_prompt: "Use $reverse-engineer-binaries to explain the function at this address from the Ghidra project: decompile it, check the prototype against the disassembly, and report evidence with addresses."

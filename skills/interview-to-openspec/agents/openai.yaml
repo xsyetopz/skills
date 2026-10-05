@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interview to OpenSpec"
+  short_description: "Interview for decisions, then write an OpenSpec change"
+  default_prompt: "Use $interview-to-openspec to look up the facts, ask me about the open decisions in rounds of multiple-choice questions, then write and validate an OpenSpec change."

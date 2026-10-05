@@ -1,0 +1,9 @@
+schema: spec-driven
+
+context: |
+  config-tool is a Python 3.12 command line tool with no third-party dependencies.
+  Tests use unittest: python3 -m unittest discover -s tests -t .
+
+rules:
+  tasks:
+    - End each task line with "Verify:" and one backticked command that exists in this repository

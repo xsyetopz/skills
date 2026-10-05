@@ -1,0 +1,98 @@
+{
+	"skill_name": "interview-to-openspec",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "In config-tool/, write the OpenSpec change for letting environment variables override settings. It's all decided: the variable is CONFIG_TOOL_<SECTION>_<KEY>, section and key match case-insensitively, the variable wins over service.ini, an empty variable sets the value to an empty string, and a variable only overrides a key that already exists in the file. Don't change any code. OpenSpec isn't installed globally; run it with `bunx @fission-ai/openspec@1.14.0`.",
+			"network": true,
+			"expected_output": "One change under config-tool/openspec/changes/ with proposal.md, a settings-loading delta (or a new capability) whose ADDED requirements state the five decisions with WHEN/THEN scenarios, and tasks.md that follows the config.yaml rule (each task ends with Verify: and a command that exists); no questions, because nothing is open; app code unchanged; strict validation passes.",
+			"files": [
+				"files/config-tool/README.md",
+				"files/config-tool/app/__init__.py",
+				"files/config-tool/app/cli.py",
+				"files/config-tool/app/settings.py",
+				"files/config-tool/openspec/config.yaml",
+				"files/config-tool/openspec/specs/settings-loading/spec.md",
+				"files/config-tool/service.ini",
+				"files/config-tool/tests/__init__.py",
+				"files/config-tool/tests/test_settings.py"
+			],
+			"assertions": [
+				{
+					"text": "Exactly one change exists under openspec/changes/, and `openspec validate --strict` passes on it.",
+					"check": "cd config-tool && set -- $(find openspec/changes -mindepth 1 -maxdepth 1 -type d ! -name archive) && [ $# -eq 1 ] && OPENSPEC_TELEMETRY=0 bunx @fission-ai/openspec@1.14.0 validate \"$(basename \"$1\")\" --type change --strict --no-interactive"
+				},
+				{
+					"text": "The run created the change and read the project's artifact rules with the OpenSpec CLI, not from the format reference alone.",
+					"check": "grep -q 'new change' \"$EVAL_TRANSCRIPT_FILE\" && grep -q 'openspec@1.14.0 instructions' \"$EVAL_TRANSCRIPT_FILE\""
+				},
+				{
+					"text": "Every task line in tasks.md ends with `Verify:` and a backticked command, as the config.yaml rule asks.",
+					"check": "cd config-tool && T=$(find openspec/changes -path '*/archive' -prune -o -name tasks.md -print) && [ -n \"$T\" ] && grep -E '^[[:space:]]*- \\[[ x]\\]' $T > /tmp/ito-tasks-$$ && [ -s /tmp/ito-tasks-$$ ] && ! grep -Ev 'Verify:[[:space:]]*`[^`]+`[[:space:].]*$' /tmp/ito-tasks-$$; s=$?; rm -f /tmp/ito-tasks-$$; exit $s"
+				},
+				{
+					"text": "Every file and command that tasks.md names exists in config-tool/, except files a task creates.",
+					"check": "R=$(cd \"$EVAL_OUTPUTS_DIR\" && pwd -P); until [ -f \"$R/skills/interview-to-openspec/scripts/audit_plan_claims.py\" ]; do [ \"$R\" = / ] && { echo \"audit_plan_claims.py not found above $EVAL_OUTPUTS_DIR\" >&2; exit 3; }; R=$(dirname \"$R\"); done; cd config-tool && T=$(find openspec/changes -path '*/archive' -prune -o -name tasks.md -print) && [ -n \"$T\" ] && python3 \"$R/skills/interview-to-openspec/scripts/audit_plan_claims.py\" $T ."
+				},
+				{
+					"text": "app/settings.py and app/cli.py are unchanged.",
+					"check": "cd config-tool && cat app/settings.py app/cli.py | shasum -a 256 | grep -q '^5b8f1770980fc2f94a4763ba8a63ebcccf3b5ef9cd6425771325b94c8e370db7 '"
+				},
+				"The requirements state all five given decisions (the variable name pattern, case-insensitive matching, precedence over service.ini, an empty variable giving an empty string, and overriding only existing keys), and add no value the prompt did not give, such as a different prefix, a length limit, or type conversion."
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "config-tool needs to support more config formats. Plan it out properly before anyone writes code.",
+			"expected_output": "No files written and no `openspec init`. The reply asks the open decisions as numbered questions, each with lettered options, the recommended option first, such as which formats, how the format is chosen (file extension or a flag), and whether INI stays the default. It does not ask facts that the repository answers, such as the language or the current format.",
+			"files": [
+				"files/config-tool/README.md",
+				"files/config-tool/app/__init__.py",
+				"files/config-tool/app/cli.py",
+				"files/config-tool/app/settings.py",
+				"files/config-tool/service.ini",
+				"files/config-tool/tests/__init__.py",
+				"files/config-tool/tests/test_settings.py"
+			],
+			"assertions": [
+				{
+					"text": "The run created or changed no files, so neither `openspec init` nor a change ran.",
+					"check": "F=$(find \"$EVAL_OUTPUTS_DIR/files\" -type f) && echo \"$F\" && [ -z \"$F\" ] && [ ! -e config-tool/openspec ]"
+				},
+				"The final reply asks at least two questions about decisions (for example which formats, how the format is selected, or whether INI stays the default), each with at least two options and one option marked as recommended.",
+				"The final reply does not ask anything that the repository answers, such as the language, the current file format, or the test command."
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "In config-tool/, write the OpenSpec change for this: a key repeated within one section must now be an error instead of the last value winning. The error is a ValueError that names the section and the key. That part is decided. Don't change any code or config files.",
+			"expected_output": "One change with a settings-loading delta under MODIFIED Requirements that repeats the exact header `### Requirement: Duplicate keys` with the full new text and keeps the existing scenario header `Later value wins` with rewritten steps for the error (dropping it fails validation), marked BREAKING in the proposal. Because service.ini repeats `ttl` in [cache], the change either adds a task to fix service.ini before the parser change or records it as an open question; it does not pick a ttl value itself.",
+			"files": [
+				"files/config-tool/README.md",
+				"files/config-tool/app/__init__.py",
+				"files/config-tool/app/cli.py",
+				"files/config-tool/app/settings.py",
+				"files/config-tool/openspec/config.yaml",
+				"files/config-tool/openspec/specs/settings-loading/spec.md",
+				"files/config-tool/service.ini",
+				"files/config-tool/tests/__init__.py",
+				"files/config-tool/tests/test_settings.py"
+			],
+			"assertions": [
+				{
+					"text": "Exactly one change exists under openspec/changes/, and `openspec validate --strict` passes on it.",
+					"check": "cd config-tool && set -- $(find openspec/changes -mindepth 1 -maxdepth 1 -type d ! -name archive) && [ $# -eq 1 ] && OPENSPEC_TELEMETRY=0 bunx @fission-ai/openspec@1.14.0 validate \"$(basename \"$1\")\" --type change --strict --no-interactive"
+				},
+				{
+					"text": "The settings-loading delta modifies the existing requirement by its exact name.",
+					"check": "cd config-tool && D=$(find openspec/changes -path '*/archive' -prune -o -path '*/specs/settings-loading/spec.md' -print) && [ -n \"$D\" ] && grep -q '^## MODIFIED Requirements' $D && grep -q '^### Requirement: Duplicate keys[[:space:]]*$' $D"
+				},
+				{
+					"text": "The code and service.ini are unchanged.",
+					"check": "cd config-tool && cat app/settings.py app/cli.py | shasum -a 256 | grep -q '^5b8f1770980fc2f94a4763ba8a63ebcccf3b5ef9cd6425771325b94c8e370db7 ' && shasum -a 256 service.ini | grep -q '^845d07cb44628d6f4053e0da08906cc7cbd240353987dfe75dbfe217907fc1e5 '"
+				},
+				"The change notices that service.ini repeats `ttl` in [cache], which the new rule rejects, and either adds a task that fixes service.ini before the parser change or records the choice of value as an open question; it does not pick 30 or 60 as decided."
+			]
+		}
+	]
+}

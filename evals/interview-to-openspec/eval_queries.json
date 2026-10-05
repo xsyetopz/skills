@@ -1,0 +1,119 @@
+[
+	{
+		"query": "I want to add team accounts to the app but I'm not sure how roles and billing should work yet. Help me figure it out before we write any code.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Let's design offline sync for the mobile client. There are a lot of open questions.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Turn this feature request into an OpenSpec change: users can export their data as CSV.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Build me a plugin system for this editor.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Write a proposal with specs and tasks for replacing our hand-rolled config parser with configparser.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Spec this out before anyone codes it: multi-tenant support across the API, the worker, and the database.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "We need notifications in the product, email and push and maybe in-app. Ask me whatever you need, then plan it.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "I have a rough idea for a rate limiter on our public API. Interview me and write the spec.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Should we put a message queue between the upload endpoint and the thumbnail worker? Help me decide and write the change up for review.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "We use OpenSpec in this repo. Draft the change for adding SSO login.",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "interview-to-openspec"
+	},
+	{
+		"query": "Write an ARCHITECTURE.md describing how the current codebase is organized.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-architecture-md"
+	},
+	{
+		"query": "Design the flags and subcommands for our new `deployctl` CLI: help text, exit codes, and JSON output.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "design-cli-interface"
+	},
+	{
+		"query": "Rename the confusing variables in this module and remove the duplicated branches.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "Implement the tasks in openspec/changes/add-dark-mode/tasks.md.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Add a CHANGELOG entry for the team accounts feature we just merged.",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "update-changelog"
+	},
+	{
+		"query": "Fix the typo in the login error message: 'pasword' should be 'password'.",
+		"should_trigger": false,
+		"split": "train"
+	},
+	{
+		"query": "Update the README, its install commands no longer match the repo.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-project-readme"
+	},
+	{
+		"query": "Where should the new invoice export code go: the controller, a service, or the domain layer? Follow this repo's existing pattern.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "Archive the finished OpenSpec change add-dark-mode and merge its specs.",
+		"should_trigger": false,
+		"split": "validation"
+	},
+	{
+		"query": "Write tests for the billing module covering the boundary values.",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	}
+]

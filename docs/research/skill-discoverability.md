@@ -9,7 +9,7 @@ raw page.
 
 | Host | Per-skill cap | Listing budget | On overflow |
 | - | - | - | - |
-| Claude Code | `description` + `when_to_use` truncated at 1,536 characters (`skillListingMaxDescChars`) | 1% of the model's context window: about 8,000 characters at 200k tokens, about 40,000 at 1M | Drops descriptions of the least-invoked skills first; names stay |
+| Claude Code | Observed: each entry, `description` + `" - "` + `when_to_use`, cut at 300 characters with `…` (2.1.283–2.1.289, 2026-10-07). Documented: 1,536 characters (`skillListingMaxDescChars`), not what was observed | 1% of the model's context window: about 8,000 characters at 200k tokens, about 40,000 at 1M | Drops descriptions of the least-invoked skills first; names stay |
 | Codex | 1,024 characters, with a `...` suffix | 2% of the context window, or 8,000 characters when unknown; at most 10,000 tokens if configured | Shortens descriptions first, then may omit skills and warn |
 | agentskills.io spec | `description` at most 1,024 characters | About 100 tokens per skill at startup | Not specified |
 
@@ -18,8 +18,15 @@ Sources:
 - Claude Code, <https://code.claude.com/docs/en/skills.md>, section "Skill descriptions are cut
   short": "The budget scales at 1% of the model's context window. When the listing overflows, Claude
   Code drops descriptions starting with the skills you invoke least, so the skills you use most keep
-  their full text." `when_to_use` is "Appended to `description` in the skill listing and counts
-  toward the 1,536-character cap", so it has no budget of its own.
+  their full text."
+  `when_to_use` is "Appended to `description` in the skill listing
+  and counts toward the 1,536-character cap",
+  so it has no budget of its own.
+- Claude Code listings observed on 2026-10-07 in versions 2.1.283–2.1.289,
+  in sessions that listed 47–213 skills:
+  each entry was `description - when_to_use`, cut at 300 characters with `…`,
+  so text past the 300th character never reached the model.
+  This repo uses the observed 300, not the documented 1,536.
 - Claude Code levers from the same page:
   - `skillListingBudgetFraction`, for example `0.02`, raises the budget.
   - `SLASH_COMMAND_TOOL_CHAR_BUDGET` sets a fixed character count.
@@ -122,18 +129,21 @@ Measured description lengths, in characters:
 
 ## Rules This Repo Takes
 
-- `description` is 400 characters or fewer, with trigger words first, then "Use when …" with
-  phrasings that never name the skill, then "Not for <nearest neighbor>". It never summarizes the
-  workflow.
-- `when_to_use` is optional, 250 characters or fewer, and holds extra user phrasings for Claude
-  Code. Anything Codex needs goes in `description`.
+- `description` is 300 characters or fewer, the observed Claude Code listing cut,
+  with trigger words first, then "Use when …" with phrasings that never name the skill,
+  then "Not for <nearest neighbor>".
+  It never summarizes the workflow.
+- Skills set no `when_to_use`.
+  It shares the 300-character entry with `description`, and Codex ignores it,
+  so its phrasings go in `description`.
 - The reference validator (skills-ref) allows only `name`, `description`, `license`,
   `allowed-tools`, `metadata`, and `compatibility`, and has no option to relax that.
-  `scripts/validate_spec.py` strips `when_to_use` and `disable-model-invocation` before the spec
-  check, and `scripts/validate_repository.py` checks their limits.
-- Each install bundle's listing (`description` plus `when_to_use`) stays within 8,000 characters,
-  the Claude Code budget at 200k tokens and the Codex fallback. Users install bundles, not the whole
-  catalog.
+  `scripts/validate_spec.py` strips `when_to_use` and `disable-model-invocation`
+  before the spec check,
+  and `scripts/validate_repository.py` rejects `when_to_use` and checks the description limit.
+- Each install bundle's listing of descriptions stays within 8,000 characters,
+  the Claude Code budget at 200k tokens and the Codex fallback.
+  Users install bundles, not the whole catalog.
 - Skills set no `paths`. In the 2026-10-05 A/B on `write-ci-workflow` (validation split, 1 run,
   Opus 5.5), the skill without `paths` fired on all 4 should-trigger queries in an empty project.
   With `paths: [".github/workflows/**", ".gitlab-ci.yml", "bitbucket-pipelines.yml"]` it did not

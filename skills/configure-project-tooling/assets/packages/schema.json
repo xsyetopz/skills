@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/xsyetopz/skills/skills/configure-project-tooling/assets/packages/schema.json",
+  "title": "Package catalog row",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ecosystem", "name", "domain", "status", "latest", "released", "license",
+    "repository", "archived", "pushed", "deprecation", "replacement",
+    "advisories", "downloads", "deps", "traits", "verified"
+  ],
+  "properties": {
+    "ecosystem": { "enum": ["npm", "crates", "nuget", "go"] },
+    "name": { "type": "string", "minLength": 1 },
+    "domain": {
+      "enum": [
+        "ai-ml", "app-hosting", "async-runtime", "auth", "benchmarking",
+        "build-tooling", "caching", "cli-args", "cli-interface", "cloud-sdk",
+        "compiler-tooling", "compression", "concurrency", "configuration",
+        "crypto", "data-processing", "database", "date-time", "documents",
+        "errors", "ffi-interop", "filesystem", "graphics-media", "http-client",
+        "http-protocol", "identifiers", "logging", "math", "messaging",
+        "networking", "observability", "parsing", "resilience-scheduling",
+        "rpc-api", "serialization", "system", "templating", "testing", "text",
+        "tui", "ui-framework", "utilities", "validation", "web-framework"
+      ]
+    },
+    "status": { "enum": ["active", "stale", "archived", "deprecated", "prerelease", "missing"] },
+    "latest": { "type": ["string", "null"] },
+    "released": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "license": { "type": ["string", "null"] },
+    "repository": { "type": ["string", "null"], "pattern": "^https://" },
+    "archived": { "type": ["boolean", "null"] },
+    "pushed": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "deprecation": { "type": ["string", "null"], "maxLength": 200 },
+    "replacement": { "type": ["string", "null"] },
+    "advisories": { "type": "array", "items": { "type": "string" } },
+    "downloads": { "type": ["integer", "null"], "minimum": 0 },
+    "deps": { "type": ["integer", "null"], "minimum": 0 },
+    "traits": { "type": "object" },
+    "verified": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ecosystem": { "const": "npm" } } },
+      "then": {
+        "properties": {
+          "traits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["types", "module", "engines"],
+            "properties": {
+              "types": { "enum": ["bundled", "none", null] },
+              "module": { "enum": ["esm", "cjs", "dual", null] },
+              "engines": { "type": ["object", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "ecosystem": { "const": "crates" } } },
+      "then": {
+        "properties": {
+          "traits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["msrv", "noStd", "procMacro"],
+            "properties": {
+              "msrv": { "type": ["string", "null"] },
+              "noStd": { "type": ["boolean", "null"] },
+              "procMacro": { "type": ["boolean", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "ecosystem": { "const": "nuget" } } },
+      "then": {
+        "properties": {
+          "traits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["frameworks", "aot"],
+            "properties": {
+              "frameworks": { "type": ["array", "null"], "items": { "type": "string" } },
+              "aot": { "type": ["boolean", "null"] }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "ecosystem": { "const": "go" } } },
+      "then": {
+        "properties": {
+          "traits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["goVersion", "cgo"],
+            "properties": {
+              "goVersion": { "type": ["string", "null"] },
+              "cgo": { "type": ["boolean", "null"] }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

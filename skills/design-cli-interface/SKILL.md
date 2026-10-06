@@ -1,15 +1,10 @@
 ---
 name: design-cli-interface
 description: >-
-  Designs and fixes command-line tools: flags, subcommands, --help text, exit
-  codes, stdout vs stderr, --json output, prompts that hang in CI, NO_COLOR,
-  secrets in flags, and renaming a shipped flag or subcommand without breaking
-  scripts. Use when adding or changing a CLI command, or when `cmd | jq`
-  breaks. Not for just recipes, full-screen TUIs, or CLI startup speed.
-when_to_use: >-
-  Add a `--json` flag so scripts can parse `acme export`. Rename `rm` to
-  `delete` without breaking scripts. `mycli list | jq` breaks on a Loading
-  line. `mytool sync --verbose` says unknown flag.
+  Designs and fixes command-line tools, including flags, subcommands, help text,
+  exit codes, stdout vs stderr, JSON output, CI prompts that hang, and NO_COLOR.
+  Use when adding or renaming a CLI command or flag, or when piping its output to jq breaks.
+  Not for just recipes, TUIs, or CLI startup speed.
 ---
 
 # Design CLI Interface

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Configure Project Tooling"
+  short_description: "Copy checked lint, compiler, and toolchain baselines"
+  default_prompt: "Use $configure-project-tooling to set up this project's lint, format, type-check, and toolchain config from the checked baselines, check new dependencies against the package catalog, and run the verify commands."

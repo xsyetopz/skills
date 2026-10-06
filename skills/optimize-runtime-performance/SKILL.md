@@ -1,15 +1,11 @@
 ---
 name: optimize-runtime-performance
 description: >-
-  Makes a slow function, loop, or service faster: CPU profiles, flame graphs,
-  allocs/op, p99 latency, GC pressure, and before/after benchmarks (pprof,
-  perf, JMH, BenchmarkDotNet, Criterion, pyperf). Use when something is too
-  slow, a profiler points at a hot path, or memory use must drop, in any
-  language. Not for tsc type-check speed or refactoring for readability.
-when_to_use: >-
-  pprof says Encode allocates 80 times per call, cut it. This loop is the hot
-  path in our profile. p99 doubled and the CPU profile shows JSON.stringify.
-  Show before and after benchmark numbers.
+  Makes a slow function, loop, or service faster
+  with CPU profiles, flame graphs, allocations, p99 latency, GC pressure,
+  and before and after benchmarks in pprof, perf, JMH, BenchmarkDotNet, or pyperf.
+  Use when code is too slow, a profile shows a hot path, or memory must drop.
+  Not for tsc speed.
 ---
 
 # Optimize Runtime Performance

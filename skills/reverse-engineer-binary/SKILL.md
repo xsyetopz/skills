@@ -1,13 +1,10 @@
 ---
 name: reverse-engineer-binary
 description: >-
-  Reverse engineers a compiled program with no source: Ghidra, IDA, radare2, rizin, or angr
-  analysis of functions, calling conventions, struct layouts, and vtables, plus firmware unpacking
-  and file-format parsing. Use when asked what a function does or why a prototype is wrong. Not for
-  $decompile-to-matching-c-cpp or $recompile-console-binary.
-when_to_use: >-
-  What does FUN_00401a30 do? The decompiler says __cdecl but it ends with ret 0Ch. Find the function
-  for this crash address. Set up pyghidra-mcp or ida-pro-mcp. Unpack this firmware.bin.
+  Reverse engineers compiled programs with no source in Ghidra, IDA, radare2, rizin, or angr,
+  recovering functions, calling conventions, structs, and vtables, and unpacks firmware.
+  Use when asked what a function or crash address does or why a prototype is wrong.
+  Not for matching decomps.
 ---
 
 # Reverse Engineer Binary

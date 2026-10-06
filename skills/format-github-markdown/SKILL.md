@@ -1,15 +1,11 @@
 ---
 name: format-github-markdown
 description: >-
-  Fixes Markdown that breaks on GitHub or in markdownlint: anchors after a
-  heading rename, links after a move, stale tables of contents, tables with
-  pipes, alerts and details blocks that show as raw text, and lines over
-  MD013. Use when docs render wrong or lint fails. Not for doc content such as
-  READMEs or ARCHITECTURE.md.
-when_to_use: >-
-  Add a table of contents to docs/guide.md and keep it in sync. Links to
-  #setup-options are broken on GitHub. Add a NOTE alert and a collapsible
-  section. markdownlint fails MD013. A table renders as plain text.
+  Fixes Markdown that breaks on GitHub or in markdownlint,
+  such as broken anchors and links, stale tables of contents, tables with pipes,
+  alerts and details blocks shown as raw text, and MD013 long lines.
+  Use when docs render wrong or markdownlint fails.
+  Not for README or ARCHITECTURE.md content.
 ---
 
 # Format GitHub Markdown

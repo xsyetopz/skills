@@ -1,16 +1,11 @@
 ---
 name: interview-to-openspec
 description: >-
-  Interviews the user in rounds of multiple-choice questions, then writes an
-  OpenSpec change (proposal.md, spec deltas, design.md, tasks.md) and runs
-  `openspec validate --strict`. Use when a request is vague, large, or has open
-  decisions: "build me X", "I want to add Y", "let's design", "spec this out",
-  or a plan before coding. Not for clear, small tasks or OpenSpec's
-  /opsx:explore.
-when_to_use: >-
-  I want to add team accounts, not sure how yet. Help me figure out what to
-  build before we code. Write a proposal for this feature. Ask me what you need,
-  then plan it.
+  Interviews the user in rounds of multiple-choice questions,
+  then writes an OpenSpec change and runs openspec validate.
+  Use when a request is vague, large, or has open decisions,
+  or the user wants a spec, proposal, or plan before coding.
+  Not for clear small tasks or OpenSpec explore mode.
 ---
 
 # Interview to OpenSpec

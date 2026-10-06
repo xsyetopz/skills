@@ -1,0 +1,6 @@
+# Pin the toolchain so diagnostics and formatting match on every machine and in CI.
+# rust-lld loads libLLVM.dylib from llvm-tools, so cross-target links (wasm, thumb) need it.
+[toolchain]
+channel = "1.99.0"
+profile = "minimal"
+components = ["clippy", "llvm-tools", "rustfmt"]

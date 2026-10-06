@@ -12,8 +12,12 @@ REFERENCE_LINK = re.compile(r"^\[[^]]+\]:\s*(?:\n\s*)?([^\s#]+)", re.MULTILINE)
 NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 BODY_MAX_LINES = 200
-DESCRIPTION_MAX = 400
-WHEN_TO_USE_MAX = 250
+# Claude Code lists each skill as description + " - " + when_to_use and cuts
+# the entry at 300 characters with "…" (seen in 2.1.283-2.1.289, in sessions
+# listing 47-213 skills, on 2026-10-07).
+# Text past the cut never reaches the model, so descriptions stay within it
+# and when_to_use is rejected.
+DESCRIPTION_MAX = 300
 # Claude Code lists skills within 1% of the context window (about 8,000
 # characters at 200k tokens), and Codex falls back to 8,000 characters. Users
 # install one bundle at a time, so each bundle's listing must fit.
@@ -98,17 +102,13 @@ def main() -> int:
                 f"maximum is {DESCRIPTION_MAX}"
             )
             errors += 1
-        when_to_use = metadata.get("when_to_use", "")
-        if not isinstance(when_to_use, str) or len(when_to_use) > WHEN_TO_USE_MAX:
-            fail(
-                f"{skill_md}: when_to_use must be a string of at most "
-                f"{WHEN_TO_USE_MAX} characters"
-            )
+        if "when_to_use" in metadata:
+            fail(f"{skill_md}: when_to_use is not allowed; put it in description")
             errors += 1
         elif isinstance(description, str) and not metadata.get(
             "disable-model-invocation"
         ):
-            listings[skill.name] = f"{description} {when_to_use}".strip()
+            listings[skill.name] = description
         compatibility = metadata.get("compatibility")
         if "compatibility" in metadata and (
             not isinstance(compatibility, str) or not 1 <= len(compatibility) <= 500

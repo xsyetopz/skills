@@ -1,13 +1,10 @@
 ---
 name: recompile-console-binary
 description: >-
-  Turns console executables into native C or C++ with static recompilers: N64Recomp, XenonRecomp,
-  PS2Recomp, rexglue. Use when a ROM or XEX port misses functions or jump tables, needs patches,
-  stubs or HLE, or has wrong floats or byte order. Not for matching source
-  ($decompile-to-matching-c-cpp) or reverse-engineering ($reverse-engineer-binary).
-when_to_use: >-
-  N64Recomp skipped a jump table. Replace the recompiled draw_hud without editing generated files.
-  Set up XenonRecomp for my XEX. The recomp floats drift from the console.
+  Turns console executables into native C or C++ with N64Recomp, XenonRecomp, PS2Recomp, or rexglue.
+  Use when a ROM or XEX port misses functions or jump tables,
+  needs patches, stubs, or HLE, or has wrong floats or byte order.
+  Not for matching decompilation or explaining a binary.
 ---
 
 # Recompile Console Binary

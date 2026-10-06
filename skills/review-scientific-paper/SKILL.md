@@ -1,11 +1,11 @@
 ---
 name: review-scientific-paper
 description: >-
-  Critical reading of research papers, preprints, arXiv IDs, and DOIs:
-  versions, retractions, reported t, F, chi-square, and r statistics, effect
-  sizes, study design, and conflicting results. Use when summarizing, vetting,
-  or comparing studies, or asking what the research says about a claim. Not
-  for formatting citations or writing a paper.
+  Critically reads research papers, preprints, arXiv IDs, and DOIs,
+  checking versions, retractions, reported t, F, chi-square, and r statistics,
+  effect sizes, and study design.
+  Use when summarizing, vetting, or comparing studies, or asking what research says about a claim.
+  Not for writing papers.
 disable-model-invocation: true
 ---
 

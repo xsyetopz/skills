@@ -1,16 +1,11 @@
 ---
 name: write-ci-workflow
 description: >-
-  Writes and fixes CI pipelines in .github/workflows, .gitlab-ci.yml, and
-  bitbucket-pipelines.yml: triggers, matrices, caches, pinned actions, token
-  permissions, OIDC deploys. Use when a pipeline is added or changed, a check is
-  stuck pending, a job is green although tests failed, or zizmor or actionlint
-  flags a workflow. Not for repo-wide secret scanning, fetching CI logs for a
-  PR, or just recipes.
-when_to_use: >-
-  Required check stuck at "Waiting for status to be reported" after renaming
-  the workflow file. Job shows green but `pytest | tee out.log` failed. Drop
-  the PyPI token secret and publish only tagged releases from main.
+  Writes and fixes CI pipelines in GitHub Actions, GitLab CI, and Bitbucket Pipelines,
+  with triggers, matrices, pinned actions, token permissions, and OIDC deploys.
+  Use when a pipeline changes, a check is stuck pending,
+  a job is green although tests failed, or zizmor flags it.
+  Not for secret scans.
 ---
 
 # Write CI Workflow

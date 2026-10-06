@@ -1,13 +1,11 @@
 ---
 name: write-emulator-patches
 description: >-
-  Writes and fixes emulator game patches and cheat codes: PCSX2 pnach, DuckStation cht, Dolphin
-  Gecko, Action Replay and OnFrame, RPCS3 patch.yml, PPSSPP CWCheat, plus the settings that enable
-  them. Use when a code does not apply, a file fails to load, or a patch must target one region or
-  revision. Not for emulator crashes or guest debugging ($debug-game-in-emulator).
-when_to_use: >-
-  My pnach does nothing in PCSX2. Write a widescreen patch for my homebrew. Convert this Gecko code
-  to OnFrame. RPCS3 skips my patch.yml. Merge these cheat settings into settings.ini.
+  Writes and fixes emulator patches and cheat codes,
+  such as PCSX2 pnach, DuckStation cht, Dolphin Gecko, RPCS3 patch.yml, and PPSSPP CWCheat,
+  plus enabling settings.
+  Use when a code does nothing, a patch file fails to load, or a patch must target one region.
+  Not for emulator crashes.
 ---
 
 # Write Emulator Patches

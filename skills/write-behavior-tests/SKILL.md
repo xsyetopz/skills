@@ -1,16 +1,12 @@
 ---
 name: write-behavior-tests
 description: >-
-  Writes and fixes tests that check observable behavior, and finds the root
-  cause of a failure, crash, or hang: regression tests that fail without the
-  fix, boundary and property tests, fakes instead of mocks, deterministic time
-  and races, and reduced reproductions. Use when adding tests, fixing flaky or
-  brittle tests, or finding why code fails. Not for CI setup.
-when_to_use: >-
-  Add a regression test for this bug and fix it. Our tests mock everything and
-  break on every refactor. Would these tests pass even if the logic were wrong?
-  This test sleeps and is flaky on CI. The import crashes on one file, find out
-  why.
+  Writes and fixes tests that check observable behavior,
+  such as regression, boundary, and property tests,
+  fakes instead of mocks, and deterministic time and races.
+  Use when adding tests, fixing flaky or brittle tests,
+  or finding the root cause of a failure, crash, or hang.
+  Not for CI setup.
 ---
 
 # Write Behavior Tests

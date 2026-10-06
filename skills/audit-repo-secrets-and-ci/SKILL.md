@@ -1,15 +1,11 @@
 ---
 name: audit-repo-secrets-and-ci
 description: >-
-  Audits a repository for leaked secrets in files and git history (gitleaks, trufflehog), GitHub
-  Actions attack paths (zizmor, pull_request_target, script injection, unpinned actions), and
-  exploitable code bugs such as SQL injection or path traversal, each proven with a local test. Use
-  before open-sourcing or a release. Not for new pipelines ($write-ci-workflow) or Trail of Bits
-  static-analysis.
-when_to_use: >-
-  We are open-sourcing this repo, check it for leaked keys first. Can a fork PR steal our CI
-  secrets? Is this upload handler safe? Find security bugs in the login handler. A token was
-  committed last year, what now?
+  Audits a repo for leaked keys and tokens in files and git history,
+  GitHub Actions attack paths such as pull_request_target and script injection,
+  and exploitable bugs like SQL injection, each proven with a local test.
+  Use before open-sourcing or a release.
+  Not for writing new CI pipelines.
 ---
 
 # Audit Repo Secrets and CI

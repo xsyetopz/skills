@@ -1,15 +1,11 @@
 ---
 name: write-agents-md
 description: >-
-  Writes and audits AGENTS.md, CLAUDE.md, CLAUDE.local.md, and .claude/rules
-  instruction files for Claude Code and Codex: commands, boundaries, nested
-  files, and @ imports. Use when an agent ignores the project's rules, runs
-  stale or wrong commands, misses per-package instructions, or the file grew
-  too long. Not for README or CONTRIBUTING docs for humans, skills, or hooks.
-when_to_use: >-
-  Claude keeps using npm after we switched to pnpm. Our CLAUDE.md is 600
-  lines and half of it is ignored. Give agents per-package commands in this
-  monorepo. Codex ignores services/billing/AGENTS.md.
+  Writes and audits AGENTS.md, CLAUDE.md, and .claude rules files for Claude Code and Codex,
+  covering commands, boundaries, nested files, and imports.
+  Use when an agent ignores project rules, runs stale or wrong commands,
+  misses per-package instructions, or the file grew too long.
+  Not for READMEs.
 ---
 
 # Write AGENTS.md

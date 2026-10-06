@@ -34,10 +34,12 @@ link definitions. References have no numerical ceiling. This is catalog policy, 
 a measure of density, read coverage, or reliability. Keep the existing validator and its boundary
 tests; do not add a density checker.
 
-Keep each description within 400 characters and each optional `when_to_use` within 250. Every skill
-sits in exactly one bundle in `bundles.toml`, and each bundle's listing, one
-`- name: description when_to_use (file: skills/name/SKILL.md)` line per model-invoked skill, stays
-within 8,000 characters. `just metadata` prints each bundle's total.
+Keep each description within 300 characters, because Claude Code cuts each listing entry there.
+Do not add `when_to_use`; put its phrasings in the description.
+Every skill sits in exactly one bundle in `bundles.toml`,
+and each bundle's listing stays within 8,000 characters.
+The listing has one `- name: description (file: skills/name/SKILL.md)` line per model-invoked skill.
+`just metadata` prints each bundle's total.
 `docs/research/skill-discoverability.md` records the sources for these limits.
 
 Run commands from the repository root through existing `just` recipes. Use narrow recipes while

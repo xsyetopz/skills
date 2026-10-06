@@ -17,6 +17,7 @@ core-engineering = [
   "fix-diagnostics-without-suppressing",
   "optimize-runtime-performance",
   "optimize-tsc-builds",
+  "configure-project-tooling",
 ]
 planning = [
   "interview-to-openspec",

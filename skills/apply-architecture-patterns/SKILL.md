@@ -1,14 +1,11 @@
 ---
 name: apply-architecture-patterns
 description: >-
-  Places new code in the layer, module, and pattern the codebase already uses: hexagonal ports and
-  adapters, clean and onion architecture, layering, MVC, MVP, MVVM, ECS, and GoF patterns such as
-  Strategy, Factory, Observer, and Visitor. Use when adding a feature, service, screen, or module,
-  or choosing a design pattern. Not for refactoring smells in working code.
-when_to_use: >-
-  Where should this new endpoint's logic go? Add a payment provider without touching the domain.
-  Should I use a factory or a strategy here? My view model talks to the database. Is this
-  codebase MVVM or MVC?
+  Places new code in the layer and pattern the codebase already uses,
+  such as hexagonal, clean, MVC, MVVM, ECS, Strategy, or Factory.
+  Use when adding a feature, endpoint, service, screen, or provider,
+  asking where logic goes, or picking a design pattern.
+  Not for refactoring smells in working code.
 ---
 
 # Apply Architecture Patterns
@@ -63,3 +60,12 @@ the codebase has never used, or a second architecture beside the first.
   pattern, to check it fits and is not over-engineering.
 - Read [`references/ecs.md`](references/ecs.md) for entity component system code (Bevy, flecs,
   Unity Entities).
+- Read [`references/file-layout.md`](references/file-layout.md)
+  when creating a source file or reordering one,
+  then the file for its language:
+  [C](references/layouts/c.md), [C++](references/layouts/cpp.md),
+  [C# and F#](references/layouts/dotnet.md), [Go](references/layouts/go.md),
+  [JS and TS](references/layouts/js-ts.md), [Java, Kotlin, Scala](references/layouts/jvm.md),
+  [Lua](references/layouts/lua.md), [Python](references/layouts/python.md),
+  [Ruby](references/layouts/ruby.md), [Rust](references/layouts/rust.md),
+  [Swift](references/layouts/swift.md).

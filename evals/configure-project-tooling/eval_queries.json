@@ -1,0 +1,122 @@
+[
+	{
+		"query": "set up biome and tsconfig for a new bun project, strict please",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "Can you write a biome.json for this repo? We keep getting different lint configs from every agent.",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "add clippy.toml, rustfmt.toml and cargo-deny to my new cargo workspace",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "which HTTP client crate should I use? I want something maintained, not abandoned",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "pick a JWT library for our Go service, check it isn't deprecated",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "bootstrap the tooling for this empty TypeScript repo: bunfig, tsconfig, linter, the works",
+		"should_trigger": true,
+		"split": "train",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "is zod-to-json-schema still maintained or should we drop it?",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "pin the rust toolchain and turn on strict workspace lints for this crate",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "we need a NuGet package for retries, which one is current in 2026?",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "our tsconfig.json was hand-written ages ago, bring it to a sane strict baseline for TS 7",
+		"should_trigger": true,
+		"split": "validation",
+		"expected_skill": "configure-project-tooling"
+	},
+	{
+		"query": "clippy reports needless_range_loop in src/parse.rs, fix it",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "fix-diagnostics-without-suppressing"
+	},
+	{
+		"query": "tsc takes 90 seconds on this monorepo, make it faster",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "optimize-tsc-builds"
+	},
+	{
+		"query": "add a GitHub Actions workflow that runs bun test on every PR",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-ci-workflow"
+	},
+	{
+		"query": "add a just lint recipe that runs biome check",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "write-justfile"
+	},
+	{
+		"query": "bump our version for the next release, we removed a public function",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "bump-semver"
+	},
+	{
+		"query": "this function has five nested ifs, clean it up",
+		"should_trigger": false,
+		"split": "train",
+		"expected_skill": "refactor-code-smells"
+	},
+	{
+		"query": "audit our dependencies for leaked secrets and unpinned GitHub actions",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "audit-repo-secrets-and-ci"
+	},
+	{
+		"query": "where should the new payment adapter live in this hexagonal layout?",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "apply-architecture-patterns"
+	},
+	{
+		"query": "write tests for the retry helper, including the timeout path",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "write-behavior-tests"
+	},
+	{
+		"query": "TS2589 type instantiation is excessively deep in our router types",
+		"should_trigger": false,
+		"split": "validation",
+		"expected_skill": "optimize-tsc-builds"
+	}
+]

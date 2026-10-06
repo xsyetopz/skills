@@ -1,11 +1,10 @@
 ---
 name: migrate-js-to-bun
 description: >-
-  Moves npm, Yarn, and pnpm installs, package-lock.json and bun.lockb
-  lockfiles, Node scripts, Jest and node:test suites, and esbuild bundles to
-  Bun with the same resolved versions and test counts. Use when adopting bun
-  install, bun ci, bun test, or bun build in an existing project. Not for
-  speeding up a Bun app or tsc type checking.
+  Moves npm, Yarn, and pnpm installs, lockfiles, Node scripts, Jest and node test suites,
+  and esbuild bundles to Bun with the same resolved versions and test counts.
+  Use when adopting bun install, bun test, or bun build in an existing project.
+  Not for speeding up a Bun app or tsc type checking.
 disable-model-invocation: true
 ---
 

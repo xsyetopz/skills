@@ -1,15 +1,11 @@
 ---
 name: commit-and-rewrite-git
 description: >-
-  Commits and stages exact changes, splits one file's hunks across commits,
-  and rewrites or recovers git history: amend, squash, rebase, reset, revert,
-  reflog, stash, force-push with a lease, and git bisect to find the commit
-  that broke a test. Use when asked to commit, stage, undo, squash, rebase, or
-  bisect. Not for GitHub pull requests or issues.
-when_to_use: >-
-  Commit this. Stage only the parser fix and commit it. I ran git reset --hard
-  and lost two commits. Squash my last three commits and push. Which commit
-  broke the rounding test?
+  Commits, stages exact hunks, and rewrites or recovers git history
+  with amend, squash, rebase, reset, revert, reflog, stash, force-push, and bisect.
+  Use when asked to commit, stage, undo, squash, rebase, recover lost commits,
+  or find the commit that broke a test.
+  Not for GitHub PRs or issues.
 ---
 
 # Commit and Rewrite Git

@@ -1,17 +1,11 @@
 ---
 name: decompile-to-matching-c-cpp
 description: >-
-  Rewrites disassembled functions as C or C++ that the original compiler turns
-  into byte-identical code: splat, objdiff, m2c, decomp-permuter, decomp.me,
-  INCLUDE_ASM, PsyQ, IDO, MWCC, and MSVC. Use when a function is a few
-  instructions off, a verifier or progress number looks wrong, or a matching
-  decomp project is being set up. Not for explaining a binary or for native
-  static recompilation.
-when_to_use: >-
-  func_80012345 is still 3 instructions off. Write the splat YAML for this PS1
-  SLUS executable. The progress badge counts INCLUDE_ASM as matched. Our
-  objdiff config ignores relocations. The registers come out swapped against
-  the target.
+  Rewrites disassembled functions as C or C++ that compiles byte-identical,
+  with splat, objdiff, m2c, decomp-permuter, PsyQ, IDO, MWCC, and MSVC.
+  Use when a function is a few instructions off, registers swap,
+  progress numbers look wrong, or a matching decomp is set up.
+  Not for static recompilation.
 ---
 
 # Decompile to Matching C or C++

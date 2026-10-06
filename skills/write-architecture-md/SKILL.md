@@ -1,17 +1,11 @@
 ---
 name: write-architecture-md
 description: >-
-  Writes and audits ARCHITECTURE.md as a codemap: modules, entry points,
-  boundaries, and invariants checked against the code, with no invented
-  services or security controls. Use when creating an ARCHITECTURE.md,
-  explaining how modules fit together, or fixing one that names code that no
-  longer exists. Not for READMEs, AGENTS.md, or changing the architecture
-  itself.
-when_to_use: >-
-  Create an ARCHITECTURE.md with a code map and the module boundaries.
-  ARCHITECTURE.md still mentions the old handlers module. Document the
-  invariants, like core never importing the HTTP layer. Explain how the
-  modules fit together.
+  Writes and audits ARCHITECTURE.md as a codemap of modules,
+  entry points, boundaries, and invariants checked against the code.
+  Use when creating an ARCHITECTURE.md, explaining how modules fit together,
+  or fixing one that names code that no longer exists.
+  Not for READMEs, AGENTS.md, or redesigns.
 ---
 
 # Write ARCHITECTURE.md

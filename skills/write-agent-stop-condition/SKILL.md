@@ -1,15 +1,11 @@
 ---
 name: write-agent-stop-condition
 description: >-
-  Writes stop conditions that keep Claude Code or Codex working until a check
-  passes, as goal commands or Stop hooks that run tests, lint, or just check
-  before the agent may finish. Use when the agent stops too early, claims done
-  without running the tests, or a goal or Stop hook loops forever. Not for
-  PreToolUse guards, formatters, or other hooks.
-when_to_use: >-
-  Keep going until cargo test passes. Do not let Claude stop until the build
-  is green. My goal never ends. The Stop hook blocks forever. Claude met the
-  goal by deleting the failing test.
+  Writes goal commands and Stop hooks
+  that keep Claude Code or Codex working until tests, lint, or the build pass.
+  Use when the agent stops too early, claims done without running tests,
+  deletes a failing test to finish, or a goal or Stop hook loops forever.
+  Not for PreToolUse guards or formatters.
 ---
 
 # Write Agent Stop Condition

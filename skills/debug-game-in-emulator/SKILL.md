@@ -1,13 +1,10 @@
 ---
 name: debug-game-in-emulator
 description: >-
-  Debugs games and homebrew in PCSX2, DuckStation, Dolphin, RPCS3, PPSSPP, and xemu: isolated
-  data roots, bounded runs with a log file, failure layers, built-in debuggers, GDB stubs, and host
-  crashes. Use when a game will not boot, renders wrong, or crashes, or to break on guest code. Not
-  for $write-emulator-patches.
-when_to_use: >-
-  PCSX2 exits 0 but my ELF never boots. Break when Dolphin writes my HP value. Connect gdb to xemu.
-  DuckStation crashes on launch on my Mac. Which nightly broke Vulkan textures?
+  Debugs games and homebrew in PCSX2, DuckStation, Dolphin, RPCS3, PPSSPP, and xemu
+  with isolated data roots, logged bounded runs, built-in debuggers, and GDB stubs.
+  Use when a game will not boot, renders wrong, or crashes, or to break on guest code.
+  Not for writing cheat codes or patches.
 ---
 
 # Debug Game in Emulator

@@ -1,0 +1,52 @@
+# cargo-deny is versioned separately from Rust and Clippy.
+
+[advisories]
+db-urls = ["https://github.com/RustSec/advisory-db"]
+yanked = "deny"
+unmaintained = "all"
+unsound = "all"
+ignore = []
+unused-ignored-advisory = "deny"
+maximum-db-staleness = "P1D"
+
+[licenses]
+# Shared dependency-license admission policy, not this project's license.
+allow = [
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "MIT",
+    "Unicode-3.0",
+    "Zlib",
+]
+confidence-threshold = 0.95
+include-dev = true
+include-build = true
+exceptions = []
+unused-license-exception = "deny"
+
+# This is a reusable approval list, not an inventory of the current graph.
+unused-allowed-license = "allow"
+
+[licenses.private]
+ignore = false
+
+[bans]
+multiple-versions = "deny"
+multiple-versions-include-dev = true
+wildcards = "deny"
+# Permit unpublished workspace path dependencies without registry versions.
+allow-wildcard-paths = true
+workspace-default-features = "deny"
+
+[bans.workspace-dependencies]
+duplicates = "deny"
+include-path-dependencies = true
+unused = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

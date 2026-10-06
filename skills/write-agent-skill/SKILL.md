@@ -1,14 +1,11 @@
 ---
 name: write-agent-skill
 description: >-
-  Writes, trims, and evaluates Agent Skills, SKILL.md files, skill
-  descriptions, references, scripts, and trigger evals for Claude Code and
-  Codex. Use when creating or auditing a skill, when a skill never triggers
-  or triggers on the wrong requests, or when a SKILL.md grew too long. Not
-  for AGENTS.md or CLAUDE.md, or for hooks.
-when_to_use: >-
-  Make this a skill. Why does Claude never use my skill. Turn these notes
-  into a skill. Cut this SKILL.md down. Write trigger evals for this skill.
+  Writes, trims, and evaluates Agent Skills, SKILL.md files, skill descriptions,
+  references, scripts, and trigger evals for Claude Code and Codex.
+  Use when turning notes into a skill, auditing one,
+  a skill never triggers or triggers wrongly, or a SKILL.md grew too long.
+  Not for AGENTS.md or hooks.
 ---
 
 # Write Agent Skill
@@ -67,11 +64,11 @@ The description is the only text a host reads before choosing a skill.
   phrasings that never name the skill, then "Not for" the nearest neighbor. Third person.
 - State when to use the skill, never its workflow. An agent that reads a summarized process follows
   the summary and skips the body.
-- Aim for 200 to 400 characters. Hosts shorten descriptions from the end when the listing overflows,
-  so the trigger words lead.
-- `when_to_use` is Claude Code only. Use it for two to four extra user phrasings, 250 characters or
-  fewer. Codex ignores it, so anything Codex needs goes in `description`. Both share one
-  1,536-character cap.
+- Keep it within 300 characters, with the trigger words in the first 200.
+  Claude Code cuts each listing entry at 300 characters,
+  and hosts shorten descriptions from the end when the listing overflows.
+- Do not use `when_to_use`.
+  Claude Code appends it to the description inside the same 300 characters, and Codex ignores it.
 - Plain words only. No colon, semicolon, double quote, backtick, slash, parenthesis, bracket, `$`,
   or `|`. Product names such as C++, C#, and .NET stay as written. An unquoted colon breaks YAML,
   and the rest reads as markup.

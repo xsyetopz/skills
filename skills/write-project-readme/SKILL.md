@@ -1,15 +1,10 @@
 ---
 name: write-project-readme
 description: >-
-  Writes and fixes README, CONTRIBUTING, getting-started, and API docs whose
-  commands run, with versions and flags taken from the repo's manifests, CI,
-  and --help, and expected output shown. Use when docs are missing, install
-  steps fail, or a documented flag no longer exists. Not for ARCHITECTURE.md,
-  AGENTS.md, changelogs, or Markdown formatting.
-when_to_use: >-
-  Write a README for this CLI with a quick start that shows real output. The
-  install steps fail when I run them. Write a CONTRIBUTING.md whose commands
-  match CI. Document the public API from the source and check every example.
+  Writes and fixes README, CONTRIBUTING, getting-started, and API docs whose commands run,
+  with versions and flags taken from manifests, CI, and help output, and real output.
+  Use when docs are missing, install steps fail, or a documented flag no longer exists.
+  Not for ARCHITECTURE.md or changelogs.
 ---
 
 # Write Project README

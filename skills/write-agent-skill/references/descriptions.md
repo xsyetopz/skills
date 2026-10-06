@@ -38,10 +38,13 @@ answer is vague, so is the description.
 
 Descriptions are always in context, so their total is a fixed cost on every turn.
 
-- Claude Code caps each `description` plus `when_to_use` at 1,536 characters and budgets the whole
-  listing at 1% of the context window. On overflow it drops descriptions of the least-invoked skills
-  and keeps every name. `disable-model-invocation: true` removes a skill from the listing ([Claude
-  Code skills][cc-skills]).
+- Claude Code documents a 1,536-character cap on each `description` plus `when_to_use`,
+  but versions 2.1.283–2.1.289 cut each listing entry
+  at 300 characters with `…`.
+  It budgets the whole listing at 1% of the context window.
+  On overflow it drops descriptions of the least-invoked skills and keeps every name.
+  `disable-model-invocation: true` removes a skill from the listing
+  ([Claude Code skills][cc-skills]).
 - Codex renders each skill as `- name: description (file: path)`. It budgets 2% of the context
   window, or 8,000 characters when the window is unknown. On overflow it shortens descriptions
   round-robin, then drops them, then omits skills ([render.rs][codex-render]). The Codex app UI

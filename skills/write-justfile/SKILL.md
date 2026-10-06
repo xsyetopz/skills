@@ -1,16 +1,11 @@
 ---
 name: write-justfile
 description: >-
-  Writes and fixes justfiles and `just` recipes: arguments with spaces,
-  recipes that pass when the command fails, .env and dotenv loading, slow
-  backtick variables, [confirm] on destructive recipes, modules, and Windows
-  shells. Use when adding a just command, when a recipe misbehaves, or when
-  moving a build from make to just. Not for CI workflows, agent hooks, or
-  package.json scripts.
-when_to_use: >-
-  Forward extra args to pytest from `just test`. Our `just lint` passes even
-  when ruff finds errors. Every just command takes 3 seconds, even `just
-  --list`. Replace our Makefile-based C build with just.
+  Writes and fixes justfiles and just recipes, such as forwarding arguments,
+  recipes that pass when the command fails, dotenv loading,
+  confirm on destructive recipes, and Windows.
+  Use when adding a just command, a recipe misbehaves, or moving from make to just.
+  Not for CI or npm scripts.
 ---
 
 # Write Justfile

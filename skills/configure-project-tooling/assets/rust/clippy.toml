@@ -1,0 +1,50 @@
+# Lint levels are defined in Cargo.toml, not in this file.
+
+# Narrow, native test-context exceptions.
+allow-expect-in-tests = true
+allow-indexing-slicing-in-tests = true
+allow-panic-in-tests = true
+allow-print-in-tests = true
+allow-unwrap-in-tests = true
+# missing_panics_doc has no test exception (checked on clippy 1.99.0),
+# so each #[test] fn carries a `/// # Panics` section.
+
+# Tests remain subject to cleanup and resource limits.
+allow-dbg-in-tests = false
+allow-useless-vec-in-tests = false
+allow-large-stack-frames-in-tests = false
+check-incompatible-msrv-in-tests = true
+
+# Only contexts that are guaranteed to be evaluated at compile time.
+allow-expect-in-consts = true
+allow-unwrap-in-consts = true
+
+# Do not suppress findings merely because an API is public.
+avoid-breaking-exported-api = false
+check-private-items = true
+warn-on-all-wildcard-imports = true
+allow-mixed-uninlined-format-args = false
+allow-one-hash-in-raw-strings = false
+allow-private-module-inception = false
+
+# Byte thresholds. These are lint admission limits, not measured stack bounds.
+array-size-threshold = 512
+stack-size-threshold = 4096
+future-size-threshold = 4096
+large-error-threshold = 128
+pass-by-value-size-limit = 128
+enum-variant-size-threshold = 128
+max-include-file-size = 1048576
+vec-box-size-threshold = 4096
+
+# Keep trivial-copy-size-limit target-derived; do not hardcode a host ABI.
+cognitive-complexity-threshold = 25
+too-many-arguments-threshold = 6
+too-many-lines-threshold = 100
+type-complexity-threshold = 250
+
+# Core paths resolve in both no_std and std builds.
+disallowed-methods = [
+    { path = "core::mem::forget", reason = "Use explicit ownership transfer or an explicitly managed destruction policy" },
+    { path = "core::hint::unreachable_unchecked", reason = "Do not turn a reachable invalid state into undefined behavior" },
+]

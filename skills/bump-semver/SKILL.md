@@ -1,15 +1,11 @@
 ---
 name: bump-semver
 description: >-
-  Decides major, minor, or patch from the public API diff, computes and
-  compares SemVer versions and tags (rc.10 vs rc.9, 0.y.z, +build), and
-  removes deprecated shims due at a major bump. Use when asked for the next
-  version, whether a change breaks, or which tag is newest. Not for changelog
-  text.
-when_to_use: >-
-  What should the next version be? Is renaming this keyword argument a
-  breaking change? We're at 0.9.3 and changed a signature. Sort these tags by
-  precedence. Cut 3.0 and drop the deprecated aliases.
+  Decides major, minor, or patch from the public API diff,
+  compares SemVer versions and tags such as rc.10 vs rc.9 and 0.y.z,
+  and drops deprecated shims at a major bump.
+  Use when asked for the next version, whether a change breaks, or which tag is newest.
+  Not for changelog text.
 ---
 
 # Bump SemVer

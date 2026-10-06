@@ -1,14 +1,10 @@
 ---
 name: fix-diagnostics-without-suppressing
 description: >-
-  Fixes compiler, linter, and type-checker diagnostics at any severity, including deprecation
-  warnings, at the cause: tsc, ESLint, oxlint, ruff, pyright, clippy, clang, MSVC, Roslyn, Swift,
-  Kotlin, Scala, PCSX2, Ghidra. Use when a build, lint, or CI check reports warnings or errors, or an
-  API is deprecated. Not for adding noqa, ts-ignore, or allow without asking.
-when_to_use: >-
-  CI fails on clippy warnings. Make the build warning-free. tsc says this option is deprecated.
-  PCSX2 prints a deprecated flag warning. Ghidra warns my script uses a deprecated API. Fix these
-  ruff errors.
+  Fixes compiler, linter, and type-checker errors and warnings, including deprecations,
+  at the cause in tsc, ESLint, ruff, pyright, clippy, clang, MSVC, Roslyn, and Swift.
+  Use when a build, lint, or CI check reports warnings or errors, or an API is deprecated.
+  Not for adding ignore comments.
 ---
 
 # Fix Diagnostics Without Suppressing

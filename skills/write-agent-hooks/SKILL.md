@@ -1,16 +1,10 @@
 ---
 name: write-agent-hooks
 description: >-
-  Writes and debugs Claude Code and Codex hooks in settings.json and
-  hooks.json, such as PreToolUse guards, PostToolUse formatters, SessionStart
-  context, matchers, exit codes, and decision output. Use when a hook never
-  fires, fails to block, runs on the wrong tool, or must merge into existing
-  settings. Not for keep-working-until-done conditions or goals, or for git
-  hooks.
-when_to_use: >-
-  Block terraform apply unless a plan file exists. My PreToolUse hook does not
-  deny the command. Run prettier after every edit. Codex never runs my project
-  hook.
+  Writes and debugs Claude Code and Codex hooks in settings.json and hooks.json,
+  such as PreToolUse guards, PostToolUse formatters, matchers, and exit codes.
+  Use when a hook never fires, fails to block, runs on the wrong tool, or must run after edits.
+  Not for Stop hooks or git hooks.
 ---
 
 # Write Agent Hooks

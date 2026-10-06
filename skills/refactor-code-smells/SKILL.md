@@ -1,14 +1,10 @@
 ---
 name: refactor-code-smells
 description: >-
-  Refactors code smells: if/else-if chains comparing one value with == or ===, flag arguments, deep
-  nesting, duplicated branches, long parameter lists, stringly-typed state, primitive obsession, and
-  dead shims, fallbacks, or legacy paths. Use when cleaning up, simplifying, or reviewing working
-  code without changing behavior. Not for $apply-architecture-patterns or speed.
-when_to_use: >-
-  This function is five levels of nested ifs. Replace this if/else chain with a match. Drop the
-  tomli fallback now that we need 3.11. Find the smells in orders.py, report only. Delete the
-  feature flag that has been on for two releases.
+  Refactors code smells such as if-else chains on one value, flag arguments, deep nesting,
+  duplicated branches, long parameter lists, and dead shims, fallbacks, or feature flags.
+  Use when cleaning up, simplifying, or reviewing working code without changing behavior.
+  Not for placing new code.
 ---
 
 # Refactor Code Smells
@@ -108,6 +104,9 @@ over-edit; these rules counter that.
   naming values, or handling errors and comments.
 - Read [`references/compatibility-removal.md`](references/compatibility-removal.md) before deleting
   any fallback, alias, version branch, flag, or legacy reader.
+- Read [`references/agent-failure-modes.md`](references/agent-failure-modes.md) when reviewing a
+  diff an agent wrote, such as a guessed API, a synonym for an existing term, or a test that mocks
+  the call under change.
 - Read the file for the language you are editing before replacing a branch chain, a flag argument,
   or a primitive: [TypeScript and JavaScript](references/typescript.md),
   [Python](references/python.md), [Rust](references/rust.md), [C](references/c.md),

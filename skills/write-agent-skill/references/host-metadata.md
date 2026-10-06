@@ -32,7 +32,8 @@ Claude Code only ([skills docs][cc-skills]).
 - `disable-model-invocation: true` removes the skill from the model's listing, so only `/name`
   starts it. Use it for side-effecting workflows such as deploys, and for skills that only
   orchestrate other skills.
-- `when_to_use` adds trigger text. It counts toward the 1,536-character entry cap.
+- `when_to_use` adds trigger text after the description, inside the same listing entry.
+  Claude Code cuts that entry at 300 characters, so put the phrasings in `description` instead.
 - `paths` limits automatic activation to matching files.
 - `allowed-tools` pre-approves tools while the skill runs, for example
   `Bash(python3 scripts/check.py *)`. Never pre-approve deploy, push, or publish commands.

@@ -1,15 +1,12 @@
 ---
 name: audit-agent-sessions
 description: >-
-  Audits Claude Code session transcripts (~/.claude/projects JSONL, subagent
-  logs) for token use, cache reads, cost per model, repeated reads and
-  commands, compactions, turn limits, and unverified done claims. Use when
-  usage or cost is high, a session was slow or went wrong, or before changing
-  CLAUDE.md or hooks after a long session. Not for writing hooks or AGENTS.md.
-when_to_use: >-
-  Why is my Claude Code usage so high this week? What burns my limit, main or
-  subagents? Did my subagents hit their turn limit? What would have made that
-  session faster or cheaper?
+  Audits Claude Code session transcripts and subagent logs
+  for token use, cache reads, cost, repeat reads, compactions, turn limits,
+  and unverified done claims.
+  Use when usage or cost is high, a session was slow or went wrong,
+  or before changing CLAUDE.md or hooks.
+  Not for writing hooks or AGENTS.md.
 ---
 
 # Audit Agent Sessions

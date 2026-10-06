@@ -1,14 +1,10 @@
 ---
 name: update-changelog
 description: >-
-  Updates CHANGELOG.md and release notes from the commits since the last tag:
-  user-facing entries, Fixed versus Changed, Breaking lines with a real
-  replacement, a dated section under a fresh Unreleased, yanked releases, and
-  compare links. Use when asked to update, write, cut, or fix a changelog.
-when_to_use: >-
-  Update CHANGELOG.md with everything since v2.1.0. Cut the 3.2.0 release
-  section and fix the compare links. Turn these commits into release notes
-  users can read. 1.4.0 was broken; mark it yanked.
+  Updates CHANGELOG.md and release notes from the commits since the last tag,
+  with user-facing entries, Fixed versus Changed, Breaking lines,
+  a dated section under Unreleased, yanked releases, and compare links.
+  Use when asked to update, write, cut, or fix a changelog or release notes.
 ---
 
 # Update Changelog

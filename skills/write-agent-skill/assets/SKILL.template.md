@@ -1,13 +1,11 @@
 ---
 name: {explicit verb-object, equal to the directory name}
 description: >-
-  {What it does, with concrete verbs, objects, and the tool names users
-  type, first. Use when {the request in the user's words}. Not for {the
-  nearest neighboring task}. Plain words, 200 to 400 characters. No
-  workflow summary.}
-when_to_use: >-
-  {Optional, Claude Code only. Two to four extra user phrasings, 250
-  characters or fewer.}
+  {What it does, with concrete verbs, objects, and the tool names users type, first.}
+  Use when {the request in the user's words}.
+  Not for {the nearest neighboring task}.
+  {Plain words, at most 300 characters, with the trigger words in the first 200.
+  No workflow summary.}
 ---
 
 # {Title}

@@ -89,10 +89,7 @@
 			"id": 5,
 			"prompt": "shipping/shipping.py has label(), an if/elif chain over status strings, and fee(), which takes a boolean express flag; orders.py calls it as fee(w, True). Clean both up. Behavior must stay identical, including the error for an unknown status. The project targets Python 3.12.",
 			"expected_output": "label() becomes a match statement (or an equivalent with the same ValueError for unknown statuses, not a dict lookup that raises KeyError); the express flag is replaced by two named functions or an enum, and orders.py is updated; summary() output is identical for every status, weight, and priority.",
-			"files": [
-				"files/shipping/shipping.py",
-				"files/shipping/orders.py"
-			],
+			"files": ["files/shipping/shipping.py", "files/shipping/orders.py"],
 			"assertions": [
 				{
 					"text": "summary() output and the unknown-status ValueError are unchanged, and shipping.py has no if/elif chain of three or more == comparisons.",
@@ -100,6 +97,27 @@
 				},
 				"The boolean express parameter is gone: callers name the fee kind (two functions or an enum) instead of passing True or False.",
 				"The reply names the check it ran to show behavior is unchanged."
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "An agent wrote agentdiff/change.diff against billing.py and store.py, to let invoice_total tolerate a flaky store. Review the diff and tell me what to fix. Report only, no edits.",
+			"expected_output": "A review of the diff, not a rewrite. Findings with evidence from the diff and store.py: store.fetch(client_id, retries=3) does not exist (CustomerStore has find and no retry), so the guessed API fails at runtime while the test passes only because MagicMock accepts any call; terminology drift (client and get_client against the existing customer and find); except Exception returning None, and an unknown id now silently returns the untaxed net amount instead of raising KeyError, which is a behavior change; ClientLookupHelper is a single-use class; the signature reformat and the customer_id to client_id rename are churn. Fixes: use store.find, keep the KeyError, drop the helper, revert the churn, and test against a real CustomerStore. The files are unchanged.",
+			"files": [
+				"files/agentdiff/billing.py",
+				"files/agentdiff/store.py",
+				"files/agentdiff/change.diff"
+			],
+			"assertions": [
+				{
+					"text": "billing.py and change.diff were not edited.",
+					"check": "shasum -a 256 agentdiff/billing.py agentdiff/change.diff | grep -q '^6d1150623eb9ca4f7224520fb7c87a5a78ea9f679153e838e1b707b6bea36295 ' && shasum -a 256 agentdiff/change.diff | grep -q '^e6ceef4e8a0bdbd25e02be5cdba60e869487ca64c1fe30044463a460104aac07 '"
+				},
+				"The reply says store.fetch and its retries argument do not exist in CustomerStore, whose lookup is find.",
+				"The reply says the test passes only because MagicMock accepts any call, and asks for a test against a real CustomerStore.",
+				"The reply reports the client and customer naming drift and says to keep the existing terms.",
+				"The reply reports that an unknown id now returns the net amount instead of raising KeyError, and that except Exception hides the failure.",
+				"The reply reports ClientLookupHelper as a single-use abstraction and the signature reformat and parameter rename as churn."
 			]
 		}
 	]

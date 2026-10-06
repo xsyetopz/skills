@@ -73,6 +73,27 @@
 				},
 				"The reply says it followed the existing dict-of-functions shape instead of adding a pattern."
 			]
+		},
+		{
+			"id": 4,
+			"prompt": "Add a new file ledger/transfer.go with a Transfer type that moves cents from one Account to another, returning ErrInsufficient when the source cannot cover it. Add its tests.",
+			"expected_output": "Creates ledger/transfer.go in the Go layout: package, imports, constants and variables, the Transfer type, then NewTransfer, then Transfer's exported methods, then unexported helpers. Everything that other packages do not need stays unexported, with no new exported mutable variable. Reuses ErrInsufficient and the account's unexported withdraw and deposit instead of widening them. Adds ledger/transfer_test.go in package ledger_test, and runs go test.",
+			"files": [
+				"files/ledger/go.mod",
+				"files/ledger/account.go",
+				"files/ledger/account_test.go"
+			],
+			"assertions": [
+				{
+					"text": "transfer.go orders package, constants and variables, the type, its constructor, its exported methods, then unexported helpers, and its tests are in transfer_test.go.",
+					"check": "python3 - <<'PY'\nimport pathlib, re, sys\npath = pathlib.Path(\"ledger/transfer.go\")\nif not path.exists() or not pathlib.Path(\"ledger/transfer_test.go\").exists():\n    print(\"missing transfer.go or transfer_test.go\")\n    sys.exit(1)\nlines = path.read_text().splitlines()\ndef first(pattern, start=0):\n    for i in range(start, len(lines)):\n        if re.match(pattern, lines[i]):\n            return i\n    return -1\nkind = first(r\"type [A-Z]\\w* struct\")\nctor = first(r\"func New[A-Z]\\w*\\(\")\nmethod = first(r\"func \\([a-z]\\w* \\*?[A-Z]\\w*\\) [A-Z]\")\nhelper = first(r\"func (\\([a-z]\\w* \\*?\\w+\\) )?[a-z]\\w*\\(\", max(method, 0))\nvalues = first(r\"(const|var) \")\norder = [i for i in (values, kind, ctor, method, helper) if i >= 0]\nbad = []\nif min(kind, ctor, method) < 0:\n    bad.append(\"type, constructor, or exported method missing\")\nif order != sorted(order):\n    bad.append(f\"wrong order: values={values} type={kind} ctor={ctor} method={method} helper={helper}\")\nexported_vars = [l for l in lines if re.match(r\"var [A-Z]\\w* *=\", l) and \"errors.New\" not in l]\nif exported_vars:\n    bad.append(f\"exported mutable variable: {exported_vars}\")\nprint(bad or \"transfer.go follows the layout\")\nsys.exit(1 if bad else 0)\nPY"
+				},
+				{
+					"text": "account.go is unchanged, so withdraw and deposit stay unexported, and go test passes.",
+					"check": "python3 - <<'PY'\nimport pathlib, subprocess, sys\nsource = pathlib.Path(\"ledger/account.go\").read_text()\nbad = [name for name in (\"func (a *Account) withdraw(\", \"func (a *Account) deposit(\") if name not in source]\nif bad:\n    print(f\"account.go widened or removed: {bad}\")\n    sys.exit(1)\nout = subprocess.run([\"go\", \"test\", \"./...\"], cwd=\"ledger\", capture_output=True, text=True, timeout=120)\nprint(out.stdout + out.stderr)\nsys.exit(out.returncode)\nPY"
+				},
+				"The reply says it read the Go layout reference and names the order it used."
+			]
 		}
 	]
 }

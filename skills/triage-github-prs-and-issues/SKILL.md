@@ -1,14 +1,11 @@
 ---
 name: triage-github-prs-and-issues
 description: >-
-  Opens, reviews, and merges GitHub pull requests and triages issues and
-  labels with gh --json, -R owner/repo, paginated API reads, and upserted bot
-  comments. Use when a task names a PR, issue, review, label, or gh. Not for
-  commits, history rewrites, or CI workflows.
-when_to_use: >-
-  Open a draft PR from fix-empty into main. Merge PR 42 once checks pass. List
-  open bugs with their assignees. Our bot posts a new coverage comment on
-  every run; keep one. Rename the enhancement label to feature.
+  Opens, reviews, and merges GitHub pull requests and triages issues and labels
+  with gh JSON output, paginated API reads, and upserted bot comments.
+  Use when a task names a PR, issue, review, label, or gh,
+  such as opening a draft PR or merging once checks pass.
+  Not for commits or CI workflows.
 ---
 
 # Triage GitHub PRs and Issues

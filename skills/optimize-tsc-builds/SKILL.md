@@ -1,15 +1,10 @@
 ---
 name: optimize-tsc-builds
 description: >-
-  Makes TypeScript type checking fast again: slow or out-of-memory tsc, tsgo,
-  and tsc -b runs, sluggish tsserver, expensive types (TS2589), project
-  references, incremental builds, skipLibCheck, isolatedDeclarations, and
-  TypeScript 7 upgrades. Use when tsc or the editor got slow. Not for runtime
-  JavaScript speed or fixing type errors.
-when_to_use: >-
-  tsc --noEmit went from 40s to 3 min. CI type-check OOMs on the 2-core
-  runner. Is skipLibCheck safe with hand-written .d.ts files? Every CI run
-  re-checks all 14 packages from scratch.
+  Speeds up TypeScript type checking, including slow or out-of-memory tsc, tsgo, and tsc -b runs,
+  sluggish tsserver, TS2589 types, project references, incremental builds, and skipLibCheck.
+  Use when tsc, CI type-check, or the editor got slow or runs out of memory.
+  Not for runtime speed or type errors.
 ---
 
 # Optimize tsc Builds

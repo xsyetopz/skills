@@ -14,7 +14,6 @@ from validate_repository import (  # noqa: E402
     BODY_MAX_LINES,
     BUNDLE_MAX,
     DESCRIPTION_MAX,
-    WHEN_TO_USE_MAX,
     catalog_entry,
     catalog_size,
 )
@@ -102,17 +101,10 @@ class LimitsTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn(f"maximum is {DESCRIPTION_MAX}", result.stderr)
 
-    def test_when_to_use_at_limit_passes(self) -> None:
-        result = self.check(
-            "Does a thing.", 10, f"when_to_use: {'x' * WHEN_TO_USE_MAX}\n"
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-
-    def test_when_to_use_over_limit_fails(self) -> None:
-        extra = f"when_to_use: {'x' * (WHEN_TO_USE_MAX + 1)}\n"
-        result = self.check("Does a thing.", 10, extra)
+    def test_when_to_use_fails(self) -> None:
+        result = self.check("Does a thing.", 10, "when_to_use: Use when x.\n")
         self.assertEqual(result.returncode, 1)
-        self.assertIn(f"at most {WHEN_TO_USE_MAX}", result.stderr)
+        self.assertIn("when_to_use is not allowed", result.stderr)
 
     def test_bundle_over_budget_fails(self) -> None:
         overhead = len(catalog_entry("s-00", ""))

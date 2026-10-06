@@ -1,0 +1,116 @@
+# Merge into the root Cargo.toml.
+# Each member crate inherits with `[lints] workspace = true`
+# and `edition.workspace = true`, `rust-version.workspace = true`.
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.99"
+
+[workspace.lints.rust]
+warnings = { level = "forbid", priority = -100 }
+future_incompatible = { level = "forbid", priority = -90 }
+rust_2018_idioms = { level = "forbid", priority = -90 }
+rust_2024_compatibility = { level = "forbid", priority = -90 }
+unused = { level = "forbid", priority = -90 }
+nonstandard_style = { level = "forbid", priority = -90 }
+
+unsafe_op_in_unsafe_fn = "forbid"
+unsafe_attr_outside_unsafe = "forbid"
+missing_unsafe_on_extern = "forbid"
+ffi_unwind_calls = "forbid"
+
+deprecated = "forbid"
+unknown_lints = "forbid"
+renamed_and_removed_lints = "forbid"
+unexpected_cfgs = "forbid"
+missing_docs = "forbid"
+unreachable_pub = "forbid"
+unused_import_braces = "forbid"
+unused_lifetimes = "forbid"
+unused_macro_rules = "forbid"
+unused_qualifications = "forbid"
+trivial_casts = "forbid"
+trivial_numeric_casts = "forbid"
+unfulfilled_lint_expectations = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "forbid", priority = -30 }
+pedantic = { level = "forbid", priority = -20 }
+
+# Selected nursery lints; no blanket Send/executor assumptions.
+cognitive_complexity = "forbid"
+collection_is_never_read = "forbid"
+debug_assert_with_mut_call = "forbid"
+derive_partial_eq_without_eq = "forbid"
+equatable_if_let = "forbid"
+iter_on_empty_collections = "forbid"
+iter_on_single_items = "forbid"
+missing_const_for_fn = "forbid"
+needless_collect = "forbid"
+needless_pass_by_ref_mut = "forbid"
+nonstandard_macro_braces = "forbid"
+or_fun_call = "forbid"
+redundant_clone = "forbid"
+redundant_pub_crate = "forbid"
+search_is_some = "forbid"
+set_contains_or_insert = "forbid"
+single_option_map = "forbid"
+string_lit_as_bytes = "forbid"
+unnecessary_struct_initialization = "forbid"
+unused_rounding = "forbid"
+use_self = "forbid"
+useless_let_if_seq = "forbid"
+
+# Additional cleanup and explicit result handling.
+get_unwrap = "forbid"
+if_then_some_else_none = "forbid"
+let_underscore_must_use = "forbid"
+needless_raw_strings = "forbid"
+redundant_test_prefix = "forbid"
+redundant_type_annotations = "forbid"
+rest_pat_in_fully_bound_structs = "forbid"
+return_and_then = "forbid"
+unnecessary_self_imports = "forbid"
+unneeded_field_pattern = "forbid"
+unused_result_ok = "forbid"
+unused_trait_names = "forbid"
+
+# Runtime failure surfaces detected by these lints.
+arithmetic_side_effects = "forbid"
+indexing_slicing = "forbid"
+unwrap_used = "forbid"
+expect_used = "forbid"
+panic = "forbid"
+todo = "forbid"
+unimplemented = "forbid"
+unreachable = "forbid"
+exit = "forbid"
+
+# Unsafe contracts and source-level suppression control.
+undocumented_unsafe_blocks = "forbid"
+multiple_unsafe_ops_per_block = "forbid"
+unnecessary_safety_comment = "forbid"
+unnecessary_safety_doc = "forbid"
+allow_attributes = "forbid"
+allow_attributes_without_reason = "forbid"
+
+# no_std-compatible imports.
+# Remove these three for a binary that will only ever build with std.
+alloc_instead_of_core = "forbid"
+std_instead_of_core = "forbid"
+std_instead_of_alloc = "forbid"
+
+large_stack_frames = "forbid"
+large_include_file = "forbid"
+
+# Test allowances are configured in clippy.toml, not source attributes.
+dbg_macro = "forbid"
+print_stdout = "forbid"
+print_stderr = "forbid"
+missing_assert_message = "forbid"
+
+negative_feature_names = "forbid"
+redundant_feature_names = "forbid"

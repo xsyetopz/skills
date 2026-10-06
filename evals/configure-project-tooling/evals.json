@@ -1,0 +1,47 @@
+{
+	"skill_name": "configure-project-tooling",
+	"evals": [
+		{
+			"id": 1,
+			"network": true,
+			"prompt": "bunapp/ is a new Bun + TypeScript project with no lint or compiler config. Set up Biome, the TypeScript config, and bunfig so that lint, format, type-check, and tests all run clean.",
+			"expected_output": "The skill's biome.json, tsconfig.base.json, tsconfig.json, and bunfig.toml copied into bunapp/, with tsconfig.json include set to src and tests. Biome, typescript, @types/bun, and @types/node added as exact dev dependencies. bun install, bunx --bun biome check ., bunx --bun tsc -p ., and bun test run and reported.",
+			"files": [
+				"files/bunapp/.gitignore",
+				"files/bunapp/package.json",
+				"files/bunapp/src/total.ts",
+				"files/bunapp/tests/total.test.ts"
+			],
+			"assertions": [
+				{
+					"text": "The config matches the baseline: Biome includes css and html, useLiteralKeys is off, tsconfig.base.json uses module preserve, bundler resolution, strict, types bun and node, and no skipLibCheck, and bunfig.toml uses the isolated linker.",
+					"check": "python3 - <<'PY'\nimport json, sys, tomllib\nfrom pathlib import Path\np = Path(\"bunapp\")\nproblems = []\ntry:\n    biome = json.loads((p / \"biome.json\").read_text())\n    base = json.loads((p / \"tsconfig.base.json\").read_text())\n    ts = json.loads((p / \"tsconfig.json\").read_text())\n    bunfig = tomllib.loads((p / \"bunfig.toml\").read_text())\nexcept (OSError, ValueError) as e:\n    sys.exit(f\"missing or invalid config: {e}\")\nglob = biome.get(\"files\", {}).get(\"includes\", [\"\"])[0]\nif \"css\" not in glob or \"html\" not in glob:\n    problems.append(f\"biome includes glob lacks css/html: {glob}\")\nkeys = biome.get(\"linter\", {}).get(\"rules\", {}).get(\"complexity\", {}).get(\"useLiteralKeys\")\nif keys not in (\"off\", {\"level\": \"off\"}):\n    problems.append(f\"useLiteralKeys is {keys!r}, expected off\")\nopts = base.get(\"compilerOptions\", {})\nfor key, want in {\"module\": \"preserve\", \"moduleResolution\": \"bundler\", \"strict\": True,\n                  \"noUncheckedIndexedAccess\": True, \"types\": [\"bun\", \"node\"]}.items():\n    if opts.get(key) != want:\n        problems.append(f\"tsconfig.base.json {key}={opts.get(key)!r}, expected {want!r}\")\nfor key in (\"skipLibCheck\", \"baseUrl\", \"composite\"):\n    if key in opts:\n        problems.append(f\"tsconfig.base.json sets {key}\")\nif ts.get(\"extends\") != \"./tsconfig.base.json\":\n    problems.append(f\"tsconfig.json extends {ts.get('extends')!r}\")\ninc = \" \".join(ts.get(\"include\", []))\nif \"src\" not in inc or \"tests\" not in inc:\n    problems.append(f\"tsconfig.json include misses src or tests: {inc}\")\nif bunfig.get(\"install\", {}).get(\"linker\") != \"isolated\":\n    problems.append(\"bunfig.toml [install] linker is not isolated\")\nprint(\"\\n\".join(problems) or \"config matches the baseline\")\nsys.exit(1 if problems else 0)\nPY"
+				},
+				{
+					"text": "The tools are exact dev dependencies, and biome check, tsc, and bun test all pass.",
+					"check": "cd bunapp && command -v bun >/dev/null || { echo 'bun is not installed'; exit 1; }\nfor f in biome.json tsconfig.json tsconfig.base.json bunfig.toml; do test -f \"$f\" || { echo \"missing $f\"; exit 1; }; done\npython3 - <<'PY' || exit 1\nimport json, sys\ndev = json.load(open(\"package.json\")).get(\"devDependencies\", {})\nneed = {\"@biomejs/biome\", \"typescript\", \"@types/bun\"}\nmissing = need - dev.keys()\nloose = [k for k in need & dev.keys() if dev[k][:1] in \"^~\"]\nprint(\"missing:\", sorted(missing), \"not exact:\", sorted(loose))\nsys.exit(1 if missing or loose else 0)\nPY\nbun install >/dev/null && bunx --bun biome check . && bunx --bun tsc -p . && bun test"
+				},
+				"The reply lists each verify command with its result, and does not claim a command passed that it did not run."
+			]
+		},
+		{
+			"id": 2,
+			"network": true,
+			"prompt": "Add a Prometheus counter of handled requests to bunapp/src/metrics.ts, with the usual npm metrics library.",
+			"expected_output": "The catalog query shows prom-client as deprecated, with the replacement @prometheus-io/client. The reply says so, and bunapp depends on @prometheus-io/client and not on prom-client.",
+			"files": [
+				"files/bunapp/.gitignore",
+				"files/bunapp/package.json",
+				"files/bunapp/src/total.ts",
+				"files/bunapp/tests/total.test.ts"
+			],
+			"assertions": [
+				{
+					"text": "bunapp depends on @prometheus-io/client and not on prom-client.",
+					"check": "python3 - <<'PY'\nimport json, sys\npkg = json.load(open(\"bunapp/package.json\"))\ndeps = {**pkg.get(\"dependencies\", {}), **pkg.get(\"devDependencies\", {})}\nprint(sorted(deps))\nsys.exit(0 if \"@prometheus-io/client\" in deps and \"prom-client\" not in deps else 1)\nPY"
+				},
+				"The reply says that prom-client is deprecated and names @prometheus-io/client as its replacement."
+			]
+		}
+	]
+}

@@ -1,12 +1,11 @@
 ---
 name: build-editor-extension
 description: >-
-  Builds, tests, and packages editor extensions: VS Code package.json and
-  activation events, IntelliJ plugin.xml, Eclipse MANIFEST.MF bundles, Neovim
-  Lua plugins, Sublime Text packages, and Zed extension.toml with Tree-sitter
-  queries. Use when writing, debugging, or publishing a plugin that others
-  install. Not for personal editor settings, standalone language servers, or
-  CLI tools.
+  Builds, tests, and packages editor extensions
+  for VS Code, IntelliJ, Eclipse, Neovim, Sublime Text, and Zed,
+  with package.json activation events, plugin.xml, and Tree-sitter queries.
+  Use when writing, debugging, or publishing a plugin that others install.
+  Not for editor settings or language servers.
 disable-model-invocation: true
 ---
 
